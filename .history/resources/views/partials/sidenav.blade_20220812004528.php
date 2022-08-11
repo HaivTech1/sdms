@@ -50,18 +50,13 @@
                             <span key="t-ecommerce">Result Management</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="{{ route('result.create') }}" key="t-products">Upload Result</a></li>
+                            <li><a href="{{ route('result.index') }}" key="t-products">Check Result</a></li>
                             <li>
-                                <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Upload Result</a>
+                                <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Level 1.2</a>
                                 <ul class="sub-menu" aria-expanded="true">
-                                    <li><a href="{{ route('result.index') }}" key="t-products">Individual Result Upload</a>></li>
-                                    <li><a href="{{ route('result.index') }}" key="t-products">Batch Results Upload</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Check Result</a>
-                                <ul class="sub-menu" aria-expanded="true">
-                                    <li><a href="{{ route('result.index') }}" key="t-products">Individual Check</a>></li>
-                                    <li><a href="{{ route('result.index') }}" key="t-products">Batch Check</a></li>
+                                    <li><a href="javascript: void(0);" key="t-level-2-1">Level 2.1</a></li>
+                                    <li><a href="javascript: void(0);" key="t-level-2-2">Level 2.2</a></li>
                                 </ul>
                             </li>
                         </ul>
