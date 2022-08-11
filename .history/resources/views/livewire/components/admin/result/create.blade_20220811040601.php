@@ -58,6 +58,12 @@
                                                 <th>Student Name</th>
                                                 <th>Student Id</th>
                                             </tr>
+                                            <tr>
+                                                <th>{{ $period_id }}</th>
+                                                <th>{{ $term_id }}</th>
+                                                <th>{{ $grade_id }}</th>
+                                                <th>{{ $subject_id }}</th>
+                                            </tr>
                                         </thead>
                                         @foreach ($students as $index => $student)
                                             <tbody>

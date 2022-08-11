@@ -58,6 +58,7 @@
                                                 <th>Student Name</th>
                                                 <th>Student Id</th>
                                             </tr>
+                                            
                                         </thead>
                                         @foreach ($students as $index => $student)
                                             <tbody>

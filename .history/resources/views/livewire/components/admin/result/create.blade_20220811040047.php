@@ -58,6 +58,12 @@
                                                 <th>Student Name</th>
                                                 <th>Student Id</th>
                                             </tr>
+                                            <tr>
+                                                <th>{{ $period_id }}</th>
+                                                <th>{{ $term_id }}</th>
+                                                {{-- <th>{{ $grade }}</th>
+                                                <th>{{ $subject_id }}</th> --}}
+                                            </tr>
                                         </thead>
                                         @foreach ($students as $index => $student)
                                             <tbody>
@@ -75,10 +81,10 @@
                                                         <x-form.input style='width: 50px'  class="text-center" type='number' name='exam' autofocus />
                                                     </td>
                                                     <td>
-                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='period_id' value="{{ $period_id }}"  autofocus />
-                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='term_id' value="{{ $term_id }}"  autofocus />
-                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='grade_id' value="{{ $grade_id }}"  autofocus />
-                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='subject_id' value="{{ $subject_id }}"  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='period_id' value=""  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='term_id' value="{{ $term->id() }}"  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='subject_id' value="{{ $subject->id() }}"  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='grade_id' value="{{ $grade->id() }}"  autofocus />
                                                         <x-form.input style='width: 50px'  class="text-center" type='text' name='student_id' value="{{  $student->id() }}"  autofocus />
                                                         {{ $student->firstName() }} {{ $student->lastName() }}
                                                     </td>

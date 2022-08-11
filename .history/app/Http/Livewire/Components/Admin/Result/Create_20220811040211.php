@@ -35,7 +35,6 @@ class Create extends Component
         $class = Grade::where('id', $grade_id)->first();
         $this->subjects = $class->subjects->where('status', true);
         $this->students = $class->students->where('status', true);
-        $this->grade_id = $grade_id;
     }
 
     public function createResult()
