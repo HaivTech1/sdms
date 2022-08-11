@@ -36,7 +36,7 @@ class ResultController extends Controller
      */
     public function store(StoreResultRequest $request)
     {
-        // dd($request);
+        dd($request);
         $this->dispatchSync(CreateResult::fromRequest($request));
 
         $notification = array (

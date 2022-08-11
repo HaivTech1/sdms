@@ -43,36 +43,6 @@ class StoreResultRequest extends FormRequest
 
     public function ca3(): ?array
     {
-        return $this->get('ca3', []);
-    }
-
-    public function exam(): ?array
-    {
-        return $this->get('exam', []);
-    }
-
-    public function period(): array
-    {
-        return $this->get('period_id', []);
-    }
-
-    public function term(): array
-    {
-        return $this->get('term_id', []);
-    }
-
-    public function grade(): array
-    {
-        return $this->get('grade_id', []);
-    }
-
-    public function subject(): array
-    {
-        return $this->get('subject_id', []);
-    }
-
-    public function student(): array
-    {
-        return $this->get('student_id', []);
+        return $this->get('ca1', []);
     }
 }

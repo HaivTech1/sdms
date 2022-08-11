@@ -36,12 +36,12 @@ class ResultController extends Controller
      */
     public function store(StoreResultRequest $request)
     {
-        // dd($request);
+        dd($request);
         $this->dispatchSync(CreateResult::fromRequest($request));
 
         $notification = array (
             'messege' => 'Result uploaded successfully',
-            'alert-type' => 'success',
+            'alert-type' => 'Success',
             'button' => 'Okay!',
             'title' => 'Success'
         );

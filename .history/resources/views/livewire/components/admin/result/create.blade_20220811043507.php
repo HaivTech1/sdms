@@ -116,16 +116,16 @@
                                             <tbody>
                                                 <tr>
                                                     <td>
-                                                        <x-form.input style='width: 50px' class="text-center" type='number' name='ca1[]'  autofocus />
+                                                        <x-form.input style='width: 50px' class="text-center" type='number' name='ca1'  autofocus />
                                                     </td>
                                                     <td>
-                                                        <x-form.input style='width: 50px'  class="text-center" type='number' name='ca2[]'  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='number' name='ca2'  autofocus />
                                                     </td>
                                                     <td>
-                                                        <x-form.input style='width: 50px'  class="text-center" type='number' name='ca3[]'  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='number' name='ca3'  autofocus />
                                                     </td>
                                                     <td>
-                                                        <x-form.input style='width: 50px'  class="text-center" type='number' name='exam[]' autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='number' name='exam' autofocus />
                                                     </td>
                                                     <td>
                                                         <x-form.input style='width: 50px'  class="text-center" type='hidden' name='period_id[]' value="{{ $period_id }}"  autofocus />

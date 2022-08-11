@@ -65,14 +65,4 @@ class StoreResultRequest extends FormRequest
     {
         return $this->get('grade_id', []);
     }
-
-    public function subject(): array
-    {
-        return $this->get('subject_id', []);
-    }
-
-    public function student(): array
-    {
-        return $this->get('student_id', []);
-    }
 }
