@@ -85,9 +85,9 @@
                                         </div>
 
                                         <div class="col-sm-3">
-                                            <span>Subject: 
-                                                @if ($selectedSubject)
-                                                    {{ $selectedSubject->title() }}
+                                            <span>Session: 
+                                                @if ($selectedPeriod)
+                                                    {{ $selectedPeriod->title() }}
                                                 @else
                                                     Nil
                                                 @endif
@@ -128,11 +128,11 @@
                                                         <x-form.input style='width: 50px'  class="text-center" type='number' name='exam' autofocus />
                                                     </td>
                                                     <td>
-                                                        <x-form.input style='width: 50px'  class="text-center" type='hidden' name='period_id' value="{{ $period_id }}"  autofocus />
-                                                        <x-form.input style='width: 50px'  class="text-center" type='hidden' name='term_id' value="{{ $term_id }}"  autofocus />
-                                                        <x-form.input style='width: 50px'  class="text-center" type='hidden' name='grade_id' value="{{ $grade_id }}"  autofocus />
-                                                        <x-form.input style='width: 50px'  class="text-center" type='hidden' name='subject_id' value="{{ $subject_id }}"  autofocus />
-                                                        <x-form.input style='width: 50px'  class="text-center" type='hidden' name='student_id' value="{{  $student->id() }}"  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='period_id' value="{{ $period_id }}"  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='term_id' value="{{ $term_id }}"  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='grade_id' value="{{ $grade_id }}"  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='subject_id' value="{{ $subject_id }}"  autofocus />
+                                                        <x-form.input style='width: 50px'  class="text-center" type='text' name='student_id' value="{{  $student->id() }}"  autofocus />
                                                         {{ $student->firstName() }} {{ $student->lastName() }}
                                                     </td>
                                                     <td>{{ $student->id() }}</td>

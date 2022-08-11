@@ -7,49 +7,45 @@ use App\Models\Grade;
 use App\Models\Period;
 use App\Models\Result;
 use App\Models\Student;
-use App\Models\Subject;
 use Livewire\Component;
 
 class Create extends Component
 {
 
     public $period_id = '';
-    public $selectedPeriod = null;
+    public $period = null;
 
     public $term_id = '';
-    public $selectedTerm = null;
+    public $term = null;
 
     public $subject_id = '';
-    public $selectedSubject = null;
+    public $subject = null;
 
     public $grade_id = '';
-    public $selectedGrade = null;
 
+    public $grade = null;
     public $subjects = [];
     public $students = [];
 
-    public function updatedGradeId($grade_id)
+    protected $rules = [
+        'session_id' => 'required',
+        'term_id' => 'required',
+        'grade_id' => 'required',
+        'student_id' => 'required',
+        'subject_id' => 'required'
+    ];
+
+    public function updatedGrade($grade_id)
     {
         $class = Grade::where('id', $grade_id)->first();
         $this->subjects = $class->subjects->where('status', true);
         $this->students = $class->students->where('status', true);
         $this->grade_id = $grade_id;
-        $this->selectedGrade = $class;
-    }
-
-    public function updatedPeriodId($period_id)
-    {
-        $this->selectedPeriod = Period::where('id', $period_id)->first();
     }
 
     public function updatedTermId($term_id)
     {
-        $this->selectedTerm = Term::where('id', $term_id)->first();
-    }
-
-    public function updatedSubjectId($subject_id)
-    {
-        $this->selectedSubject = Subject::where('id', $subject_id)->first();
+        $this->term = Term::where('id', $term_id)->first();
     }
 
     public function createResult()

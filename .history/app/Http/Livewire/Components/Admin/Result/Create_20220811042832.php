@@ -34,7 +34,6 @@ class Create extends Component
         $this->subjects = $class->subjects->where('status', true);
         $this->students = $class->students->where('status', true);
         $this->grade_id = $grade_id;
-        $this->selectedGrade = $class;
     }
 
     public function updatedPeriodId($period_id)
@@ -49,7 +48,7 @@ class Create extends Component
 
     public function updatedSubjectId($subject_id)
     {
-        $this->selectedSubject = Subject::where('id', $subject_id)->first();
+        $this->selectedSubject = Subject::where('uuid', $subject_id)->first();
     }
 
     public function createResult()

@@ -7,7 +7,6 @@ use App\Models\Grade;
 use App\Models\Period;
 use App\Models\Result;
 use App\Models\Student;
-use App\Models\Subject;
 use Livewire\Component;
 
 class Create extends Component
@@ -34,12 +33,6 @@ class Create extends Component
         $this->subjects = $class->subjects->where('status', true);
         $this->students = $class->students->where('status', true);
         $this->grade_id = $grade_id;
-        $this->selectedGrade = $class;
-    }
-
-    public function updatedPeriodId($period_id)
-    {
-        $this->selectedPeriod = Period::where('id', $period_id)->first();
     }
 
     public function updatedTermId($term_id)
@@ -47,9 +40,9 @@ class Create extends Component
         $this->selectedTerm = Term::where('id', $term_id)->first();
     }
 
-    public function updatedSubjectId($subject_id)
+    public function updatedPeriodId($Period_id)
     {
-        $this->selectedSubject = Subject::where('id', $subject_id)->first();
+        $this->selectedPeriod = Period::where('id', $Period_id)->first();
     }
 
     public function createResult()

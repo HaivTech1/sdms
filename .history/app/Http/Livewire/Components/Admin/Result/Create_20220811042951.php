@@ -34,7 +34,7 @@ class Create extends Component
         $this->subjects = $class->subjects->where('status', true);
         $this->students = $class->students->where('status', true);
         $this->grade_id = $grade_id;
-        $this->selectedGrade = $class;
+        $this->selectedPeriod = $class;
     }
 
     public function updatedPeriodId($period_id)
