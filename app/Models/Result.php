@@ -29,7 +29,8 @@ class Result extends Model
         'ca2',
         'ca3',
         'exam',
-        'author_id'
+        'author_id',
+        'published',
     ];
 
     protected $primaryKey = 'uuid';
@@ -40,6 +41,10 @@ class Result extends Model
 
     protected $with = [
         'authorRelation'
+    ];
+
+    protected $casts = [
+        'published' => 'boolean'
     ];
 
     public function id(): string
@@ -65,6 +70,11 @@ class Result extends Model
     public function exam(): ?int
     {
         return (int) $this->exam;
+    }
+
+    public function eTotal(): int
+    {
+        return (int) $this->ca1 + $this->ca2 + $this->ca3 +$this->exam;
     }
 
     public function createdAt(): string

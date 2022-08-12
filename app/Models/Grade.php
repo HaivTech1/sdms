@@ -66,4 +66,9 @@ class Grade extends Model
     {
         return $query->paginate($count);
     }
+
+    public function gradeClassTeacher(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'grade_user');
+    }
 }

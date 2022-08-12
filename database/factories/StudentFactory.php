@@ -15,7 +15,7 @@ class StudentFactory extends Factory
      */
     public function definition()
     {
-        $name = $this->faker->name();
+        $name = $this->faker->word();
 
         return [
             'first_name'             => $name,
@@ -25,7 +25,7 @@ class StudentFactory extends Factory
             'dob'                   => now(),
             'nationality'           => 'Nigerian',
             'state_of_origin'       => $this->faker->randomElement(['Ogun', 'Lagos', 'Oyo']) . ' State',
-            'local_government'      => $this->faker->randomElement(['Ibadan', 'Abeokuta', 'Obalende']) . ' State' . $this->faker->randomElement(['North', 'South', 'East', 'West']),
+            'local_government'      => $this->faker->randomElement(['Ibadan', 'Abeokuta', 'Obalende']) . $this->faker->randomElement(['North', 'South', 'East', 'West']),
             'address'               => $this->faker->address(),
             'prev_school'           => $this->faker->word(),
             'prev_class'            => $this->faker->word(),

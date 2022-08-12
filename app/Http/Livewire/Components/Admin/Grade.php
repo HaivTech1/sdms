@@ -14,6 +14,7 @@ class Grade extends Component
     public $selectPageRows = false;
     public $per_page = 5;
     public $title = ''; 
+    public $grade_details;
 
     public $search = '';
 
@@ -35,7 +36,7 @@ class Grade extends Component
 
     public function getGradesProperty()
     {
-        return ClientGrade::search(trim($this->search))->loadLatest($this->per_page);;
+        return ClientGrade::search(trim($this->search))->loadLatest($this->per_page);
     }
 
     public function createGrade()
@@ -72,6 +73,13 @@ class Grade extends Component
             were deleted']);
 
         $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+    public function GradeDetails(ClientGrade $grade)
+    {
+        $this->grade_details = $grade;
+        // dd($this->grade_details);
+        $this->dispatchBrowserEvent('show-details');
     }
     
     public function render()

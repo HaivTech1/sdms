@@ -4,10 +4,14 @@ namespace App\Http\Livewire\Components;
 
 use Livewire\Component;
 use Illuminate\Support\Str;
+use App\Policies\ResultPolicy;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class EditTitle extends Component
 {
+    use AuthorizesRequests;
+    
     public Model $model;
     public $modelId;
     public $shortId;
@@ -27,7 +31,12 @@ class EditTitle extends Component
 
     public function save()
     {
-        // dd($this->model);
+        $mode = class_basename($this->model);
+        
+        if($mode === 'Result'){
+            $this->authorize(ResultPolicy::UPDATE, $this->model);
+        }
+
         $newTitle = (string)Str::of($this->newTitle)->trim()->substr(0, 100);
         $newTitle = $newTitle === $this->shortId ? null : $newTitle;
         $this->model->setAttribute($this->field, $newTitle ?? null)->save();

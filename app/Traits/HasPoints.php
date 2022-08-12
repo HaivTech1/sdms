@@ -50,7 +50,7 @@ trait HasPoints
         }
 
         if ($currentPoints <= 2000) {
-            return 'Professionalp';
+            return 'Professional';
         }
     }
 }

@@ -53,15 +53,15 @@
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Upload Result</a>
                                 <ul class="sub-menu" aria-expanded="true">
-                                    <li><a href="{{ route('result.index') }}" key="t-products">Individual Result Upload</a>></li>
-                                    <li><a href="{{ route('result.index') }}" key="t-products">Batch Results Upload</a></li>
+                                    <li><a href="{{ route('result.singleUpload') }}" key="t-products">Individual Upload</a></li>
+                                    <li><a href="{{ route('result.create') }}" key="t-products">Batch Upload</a></li>
                                 </ul>
                             </li>
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Check Result</a>
                                 <ul class="sub-menu" aria-expanded="true">
-                                    <li><a href="{{ route('result.index') }}" key="t-products">Individual Check</a>></li>
-                                    <li><a href="{{ route('result.index') }}" key="t-products">Batch Check</a></li>
+                                    <li><a href="{{ route('result.check') }}" key="t-products">Result</a></li>
+                                    <li><a href="{{ route('result.index') }}" key="t-products">Class BroadSheet</a></li>
                                 </ul>
                             </li>
                         </ul>

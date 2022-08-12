@@ -71,6 +71,16 @@
     @endif
 </script>
 
+<script type="text/javascript">
+    window.addEventListener('show-details', event => {
+        $('#details').modal('show');
+    });
+
+    window.addEventListener('hide-details', event => {
+        $('#details').modal('hide');
+    });
+</script>
+
 <script>
     $(document).ready(function() {
         // Select2 Multiple

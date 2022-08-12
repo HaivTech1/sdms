@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasPoints;
 use App\Traits\HasFollows;
+use App\Traits\ModelHelpers;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -14,6 +15,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -25,6 +27,7 @@ class User extends Authenticatable
     use UserHasTeams; 
     use HasPoints;
     use HasFollows;
+    use ModelHelpers;
 
     const TABLE = 'users';
     protected $table = self::TABLE;
@@ -154,13 +157,17 @@ class User extends Authenticatable
     {
 
         $state = [
-            '1' => 'Administrator',
-            '2' => 'Manager',
-            '3' => 'Writer',
-            '4' => 'Agent',
-            '5' => 'Default',
+            '1' => 'Super Administrator',
+            '2' => 'Administrator',
+            '3' => 'Staff',
+            '4' => 'Student',
         ];
 
         return $state[$this->type];
+    }
+
+    public function gradeClassTeacher(): BelongsToMany
+    {
+        return $this->belongsToMany(Grade::class, 'grade_user');
     }
 }

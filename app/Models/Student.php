@@ -7,6 +7,7 @@ use App\Traits\HasAuthor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -142,6 +143,13 @@ class Student extends Model
         return $this->hasOne(Guardian::class, 'student_id');
     }
 
+    public function results(): HasMany
+    {
+        return $this->hasMany(Result::class, 'student_id');
+    }
+
+    
+
     public function createdAt()
     {
         return $this->created_at->format('M, d Y');
@@ -162,6 +170,14 @@ class Student extends Model
     {
         return $query->orderBy($orderBy, $sortBy)
         ->paginate($count);
+    }
+
+    public function scopeTotalResults(Builder $query, $period, $term)
+    {
+        return $query->whereHas('results', function($q) use ($period, $term) {
+            $q->where('period_id', $period)->orWhere('term_id', $term);
+        });
+
     }
 
 }

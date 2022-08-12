@@ -98,7 +98,19 @@ Route::middleware([
     Route::resource('subject',SubjectController::class);
     Route::resource('student',StudentController::class);
     Route::resource('term',TermController::class);
-    Route::resource('result',ResultController::class);
+
+    Route::group(['prefix' => 'result', 'as' => 'result.'], function () {
+        Route::get('/', [ResultController::class, 'index'])->name('index');
+        Route::post('/', [ResultController::class, 'store'])->name('store');
+        Route::get('show/{result}', [ResultController::class, 'show'])->name('show');
+        Route::get('edit/{result}', [ResultController::class, 'edit'])->name('edit');
+        Route::get('create', [ResultController::class, 'create'])->name('create');
+        Route::get('/singleUpload', [ResultController::class, 'singleUpload'])->name('singleUpload');
+        Route::post('/singleUpload', [ResultController::class, 'storeSingleUpload'])->name('storeSingleUpload');
+        Route::get('/check', [ResultController::class, 'check'])->name('check');
+    });
+    
+
 });
 
 /**

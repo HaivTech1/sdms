@@ -25,6 +25,7 @@ class CreateResultsTable extends Migration
             $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
             $table->foreignUuid('student_id')->references('uuid')->on('students')->onDelete('cascade');
             $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
+            $table->boolean('published')->default(0);
             $table->timestamps();
         });
     }
