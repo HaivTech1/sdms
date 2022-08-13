@@ -6,6 +6,7 @@ use App\Models\Grade;
 use App\Models\Student;
 use App\Jobs\CreateStudent;
 use App\Jobs\UpdateStudent;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 
@@ -118,5 +119,20 @@ class StudentController extends Controller
     public function destroy(Student $student)
     {
         //
+    }
+
+    public function assignSubject (Request $request)
+    {
+        $student = Student::findOrFail($request->student_id);
+        $student->subjects()->attach($request->subjects);
+
+        $notification = array(
+            'messege' => 'Subject attached Successfully',
+            'alert-type' => 'success',
+            'button' => 'Okay!',
+            'title' => 'Success'
+        );
+
+        return redirect()->back()->with($notification);
     }
 }

@@ -6,13 +6,17 @@ use App\Models\Term;
 use App\Models\Grade;
 use App\Models\Period;
 use App\Models\Result;
-use App\Models\Student;
 use App\Models\Subject;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Create extends Component
 {
 
+    use WithPagination;
+    
+    public $count = 7;
+    
     public $period_id = null;
     public $selectedPeriod = null;
 
@@ -25,18 +29,17 @@ class Create extends Component
     public $grade_id = null;
     public $selectedGrade = null;
 
-    public $subjects = [];
     public $students = [];
 
-    public function updatedGradeId($grade_id)
+    public $state = [];
+
+    public function fetchData()
     {
-        $class = Grade::where('id', $grade_id)->first();
-        $this->subjects = $class->subjects->where('status', true);
+        $this->grade_id = $this->state ? $this->state['grade_id'] : '';
+        $class = Grade::where('id', $this->grade_id)->first();
         $this->students = $class->students->where('status', true)->sortBy('first_name');
-        $this->grade_id = $grade_id;
         $this->selectedGrade = $class;
     }
-    
 
     public function updatedPeriodId($period_id)
     {
@@ -74,7 +77,7 @@ class Create extends Component
             $query->whereHas('subject', function($query) use ($subject){
                $query->where('id', $subject);
             });
-        })->get();        
+        })->paginate($this->count);        
     }
     
 
@@ -85,6 +88,7 @@ class Create extends Component
             'grades' => Grade::all(),
             'periods' => Period::all(),
             'terms' => Term::all(),
+            'subjects' => Subject::all(),
         ]);
     }
 }

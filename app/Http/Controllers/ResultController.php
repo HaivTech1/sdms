@@ -72,9 +72,12 @@ class ResultController extends Controller
 
     public function storeSingleUpload(SingleResultRequest $request)
     {
-        // $this->authorize(ResultPolicy::CREATE);
-        
-        $check = Result::where('period_id', $request->period_id)->where('term_id', $request->term_id)->where('grade_id', $request->grade_id)->where('student_id', $request->student_id)->first();
+        // dd($request);        
+        $check = Result::where('period_id', $request->period_id)
+                        ->where('term_id', $request->term_id)
+                        ->where('grade_id', $request->grade_id)
+                        ->where('student_id', $request->student_id)
+                        ->first();
 
         if ($check) {
             $notification = array (

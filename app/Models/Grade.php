@@ -22,7 +22,7 @@ class Grade extends Model
     ];
 
     protected $with = [
-        'subjects', 'students'
+     'students'
     ];
 
     protected $casts = [
@@ -42,11 +42,6 @@ class Grade extends Model
     public function status(): boolean
     {
         return $this->status;
-    }
-
-    public function subjects(): BelongsToMany
-    {
-        return $this->belongsToMany(Subject::class);
     }
 
     public function students(): HasMany

@@ -5,9 +5,10 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="row">
+                    <form wire:submit.prevent="fetchData">
+                        <div class="row">
                             <div class="col-lg-3">
-                                <select class="form-control select2" wire:model="grade_id">
+                                <select class="form-control select2" wire:model.defer="state.grade_id">
                                     <option value=''>Class</option>
                                     @foreach ($grades as $grade)
                                     <option value="{{  $grade->id() }}">{{  $grade->title() }}</option>
@@ -23,7 +24,7 @@
                                 </select>
                             </div>
     
-                            <div class="col-lg-3">
+                            <div class="col-lg-2">
                                 <select class="form-control " wire:model="period_id">
                                     <option value=''>Select Session</option>
                                     @foreach ($periods as $period)
@@ -33,7 +34,7 @@
     
                             </div>
     
-                            <div class="col-lg-3">
+                            <div class="col-lg-2">
                                 <select class="form-control select2" wire:model="term_id">
                                     <option value=''>Select Term</option>
                                     @foreach ($terms as $term)
@@ -42,8 +43,14 @@
                                 </select>
     
                             </div>
-                        </form>
-                    </div>
+
+                            <div class="col-lg-2">
+                                <button type="submit" class="btn btn-primary waves-effect waves-light">
+                                    <i class="fas fa-angle-double-up"></i> <span>Fetch</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                     <div class='row mt-4'>
                         <div class='col-xs-12 col-sm-12 col-md-12 text-center mb-4'>
                             <div class="row">
@@ -139,6 +146,7 @@
                                         @endforeach
                                     </table>
                                 </div>
+                                {{ $results->links('pagination::custom-pagination')}}
                             @else
                                 <form action="{{ route('result.store') }}" method="POST">
                                     @csrf
@@ -194,6 +202,7 @@
                                             @endforeach
                                         </table>
                                     </div>
+                                    
                                     <div class="d-flex justify-content-center flex-wrap gap-2">
                                         <button type="submit"
                                             class="btn btn-primary block waves-effect waves-light pull-right">

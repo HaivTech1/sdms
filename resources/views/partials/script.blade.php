@@ -76,9 +76,9 @@
         $('#details').modal('show');
     });
 
-    window.addEventListener('hide-details', event => {
-        $('#details').modal('hide');
-    });
+    // window.addEventListener('show-student', event => {
+    //     $('#student').modal('show');
+    // });
 </script>
 
 <script>

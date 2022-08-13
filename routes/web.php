@@ -96,8 +96,17 @@ Route::middleware([
     Route::resource('period',PeriodController::class);
     Route::resource('grade',GradeController::class);
     Route::resource('subject',SubjectController::class);
-    Route::resource('student',StudentController::class);
     Route::resource('term',TermController::class);
+
+    Route::group(['prefix' => 'student', 'as' => 'student.'], function () {
+        Route::get('/', [StudentController::class, 'index'])->name('index');
+        Route::post('/', [StudentController::class, 'store'])->name('store');
+        Route::get('show/{student}', [StudentController::class, 'show'])->name('show');
+        Route::get('edit/{student}', [StudentController::class, 'edit'])->name('edit');
+        Route::get('create', [StudentController::class, 'create'])->name('create');
+        Route::put('/{student}', [StudentController::class, 'update'])->name('update');
+        Route::post('assignSubject', [StudentController::class, 'assignSubject'])->name('assignSubject');
+    });
 
     Route::group(['prefix' => 'result', 'as' => 'result.'], function () {
         Route::get('/', [ResultController::class, 'index'])->name('index');

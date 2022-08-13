@@ -33,12 +33,12 @@ class CreateSingleResult implements ShouldQueue
         string $period,
         string $term,
         string $grade,
-        string $subject,
+        ?array $subject,
         string $student,
-        ?string $ca1,
-        ?string $ca2,
-        ?string $ca3,
-        ?string $exam
+        ?array $ca1,
+        ?array $ca2,
+        ?array $ca3,
+        ?array $exam
     )
     {
         $this->author = $author;
@@ -76,20 +76,24 @@ class CreateSingleResult implements ShouldQueue
      */
     public function handle(): Result
     {
-        $result = new Result([
-            'period_id'     => $this->period,
-            'term_id'       => $this->term,
-            'grade_id'      => $this->grade,
-            'subject_id'        => $this->subject,
-            'student_id'        => $this->student,
-            'ca1'       => $this->ca1,
-            'ca2'       => $this->ca2,
-            'ca3'       => $this->ca3,
-            'exam'      => $this->exam,
-        ]);
+        
+        for ($i=0; $i < count($this->subject); $i++) { 
+            // dd($this->period);
+            $result = new Result([
+                'period_id'     => $this->period,
+                'term_id'       => $this->term,
+                'grade_id'      => $this->grade,
+                'subject_id'        => $this->subject[$i],
+                'student_id'        => $this->student,
+                'ca1'       => $this->ca1[$i],
+                'ca2'       => $this->ca2[$i],
+                'ca3'       => $this->ca3[$i],
+                'exam'      => $this->exam[$i],
+            ]);
 
-        $result->authoredBy($this->author);
-        $result->save();
+            $result->authoredBy($this->author);
+            $result->save();
+        }
 
         return $result; 
     }

@@ -14,12 +14,12 @@ class StudentSeeder extends Seeder
      */
     public function run()
     {
-        Student::factory()->count(20)->create(['author_id' => 1, 'grade_id' => 1]);
-        Student::factory()->count(18)->create(['author_id' => 1, 'grade_id' => 2]);
-        Student::factory()->count(15)->create(['author_id' => 1, 'grade_id' => 3]);
-        Student::factory()->count(25)->create(['author_id' => 1, 'grade_id' => 4]);
-        Student::factory()->count(16)->create(['author_id' => 1, 'grade_id' => 5]);
-        Student::factory()->count(24)->create(['author_id' => 1, 'grade_id' => 6]);
-        Student::factory()->count(20)->create(['author_id' => 1, 'grade_id' => 7]);
+        Student::factory()->count(5)->create(['author_id' => 1, 'grade_id' => 1]);
+        Student::factory()->count(5)->create(['author_id' => 1, 'grade_id' => 2]);
+        Student::factory()->count(5)->create(['author_id' => 1, 'grade_id' => 3]);
+        Student::factory()->count(5)->create(['author_id' => 1, 'grade_id' => 4]);
+        Student::factory()->count(5)->create(['author_id' => 1, 'grade_id' => 5]);
+        Student::factory()->count(5)->create(['author_id' => 1, 'grade_id' => 6]);
+        Student::factory()->count(5)->create(['author_id' => 1, 'grade_id' => 7]);
     }
 }

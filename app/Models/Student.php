@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Student extends Model
 {
@@ -148,6 +149,11 @@ class Student extends Model
         return $this->hasMany(Result::class, 'student_id');
     }
 
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'student_subject');
+    }
+
     
 
     public function createdAt()
@@ -172,12 +178,49 @@ class Student extends Model
         ->paginate($count);
     }
 
-    public function scopeTotalResults(Builder $query, $period, $term)
+    public function totalCA1(): int
     {
-        return $query->whereHas('results', function($q) use ($period, $term) {
-            $q->where('period_id', $period)->orWhere('term_id', $term);
-        });
+        return (int) $this->results->sum('ca1');
+    }
 
+    public function totalCA2(): int
+    {
+        return (int) $this->results->sum('ca2');
+    }
+
+    public function totalCA3(): int
+    {
+        return (int) $this->results->sum('ca3');
+    }
+
+    public function totalExam(): int
+    {
+        return (int) $this->results->sum('exam');
+    }
+
+    public function totalSubjects(): int
+    {
+        return (int) $this->subjects->count();
+    }
+
+    public function totalRecordedSubjects(): int
+    {
+        return (int) $this->results->count();
+    }
+
+    public function grandTotal(): int
+    {
+        return (int) $this->totalCA1() + $this->totalCA2() + $this->totalCA3() + $this->totalExam();
+    }
+
+    public function grandTotalObtainable(): int
+    {
+        return (int) $this->totalSubjects() *  100;
+    }
+
+    public function resultPercentage(): int
+    {
+        return (int) $tipslastmonth =  divnum($this->grandTotal() , $this->grandTotalObtainable()) * 100;
     }
 
 }

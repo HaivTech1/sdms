@@ -37,26 +37,6 @@ class SingleResultRequest extends FormRequest
         return $this->user();
     }
 
-    public function ca1(): ?string
-    {
-        return $this->get('ca1');
-    }
-
-    public function ca2(): ?string
-    {
-        return $this->get('ca2');
-    }
-
-    public function ca3(): ?string
-    {
-        return $this->get('ca3');
-    }
-
-    public function exam(): ?string
-    {
-        return $this->get('exam');
-    }
-
     public function period(): string
     {
         return $this->get('period_id');
@@ -72,13 +52,33 @@ class SingleResultRequest extends FormRequest
         return $this->get('grade_id');
     }
 
-    public function subject(): string
-    {
-        return $this->get('subject_id');
-    }
-
     public function student(): string
     {
         return $this->get('student_id');
+    }
+
+    public function ca1(): ?array
+    {
+        return $this->get('ca1', []);
+    }
+
+    public function ca2(): ?array
+    {
+        return $this->get('ca2', []);
+    }
+
+    public function ca3(): ?array
+    {
+        return $this->get('ca3', []);
+    }
+
+    public function exam(): ?array
+    {
+        return $this->get('exam', []);
+    }
+
+    public function subject(): array
+    {
+        return $this->get('subject_id', []);
     }
 }

@@ -57,20 +57,15 @@
                                                     </th>
                                                     <th scope="col" class="text-center">
                                                         Total Subjects
-                                                      </th>
-                                                    <th scope="col" class="text-center">
-                                                      Session
                                                     </th>
                                                     <th scope="col" class="text-center">
-                                                      Term
+                                                        Recorded Subjects
                                                     </th>
                                                     <th scope="col" class="text-center">
-                                                      Grand Total<br>
-                                                      <span class="fw-normal">1000</span>
+                                                      Grand Total
                                                     </th>
                                                     <th scope="col" class="text-center">
-                                                      Average<br>
-                                                      <span class="fw-normal">100%</span>
+                                                      Average
                                                     </th>
                                                     <th scope="col" class="text-center">
                                                       Action
@@ -83,11 +78,14 @@
                                                         <th class="text-nowrap" scope="row">Name of Student</th>
                                                         <td>{{ $student->firstName() }}</td>
                                                         <td>{{ $student->grade->title() }}</td>
-                                                        <td>{{ $student->grade->subjects->count() }}</td>
-                                                        <td>{{ $student->results->count() }}</td>
-                                                        <td>fsfjkkjkdkn</td>
-                                                        <td>zfnj,snkzfnkl</td>
-                                                        <td>30.5%</td>
+                                                        <td>{{ $student->totalSubjects() }}</td>
+                                                        <td>
+                                                            {{ $student->results->count() }}
+                                                        </td>
+                                                        <td>
+                                                            {{ $student->grandTotal() }} / {{ $student->grandTotalObtainable() }}
+                                                        </td>
+                                                        <td>{{ $student->resultPercentage() }} %</td>
                                                         <td>
                                                             <div class="d-flex justify-content-between">
                                                                 <button type="button"  class="btn btn-sm btn-primary waves-effect waves-light">
@@ -103,6 +101,7 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    {{ $students->links('pagination::custom-pagination')}}
                                 </div>
                             </div>
                         </div> <!-- end col -->

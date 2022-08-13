@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Components\Admin;
 
 use App\Models\Grade;
+use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Student as ClientStudent;
@@ -19,6 +20,8 @@ class Student extends Component
     public $sortBy = 'asc';
     public $orderBy = 'first_name';
     public $grade = '';
+    public $student_details;
+    public $subjects = [];
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -40,13 +43,13 @@ class Student extends Component
 
     public function getStudentsProperty()
     {
-        return ClientStudent::when($this->gender, function($query, $gender) {
-            return $query->where('gender', $gender);
-        })
-        ->when($this->grade, function($query, $grade) {
-             $query->whereHas('grade', function($query) use ($grade){
-                $query->where('id', $grade);
-             });
+        return ClientStudent::when($this->grade, function($query, $grade) {
+            $query->whereHas('grade', function($query) use ($grade){
+               $query->where('id', $grade);
+            })
+            ->when($this->gender, function($query, $gender) {
+                return $query->where('gender', $gender);
+            });
         })
         ->search(trim($this->search))->loadLatest($this->per_page, $this->orderBy, $this->sortBy);
     }
@@ -59,6 +62,13 @@ class Student extends Component
             were deleted']);
 
         $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+    public function studentDetails(ClientStudent $student)
+    {
+        $this->student_details = $student;
+        $this->subjects = Subject::all();
+        $this->dispatchBrowserEvent('show-details');
     }
     
     public function render()

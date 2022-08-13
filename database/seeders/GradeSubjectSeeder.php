@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Grade;
+use App\Models\Student;
 use App\Models\Subject;
 use Illuminate\Database\Seeder;
 
@@ -16,10 +16,10 @@ class GradeSubjectSeeder extends Seeder
     public function run()
     {
         $subjects = Subject::all(); 
-        $grades = Grade::all();
+        $students = Student::all();
          
-        foreach ($subjects as $subject) {
-            $subject->grades()->sync($grades->pluck('id'));
+        foreach ($students as $student) {
+            $student->subjects()->sync($subjects->pluck('id'));
         }
     }
 }
