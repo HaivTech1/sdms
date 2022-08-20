@@ -16,7 +16,8 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "livewire/livewire": "^2.5",
-        "mpociot/teamwork": "^7.0"
+        "mpociot/teamwork": "^7.0",
+        "wire-elements/spotlight": "dev-php-7.4-support"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
