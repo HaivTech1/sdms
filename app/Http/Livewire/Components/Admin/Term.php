@@ -33,7 +33,7 @@ class Term extends Component
         }
     }
 
-    public function gettermsProperty()
+    public function getTermsProperty()
     {
         return ClientTerm::search(trim($this->search))->loadLatest($this->per_page);;
     }
@@ -68,7 +68,7 @@ class Term extends Component
     {
         ClientTerm::whereIn('id', $this->selectedRows)->delete();
 
-        $this->dispatchBrowserEvent('alert', ['message' => 'All selected sessions
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected sessions
             were deleted']);
 
         $this->reset(['selectedRows', 'selectPageRows']);

@@ -29,6 +29,11 @@ class Student extends Component
         'grade' => ['except' => ''],
     ];
 
+    public function mount()
+    {
+        $this->subjects = Subject::orderBy('title')->get();
+    }
+
     public function updatedSelectPageRows($value)
     {
         if ($value) {
@@ -58,8 +63,38 @@ class Student extends Component
     {
         ClientStudent::whereIn('uuid', $this->selectedRows)->delete();
 
-        $this->dispatchBrowserEvent('alert', ['message' => 'All selected students
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected students
             were deleted']);
+
+        $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+    public function promoteAll()
+    {
+        $toBePromoted = ClientStudent::whereIn('uuid', $this->selectedRows)->get();
+
+        foreach ($toBePromoted as $value) {
+            $newGrade = $value->grade_id +1;
+            $value->update(['grade_id' => $newGrade]);
+        }
+
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected students
+            were promoted successfully!']);
+
+        $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+    public function repeatAll()
+    {
+        $toBePromoted = ClientStudent::whereIn('uuid', $this->selectedRows)->get();
+
+        foreach ($toBePromoted as $value) {
+            $newGrade = $value->grade_id -1;
+            $value->update(['grade_id' => $newGrade]);
+        }
+
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected students
+            were repeated successfully!']);
 
         $this->reset(['selectedRows', 'selectPageRows']);
     }
@@ -67,7 +102,6 @@ class Student extends Component
     public function studentDetails(ClientStudent $student)
     {
         $this->student_details = $student;
-        $this->subjects = Subject::all();
         $this->dispatchBrowserEvent('show-details');
     }
     

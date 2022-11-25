@@ -30,8 +30,8 @@
                                     " />
 
                         <!-- Current Profile Photo -->
-                        <div class="mt-2 d-flex justify-content-center" x-show="! photoPreview">
-                            <img src="{{ asset('storage/' . $this->application->image()) }}" alt="{{ $this->application->name() }}" class="mb-2" width='70px' height='30px'>
+                        <div class="mt-2 d-flex justify-content-center" x-show="!photoPreview">
+                            <img src="{{ asset('storage/'.$this->application->image()) }}" alt="{{ $this->application->name() }}" class="mb-2" width='70px' height='30px'>
                         </div>
 
                         <!-- New Profile Photo Preview -->
@@ -103,30 +103,6 @@
                     <x-form.input id="motto" type="text" class="block w-full mt-1" wire:model.defer="app.motto"
                         autocomplete="motto" />
                     <x-form.error for="motto" class="mt-2" />
-                </div>
-
-                <!-- Site whatsapp -->
-                <div class="col-md-6 mb-3">
-                    <x-form.label for="whatsapp" value="{{ __('Whatsapp') }}" />
-                    <x-form.input id="whatsapp" type="text" class="block w-full mt-1" wire:model.defer="app.whatsapp"
-                        autocomplete="whatsapp" />
-                    <x-form.error for="whatsapp" class="mt-2" />
-                </div>
-
-                <!-- Site facebook -->
-                <div class="col-md-6 mb-3">
-                    <x-form.label for="facebook" value="{{ __('Facebook') }}" />
-                    <x-form.input id="facebook" type="text" class="block w-full mt-1" wire:model.defer="app.facebook"
-                        autocomplete="facebook" />
-                    <x-form.error for="facebook" class="mt-2" />
-                </div>
-
-                <!-- Site instagram -->
-                <div class="col-md-6 mb-3">
-                    <x-form.label for="instagram" value="{{ __('Instagram') }}" />
-                    <x-form.input id="instagram" type="text" class="block w-full mt-1" wire:model.defer="app.instagram"
-                        autocomplete="instagram" />
-                    <x-form.error for="instagram" class="mt-2" />
                 </div>
 
                 <!-- Site address -->

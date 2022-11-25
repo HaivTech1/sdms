@@ -1,0 +1,325 @@
+.ui-7 {
+	position: relative;
+	min-width: 650.3pt;
+	max-width: 650.3pt;
+	border-radius: 2px;
+	margin: 0 auto;
+	padding: 6px;
+	border: 1px solid #2f393c;
+	font-size: 11px;
+	color: #2f393c !important;
+	font-family: 'Cerebri Sans' !important;
+	display: none
+}
+
+.ui-7 h3 {
+	display: block;
+	margin: 0 auto;
+	line-height: normal;
+	text-align: center;
+	font-family: inherit
+}
+
+.sch-name {
+	text-shadow: 1px 2px 3px #ccc
+}
+
+.ui-7 address {
+	font-size: 112%;
+	margin-top: 2px;
+	line-height: 1;
+	font-weight: 500
+}
+
+.ui-7 .sch-level,
+.ui-7 .rep-title {
+	text-align: center !important;
+	margin: 1px;
+	display: block;
+	font-family: inherit
+}
+
+.ui-7 .show-stat-microcharts {
+	margin-left: 13px;
+	margin-right: 13px
+}
+
+.ui-7 .show-stat-microcharts>:first-child {
+	border-left: 1px solid #000000 !important;
+	border-radius: 5px 0 0 5px
+}
+
+.ui-7 .show-stat-microcharts>:last-child {
+	border-radius: 0 5px 5px 0
+}
+
+.ui-7 .show-stat-microcharts>div {
+	border-bottom: 1px solid #000000 !important;
+	border-right: 1px solid #000000 !important;
+	border-top: 1px solid #000000 !important;
+	margin: 0 auto 10px;
+	height: 86px;
+	padding: 0 4px;
+	-webkit-box-shadow: 0 -3px 1px #f3f3f3;
+	box-shadow: 0 -3px 1px #f3f3f3
+}
+
+.ui-7 ul {
+	list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+	font-weight: 500;
+	font-size: 12px
+}
+
+.ui-7 ul li {
+	padding: 2px 0
+}
+
+.ui-7 ul li b {
+	padding-left: 10px;
+	float: right
+}
+
+.ui-7 .table-wrapper {
+	border: 1px solid #000000 !important;
+	border-radius: 5px;
+	margin-bottom: 12px;
+	-webkit-box-shadow: 0 -3px 1px #f3f3f3;
+	box-shadow: 0 -3px 1px #f3f3f3
+}
+
+.ui-7 table {
+	margin-bottom: 0 !important
+}
+
+.ui-7 table th,
+.ui-7 table td {
+	border: 1px solid #000000 !important;
+	border-left: 0 !important;
+	border-bottom: 0 !important
+}
+
+.ui-7 table td:last-child,
+.ui-7 table tr:first-child>th:last-child {
+	border-right: 0 !important
+}
+
+.ui-7 .cogd table td {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: 30px;
+	min-width: 30px;
+	vertical-align: middle;
+	text-align: center;
+	color: #000;
+	font-weight: 500
+}
+
+.ui-7 .cogd table td.coms {
+	width: 50%;
+	min-width: 50%;
+	white-space: normal
+}
+
+.ui-7 .cogd table th.rotate-45 {
+	height: 150px;
+	position: relative;
+	padding: 10px;
+	font-size: 10px;
+	line-height: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap
+}
+
+.ui-7 .cogd table th.rotate-45>div {
+	-ms-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-webkit-transform: rotate(270deg);
+	-o-transform: rotate(270deg);
+	transform: rotate(270deg);
+	position: absolute;
+	bottom: 7px;
+	width: 100%;
+	height: 30px
+}
+
+.ui-7 .k-cog caption {
+	border-top: 1px solid #000000 !important
+}
+
+.ui-7 .beh-d,
+.ui-7 .ski-d {
+	text-transform: lowercase !important
+}
+
+.ui-7 .beh-d tr>td,
+.ui-7 .ski-d tr>td {
+	width: 10px;
+	min-width: 10px;
+	max-width: 10px;
+	padding: 4px;
+	text-transform: uppercase
+}
+
+.table>tbody>tr>td,
+.table>tbody>tr>th {
+	padding-top: 5px !important;
+	padding-bottom: 3px !important
+}
+
+.cogd .table>tbody>tr>td:last-child {
+	text-align: left
+}
+
+.ui-7 caption {
+	background-color: #fcfcfc;
+	border-radius: 5px 5px 0 0;
+	padding: 5px;
+	color: #2f393c;
+	font-weight: 500
+}
+
+.ui-7 .t-score:after,
+.ui-7 .s-remark:after,
+.ui-7 .c-pos:after {
+	content: attr(data-description);
+	font-size: 17px;
+	font-weight: 500;
+	display: block;
+	line-height: .1;
+	margin: 7px 0;
+	color: #356d9e
+}
+
+.ui-7 .s-remark[data-description="Passed"]:after {
+	font-weight: 500;
+	color: #4CAF50 !important;
+	font-size: 20px;
+	text-transform: uppercase
+}
+
+.ui-7 .s-remark[data-description="Failed"]:after {
+	font-weight: 500;
+	color: #F44336 !important;
+	font-size: 20px;
+	text-transform: uppercase
+}
+
+.ui-7 .t-score,
+.ui-7 .s-remark,
+.ui-7 .c-pos {
+	margin: 5px;
+	padding: 5px 10px;
+	display: block;
+	font-weight: 500;
+	background: #fcfcfc
+}
+
+.ui-7 .s-acad-perf>span {
+	border-bottom: 1px solid #000
+}
+
+.ui-7 .s-acad-perf>span:last-child {
+	border-bottom: 0
+}
+
+.ui-7 s .ui-7 img[alt='Signature'] {
+	border: 0
+}
+
+.ui-7 td.comment {
+	text-align: justify !important;
+	font-weight: normal;
+	white-space: normal !important;
+	vertical-align: top !important;
+	color: #000000 !important;
+	font-size: 12px
+}
+
+.ui-7 .comment dt {
+	color: #000000 !important
+}
+
+.font-sm {
+	font-size: 95% !important
+}
+
+.font-md {
+	font-size: 130% !important
+}
+
+.bg-color-light {
+	background-color: #000000 !important
+}
+
+.txt-color-gray {
+	color: #999 !important
+}
+
+.txt-color-blue {
+	color: #57889c !important
+}
+
+.txt-color-primary {
+	color: #3276b1 !important
+}
+
+.v-align {
+	vertical-align: middle !important
+}
+
+.w-10 {
+	width: 10px !important
+}
+
+.padding-left-0 {
+	padding-left: 0 !important
+}
+
+.padding-right-10 {
+	padding-right: 10px
+}
+
+.ui-7 .rinfo {
+	color: inherit;
+	font-size: 14px;
+	line-height: 0;
+	font-weight: 500
+}
+
+.ui-7 .a-promo,
+.ui-7 .a-acad-hd,
+.ui-7 .end-date,
+.ui-7 .resump-date {
+	padding: 9.5px
+}
+
+.ui-7 .text-bold {
+	font-weight: 500
+}
+
+.ui-7 #mis-info {
+	background: #fff;
+	border: 1px solid #000;
+	border-radius: 5px;
+	-webkit-box-shadow: 0 -3px 1px #f3f3f3, inset 0 0 100px rgba(0, 0, 0, .02);
+	box-shadow: 0 -3px 1px #f3f3f3, inset 0 0 100px rgba(0, 0, 0, .02)
+}
+
+.frmb7 {
+	float: right;
+	margin-top: 7px
+}
+
+.frmb-9 {
+	float: right;
+	margin-top: -9px
+}
+
+.text-center {
+	text-align: center !important; 
+	font-size: 10px
+}

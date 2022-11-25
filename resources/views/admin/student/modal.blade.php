@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h4>Assign Subject</h4>
+                        <h4>Assigned Subjects</h4>
 
                         <form action="{{ route('student.assignSubject') }}" method="POST">
                             @csrf

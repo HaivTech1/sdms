@@ -26,8 +26,8 @@
                             <div class="row">
                                 <div class="col-7">
                                     <div class="text-primary p-4">
-                                        <h5 class="text-primary">Free Register</h5>
-                                        <p>Get your free {{ application('name')}} account now.</p>
+                                        <h5 class="text-primary">Welcome</h5>
+                                        <p>Create a New School Account.</p>
                                     </div>
                                 </div>
                                 <div class="col-5 align-self-end">
@@ -49,9 +49,22 @@
                             <div class="p-2">
                                 <form class="needs-validation" method="POST" action="{{ route('register') }}">
                                     @csrf
+
+                                    <div class="mb-3">
+                                        <x-form.label for="title" value="{{ __('Title') }}" />
+                                        <select class="form-control select2" name="title">
+                                            <option>Select</option>
+                                            <option value="Mr">Mr.</option>
+                                            <option value="Miss">Miss.</option>
+                                            <option value="Mrs">Mrs</option>
+                                            <option value="Dr">Dr</option>
+                                            <option value="Prof">Prof</option>
+                                        </select>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Name</label>
-                                        <input type="text" class="form-control" id="name" placeholder="Enter name"
+                                        <input type="text" class="form-control" id="name" 
                                             name="name" required>
                                         <div class="invalid-feedback">
                                             Please Enter Username
@@ -61,25 +74,34 @@
                                     <div class="mb-3">
                                         <label for="useremail" class="form-label">Email</label>
                                         <input type="email" class="form-control" id="useremail"
-                                            placeholder="Enter email" name="email" required>
+                                            name="email" required>
                                         <div class="invalid-feedback">
                                             Please Enter Email
                                         </div>
                                     </div>
 
                                     <div class="mb-3">
+                                        <label for="phone_number" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone_number"
+                                             name="phone_number" required>
+                                        <div class="invalid-feedback">
+                                            Please Enter Phone Number
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
                                         <label for="userpassword" class="form-label">Password</label>
                                         <input type="password" class="form-control" id="userpassword"
-                                            placeholder="Enter password" name="password" required>
+                                             name="password" required>
                                         <div class="invalid-feedback">
                                             Please Enter Password
                                         </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="password_confirmation" class="form-label">Password</label>
+                                        <label for="password_confirmation" class="form-label">Confirmation Password</label>
                                         <input type="password" class="form-control" id="password_confirmation"
-                                            placeholder="Enter confirmation password" name="password_confirmation"
+                                             name="password_confirmation"
                                             required>
                                         <div class="invalid-feedback">
                                             Please Enter Password
@@ -91,53 +113,11 @@
                                         <button class="btn btn-primary waves-effect waves-light"
                                             type="submit">Register</button>
                                     </div>
-
-                                    <div class="mt-4 text-center">
-                                        <h5 class="font-size-14 mb-3">Sign up using</h5>
-
-                                        <ul class="list-inline">
-                                            <li class="list-inline-item">
-                                                <a href="javascript::void()"
-                                                    class="social-list-item bg-primary text-white border-primary">
-                                                    <i class="mdi mdi-facebook"></i>
-                                                </a>
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <a href="javascript::void()"
-                                                    class="social-list-item bg-info text-white border-info">
-                                                    <i class="mdi mdi-twitter"></i>
-                                                </a>
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <a href="javascript::void()"
-                                                    class="social-list-item bg-danger text-white border-danger">
-                                                    <i class="mdi mdi-google"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="mt-4 text-center">
-                                        <p class="mb-0">By registering you agree to the {{ application('name')}} <a
-                                                href="#" class="text-primary">Terms of Use</a></p>
-                                    </div>
                                 </form>
                             </div>
 
                         </div>
                     </div>
-                    <div class="mt-5 text-center">
-
-                        <div>
-                            <p>Already have an account ? <a href="{{ route('login') }}" class="fw-medium text-primary">
-                                    Login</a> </p>
-                            <p>© <script>
-                                document.write(new Date().getFullYear())
-                                </script> {{ application('name')}}
-                            </p>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>

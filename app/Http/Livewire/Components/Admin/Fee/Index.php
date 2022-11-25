@@ -3,7 +3,9 @@
 namespace App\Http\Livewire\Components\Admin\Fee;
 
 use App\Models\Fee;
+use App\Models\Term;
 use App\Models\Grade;
+use App\Models\Period;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -58,7 +60,9 @@ class Index extends Component
     {
         return view('livewire.components.admin.fee.index', [
             'fees' => $this->fees,
-            'grades' => Grade::all()
+            'grades' => Grade::all(),
+            'terms' => Term::all(),
+            'periods' => Period::all(),
         ]);
     }
 }

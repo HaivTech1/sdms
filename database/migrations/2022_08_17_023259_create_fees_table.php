@@ -15,7 +15,7 @@ class CreateFeesTable extends Migration
     {
         Schema::create('fees', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->unique();
+            $table->string('title');
             $table->double('price');
             $table->boolean('status')->default(1);
             $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');

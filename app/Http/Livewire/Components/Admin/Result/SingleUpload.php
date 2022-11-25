@@ -7,6 +7,7 @@ use App\Models\Grade;
 use App\Models\Period;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Psychomotor;
 use Livewire\Component;
 
 class SingleUpload extends Component
@@ -61,11 +62,13 @@ class SingleUpload extends Component
     
     public function render()
     {
+        
         return view('livewire.components.admin.result.single-upload',[
             'students' => $this->students,
             'grades' => Grade::all(),
             'periods' => Period::all(),
             'terms' => Term::all(),
+            'psychomotors' => Psychomotor::all(),
         ]);
     }
 }

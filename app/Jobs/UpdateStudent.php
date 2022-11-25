@@ -30,6 +30,7 @@ class UpdateStudent implements ShouldQueue
     private $allergics;
     private $image;
     private $grade;
+    private $house;
     private $fullName;
     private $email;
     private $phoneNumber;
@@ -60,6 +61,7 @@ class UpdateStudent implements ShouldQueue
         ?string $allergics,
         ?string $image,
         string $grade,
+        string $house,
         string $fullName,
         string $email,
         string $phoneNumber,
@@ -85,6 +87,7 @@ class UpdateStudent implements ShouldQueue
         $this->allergics     = $allergics;
         $this->image     = $image;
         $this->grade     = $grade;
+        $this->house     = $house;
         $this->fullName     = $fullName;
         $this->email     = $email;
         $this->phoneNumber     = $phoneNumber;
@@ -113,6 +116,7 @@ class UpdateStudent implements ShouldQueue
             $request->allergics(),
             $request->image(),
             $request->grade(),
+            $request->house(),
             $request->fullName(),
             $request->email(),
             $request->phoneNumber(),
@@ -145,6 +149,7 @@ class UpdateStudent implements ShouldQueue
             'medical_history'  => $this->medical,
             'allergics'  => $this->allergics,
             'grade_id'  => $this->grade,
+            'house_id'  => $this->house,
         ]);
 
         if (!is_null($this->image)) {

@@ -72,10 +72,7 @@
                                     <th class="align-middle"></th>
                                     <th class="align-middle">User Name</th>
                                     <th class="align-middle">User email</th>
-                                    <th class="align-middle">Account Status</th>
                                     <th class="align-middle">User Status</th>
-                                    <th class="align-middle">User Points</th>
-                                    <th class="align-middle">User Rank</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -92,7 +89,7 @@
                                     <td>
                                         <div>
                                             <img class="rounded-circle avatar-xs"
-                                                src="{{ asset('storage/'.$user->profile_photo_path) }}" alt="">
+                                                src="{{ asset('storage/'.$user->image()) }}" alt="{{ $user->name() }}">
                                         </div>
                                     </td>
                                     <td>
@@ -101,27 +98,12 @@
                                     <td>
                                             <livewire:components.edit-title :model='$user' field='email' :key='$user->id()'/>
                                     </td>
-                                    <td>
-
-                                        @if ($user->email_verified_at === null )
-                                        <span class="badge badge-pill badge-soft-danger font-size-12">Not
-                                            verified</span>
-                                        @else
-                                        <span class="badge badge-pill badge-soft-success font-size-12">Verified</span>
-                                        @endif
-
-                                    </td>
+                                   
                                     <td>
                                         <livewire:components.toggle-button :model='$user'
                                                         field='isAvailable' :key='$user->id()' />
                                     </td>
-                                    <td>
-                                        <a href="javascript: void(0);"
-                                            class="text-body fw-bold">{{ $user->currentPoints() }}</a>
-                                    </td>
-                                    <td>
-                                        <a href="javascript: void(0);" class="text-body fw-bold">{{ $user->rank() }}</a>
-                                    </td>
+                                   
                                     <td>
                                         <div class="px-2 py-1 text-center text-gray-700 bg-green-200 rounded">
                                             <select wire:change="changeUser({{$user}}, $event.target.value)"

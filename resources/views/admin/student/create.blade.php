@@ -64,6 +64,26 @@
                                             @endforeach
                                         </select>
                                     </div>
+
+                                    <div class="col-sm-6 mb-3">
+                                        <x-form.label for="house_id" value="{{ __('Sport House') }}" />
+                                        <select class="form-control" name="house_id">
+                                            <option>Select</option>
+                                            @foreach ($houses as $house)
+                                            <option value="{{ $house->id() }}">{{ $house->title() }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-6 mb-3">
+                                        <x-form.label for="schedule_id" value="{{ __('Schedule') }}" />
+                                        <select class="form-control" name="schedule_id">
+                                            <option>Select</option>
+                                            @foreach ($schedules as $schedule)
+                                            <option value="{{ $schedule->id() }}">{{ $schedule->slug() }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
     
                                     <div class="col-sm-6 mb-3">
                                         <x-form.label for="dob" value="{{ __('Date of Birth') }}" />

@@ -15,7 +15,7 @@ class UserObserver
      */
     public function created(User $user)
     {
-        $user->type = User::STAFF;
+        $user->type = User::STUDENT;
         $user->save();
     }
 
@@ -27,7 +27,7 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        //
+      
     }
 
     /**

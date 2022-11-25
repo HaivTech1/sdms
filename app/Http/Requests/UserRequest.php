@@ -27,11 +27,19 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
+            'title' => ['required'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => $this->passwordRules(),
+            'password' => ['required'],
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
+            'phone_number' => ['required'],
+            'type' => ['required'],
         ];
+    }
+
+    public function title(): string
+    {
+        return $this->get('title');
     }
 
     public function name(): string
@@ -44,8 +52,23 @@ class UserRequest extends FormRequest
         return $this->get('email');
     }
 
+    public function phone(): string
+    {
+        return $this->get('phone_number');
+    }
+
     public function password(): string
     {
         return $this->get('password');
+    }
+
+    public function type(): string
+    {
+        return $this->get('type');
+    }
+
+    public function image(): ?string
+    {
+        return $this->image;
     }
 }

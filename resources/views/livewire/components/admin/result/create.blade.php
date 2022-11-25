@@ -45,9 +45,11 @@
                             </div>
 
                             <div class="col-lg-2">
-                                <button type="submit" class="btn btn-primary waves-effect waves-light">
-                                    <i class="fas fa-angle-double-up"></i> <span>Fetch</span>
-                                </button>
+                                 <div class="float-end">
+                                    <button type="submit" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
+                                        <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>

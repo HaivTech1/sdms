@@ -50,19 +50,40 @@
                                                 <option value="last_name">Last Name</option>
                                             </select>
                                         </div>
+                                    </div>
+                                    @if ($selectedRows)
+                                        <div class="row justify-content-center align-items-center g-2 mt-2">
+                                            <div class="col-sm-4">
+                                                <div class="btn-group btn-group-example" role="group">
+                                                    <button wire:click.prevent="deleteAll" type="button"
+                                                        class="btn btn-outline-danger w-sm">
+                                                        <i class="bx bx-trash"></i>
+                                                        Delete All
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="btn-group btn-group-example" role="group">
+                                                    <button wire:click.prevent="promoteAll" type="button"
+                                                        class="btn btn-outline-success w-sm">
+                                                        <i class="bx bx-caret-right"></i>
+                                                        Promote All
+                                                    </button>
+                                                </div>
+                                            </div>
 
-                                        @if ($selectedRows)
-                                        <div class="col-6">
-                                            <div class="btn-group btn-group-example mb-3" role="group">
-                                                <button wire:click.prevent="deleteAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
-                                                    <i class="bx bx-block"></i>
-                                                    Delete All
-                                                </button>
+                                            <div class="col-sm-4">
+                                                <div class="btn-group btn-group-example" role="group">
+                                                    <button wire:click.prevent="repeatAll" type="button"
+                                                        class="btn btn-outline-primary w-sm">
+                                                        <i class="bx bx-caret-left"></i>
+                                                        Repeat All
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                        @endif
-                                    </div>
+                                    @endif
+                                      
                                 </diV>
                             </div>
                         </div>
@@ -93,6 +114,7 @@
                                             <th class="align-middle">#</th>
                                             <th class="align-middle"> Name </th>
                                             <th class="align-middle"> Class </th>
+                                            <th class="align-middle"> Reg. No </th>
                                             <th class="align-middle"> Subjects </th>
                                             <th class="align-middle">Status</th>
                                             <th class="align-middle">Action</th>
@@ -120,6 +142,9 @@
                                                 {{ $student->grade->title() }}
                                             </td>
                                             <td>
+                                                {{ $student->user->code() }}
+                                            </td>
+                                            <td>
                                                 {{ $student->subjects->count() }}
                                             </td>
                                             <td>
@@ -141,13 +166,70 @@
                                                         </a>
                                                     </div>
                                                     <div class="col-sm-4">
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-primary waves-effect waves-light"
-                                                            data-bs-toggle="tooltip" data-bs-placement="right"
-                                                            title="Click to assign subject"
-                                                            wire:click="studentDetails({{ $student }})">
+                                                        <button type="button" data-bs-toggle="offcanvas"
+                                                            data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
+                                                            aria-controls="offcanvasWithBothOptions">
                                                             <i class="fas fa-compress-arrows-alt"></i>
                                                         </button>
+
+                                                        <div class="offcanvas offcanvas-start" data-bs-scroll="true"
+                                                            tabindex="-1"
+                                                            id="offcanvasWithBothOptions{{ $student->id() }}"
+                                                            aria-labelledby="offcanvasWithBothOptionsLabel">
+                                                            <div class="offcanvas-header">
+                                                                <button type="button" class="btn-close text-reset"
+                                                                    data-bs-dismiss="offcanvas"
+                                                                    aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="offcanvas-body">
+                                                                <div class="row">
+                                                                    <div class="col-sm-12">
+                                                                        <h4>Assign Subjects for {{  $student->fullName() }}</h4>
+                                                                        <form
+                                                                            id="assignSubjects">
+                                                                            @csrf
+
+                                                                            <x-form.input type="hidden"
+                                                                                value="{{ $student->id() }}"
+                                                                                name="student_id" />
+
+                                                                            <div class="col-sm-12 mt-2">
+                                                                                
+                                                                                <select name="subjects[]"
+                                                                                    class="form-control select2-multiple"
+                                                                                    multiple>
+                                                                                    @foreach ($subjects as $subject)
+                                                                                    <option
+                                                                                        value="{{ $subject->id() }}">
+                                                                                        {{ $subject->title() }}</option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                                <x-form.error for="subjects" />
+                                                                            </div>
+
+                                                                            <div class="col-sm-12 mt-2">
+                                                                                <div class="float-right">
+                                                                                    <button id="submit_button1" type="submit"
+                                                                                        class="btn btn-primary">Add</button>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </form>
+                                                                    </div>
+
+                                                                    <div class="col-sm-12 mt-4">
+                                                                        <h1>List of subjects assigned</h1>
+
+                                                                        <ul>
+                                                                            @foreach ($student->subjects as $subject)
+                                                                                <li><span class="badge badge-soft-info">{{ $subject->title() }}</span></li>
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -157,11 +239,44 @@
                                 </table>
                             </div>
                             {{ $students->links('pagination::custom-pagination') }}
-                            @include('admin.student.modal')
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    @section('scripts')
+
+        <script>
+            $('#assignSubjects').submit((e) => {
+                    toggleAble('#submit', true, 'Submitting...');
+                    e.preventDefault()
+                    var data = $('#assignSubjects').serializeArray();
+                    var url = "{{ route('student.assignSubject') }}";
+
+                    $.ajax({
+                        type: "POST",
+                        url,
+                        data
+                    }).done((res) => {
+                        if(res.status === 'success') {
+                            toggleAble('#submit_button1', false);
+                            toastr.success(res.message, 'Success!');
+                        }else{
+                            toggleAble('#submit_button1', false);
+                            toastr.error(res.message, 'Failed!');
+                        }
+                        resetForm('#assignSubjects');
+                        setInterval(function () {location.reload()}, 2000);
+                        
+                    }).fail((res) => {
+                        console.log(res.responseJSON.message);
+                        toastr.error(res.responseJSON.message, 'Failed!');
+                        toggleAble('#submit_button1', false);
+                    });
+                })
+        </script>
+        
+    @endsection
 </div>

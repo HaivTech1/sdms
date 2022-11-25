@@ -20,13 +20,8 @@ class CreateApplicationsTable extends Migration
             $table->string('email')->nullable();
             $table->string('line1')->nullable();
             $table->string('line2')->nullable();
-            $table->string('whatsapp')->nullable();
-            $table->string('facebook')->nullable();
-            $table->string('instagram')->nullable();
             $table->string('image')->nullable();
             $table->string('address')->nullable();
-            $table->integer('logistic')->nullable();
-            $table->integer('cleaning')->nullable();
             $table->string('slogan')->nullable();
             $table->string('motto')->nullable();
             $table->string('regNo')->nullable();

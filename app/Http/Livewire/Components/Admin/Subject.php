@@ -14,7 +14,7 @@ class Subject extends Component
     public $selectedRows = [];
     public $selectPageRows = false;
     public $per_page = 5;
-    public $state = []; 
+    public $title = ''; 
 
     public $search = '';
 
@@ -34,14 +34,35 @@ class Subject extends Component
         }
     }
 
+    public function createSubject()
+    {
+        
+        $this->validate([
+            'title' => 'required|string',
+        ]);
+
+        $title = new ClientSubject([
+            'title' => $this->title
+        ]);
+        
+        $title->save();
+
+        $this->dispatchBrowserEvent('success', [
+            'message'     => 'Subject created successfully!',
+        ]);
+
+        $this->title = '';
+
+    }
+
+    public function resetTitle()
+    {
+        $this->title = '';
+    }
+
     public function getsubjectsProperty()
     {
         return ClientSubject::search(trim($this->search))->loadLatest($this->per_page);;
-    }
-
-    public function resetState()
-    {
-        $this->title = '';
     }
 
     public function deleteAll()
@@ -60,5 +81,10 @@ class Subject extends Component
             'subjects' => $this->subjects,
             'grades' => Grade::all()
         ]);
+    }
+
+    public function results(): HasMany
+    {
+        return $this->hasMany(Result::class);
     }
 }

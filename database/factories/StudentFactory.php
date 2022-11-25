@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\Grade;
+use App\Models\House;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StudentFactory extends Factory
@@ -33,6 +34,7 @@ class StudentFactory extends Factory
             'allergics'             => $this->faker->paragraph(30),
             'image'                 => 'author-'. $this->faker->randomElement(['one', 'two', 'three', 'four']) . '.jpg',
             'grade_id'              => $attribute['grade_id'] ?? Grade::factory(),
+            'house_id'              => $attribute['house_id'] ?? House::factory(),
             'author_id'             => $attribute['author_id'] ?? User::factory(),
         ];
     }

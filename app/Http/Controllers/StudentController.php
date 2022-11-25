@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Grade;
+use App\Models\House;
 use App\Models\Student;
+use App\Models\Schedule;
 use App\Jobs\CreateStudent;
 use App\Jobs\UpdateStudent;
 use Illuminate\Http\Request;
@@ -35,7 +37,10 @@ class StudentController extends Controller
     public function create()
     {
         return view('admin.student.create',[
-            'grades' => Grade::all()
+            'grades' => Grade::all(),
+            'houses' => House::all(),
+            'schedules' => Schedule::all(),
+            // 'subjects' => Subject::orderBy('name')->get()
         ]);
     }
 
@@ -86,6 +91,7 @@ class StudentController extends Controller
         return view('admin.student.edit',[
             'student' => $student,
             'grades' => Grade::all(),
+            'houses' => House::all()
         ]);
     }
 
@@ -124,15 +130,22 @@ class StudentController extends Controller
     public function assignSubject (Request $request)
     {
         $student = Student::findOrFail($request->student_id);
+        $student->subjects()->detach();
         $student->subjects()->attach($request->subjects);
 
-        $notification = array(
-            'messege' => 'Subject attached Successfully',
-            'alert-type' => 'success',
-            'button' => 'Okay!',
-            'title' => 'Success'
-        );
+        // $notification = array(
+        //     'messege' => 'Subject attached Successfully',
+        //     'alert-type' => 'success',
+        //     'button' => 'Okay!',
+        //     'title' => 'Success'
+        // );
 
-        return redirect()->back()->with($notification);
+        // return redirect()->back()->with($notification);
+        return response()->json(['status' => 'success', 'message' => 'Subjects synced successfully!'], 200);
+    }
+
+    public function promotion()
+    {
+       return view('admin.student.promotion');
     }
 }

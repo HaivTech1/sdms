@@ -1,6 +1,9 @@
 <!-- App favicon -->
 <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
+<!-- Bootstrap Rating css -->
+<link href="{{ asset('libs/bootstrap-rating/bootstrap-rating.css') }}" rel="stylesheet" type="text/css" />
+
 <link href="{{ asset('libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ asset('libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ asset('libs/spectrum-colorpicker2/spectrum.min.css') }}" rel="stylesheet" type="text/css">
@@ -9,6 +12,7 @@
     type="text/css" />
 <link rel="stylesheet" href="{{ asset('libs/%40chenfengyuan/datepicker/datepicker.min.css') }}">
 
+<link href="{{ asset('libs/bootstrap-rating/bootstrap-rating.css') }}" rel="stylesheet" type="text/css" />
 <!-- Bootstrap Css -->
 <link href="{{ asset('css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
 <!-- Icons Css -->
@@ -22,7 +26,24 @@
 
 <link href="{{ asset('libs/dropzone/min/dropzone.min.css') }}" rel="stylesheet" type="text/css" />
 
+<link href="{{ asset('libs/fullcalendar/core/main.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('libs/fullcalendar/daygrid/main.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('libs/fullcalendar/bootstrap/main.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('libs/fullcalendar/timegrid/main.min.css') }}" rel="stylesheet" type="text/css" />
 
+<link href="{{ asset('libs/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
+
+ <link href="{{ asset('libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+
+
+ <!-- DataTables -->
+<link href="{{ asset('libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+
+<!-- Responsive datatable examples -->
+<link href="{{ asset('libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+
+@yield('styles')
 @livewireStyles
 
 <style>
@@ -179,6 +200,13 @@
         margin-left: -12px;
     }
 
+    caption {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        color: #999;
+        text-align: left
+    }
+
     /*
     * Animation
     */
@@ -284,7 +312,8 @@
         display: flex;
         justify-content: space-between;
     }
-    .img-responsive{
+
+    .img-responsive {
         width: 80px;
         height: 80px
     }
@@ -294,8 +323,163 @@
     }
 
     input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button{
+    input::-webkit-inner-spin-button {
         -webkit-appearance: none;
         margin: 0;
+    }
+
+
+
+    .details ul {
+        list-style: none;
+        font-weight: 500;
+        font-size: 12px;
+        border-right: 1px solid #000000;
+        border-radius: 2px; 
+        padding: 5px 20px; 
+        margin-top: 3px;
+        height: 110px
+    }
+
+    .details ul li {
+        padding: 2px 0
+    }
+
+    .details ul li b {
+        padding-left: 10px;
+        text-align: right
+    }
+
+    .resultd {
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+        padding: 6px;
+        font-size: 11px;
+        color: #2f393c !important;
+        font-family: 'Cerebri Sans' !important;
+        display: none
+    }
+
+    .resultd .table-wrapper {
+       
+        margin-bottom: 12px; 
+        -webkit-box-shadow: 0 -3px 1px #f3f3f3; 
+        box-shadow: 0 -3px 1px #f3f3f3 
+    }
+
+    .resultd td.comment {
+        text-align: justify !important;
+        font-weight: normal;
+        white-space: normal !important;
+        vertical-align: top !important;
+        color: #000000 !important;
+        font-size: 12px
+    }
+
+    .resultd .comment dt {
+        color: #000000 !important
+    }
+
+    .table-condensed>tbody>tr>td,
+    .table-condensed>tbody>tr>th,
+    .table-condensed>tfoot>tr>td,
+    .table-condensed>tfoot>tr>th,
+    .table-condensed>thead>tr>td,
+    .table-condensed>thead>tr>th {
+        padding: 5px
+    }
+
+    .cogd table td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 30px;
+        min-width: 30px;
+        vertical-align: middle;
+        text-align: center;
+        color: #000;
+        font-weight: 500
+    }
+
+    .resultd .cogd table td.coms {
+        width: 50%;
+        min-width: 50%;
+        white-space: normal
+    }
+
+    .resultd .cogd table th.rotate-45 {
+        height: 150px;
+        position: relative;
+        padding: 10px;
+        font-size: 10px;
+        line-height: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap
+    }
+
+    .resultd .cogd table th.rotate-45>div {
+        -ms-transform: rotate(270deg);
+        -moz-transform: rotate(270deg);
+        -webkit-transform: rotate(270deg);
+        -o-transform: rotate(270deg);
+        transform: rotate(270deg);
+        position: absolute;
+        bottom: 7px;
+        width: 100%;
+        height: 30px
+    }
+
+    .padding-right-10 {
+        padding-right: 10px
+    }
+
+    .padding-left-0 {
+        padding-left: 0 !important
+    }
+
+    .resultd .s-acad-perf>span {
+        border-bottom: 1px solid #000
+    }
+
+    .resultd .s-acad-perf>span:last-child {
+        border-bottom: 0
+    }
+
+    .resultd .t-score:after,
+    .resultd .s-remark:after,
+    .resultd .c-pos:after {
+        content: attr(data-description);
+        font-size: 17px;
+        font-weight: 500;
+        display: block;
+        line-height: .1;
+        margin: 5px 0;
+        color: #356d9e
+    }
+
+    .resultd .s-remark[data-description="Passed"]:after {
+        font-weight: 500;
+        color: #4CAF50 !important;
+        font-size: 20px;
+        text-transform: uppercase
+    }
+
+    .resultd .s-remark[data-description="Failed"]:after {
+        font-weight: 500;
+        color: #F44336 !important;
+        font-size: 20px;
+        text-transform: uppercase
+    }
+
+    .resultd .t-score,
+    .resultd .s-remark,
+    .resultd .c-pos {
+        margin: 5px;
+        padding: 5px 10px;
+        display: block;
+        font-weight: 500;
+        background: #fcfcfc
     }
 </style>

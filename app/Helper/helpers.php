@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Term;
 use App\Models\User;
+use App\Models\Period;
 use App\NullApplication;
 use App\Models\Application;
 
@@ -21,4 +23,21 @@ if (! function_exists('divnum')) {
         return $denominator == 0 ? 0 : ($numerator / $denominator);
     }
 
+    function period($key)
+    {
+        $period = Period::where('status', true)->first();
+        if ($period) {
+
+            return $period->{$key};
+        }
+    }
+
+    function term($key)
+    {
+        $term = Term::where('status', true)->first();
+        if ($term) {
+
+            return $term->{$key};
+        }
+    }
 }

@@ -11,36 +11,38 @@ use Illuminate\Database\Seeder;
 
 class UserTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        $user = User::factory()->create([
-            'name'      => 'Shittu Oluwaseun',
-            'email'     => 'shittuopeyemi24@gmail.com',
-            'password'  => bcrypt('midshot17'),
-            'type'      => User::SUPERADMIN,
-            'profile_photo_path'  =>  'author-one.jpg',
+        $user = collect([
+            $this->createUser(
+                'Mr',
+                'Shittu Oluwaseun',
+                'shittuopeyemi24@gmail.com',
+                bcrypt('midshot17'),
+                User::SUPERADMIN,
+                'author-one.jpg',
+                '2349066100815'
+            ),
+            $this->createUser(
+                'Mr',
+                'Ojo Boluwatife',
+                'ojotifeema@gmail.com',
+                bcrypt('password'),
+                User::SUPERADMIN,
+                'author-two.jpg',
+                '2348139636506'
+            )
         ]);
-
-        User::factory()->create([
-            'name'      => 'Olugbenga',
-            'email'     => 'olugbenga@gmail.com',
-            'password'  => bcrypt('password'),
-            'type'      => User::SUPERADMIN,
-            'profile_photo_path'    => 'profile-photos/author-two.jpg'
-        ]);
-
-
-        
 
         // $user->ownedTeams()->save(Team::forceCreate([
         //     'user_id' => $user->id,
         //     'name' => 'Housing Team',
         //     'personal_team' => true,
         // ]));
+    }
+
+    private function createUser(string $title, string $name, string $email, string $password, string $type, string $profile_photo_path, string $phone_number)
+    {
+        return User::factory()->create(compact('title', 'name', 'email', 'password', 'type', 'profile_photo_path', 'phone_number'));
     }
 }

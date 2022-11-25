@@ -39,6 +39,7 @@
 
         @include('partials.header')
 
+
         <!-- ========== Left Sidebar Start ========== -->
 
         @include('partials.sidenav')
@@ -63,6 +64,7 @@
                         </div>
                     </div>
                     @endif
+                    @include('partials.flash')
                     {{ $slot }}
 
                 </div>
@@ -87,9 +89,7 @@
 
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
-
     @include('partials.script')
-    @livewire('livewire-ui-spotlight')
 </body>
 
 </html>

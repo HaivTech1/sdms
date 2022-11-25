@@ -74,7 +74,7 @@ class Result extends Model
 
     public function eTotal(): int
     {
-        return (int) $this->ca1 + $this->ca2 + $this->ca3 +$this->exam;
+        return (int) $this->ca1 + $this->ca2 + $this->ca3 + $this->exam;
     }
 
     public function createdAt(): string
@@ -105,5 +105,63 @@ class Result extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class, 'student_id');
+    }
+
+    public function gradeRemark()
+    {
+        $currentGrade = $this->eTotal();
+
+        if ($currentGrade >= 70) {
+            return 'A';
+        }
+
+        if ($currentGrade >= 60) {
+            return 'B';
+        }
+
+        if ($currentGrade >= 50) {
+            return 'C';
+        }
+
+        if ($currentGrade >= 45) {
+            return 'D';
+        }
+
+        if ($currentGrade >= 35) {
+            return 'E';
+        }
+
+        if ($currentGrade >= 20) {
+            return 'F';
+        }
+    }
+
+    public function remark()
+    {
+        $currentGrade = $this->eTotal();
+
+        if ($currentGrade >= 70) {
+            return 'Distinction';
+        }
+
+        if ($currentGrade >= 60) {
+            return 'V-Good';
+        }
+
+        if ($currentGrade >= 50) {
+            return 'Credit';
+        }
+
+        if ($currentGrade >= 45) {
+            return 'Pass';
+        }
+
+        if ($currentGrade >= 35) {
+            return 'Poor';
+        }
+
+        if ($currentGrade >= 20) {
+            return 'Fail';
+        }
     }
 }

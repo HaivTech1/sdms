@@ -5,19 +5,23 @@
             <div class="navbar-brand-box">
                 <a href="{{ route('dashboard') }}" class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}" height="22">
+                        <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
+                            height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}" height="17">
+                        <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
+                            height="17">
                     </span>
                 </a>
 
                 <a href="{{ route('dashboard')  }}" class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}" height="32">
+                        <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
+                            height="32px" width="150px">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}" height="32">
+                        <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
+                            height="32px" width="150px">
                     </span>
                 </a>
             </div>
@@ -25,60 +29,11 @@
             <button type="button" class="btn btn-sm px-3 font-size-16 header-item waves-effect" id="vertical-menu-btn">
                 <i class="fa fa-fw fa-bars"></i>
             </button>
-
-            <!-- App Search-->
-            <form class="app-search d-none d-lg-block">
-                <div class="position-relative">
-                    <input type="text" class="form-control" placeholder="Search...">
-                    <span class="bx bx-search-alt"></span>
-                </div>
-            </form>
-
-            <div class="dropdown dropdown-mega d-none d-lg-block ms-2">
-                <button type="button" class="btn header-item waves-effect" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
-                    <span key="t-megamenu">Mega Menu</span>
-                    <i class="mdi mdi-chevron-down"></i> 
-                </button>
-                <div class="dropdown-menu dropdown-megamenu">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <h5 class="font-size-14" key="t-ui-components">Session</h5>
-                                    <ul class="list-unstyled megamenu-list">
-                                        <li>
-                                            <a href="javascript:void(0);" key="t-lightbox">Lightbox</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-4">
-                                    <h5 class="font-size-14" key="t-ui-components">Term</h5>
-                                    <ul class="list-unstyled megamenu-list">
-                                        <li>
-                                            <a href="javascript:void(0);" key="t-lightbox">Lightbox</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-4">
-                                    <h5 class="font-size-14" key="t-ui-components">Application</h5>
-                                    <ul class="list-unstyled megamenu-list">
-                                        <li>
-                                            <a href="javascript:void(0);" key="t-lightbox">Lightbox</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
 
         <div class="d-flex">
 
-            <div class="dropdown d-inline-block d-lg-none ms-2">
+            {{-- <div class="dropdown d-inline-block d-lg-none ms-2">
                 <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-magnify"></i>
@@ -99,7 +54,7 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="dropdown d-none d-lg-inline-block ms-1">
                 <button type="button" class="btn header-item noti-icon waves-effect" data-bs-toggle="fullscreen">
@@ -107,7 +62,7 @@
                 </button>
             </div>
 
-            <div class="dropdown d-inline-block">
+            {{-- <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item noti-icon waves-effect"
                     id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false">
@@ -202,30 +157,30 @@
                         </a>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="dropdown d-inline-block">
                 @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                 <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="rounded-circle header-profile-user" src="{{ Auth::user()->profile_photo_url }}"
-                        alt="{{ Auth::user()->name }}">
+                    <i class="bx bx-user"></i>
                     <span class="d-none d-xl-inline-block ms-1" key="t-henry">{{ Auth::user()->name }}</span>
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 @endif
                 <div class="dropdown-menu dropdown-menu-end">
                     <!-- item-->
-                    <a class="dropdown-item" href="#"><i class="bx bx-user font-size-16 align-middle me-1"></i>
-                        <span key="t-profile">Profile</span></a>
-                    <a class="dropdown-item" href="#"><i class="bx bx-wallet font-size-16 align-middle me-1"></i> <span
-                            key="t-my-wallet">My
-                            Wallet</span></a>
-                    <a class="dropdown-item d-block" href="#"><span class="badge bg-success float-end">11</span><i
-                            class="bx bx-wrench font-size-16 align-middle me-1"></i> <span
-                            key="t-settings">Settings</span></a>
-                    <a class="dropdown-item" href="#"><i class="bx bx-lock-open font-size-16 align-middle me-1"></i>
-                        <span key="t-lock-screen">Lock screen</span></a>
+                    <a class="dropdown-item" href="{{ route('profile.show') }}">
+                        <i class="bx bx-user font-size-16 align-middle me-1"></i> 
+                        <span key="t-profile">Profile</span>
+                    </a>
+
+                    @admin
+                        <a class="dropdown-item d-block" href="#">
+                            <i class="bx bx-wrench font-size-16 align-middle me-1"></i> 
+                            <span key="t-settings">Settings</span>
+                        </a>
+                    @endadmin
                     <div class="dropdown-divider"></div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf

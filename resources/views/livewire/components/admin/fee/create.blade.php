@@ -66,11 +66,12 @@
                                             </th>
                                             <th class="align-middle">#</th>
                                             <th class="align-middle"> Paid by</th>
-                                            <th class="align-middle"> Accepted by</th>
-                                            <th class="align-middle"> Paid For</th>
-                                            <th class="align-middle"> Amount</th>
+                                            <th class="align-middle"> Student Name</th>
+                                            <th class="align-middle"> Class</th>
+                                            <th class="align-middle"> Paid</th>
+                                            <th class="align-middle"> Balance</th>
+                                            <th class="align-middle"> Status</th>
                                             <th class="align-middle"> Date</th>
-                                            <th class="align-middle">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -91,19 +92,24 @@
                                                 {{ $payment->paidBy()}}
                                             </td>
                                             <td>
-                                                {{ $payment->author()->name()}}
+                                                <span>{{ $payment->student->firstName()}} {{
+                                                    $payment->student->lastName()}}</span>
                                             </td>
                                             <td>
-                                                {{ $payment->student->firstName()}} {{ $payment->student->lastName()}}
+                                                <span>{{ $payment->student->grade->title()}}</span>
                                             </td>
                                             <td>
-                                                {{ $payment->amount()}}
+                                                {{ number_format($payment->amount(), 2)}}
+                                            </td>
+                                            <td>
+                                                {{ number_format($payment->balance(), 2)}}
+                                            </td>
+                                            <td>
+                                                <span class="{{ $payment->payment_badge }}">{{
+                                                    $payment->payment_status}}</span>
                                             </td>
                                             <td>
                                                 {{ $payment->createdAt()}}
-                                            </td>
-                                            <td>
-                                                fjlklsgsdkl
                                             </td>
                                         </tr>
                                         @endforeach
@@ -119,9 +125,9 @@
                                     <form wire:submit.prevent="createPayment">
                                         <div class="row">
                                             <div class="col-sm-12">
-                                                <x-form.label for='paid_by' value="{{ __('Payment By') }}" />
                                                 <x-form.input type="text" id='paid_by' class="block w-full mt-1"
-                                                    wire:model.defer="paid_by" />
+                                                    wire:model.defer="paid_by"
+                                                    placeholder="Who is making the Payment?" />
                                                 <x-form.error for="paid_by" />
                                             </div>
 
@@ -136,7 +142,7 @@
                                             </div>
 
                                             <div class="col-sm-6 mt-2">
-                                                <select wire:model.defer="student" class="form-control">
+                                                <select wire:model="student" class="form-control">
                                                     <option>Select Student</option>
                                                     @foreach ($students as $student)
                                                     <option value="{{ $student->id() }}">
@@ -150,7 +156,7 @@
                                             <div class="col-sm-6 mt-2">
                                                 <x-form.label for='type' value="{{ __('Payment Type') }}" />
                                                 <select wire:model.defer="type" class="form-control">
-                                                    <option>Select type</option>
+                                                    <option value="">Select type</option>
                                                     <option value="partial">Partial</option>
                                                     <option value="full">Full payment</option>
                                                 </select>
@@ -160,27 +166,28 @@
                                             <div class="col-sm-6">
                                                 <x-form.label for='amount' value="{{ __('Amount') }}" />
                                                 <x-form.input type="number" id='amount' class="block w-full mt-1"
-                                                    wire:model="amount" />
+                                                    wire:model="amount" placeholder="How much?" />
                                                 <x-form.error for="amount" />
                                             </div>
 
                                             <div class="col-sm-12">
-                                                <x-form.label for='payable' value="{{ __('Payable') }}" />
-                                                <x-form.input type="number" id='payable' class="block w-full mt-1"
+                                                <x-form.input type="hidden" id='payable' class="block w-full mt-1"
                                                     wire:model="payable" disabled />
                                                 <x-form.error for="payable" />
                                             </div>
 
+                                            @if($showBalance)
                                             <div class="col-sm-12">
-                                                <x-form.label for='balance' value="{{ __('Balance') }}" />
+                                                <x-form.label for='balance' value="{{ __('To Balance with') }}" />
                                                 <x-form.input type="number" id='balance' class="block w-full mt-1"
                                                     wire:model="balance" disabled />
                                                 <x-form.error for="balance" />
                                             </div>
+                                            @endif
 
                                             <div class="col-sm-12 mt-2">
                                                 <div class="pull-right">
-                                                    <button type="submit" class="btn btn-secondary">Add</button>
+                                                    <button type="submit" class="btn btn-secondary">Submit</button>
                                                 </div>
                                             </div>
                                         </div>

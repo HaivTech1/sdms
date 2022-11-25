@@ -88,8 +88,41 @@ class Payment extends Model
         return $this->belongsTo(Term::class);
     }
 
+    public function scopeSearch($query, $term)
+    {
+        $term = "%$term%";
+        return  $query->whereHas('student', function($query) use ($term){
+            $query->where('first_name', $term)
+                ->orWhere('last_name', 'like', $term)
+                ->orWhere('other_name', 'like', $term)
+                ->orWhere('uuid', 'like', $term);
+        });
+    }
+
     public function scopeLoadLatest(Builder $query, $count = 4)
     {
         return $query->paginate($count);
+    }
+
+    public function getPaymentStatusAttribute()
+    {
+
+        $status = [
+            'full' => 'Full Payment',
+            'partial' => 'Partial Payment',
+        ];
+
+        return $status[$this->type];
+    }
+
+    public function getPaymentBadgeAttribute()
+    {
+
+        $status = [
+            'full' => 'badge bg-success',
+            'partial' => 'badge bg-info',
+        ];
+
+        return $status[$this->type];
     }
 }

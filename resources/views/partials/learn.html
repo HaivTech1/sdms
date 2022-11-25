@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script>
+        function formatPhoneNumber(phoneNumberString) {
+            var cleaned = ('' + phoneNumberString).replace(/\D/g, '')
+            var NG = 234 + cleaned;
+            console.log(NG);
+            var match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/)
+            if (match) {
+              return '(' + match[1] + ') ' + match[2] + '-' + match[3]
+            }
+            return null
+        }
+
+        function smsPhoneNumber(smsNumberString) {
+            var cleaned = ('' + smsNumberString).replace(/\D/g, '')
+            var NG = 234 + cleaned;
+           
+            return NG
+        }
+
+        console.log(smsPhoneNumber(09066100815));
+    </script>
+</body>
+</html>

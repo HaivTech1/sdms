@@ -1,5 +1,7 @@
 <?php
 
+use App\Spotlight\SearchStudents;
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     */
 
     'shortcuts' => [
-        'k',
+        'f',
         'slash',
     ],
 
@@ -29,7 +31,8 @@ return [
     */
 
     'commands' => [
-        \LivewireUI\Spotlight\Commands\Logout::class
+        \LivewireUI\Spotlight\Commands\Logout::class,
+        SearchStudents::class
     ],
 
     /*
@@ -41,7 +44,7 @@ return [
     | to set this parameter to true. This includes the modern-normalize css.
     |
     */
-    'include_css' => false,
+    'include_css' => true,
 
     /*
     |--------------------------------------------------------------------------

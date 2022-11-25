@@ -77,8 +77,8 @@ class AuthenticateSession
         }
 
         $request->session()->put([
-                                     'password_hash_'.$this->defaultDriverGuard => $request->user()->getAuthPassword(),
-                                 ]);
+            'password_hash_'.$this->defaultDriverGuard => $request->user()->getAuthPassword(),
+        ]);
     }
 
     /**

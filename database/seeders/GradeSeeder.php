@@ -16,19 +16,31 @@ class GradeSeeder extends Seeder
     {
         $grade = collect([
             $this->createGrade(
-                'Basic 1',
+                'Kindergertin ',
             ),
             $this->createGrade(
-                'Basic 2',
+                'Creche',
             ),
             $this->createGrade(
-                'Basic 3',
+                'Nursery 1',
             ),
             $this->createGrade(
-                'Basic 4',
+                'Nursery 2',
             ),
             $this->createGrade(
-                'Basic 5',
+                'Primary 1',
+            ),
+            $this->createGrade(
+                'Primary 2',
+            ),
+            $this->createGrade(
+                'Primary 3',
+            ),
+            $this->createGrade(
+                'Primary 4',
+            ),
+            $this->createGrade(
+                'Primary 5',
             ),
             $this->createGrade(
                 'JSS 1',

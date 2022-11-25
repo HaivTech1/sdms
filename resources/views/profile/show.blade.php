@@ -5,6 +5,8 @@
         </h2>
     </x-slot>
 
+    <link href="{{ asset('css/app.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+
     <div>
         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
             @if (Laravel\Fortify\Features::canUpdateProfileInformation())

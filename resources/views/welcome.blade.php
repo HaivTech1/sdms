@@ -21,9 +21,9 @@
         @if (Route::has('login'))
         <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
             @auth
-            <a href="{{ url('/dashboard') }}" class="text-dark">Dashboard</a>
+            <a href="{{ url('/dashboard') }}" class="">Dashboard</a>
             @else
-            <a href="{{ route('login') }}" class="text-dark mr-2">Log in</a>
+            <a href="{{ route('login') }}" class=" mr-2">Log in</a>
 
             @if (Route::has('register'))
             <a href="{{ route('register') }}" class="ml-4 p-2 text-dark">Register</a>
@@ -36,27 +36,44 @@
     <section class="my-5 pt-sm-5">
         <div class="container">
             <div class="row">
-                <div class="col-12 text-center">
-                    <div class="home-wrapper">
-                        <div class="mb-5">
-                            <a href="index.html" class="d-block auth-logo">
-                                <img src="{{ asset('storage/'.application('image'))}}" alt="" height="20"
-                                    class="auth-logo-dark mx-auto">
-                                <img src="assets/images/logo-light.png" alt="" height="20"
-                                    class="auth-logo-light mx-auto">
-                            </a>
-                        </div>
+                <div class="card">
+                    <div class="card-body"> 
+                        <div class="p-2">
+                            <div class="text-center">
+                                <div class="avatar-md mx-auto">
+                                    <div class="avatar-title rounded-circle bg-light">
+                                        <img src="{{ asset('storage/'.application('image'))}}" alt="" width="150"
+                                            class="auth-logo-dark mx-auto">
+                                    </div>
+                                </div>
+                                <div class="p-2 mt-4">
+                                    <h3 style="font-size: 30px; margin-top: 4px; font-weight: bold">{{ application('name')}}</h3>
+                                    <p style="font-size: 10px; margin-top: 2px">{{ application('description') }}</p>
 
-
-                        <div class="row justify-content-center">
-                            <div class="col-sm-4">
-                                <div class="maintenance-img">
-                                    <img src="/images/maintenance.svg" alt="" class="img-fluid mx-auto d-block">
+                                    <div class="mt-4">
+                                        @if (Route::has('login'))
+                                            <div class="auth-link links">
+                                                @auth
+                                                    <a href="{{ url('/dashboard') }}" class="btn btn-primary btn-rounded">Home</a>
+                                                @else
+                                                    <span class="btn btn-primary btn-rounded"><i class="bx bx-lock-open"></i></span>
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-primary dropdown-toggle" type="button" id="defaultDropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                                                            Choose login type <i class="mdi mdi-chevron-down"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
+                                                            <li><a class="dropdown-item" href="{{ route('login') }}">Staff</a></li>
+                                                            <li><a class="dropdown-item" href="{{ route('student/login') }}">Student</a></li>
+                                                        </ul>
+                                                    </div>
+                                                @endauth
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <h3 class="mt-5">{{ application('name')}}</h3>
-                        <p>{{ application('description') }}</p>
+
                     </div>
                 </div>
             </div>

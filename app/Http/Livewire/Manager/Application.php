@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Manager;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Application as App;
+use Illuminate\Support\Facades\File;
 
 class Application extends Component
 {
@@ -32,9 +33,6 @@ class Application extends Component
             'line2'         => $this->app['line2'],
             'slogan'         => $this->app['slogan'],
             'motto'         => $this->app['motto'],
-            'whatsapp'         => $this->app['whatsapp'],
-            'facebook'         => $this->app['facebook'],
-            'instagram'         => $this->app['instagram'],
             'address'         => $this->app['address'],
             'description'         => $this->app['description'],
         ]);

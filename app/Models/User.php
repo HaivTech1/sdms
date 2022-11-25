@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Mpociot\Teamwork\Traits\UserHasTeams;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -36,6 +37,11 @@ class User extends Authenticatable
     const ADMIN = 2;
     const STAFF = 3;
     const STUDENT = 4;
+
+    public function routeNotificationForVonage($notification)
+    {
+        return $this->phone_number;
+    }
     
     /**
      * The attributes that are mass assignable.
@@ -43,7 +49,7 @@ class User extends Authenticatable
      * @var string[]
      */
     protected $fillable = [
-        'name', 'email', 'password', 'google_id', 'type', 'isAvailable'
+        'title', 'name', 'email', 'reg_no', 'type', 'password', 'phone_number', 'isAvailable', 'pincode'
     ];
 
     /**
@@ -77,6 +83,11 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    public function code(): string
+    {
+        return (string) $this->reg_no;
+    }
+
     public function tasks()
     {
         return $this->hasMany(Task::class, 'author_id');
@@ -85,6 +96,21 @@ class User extends Authenticatable
     public function id(): string
     {
         return (string) $this->id;
+    }
+
+    public function title(): string
+    {
+        return $this->title;
+    }
+
+    public function phone(): string
+    {
+        return $this->phone_number;
+    }
+
+    public function pin(): string
+    {
+        return $this->pincode;
     }
 
     public function name(): string
@@ -97,9 +123,9 @@ class User extends Authenticatable
         return $this->email;
     }
 
-    public function image(): string
+    public function image(): ?string
     {
-        return $this->profile_photo_path;
+        return (string) $this->profile_photo_path;
     }
 
     public function type(): int
@@ -169,5 +195,10 @@ class User extends Authenticatable
     public function gradeClassTeacher(): BelongsToMany
     {
         return $this->belongsToMany(Grade::class, 'grade_user');
+    }
+
+    public function student(): HasOne
+    {
+        return $this->hasOne(Student::class, 'user_id');
     }
 }

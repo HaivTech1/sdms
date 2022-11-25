@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\CreateUSer;
+use App\Jobs\CreateUser;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\v1\UserResource;
@@ -23,7 +23,7 @@ class UserController extends Controller
     
     public function store(UserRequest $request)
     {
-        $this->dispatchSync(CreateUSer::fromRequest($request));
+        $this->dispatchSync(CreateUser::fromRequest($request));
 
         $notification = array(
             'messege' => 'User created successfully',
@@ -38,5 +38,10 @@ class UserController extends Controller
     public function me()
     {
         return new UserResource(auth()->user());
+    }
+
+    public function generatePin()
+    {
+        return view('manager.user.generate');
     }
 }

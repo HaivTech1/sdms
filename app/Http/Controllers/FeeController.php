@@ -22,11 +22,6 @@ class FeeController extends Controller
         return view('admin.fee.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         return view('admin.fee.create');
@@ -40,6 +35,7 @@ class FeeController extends Controller
      */
     public function store(FeeRequest $request)
     {
+        // dd($request);
         $this->dispatchSync(CreateFee::fromRequest($request));
 
         $notification = array (

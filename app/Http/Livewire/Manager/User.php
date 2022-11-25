@@ -53,7 +53,7 @@ class User extends Component
     {
         ClientUser::whereIn('id', $this->selectedRows)->delete();
 
-        $this->dispatchBrowserEvent('alert', ['message' => 'All selected users
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected users
             were deleted']);
 
         $this->reset(['selectedRows', 'selectPageRows']);
@@ -64,7 +64,7 @@ class User extends Component
     {
         ClientUser::whereIn('id', $this->selectedRows)->update(['isAvailable' => false]);
 
-        $this->dispatchBrowserEvent('alert', ['message' => 'All selected users were marked as verified']);
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected users were marked as verified']);
 
         $this->reset(['selectedRows', 'selectPageRows']);
     }
@@ -73,7 +73,7 @@ class User extends Component
     {
         ClientUser::whereIn('id', $this->selectedRows)->update(['isAvailable' => true]);
         
-        $this->dispatchBrowserEvent('alert', ['message' => 'All selected users
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected users
             were marked as unverified']);
 
         $this->reset(['selectedRows', 'selectPageRows']);
@@ -84,12 +84,12 @@ class User extends Component
         Validator::make(['type' => $type], [
             'type'      => [
                 'required', 
-                Rule::in(ClientUser::ADMIN, ClientUser::AGENT, ClientUser::WRITER, ClientUser::DEFAULT),
+                Rule::in(ClientUser::SUPERADMIN, ClientUser::ADMIN, ClientUser::STAFF, ClientUser::STUDENT),
             ],
         ]);
         $use = ClientUser::findOrFail($user['id']);
         $use->update(['type' => $type]);
-        $this->dispatchBrowserEvent('success', ['message' => 'User type changed successfully!']);
+        $this->dispatchBrowserEvent('success', ['message' => 'User updated successfully!']);
         $this->reset();
     }
     

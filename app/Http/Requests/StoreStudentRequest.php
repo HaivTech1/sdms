@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreStudentRequest extends FormRequest
@@ -34,7 +35,13 @@ class StoreStudentRequest extends FormRequest
             'local_government'      => 'required',
             'address'       => 'required',
             'grade_id'       => 'required',
+            'house_id'       => 'required',
         ];
+    }
+
+    public function author(): User
+    {
+        return $this->user();
     }
 
     public function firstName(): string
@@ -92,12 +99,12 @@ class StoreStudentRequest extends FormRequest
         return $this->get('prev_class');
     }
 
-    public function medical(): string
+    public function medical(): ?string
     {
         return $this->get('medical_history');
     }
 
-    public function allergics(): string
+    public function allergics(): ?string
     {
         return $this->get('allergics');
     }
@@ -111,7 +118,17 @@ class StoreStudentRequest extends FormRequest
     {
         return $this->get('grade_id');
     }
+
+    public function house(): string
+    {
+        return $this->get('house_id');
+    }
     
+    public function schedule(): string
+    {
+        return $this->get('schedule_id');
+    }
+
     public function fullName(): string
     {
         return $this->get('full_name');
@@ -132,17 +149,17 @@ class StoreStudentRequest extends FormRequest
         return $this->get('occupation');
     }
 
-    public function officeAddress(): string
+    public function officeAddress(): ?string
     {
         return $this->get('office_address');
     }
 
-    public function homeAddress(): string
+    public function homeAddress(): ?string
     {
         return $this->get('home_address');
     }
 
-    public function relationship(): string
+    public function relationship(): ?string
     {
         return $this->get('relationship');
     }

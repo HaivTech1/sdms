@@ -5,18 +5,23 @@ namespace App\Models;
 use App\Traits\HasUuid;
 use App\Traits\HasAuthor;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Student extends Model
+class Student extends Authenticatable
 {
     use HasFactory;
     use HasUuid;
     use HasAuthor;
+    use Notifiable;
+
+    protected $guard = 'student';
 
     const TABLE = 'students';
 
@@ -40,13 +45,19 @@ class Student extends Model
         'allergics',
         'image',
         'grade_id',
+        'house_id',
         'status',
-        'author_id'
+        'user_id',
+        'author_id',
     ];
 
     protected $casts = [
         'dob' => 'datetime',
         'status' => 'boolean',
+    ];
+
+    protected $hidden = [
+        'password',
     ];
 
     protected $primaryKey = 'uuid';
@@ -64,6 +75,11 @@ class Student extends Model
         return (string) $this->uuid;
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function firstName(): string
     {
         return (string) $this->first_name;
@@ -77,6 +93,16 @@ class Student extends Model
     public function otherName(): string
     {
         return (string) $this->other_name;
+    }
+
+    public function fullName(): string
+    {
+        return (string) $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function code(): string
+    {
+        return (string) $this->reg_no;
     }
 
     public function gender(): string
@@ -138,6 +164,11 @@ class Student extends Model
     {
         return $this->belongsTo(Grade::class);
     }
+
+    public function house(): BelongsTo
+    {
+        return $this->belongsTo(House::class);
+    }
     
     public function guardian(): HasOne
     {
@@ -149,12 +180,20 @@ class Student extends Model
         return $this->hasMany(Result::class, 'student_id');
     }
 
+    public function psychomotors(): hasMany
+    {
+        return $this->hasMany(psychomotor::class);
+    }
+
+    public function cognitives(): hasMany
+    {
+        return $this->hasMany(Cognitive::class);
+    }
+
     public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class, 'student_subject');
-    }
-
-    
+    } 
 
     public function createdAt()
     {
@@ -221,6 +260,42 @@ class Student extends Model
     public function resultPercentage(): int
     {
         return (int) $tipslastmonth =  divnum($this->grandTotal() , $this->grandTotalObtainable()) * 100;
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'student_uuid');
+    }
+
+    public function hasPaid()
+    {
+        return $this->payments->where('period_id', period('status'))->where('term_id', term('status'));
+    }
+
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
+    public function schedules(): BelongsToMany
+    {
+        return $this->belongsToMany(Schedule::class, 'schedule_students', 'student_uuid', 'schedule_id');
+    }
+
+    public function check()
+    {
+        return $this->hasMany(Check::class);
+    }
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function leave()
+    {
+        return $this->hasMany(Leave::class);
     }
 
 }

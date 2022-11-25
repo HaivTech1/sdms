@@ -18,7 +18,7 @@ class CreateStudentsTable extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('other_name')->nullable();
-            $table->enum('gender', ['male', 'female', 'others']);
+            $table->enum('gender', ['male', 'female']);
             $table->timestamp('dob');
             $table->string('nationality')->nullable();
             $table->string('state_of_origin')->nullable();
@@ -28,9 +28,10 @@ class CreateStudentsTable extends Migration
             $table->string('prev_class')->nullable();
             $table->text('medical_history')->nullable();
             $table->text('allergics')->nullable();
-            $table->string('image')->nullable();
             $table->foreignId('grade_id')->nullable()->constrained('grades')->onDelete('set null');
+            $table->foreignId('house_id')->nullable()->constrained('houses')->onDelete('set null');
             $table->boolean('status')->default(1);
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

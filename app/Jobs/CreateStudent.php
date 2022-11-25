@@ -2,10 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Models\User;
 use App\Models\Student;
 use App\Models\Guardian;
+use App\Services\SaveCode;
 use Illuminate\Bus\Queueable;
 use App\Services\SaveImageService;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Http\Requests\StoreStudentRequest;
@@ -17,6 +20,7 @@ class CreateStudent implements ShouldQueue
 {
     use Dispatchable;
 
+    private $author;
     private $firstName;
     private $lastName;
     private $otherName;
@@ -32,6 +36,8 @@ class CreateStudent implements ShouldQueue
     private $allergics;
     private $image;
     private $grade;
+    private $house;
+    private $schedule;
     private $fullName;
     private $email;
     private $phoneNumber;
@@ -46,6 +52,7 @@ class CreateStudent implements ShouldQueue
      * @return void
      */
     public function __construct(
+        User $author,
         string $firstName,
         string $lastName,
         string $otherName,
@@ -61,15 +68,18 @@ class CreateStudent implements ShouldQueue
         ?string $allergics,
         ?string $image,
         string $grade,
+        string $house,
+        string $schedule,
         string $fullName,
-        string $email,
+        ?string $email,
         string $phoneNumber,
-        string $occupation,
-        string $officeAddress,
-        string $homeAddress,
-        string $relationship
+        ?string $occupation,
+        ?string $officeAddress,
+        ?string $homeAddress,
+        ?string $relationship
     )
     {
+        $this->author     = $author;
         $this->firstName     = $firstName;
         $this->lastName     =  $lastName;
         $this->otherName     = $otherName;
@@ -85,6 +95,8 @@ class CreateStudent implements ShouldQueue
         $this->allergics     = $allergics;
         $this->image     = $image;
         $this->grade     = $grade;
+        $this->house     = $house;
+        $this->schedule     = $schedule;
         $this->fullName     = $fullName;
         $this->email     = $email;
         $this->phoneNumber     = $phoneNumber;
@@ -97,6 +109,7 @@ class CreateStudent implements ShouldQueue
     public static function fromRequest(StoreStudentRequest $request): self
     {
         return new static(
+            $request->author(),
             $request->firstName(),
             $request->lastName(),
             $request->otherName(),
@@ -112,6 +125,8 @@ class CreateStudent implements ShouldQueue
             $request->allergics(),
             $request->image(),
             $request->grade(),
+            $request->house(),
+            $request->schedule(),
             $request->fullName(),
             $request->email(),
             $request->phoneNumber(),
@@ -129,6 +144,25 @@ class CreateStudent implements ShouldQueue
      */
     public function handle(): Student
     {
+
+        
+        $user = new User([
+            'title' => 'student',
+            'name' => $this->lastName. ' '. $this->firstName. ' '. $this->otherName,
+            'email' => $this->lastName. $this->firstName.'@gmail.com',
+            'phone_number' => '',
+            'password' => Hash::make('password123'),
+            'type' => '4'
+        ]);
+
+        $code = SaveCode::Generator('STD/', 5, 'reg_no', $user);
+        $user->reg_no = $code;
+        if (!is_null($this->image)) {
+            SaveImageService::UploadImage($this->image, $user, User::TABLE, 'profile_photo_path');
+        }else {
+            $user->save();
+        }
+
         $student = new Student([
             'first_name'  => $this->firstName,
             'last_name'  => $this->lastName,
@@ -144,9 +178,11 @@ class CreateStudent implements ShouldQueue
             'medical_history'  => $this->medical,
             'allergics'  => $this->allergics,
             'grade_id'  => $this->grade,
+            'house_id'  => $this->house,
+            'user_id' => $user->id()
         ]);
-
-        SaveImageService::UploadImage($this->image, $student, Student::TABLE);
+        $student->authoredBy($this->author);
+        $student->save();
 
         $guardian = new Guardian([
             'student_id'  => $student->id(),
@@ -159,7 +195,7 @@ class CreateStudent implements ShouldQueue
             'relationship' =>  $this->relationship,
         ]);
         $guardian->save();
-
+        $student->schedules()->sync($this->schedule);
         return $student;
     }
 }

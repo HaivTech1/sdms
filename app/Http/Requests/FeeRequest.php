@@ -29,6 +29,8 @@ class FeeRequest extends FormRequest
             'price' => ['required'],
             'grades'              => ['array', 'nullable'],
             'grades.*'            => ['exists:grades,id'],
+            'term_id' => ['required'],
+            'period_id' => ['required'],
         ];
     }
 
@@ -50,6 +52,16 @@ class FeeRequest extends FormRequest
     public function grades(): array
     {
         return $this->get('grades', []);
+    }
+
+    public function term(): int
+    {
+        return $this->get('term_id');
+    }
+
+    public function period(): int
+    {
+        return $this->get('period_id');
     }
 
 }

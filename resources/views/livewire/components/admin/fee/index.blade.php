@@ -126,6 +126,24 @@
                                         </select>
                                         <x-form.error for="grades" />
                                     </div>
+                                    <div class="mb-3">
+                                        <x-form.label for="term_id" value="{{ __('Term') }}" />
+                                        <select class="form-control" name="term_id">
+                                            <option>Select</option>
+                                            @foreach ($terms as $term)
+                                            <option value="{{ $term->id() }}">{{ $term->title() }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                     <div class="mb-3">
+                                        <x-form.label for="period_id" value="{{ __('Period') }}" />
+                                        <select class="form-control" name="period_id">
+                                            <option>Select</option>
+                                            @foreach ($periods as $period)
+                                            <option value="{{ $period->id() }}">{{ $period->title() }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="col-sm-12 mt-2">
                                         <div class="pull-right">
                                             <button type="submit" class="btn btn-secondary">Add</button>
