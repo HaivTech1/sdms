@@ -59,6 +59,7 @@ class Generate extends Component
 
     public function generateSinglePin(Student $student)
     {
+        
         $pincode = new Pincode([
             'student_id' => $student->user->id()
         ]);
