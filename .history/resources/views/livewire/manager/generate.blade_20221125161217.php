@@ -118,16 +118,12 @@
             <div class="row">
                 <div class="col-sm-12">
                     <h4>Generate code for Students</h4>
+                </div>
 
-                    {{-- <select name="students"
-                        class="form-control select2-multiple"
-                        multiple>
-                        @foreach ($students as $student)
-                        <option
-                            value="{{ $student->id() }}">
-                            {{ $student->title() }}</option>
-                        @endforeach
-                    </select> --}}
+                <div class="col-sm-12 mt-4">
+
+                  
+
                 </div>
             </div>
         </div>

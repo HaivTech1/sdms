@@ -47,12 +47,12 @@
                                 </diV>
                             </div>
                         </div>
-                        <div class=" col-sm-4">
-                            <button type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions"
-                                aria-controls="offcanvasWithBothOptions"
-                                class="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2">
-                                <i class="mdi mdi-plus me-1"></i> Generate Codes
-                            </button>
+                         <div class=" col-sm-4">
+                            <div class="text-sm-end">
+                                <a href="{{ route('user.create') }}"
+                                    class="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2"><i
+                                        class="mdi mdi-plus me-1"></i> Add User</a>
+                            </div>
                         </div>
                     </div>
 
@@ -88,46 +88,22 @@
                                         {{ $pin->user->name() }}
                                     </td>
                                     <td>
-                                        {{ $pin->user->pin() }}
+                                         {{ $pin->user->pin() }}
                                     </td>
-                                    <td>
+                                     <td>
                                         {{ $pin->count() }}
                                     </td>
                                     <td>
                                         <livewire:components.toggle-button :model='$pin' field='status'
-                                            :key='$pin->id()' />
+                                                    :key='$pin->id()' />
                                     </td>
-
+                                    
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                     {{ $pins->links('pagination::custom-pagination')}}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
-        id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-        <div class="offcanvas-header">
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div class="row">
-                <div class="col-sm-12">
-                    <h4>Generate code for Students</h4>
-
-                    {{-- <select name="students"
-                        class="form-control select2-multiple"
-                        multiple>
-                        @foreach ($students as $student)
-                        <option
-                            value="{{ $student->id() }}">
-                            {{ $student->title() }}</option>
-                        @endforeach
-                    </select> --}}
                 </div>
             </div>
         </div>

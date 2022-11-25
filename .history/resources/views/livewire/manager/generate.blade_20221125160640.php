@@ -110,24 +110,26 @@
     </div>
 
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
-        id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+        id="offcanvasWithBothOptions{{ $student->id() }}" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <div class="row">
                 <div class="col-sm-12">
-                    <h4>Generate code for Students</h4>
+                    <h4>Assign Subjects for {{  $student->fullName() }}</h4>
 
-                    {{-- <select name="students"
-                        class="form-control select2-multiple"
-                        multiple>
-                        @foreach ($students as $student)
-                        <option
-                            value="{{ $student->id() }}">
-                            {{ $student->title() }}</option>
+                </div>
+
+                <div class="col-sm-12 mt-4">
+                    <h1>List of subjects assigned</h1>
+
+                    <ul>
+                        @foreach ($student->subjects as $subject)
+                        <li><span class="badge badge-soft-info">{{ $subject->title() }}</span></li>
                         @endforeach
-                    </select> --}}
+                    </ul>
+
                 </div>
             </div>
         </div>

@@ -43,4 +43,10 @@ class Pincode extends Model
     {
         return (int) $this->count;
     }
+
+    public function scopeLoad(Builder $query, $count = 5)
+    {
+        return $query->inRandomOrder()
+            ->paginate($count);
+    }
 }

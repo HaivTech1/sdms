@@ -117,17 +117,15 @@
         <div class="offcanvas-body">
             <div class="row">
                 <div class="col-sm-12">
-                    <h4>Generate code for Students</h4>
+                    <h4>Assign Subjects for</h4>
 
-                    {{-- <select name="students"
-                        class="form-control select2-multiple"
-                        multiple>
-                        @foreach ($students as $student)
-                        <option
-                            value="{{ $student->id() }}">
-                            {{ $student->title() }}</option>
-                        @endforeach
-                    </select> --}}
+                </div>
+
+                <div class="col-sm-12 mt-4">
+                    <h1>List of subjects assigned</h1>
+
+                  
+
                 </div>
             </div>
         </div>

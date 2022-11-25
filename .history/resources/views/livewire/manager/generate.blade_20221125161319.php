@@ -119,7 +119,7 @@
                 <div class="col-sm-12">
                     <h4>Generate code for Students</h4>
 
-                    {{-- <select name="students"
+                    <select name="students"
                         class="form-control select2-multiple"
                         multiple>
                         @foreach ($students as $student)
@@ -127,7 +127,7 @@
                             value="{{ $student->id() }}">
                             {{ $student->title() }}</option>
                         @endforeach
-                    </select> --}}
+                    </select>
                 </div>
             </div>
         </div>

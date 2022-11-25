@@ -43,7 +43,7 @@ class Generate extends Component
 
     public function getPinsProperty()
     {
-        return Pincode::paginate($this->per_page);
+        return Pincode::load($this->per_page);
     }
 
    

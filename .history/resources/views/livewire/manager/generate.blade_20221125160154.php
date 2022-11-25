@@ -11,6 +11,7 @@
                                 <div class="col-lg-4">
                                     <x-search />
                                 </div>
+
                                 <div class="col-lg-8">
                                     <div class="row">
                                         @if($search)
@@ -23,36 +24,11 @@
                                         </div>
                                         @endif
                                         @if($selectedRows)
-                                        <div class="col-sm-12">
-                                            <div class="btn-group btn-group-example mb-3" role="group">
-                                                <button wire:click.prevent="deleteAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
-                                                    <i class="bx bx-block"></i>
-                                                    Delete All
-                                                </button>
-                                                <button wire:click.prevent="disableAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
-                                                    <i class="bx bx-check-double"></i>
-                                                    Disable All
-                                                </button>
-                                                <button wire:click.prevent="undisableAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
-                                                    <i class="bx bx-x-circle"></i>
-                                                    Undisable All
-                                                </button>
-                                            </div>
-                                        </div>
+                                       
                                         @endif
                                     </div>
                                 </diV>
                             </div>
-                        </div>
-                        <div class=" col-sm-4">
-                            <button type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions"
-                                aria-controls="offcanvasWithBothOptions"
-                                class="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2">
-                                <i class="mdi mdi-plus me-1"></i> Generate Codes
-                            </button>
                         </div>
                     </div>
 
@@ -88,46 +64,22 @@
                                         {{ $pin->user->name() }}
                                     </td>
                                     <td>
-                                        {{ $pin->user->pin() }}
+                                         {{ $pin->user->pin() }}
                                     </td>
-                                    <td>
+                                     <td>
                                         {{ $pin->count() }}
                                     </td>
                                     <td>
                                         <livewire:components.toggle-button :model='$pin' field='status'
-                                            :key='$pin->id()' />
+                                                    :key='$pin->id()' />
                                     </td>
-
+                                    
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                     {{ $pins->links('pagination::custom-pagination')}}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
-        id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-        <div class="offcanvas-header">
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div class="row">
-                <div class="col-sm-12">
-                    <h4>Generate code for Students</h4>
-
-                    {{-- <select name="students"
-                        class="form-control select2-multiple"
-                        multiple>
-                        @foreach ($students as $student)
-                        <option
-                            value="{{ $student->id() }}">
-                            {{ $student->title() }}</option>
-                        @endforeach
-                    </select> --}}
                 </div>
             </div>
         </div>
