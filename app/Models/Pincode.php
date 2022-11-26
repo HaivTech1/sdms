@@ -21,6 +21,8 @@ class Pincode extends Model
         'count',
         'status',
         'student_id',
+        'term_id',
+        'period_id',
         'author_id',
     ];
 
@@ -28,18 +30,27 @@ class Pincode extends Model
         'status'  => 'boolean', 
     ];
 
+    public function period()
+    {
+        return $this->belongsTo(Period::class, 'period_id');
+    }
+
+    public function term()
+    {
+        return $this->belongsTo(Term::class, 'term_id');
+    }
 
     public function user(): BelongsTo
     {
        return $this->belongsTo(User::class, 'student_id');
     }
 
-    public function code(): string
+    public function code(): ?string
     {
         return (string) $this->code;
     }
 
-    public function count(): int
+    public function usedTimes(): ?int
     {
         return (int) $this->count;
     }

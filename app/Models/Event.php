@@ -56,5 +56,15 @@ class Event extends Model
     {
         return $this->end;
     }
+
+    public function period()
+    {
+        return $this->belongsTo(Period::class, 'period_id');
+    }
+
+    public function term()
+    {
+        return $this->belongsTo(Term::class, 'term_id');
+    }
     
 }

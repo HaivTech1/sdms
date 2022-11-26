@@ -29,14 +29,22 @@
                                     <div class="col-sm-4">
                                         <div class="btn-group btn-group-example" role="group">
                                             <button wire:click.prevent="generatePin" type="button"
-                                                class="btn btn-outline-success w-sm">
+                                                class="btn btn-outline-primary w-sm">
                                                 <i class="bx bx-caret-right"></i>
                                                 Generate Pin
                                             </button>
                                         </div>
                                     </div>
 
-                                    
+                                    <div class="col-sm-4">
+                                        <div class="btn-group btn-group-example" role="group">
+                                            <button wire:click.prevent="regeneratePin" type="button"
+                                                class="btn btn-outline-success w-sm">
+                                                <i class="bx bx-caret-right"></i>
+                                                Regenerate Pin
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             @endif
                         </div>
@@ -58,6 +66,7 @@
                                         <th class="align-middle"> Name </th>
                                         <th class="align-middle">Reg. no </th>
                                         <th class="align-middle">Code </th>
+                                        <th class="align-middle">Used</th>
                                         <th class="align-middle">Action </th>
                                     </tr>
                                 </thead>
@@ -83,13 +92,24 @@
                                             {{ $student->user->code() }}
                                         </td>
                                         <td>
-                                            {{ $student->user->pin() }}
+                                            @if ($student->user->pin())
+                                                {{ $student->user->pin() }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($student->user->scratchCard?->usedTimes())
+                                                {{ $student->user->scratchCard?->usedTimes() }}
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <td>
                                             @if($student->user->pin() == null)
-                                                 <button class="btn btn-primary waves-effect waves-light" type="button" wire:click="generateSinglePin('{{ $student->id() }}')">Button</button>
+                                                 <button class="btn btn-primary waves-effect waves-light" type="button" wire:click="generateSinglePin('{{ $student->id() }}')">Generate</button>
                                             @else
-                                                 <button class="btn btn-primary waves-effect waves-light" type="button" wire:click="regenerateSinglePin('{{ $student->id() }}')">Regenerate</button>
+                                                 <button class="btn btn-success waves-effect waves-light" type="button" wire:click="regenerateSinglePin('{{ $student->id() }}')">Regenerate</button>
                                             @endif
                                         </td>
                                     </tr>

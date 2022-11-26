@@ -19,12 +19,17 @@
                             {{-- <li><a href="{{ route('task.index') }}" key="t-products">Task</a></li> --}}
                         </ul>
                     </li>
-                    <li>
-                        <a href="{{ route('user.generatePin') }}" class="waves-effect">
-                            <i class="bx bx-devices"></i>
-                            <span key="t-chat">Scratch Card</span>
+                     <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bxs-devices"></i>
+                            <span key="t-ecommerce">Scratch Card</span>
                         </a>
-                    </li>
+                        <ul class="sub-menu" aria-expanded="true">
+                            <li><a href="{{ route('user.generatePin') }}" key="t-products">Generate Pins</a>
+                            </li>
+                            <li><a href="{{ route('user.pins') }}" key="t-products">Print Pins</a></li>
+                        </ul>
+                    </li> 
                 @endsuperadmin
 
                 @admin

@@ -482,4 +482,60 @@
         font-weight: 500;
         background: #fcfcfc
     }
+
+       .card-scratch{
+         width: 300px;
+         height: 60px;
+         position: relative;
+         overflow: hidden;
+         display: flex;
+         align-items: center;
+         justify-content: space-around;
+         box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.2);
+         margin: 5px;
+         border-top: 1px solid #000000;
+         border-bottom: 1px solid #000000;
+         border-style: dotted;
+         border-radius: 2px
+        }   
+
+        .demo-bg {
+            opacity: 0.07;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: auto;
+        } 
+        
+      .base, #scratch {
+        cursor: default;
+        height: 60px;
+        width: 300px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          cursor: grabbing;
+      }
+      .base {
+        line-height: 60px;
+        text-align: center;
+      }
+      #scratch {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0); 
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+      }
+
+    .demo-content {
+        position: relative;
+        text-align: center
+    }
+
+    .pin-card{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
 </style>

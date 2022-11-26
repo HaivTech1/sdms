@@ -91,6 +91,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('create', [UserController::class, 'create'])->name('create');
         Route::put('/{user}', [UserController::class, 'update'])->name('update');
         Route::get('generate/pin', [UserController::class, 'generatePin'])->name('generatePin');
+        Route::get('pins', [UserController::class, 'pins'])->name('pins');
     });
 
     Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {

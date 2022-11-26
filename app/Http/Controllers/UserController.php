@@ -44,4 +44,9 @@ class UserController extends Controller
     {
         return view('manager.user.generate');
     }
+
+    public function pins()
+    {
+        return view('manager.user.pins');
+    }
 }

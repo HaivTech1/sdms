@@ -16,8 +16,10 @@ class CreatePincodesTable extends Migration
         Schema::create('pincodes', function (Blueprint $table) {
             $table->id();
             $table->string('code')->nullable();
-            $table->integer('count')->nullable();
+            $table->integer('count')->default(0);
             $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
+            $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');
             $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
             $table->boolean('status')->default(1);
             $table->timestamps();

@@ -93,6 +93,11 @@ class User extends Authenticatable
         return $this->hasMany(Task::class, 'author_id');
     }
 
+    public function scratchCard(): HasOne
+    {
+        return $this->hasOne(Pincode::class, 'student_id');
+    }
+
     public function id(): string
     {
         return (string) $this->id;
