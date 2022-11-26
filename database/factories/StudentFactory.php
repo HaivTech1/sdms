@@ -22,7 +22,7 @@ class StudentFactory extends Factory
             'first_name'             => $name,
             'last_name'             => $name,
             'other_name'             => $name,
-            'gender'                => $this->faker->randomElement(['male', 'female', 'others']),
+            'gender'                => $this->faker->randomElement(['male', 'female']),
             'dob'                   => now(),
             'nationality'           => 'Nigerian',
             'state_of_origin'       => $this->faker->randomElement(['Ogun', 'Lagos', 'Oyo']) . ' State',
@@ -32,9 +32,9 @@ class StudentFactory extends Factory
             'prev_class'            => $this->faker->word(),
             'medical_history'       => $this->faker->paragraph(30),
             'allergics'             => $this->faker->paragraph(30),
-            'image'                 => 'author-'. $this->faker->randomElement(['one', 'two', 'three', 'four']) . '.jpg',
             'grade_id'              => $attribute['grade_id'] ?? Grade::factory(),
             'house_id'              => $attribute['house_id'] ?? House::factory(),
+            'user_id'               => $attribute['user_id'] ?? User::factory(),
             'author_id'             => $attribute['author_id'] ?? User::factory(),
         ];
     }

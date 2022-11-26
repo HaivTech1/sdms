@@ -14,7 +14,7 @@ class Student extends Component
 
     public $selectedRows = [];
     public $selectPageRows = false;
-    public $per_page = 5;
+    public $per_page = 10;
     public $search = '';
     public $gender = '';
     public $sortBy = 'asc';

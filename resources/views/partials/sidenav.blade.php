@@ -1,10 +1,6 @@
 <div class="vertical-menu">
-
     <div data-simplebar class="h-100">
-
-        <!--- Sidemenu -->
         <div id="sidebar-menu">
-            <!-- Left Menu Start -->
             <ul class="metismenu list-unstyled" id="side-menu">
                 @superadmin
                     <li>
@@ -113,12 +109,6 @@
                 @endstaff
 
                 @student
-                    <li>
-                        <a href="chat.html" class="waves-effect">
-                            <i class="bx bx-trending-up"></i>
-                            <span key="t-chat">Class</span>
-                        </a>
-                    </li>
                      <li>
                         <a href="chat.html" class="waves-effect">
                             <i class="bx bx-credit-card"></i>
@@ -134,6 +124,5 @@
                 @endstudent
             </ul>
         </div>
-        <!-- Sidebar -->
     </div>
 </div>

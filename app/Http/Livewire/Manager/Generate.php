@@ -30,7 +30,7 @@ class Generate extends Component
     public function updatedSelectPageRows($value)
     {
         if ($value) {
-            $this->selectedRows = $this->pins->pluck('id')->map(function ($id) {
+            $this->selectedRows = $this->students->pluck('uuid')->map(function ($id) {
                 return (string) $id;
             });
         }
@@ -64,7 +64,7 @@ class Generate extends Component
         $pin = Pincode::where('student_id', $student->user->id())->first();
         $term = Term::whereStatus(1)->select('id')->first();
         $period = Period::whereStatus(1)->select('id')->first();
-        
+
         if($pin){
             $code = SaveCode::GeneratorPin(7, 'code', $pin);
             $pin->update(['code' => Hash::make($code)]);
@@ -107,8 +107,8 @@ class Generate extends Component
         foreach ($students as $value) {
             $pincode = new Pincode([
                 'student_id' => $value->user->id(),
-                'term_id' => $term,
-                'period_id' => $period,
+                'term_id' => $term['id'],
+                'period_id' => $period['id'],
             ]);
     
             $code = SaveCode::GeneratorPin(7, 'code', $pincode);

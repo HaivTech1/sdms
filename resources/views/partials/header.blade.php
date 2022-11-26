@@ -17,11 +17,11 @@
                 <a href="{{ route('dashboard')  }}" class="logo logo-light">
                     <span class="logo-sm">
                         <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
-                            height="32px" width="150px">
+                            height="32px" width="32px">
                     </span>
                     <span class="logo-lg">
                         <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
-                            height="32px" width="150px">
+                            height="32px" width="32px">
                     </span>
                 </a>
             </div>

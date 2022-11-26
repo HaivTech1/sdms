@@ -21,14 +21,14 @@
                             <div class="card-scratch">
                                 <img
                                     class="demo-bg"
-                                    src="/images/logo-dark.png"
+                                    src="/images/logo.png"
                                     alt=""
                                 >
                                 <img src="{{ asset('storage/'.application('image')) }}" style="width: 40px; height: 40px; border-radius: 50%" />
                                 <div class="demo-content">
                                     <h1>{{ application('name') }}</h1>
                                     <span>Pin: <b style="color: red">{{ $pin->user->pin() }}</b></span>
-                                    <span style="font-size: 5px">First term - 2022/2021</span>
+                                    <span style="font-size: 5px">{{ $pin->term->title() }} - {{ $pin->period->title() }}</span>
                                     <br />
                                     <span style="font-size: 8px">visit: haivtech.com.ng</span>
                                 </div>
