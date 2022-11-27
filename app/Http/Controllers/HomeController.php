@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Period;
 use App\Models\Term;
+use App\Models\Event;
 
 class HomeController extends Controller
 {
@@ -13,6 +14,8 @@ class HomeController extends Controller
         $user = auth()->user();
         $session = Period::whereStatus(1)->first();
         $term = Term::whereStatus(1)->first();
+
+        $events = Event::where('category', 'bg-info')->get();
 
         if ($user->isSuperAdmin()) {
             return view('dashboard',[
@@ -30,7 +33,8 @@ class HomeController extends Controller
             return view('dashboard/student',[
                 'user' => $user,
                 'session' => $session,
-                'term' => $term
+                'term' => $term,
+                'events' => $events
             ]);
         }
     }

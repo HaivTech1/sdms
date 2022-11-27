@@ -17,6 +17,7 @@ use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContestController;
+use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StudentController;
@@ -122,6 +123,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('create', [StudentController::class, 'create'])->name('create');
         Route::put('/{student}', [StudentController::class, 'update'])->name('update');
         Route::post('assignSubject', [StudentController::class, 'assignSubject'])->name('assignSubject');
+        Route::get('/school/fees', [GeneralController::class, 'fees'])->name('fees');
+
     });
 
     Route::group(['prefix' => 'result', 'as' => 'result.'], function () {

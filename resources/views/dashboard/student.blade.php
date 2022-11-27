@@ -69,11 +69,10 @@
                                             <span class="onoffswitch3-inner">
                                                 <span class="onoffswitch3-active">
                                                     <marquee class="scroll-text">
-                                                        Avengers: Infinity War's Iron Spider Suit May Use Bleeding Edge Tech  
-                                                        <span class="bx bx-caret-right"></span> 
-                                                        Russo brothers ask for fans not to spoil Avengers: Infinity War 
-                                                        <span class="bx bx-caret-right"></span>  
-                                                        Bucky's Arm Miraculously Regenerates On Avengers: Infinity War Poster
+                                                        @foreach($events as $event)
+                                                            <span>{{ $event->title()}}: {{ $event->start->format('d-M-y')}} to  {{ $event->end->format('d-M-y')}}</span> 
+                                                            <span class="bx bx-caret-right"></span> 
+                                                        @endforeach
                                                     </marquee>
                                                     <span class="onoffswitch3-switch">BREAKING NEWS <span class="bx bx-x"></span></span>
                                                 </span>

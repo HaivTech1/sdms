@@ -110,7 +110,7 @@
 
                 @student
                      <li>
-                        <a href="chat.html" class="waves-effect">
+                        <a href="{{ route('student.fees') }}" class="waves-effect">
                             <i class="bx bx-credit-card"></i>
                             <span key="t-chat">Fee</span>
                         </a>
