@@ -72,8 +72,8 @@ class Generate extends Component
         }else{
             $pincode = new Pincode([
                 'student_id' => $student->user->id(),
-                'term_id' => $term,
-                'period_id' => $period,
+                'term_id' => $term['id'],
+                'period_id' => $period['id'],
             ]);
     
             $code = SaveCode::GeneratorPin(7, 'code', $pincode);
