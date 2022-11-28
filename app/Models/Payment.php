@@ -48,7 +48,7 @@ class Payment extends Model
         return (string) $this->paid_by;
     }
 
-    public function amount(): int
+    public function amount(): ?int
     {
         return (int) $this->amount;
     }

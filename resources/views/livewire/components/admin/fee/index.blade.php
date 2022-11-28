@@ -55,7 +55,7 @@
                                             <th class="align-middle">#</th>
                                             <th class="align-middle"> Title</th>
                                             <th class="align-middle"> Price</th>
-                                            <th class="align-middle"> Session</th>
+                                            <th class="align-middle"> Class</th>
                                             <th class="align-middle"> Term</th>
                                             <th class="align-middle">Action</th>
                                         </tr>
@@ -82,7 +82,7 @@
                                                     :key='$fee->id()' />
                                             </td>
                                             <td>
-                                                {{ $fee->period->title() }}
+                                                {{ $fee->grade->title() }}
                                             </td>
                                             <td>
                                                 {{ $fee->term->title() }}
@@ -117,14 +117,14 @@
                                     </div>
 
                                     <div class="col-sm-12 mt-2">
-                                        <x-form.label for='grades' value="{{ __('Classes') }}" />
-                                        <select name="grades[]" class="form-control select2-multiple" multiple>
-                                            <option>Select classes</option>
+                                        <x-form.label for='grade_id' value="{{ __('Classes') }}" />
+                                        <select name="grade_id" class="form-control">
+                                            <option>Select</option>
                                             @foreach ($grades as $grade)
                                             <option value="{{ $grade->id() }}">{{ $grade->title() }}</option>
                                             @endforeach
                                         </select>
-                                        <x-form.error for="grades" />
+                                        <x-form.error for="grade_id" />
                                     </div>
                                     <div class="mb-3">
                                         <x-form.label for="term_id" value="{{ __('Term') }}" />
@@ -132,15 +132,6 @@
                                             <option>Select</option>
                                             @foreach ($terms as $term)
                                             <option value="{{ $term->id() }}">{{ $term->title() }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                     <div class="mb-3">
-                                        <x-form.label for="period_id" value="{{ __('Period') }}" />
-                                        <select class="form-control" name="period_id">
-                                            <option>Select</option>
-                                            @foreach ($periods as $period)
-                                            <option value="{{ $period->id() }}">{{ $period->title() }}</option>
                                             @endforeach
                                         </select>
                                     </div>

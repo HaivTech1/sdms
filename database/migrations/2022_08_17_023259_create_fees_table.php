@@ -18,8 +18,8 @@ class CreateFeesTable extends Migration
             $table->string('title');
             $table->double('price');
             $table->boolean('status')->default(1);
-            $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');
             $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
+            $table->foreignId('grade_id')->constrained('grades')->onDelete('cascade');
             $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

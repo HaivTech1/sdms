@@ -2,9 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Post;
 use App\Models\User;
-use App\Models\Property;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -40,9 +38,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::morphMap([
             User::TABLE => User::class,
-            Property::TABLE => Property::class,
-            User::TABLE       => User::class,
-            Post::TABLE       => Post::class,
         ]);
     }
 }

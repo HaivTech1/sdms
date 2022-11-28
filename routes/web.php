@@ -19,6 +19,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContestController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\OptionsController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
@@ -43,6 +44,9 @@ Route::get('/setup/user', [VisitorController::class, 'setupUser'])->name('setupU
 Route::post('/setup/user', [VisitorController::class, 'register'])->name('visitor.register');
 Route::post('/setup/logo', [VisitorController::class, 'uploadLogo'])->name('app.logo');
 Route::post('/setup/details', [VisitorController::class, 'saveAppDetails'])->name('app.details');
+
+Route::post('/pay', [PaymentController::class, 'redirectToGateway'])->name('pay');
+Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     

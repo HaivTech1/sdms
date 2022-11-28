@@ -59,13 +59,13 @@ class Create extends Component
     {
         $this->students = Student::where('grade_id', $value)->get();
         $getPayable = Grade::where('id', $value)->first();
-        $this->payable = $getPayable->fee->where('status', true)->sum('price');
-        $this->amount = $getPayable->fee->where('status', true)->sum('price');
+        $this->payable = $getPayable->fee->where('status', true)->where('term_id', term('id'))->sum('price');
+        $this->amount = $getPayable->fee->where('status', true)->where('term_id', term('id'))->sum('price');
     }
 
     public function updatedStudent($value)
     {
-        $check = Payment::where('student_uuid', $value)->where('period_id', period('status'))->where('term_id', term('status'))->first();
+        $check = Payment::where('student_uuid', $value)->where('period_id', period('id'))->where('term_id', term('id'))->first();
         
         if($check){
             $amount = $check->amount;
@@ -76,7 +76,7 @@ class Create extends Component
 
     public function updatedAmount($value)
     {
-        $check = Payment::where('student_uuid', $this->student)->where('period_id', period('status'))->where('term_id', term('status'))->first();
+        $check = Payment::where('student_uuid', $this->student)->where('period_id', period('id'))->where('term_id', term('id'))->first();
 
         if ($check) {
             $this->balance = $check->balance - $value;
@@ -97,7 +97,7 @@ class Create extends Component
 
         $hasPaid = Student::where('uuid', $this->student)->first();
         // dd($check->hasPaid());
-        $check = Payment::where('student_uuid', $this->student)->where('period_id', period('status'))->where('term_id', term('status'))->first();
+        $check = Payment::where('student_uuid', $this->student)->where('period_id', period('id'))->where('term_id', term('id'))->first();
 
         // dd($check);
 

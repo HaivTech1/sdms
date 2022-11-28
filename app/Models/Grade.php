@@ -67,8 +67,8 @@ class Grade extends Model
         return $this->belongsToMany(User::class, 'grade_user');
     }
 
-    public function fee(): BelongsToMany
+    public function fee(): hasMany
     {
-        return $this->belongsToMany(Fee::class, 'fee_grade');
+        return $this->hasMany(Fee::class);
     }
 }

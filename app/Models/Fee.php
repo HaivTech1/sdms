@@ -21,7 +21,7 @@ class Fee extends Model
         'title', 
         'price', 
         'status',
-        'period_id',
+        'grade_id',
         'term_id',
         'author_id'
     ];
@@ -45,19 +45,14 @@ class Fee extends Model
         return (int) $this->price;
     }
 
-    public function period(): BelongsTo
+    public function grade(): BelongsTo
     {
-        return $this->belongsTo(Period::class);
+        return $this->belongsTo(Grade::class);
     }
 
     public function term(): BelongsTo
     {
         return $this->belongsTo(Term::class);
-    }
-
-    public function grades(): BelongsToMany
-    {
-        return $this->belongsToMany(Grade::class, 'fee_grade');
     }
 
     public function scopeSearch($query, $term)
