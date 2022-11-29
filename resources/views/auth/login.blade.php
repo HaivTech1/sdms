@@ -66,14 +66,13 @@
                                     @csrf
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Id Number</label>
-                                        <input type="text" class="form-control" id="email" name="email"
-                                            placeholder="Enter email">
+                                        <input type="text" class="form-control" id="email" name="email">
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label">Password</label>
                                         <div class="input-group auth-pass-inputgroup">
-                                            <input type="password" class="form-control" placeholder="Enter password"
+                                            <input type="password" class="form-control"
                                                 aria-label="Password" aria-describedby="password-addon" name="password"
                                                 required autocomplete="current-password">
                                             <button class="btn btn-light " type="button" id="password-addon"><i

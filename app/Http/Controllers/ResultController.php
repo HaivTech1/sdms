@@ -22,7 +22,12 @@ class ResultController extends Controller
 {
     public function index()
     {
-        return view('admin.result.index');
+        $user = auth()->user();
+        return view('admin.result.index',[
+            'user' => $user,
+            'periods' => Period::all()->pluck('title', 'id'),
+            'terms' => Term::all()->pluck('title', 'id')
+        ]);
     }
 
     public function create()

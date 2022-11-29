@@ -7,7 +7,7 @@
                 <div class="card-body">
                     <form wire:submit.prevent="fetchResult">
                         <div class="row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <select class="form-control select2" wire:model.defer="state.grade_id">
                                     <option value=''>Class</option>
                                     @foreach ($grades as $grade)
@@ -16,7 +16,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <select class="form-control " wire:model.defer="state.period_id">
                                     <option value=''>Select Session</option>
                                     @foreach ($periods as $period)
@@ -35,8 +35,8 @@
                                 </select>
 
                             </div>
-                            <div class="col-lg-1">
-                                <div class="float-end">
+                            <div class="col-lg-3">
+                                <div class="d-flex justify-content-center align-self-center">
                                     <button type="submit" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
                                         <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
                                     </button>
@@ -101,23 +101,27 @@
                                                         </div>
                                                     </td>
                                                    
-                                                    <td class='d-flex justify-center align-center gap-2'>
+                                                    <td class='d-flex justify-content-center align-items-center gap-2'>
                                                         <a href="{{ route('result.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
                                                             type="button"
                                                             data-bs-toggle="tooltip" data-bs-placement="top"
                                                             title="Click to view result">
                                                             <i class="fa fa-eye"></i>
                                                         </a>
-                                                        @if (!$cognitives->count() > 0 || !$psychomotors->count() > 0)
-                                                            <button type="button" data-bs-toggle="offcanvas"
-                                                                data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
-                                                                aria-controls="offcanvasWithBothOptions">
-                                                                <i class="fas fa-compress-arrows-alt"></i>
+                                                        @admin
+                                                            @if (!$cognitives->count() > 0 || !$psychomotors->count() > 0)
+                                                                <button type="button" data-bs-toggle="offcanvas"
+                                                                    data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
+                                                                    aria-controls="offcanvasWithBothOptions">
+                                                                    <i class="fas fa-compress-arrows-alt"></i>
+                                                                </button>
+                                                            @endif
+                                                        @endadmin
+                                                        @admin
+                                                            <button type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                <i class="mdi mdi-upload d-block font-size-16"></i>
                                                             </button>
-                                                        @endif
-                                                        <button type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                            <i class="mdi mdi-upload d-block font-size-16"></i>
-                                                        </button>
+                                                        @endadmin
                                                         <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions{{ $student->id() }}"
                                                                     aria-labelledby="offcanvasWithBothOptionsLabel">
                                                             <div class="offcanvas-header">

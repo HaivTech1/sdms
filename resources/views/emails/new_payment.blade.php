@@ -1,12 +1,15 @@
 @component('mail::message')
-A new payment has just been made by **{{ $payment->author()->name() }}** with transaction id =  **{{ $payment->trasactionId }}**
+A new payment has just been made with transaction id =  **{{ $payment->transactionId() }}**
 
 @component('mail::panel')
-{{ $payment->referenceId() }}
-**Amount:** {{ $payment->amount() }} <br>
-**Transaction email:** {{ $payment->email() }} <br>
-**Status:** 
-@if ($payment->status_id == 1) <span class="text-danger">Unconfirmed</span> @else Confirmed @endif 
+**Reference Number:** {{ $payment->referenceId() }} <br />
+**Amount:** {{ trans('global.naira') }}{{ number_format($payment->amount(), 2) }} <br>
+**Balance:** {{ trans('global.naira') }}{{ number_format($payment->balance(), 2) }} <br>
+**Paid by:** {{ $payment->paidBy() }} <br>
+@php
+    $student = \App\Models\Student::findOrFail($payment->student_uuid);
+@endphp
+**Class:** {{ $student->grade->title() }}
 @endcomponent
 
 @component('mail::button', ['url' => route('payment.index')])

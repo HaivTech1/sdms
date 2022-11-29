@@ -108,6 +108,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('index');
     });
 
+    Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
+        Route::get('/', [PaymentController::class, 'index'])->name('index');
+    });
+
     Route::resource('task',TaskController::class);
     Route::resource('contest',ContestController::class);
 

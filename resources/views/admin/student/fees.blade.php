@@ -5,7 +5,7 @@
 
         <div class="page-title-right">
             <ol class="breadcrumb m-0">
-                <li class="breadcrumb-item active">Assigned Fees</li>
+                <li class="breadcrumb-item active">Assigned Fees for {{ period('title') }}</li>
             </ol>
         </div>
     </x-slot>
@@ -20,7 +20,7 @@
                             <tr>
                                 <th></th>
                                 <th>Term</th>
-                                <th>Price</th>
+                                <th>Amount</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -28,32 +28,40 @@
                         <tbody>
                             @foreach($fees as $key => $fee)
                                 @php
-                                    $verification = \App\Models\Payment::whereTerm_id($fee['term_id'])->orWhere('student_uuid', $user->student->id())->first();
+                                    $verification = \App\Models\Payment::whereTerm_id($fee['term_id'])->where('student_uuid', $user->student->id())->first();
                                     $term = \App\Models\Term::findOrFail($fee['term_id']);
                                 @endphp
+
                                 <tr>
                                     <td>{{ $key +1 }}.</td>
                                     <td>
-                                        {{ $term->title() }}
+                                        {{ $term->title() }} Tuition
                                     </td>
                                     <td> {{ trans('global.naira') }}  {{ number_format($fee['price'], 2) }}</td>
                                     <td>
-                                        @if ($verification->amount() == $fee['price'])
+                                        @if($verification && $verification->amount() == $fee['price'])
                                             <span class="badge badge-soft-success">Paid</span>
-                                        @elseif($verification->term_id == $fee['term_id'] && $verification->amount() < $fee['price'])
+                                        @elseif($verification && $verification->term_id == $fee['term_id'] && $verification->amount() < $fee['price'])
                                             <span class="badge badge-soft-danger">You have a balance of <b> {{ trans('global.naira') }}{{ $verification->payable() - $verification->amount() }}</b> to pay!</span>
-                                            {{-- <form route="{{ route('pay') }}">
+                                            <form method="POST" action="{{ route('pay') }}">
                                                 @csrf
-                                                <input type="hidden" name="metadata" value="{{ json_encode($array = ['invoiceId' => $fee->id]) }}" >
-                                                <input type="hidden" name="email" value="{{Auth::user()->email}}">
-                                                <input type="hidden" name="orderID" value="345">
-                                                <input type="hidden" name="amount" value="{{$fee->total}}">
+                                                <input type="hidden" name="metadata" value="{{ json_encode($array = [
+                                                                                                                     'student_uuid' => $user->student->id(),
+                                                                                                                     'term_id' => $fee['term_id'],
+                                                                                                                     'author_id' => $user->id(),
+                                                                                                                     'payable' =>  $verification->payable() - $verification->amount(),
+                                                                                                                     'old_payment' => $verification->amount(),
+                                                                                                                     'old_payment_id' => $verification->id()
+                                                                                                                    ])
+                                                                                            }}">
+                                                <input type="hidden" name="email" value="{{ $user->student->guardian->email()}}">
+                                                <input type="hidden" name="amount" value="{{($verification->payable() - $verification->amount()) * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
                                                 <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> 
-                                                <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="bx bx-credit-card label-icon"></i> Pay</button>
-                                            </form> --}}
+                                                <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="bx bx-credit-card label-icon"></i> Pay Now</button>
+                                            </form>
                                         @else
-                                            <form method="POST" route="{{ route('pay') }}">
+                                            <form method="POST" action="{{ route('pay') }}">
                                                 @csrf
                                                 <input type="hidden" name="metadata" value="{{ json_encode($array = ['student_uuid' => $user->student->id(),
                                                                                                                      'term_id' => $fee['term_id'],
@@ -61,7 +69,7 @@
                                                                                                                      'payable' => $fee['price'],
                                                                                                                     ]) }}">
                                                 <input type="hidden" name="email" value="{{ $user->student->guardian->email()}}">
-                                                <input type="hidden" name="amount" value="{{$fee['price']}}">
+                                                <input type="hidden" name="amount" value="{{$fee['price'] * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
                                                 <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> 
                                                 <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="bx bx-credit-card label-icon"></i> Pay Now</button>
@@ -70,14 +78,6 @@
                                     </td>
                                 </tr>
                             @endforeach
-                            <tr>
-                                <td></td>
-                                <td>Total:</td>
-                                <td> {{ trans('global.naira') }} {{ number_format($fees->sum('price'), 2) }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-success waves-effect btn-label waves-light"><i class="bx bx-credit-card label-icon"></i> Pay All</button>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>

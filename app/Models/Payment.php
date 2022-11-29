@@ -25,7 +25,9 @@ class Payment extends Model
         'balance',
         'payable',
         'type',
-        'status',
+        'trans_id',
+        'ref_id',
+        'method',
         'author_id'
     ];
 
@@ -66,6 +68,16 @@ class Payment extends Model
     public function type(): string
     {
         return (string) $this->type;
+    }
+
+    public function transactionId(): string
+    {
+        return (string) $this->trans_id;
+    }
+    
+    public function referenceId(): string
+    {
+        return (string) $this->ref_id;
     }
 
     public function createdAt()

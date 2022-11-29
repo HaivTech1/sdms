@@ -32,7 +32,7 @@
                     <li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-command"></i>
-                            <span key="t-ecommerce">Admin Management</span>
+                            <span key="t-ecommerce">Settings Management</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
                             <li><a href="{{ route('period.index') }}" key="t-products">Session</a></li>
@@ -59,6 +59,23 @@
                     </li>
                     <li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bxs-folder-open"></i>
+                            <span key="t-ecommerce">Attendance Management</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="true">
+                            <li><a href="{{ route('attendance.index') }}" key="t-products">Attendance Log</a>
+                            </li>
+                            <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li>
+                        </ul>
+                    </li> 
+                    <li>
+                        <a href="{{ route('result.check') }}" class="waves-effect">
+                            <i class="bx bx-spreadsheet"></i>
+                            <span key="t-chat">Results</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-chat"></i>
                             <span key="t-ecommerce">Messaging</span>
                         </a>
@@ -66,19 +83,6 @@
                             <li><a href="{{ route('messaging.email') }}" key="t-add-product">Email</a></li>
                             <li><a href="{{ route('messaging.sms') }}" key="t-add-product">Bulk SMS</a></li>
                         </ul>
-                    </li>
-                    <li>
-                        <a href="{{ route('check.sheet-report') }}" class="waves-effect">
-                            <i class="bx bx-spreadsheet"></i>
-                            <span key="t-chat">Attendance Report</span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="{{ route('attendance.index') }}" class="waves-effect">
-                            <i class="bx bx-detail"></i>
-                            <span key="t-chat">Attendance Log</span>
-                        </a>
                     </li>
                     <li>
                         <a href="{{ route('fee.index') }}" class="waves-effect">
@@ -116,7 +120,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('result.index') }}" class="waves-effect">
+                        <a href="{{ route('result.check') }}" class="waves-effect">
                             <i class="bx bx-right-indent"></i>
                             <span key="t-chat">Result</span>
                         </a>

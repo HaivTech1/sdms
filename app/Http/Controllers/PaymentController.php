@@ -3,24 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Payment;
+use App\Models\Student;
 use Illuminate\Http\Request;
+use App\Events\Student\PaymentEvent;
 use Illuminate\Support\Facades\Redirect;
 use Unicodeveloper\Paystack\Facades\Paystack;
 
 class PaymentController extends Controller
 {
-    public function __construct()
-    {
-        return $this->middleware(['auth']);
-    }
 
     public function redirectToGateway(Request $request)
     {
-        dd($request);
         try{
             return Paystack::getAuthorizationUrl()->redirectNow();
         }catch(\Exception $e) {
-            return Redirect::back()->withMessage(['msg'=>'The paystack token has expired. Please refresh the page and try again.', 'type'=>'error']);
+            $notification = array(
+                'messege'     => 'The paystack token has expired. Please refresh the page and try again.!',
+                'alert-type'    => 'alert'
+            );
+            return redirect()->back()->with($notification);
         }
     }
 
@@ -28,28 +30,46 @@ class PaymentController extends Controller
     {
         $paymentDetails = Paystack::getPaymentData();
 
-        dd($paymentDetails);
+        // dd($paymentDetails);
         $user = User::findOrFail($paymentDetails['data']['metadata']['author_id']);
+        $amount =  $paymentDetails['data']['amount'] / 100;
+        $balance = $paymentDetails['data']['metadata']['payable'] - $amount;
+        $paymentType = ($amount == $paymentDetails['data']['metadata']['payable']) ? 'full' : 'partial';
+        $paidBy = Student::findOrFail($paymentDetails['data']['metadata']['student_uuid']);
 
-        $payment = new Payment();
-        $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
-        $payment->amount = $paymentDetails['data']['amount'];
-        $payment->payable = $paymentDetails['data']['metadata']['payable'];
-        $payment->balance = $paymentDetails['data']['payable'];
-        $payment->type = $paymentDetails['data']['type'];
-        $payment->term_id = $paymentDetails['data']['metadata']['term_id'];
-        $payment->period_id = period('id');
-        $payment->trans_id = $paymentDetails['data']['id'];
-        $payment->ref_id= $paymentDetails['data']['reference'];
-        $payment->status = 1;
-        $payment->authoredBy($user);
-        $payment->save();
 
-        event(new PaymentWasMade($payment));
+        if ($paymentDetails['data']['metadata']['old_payment_id']) {
+            $payment = Payment::findOrFail($paymentDetails['data']['metadata']['old_payment_id']);
+            $payment->update([
+                              'amount' => $paymentDetails['data']['metadata']['old_payment'] + $amount, 
+                              'type' => 'full', 
+                              'balance' => $balance,
+                              'trans_id' => $paymentDetails['data']['id'],
+                              'ref_id' => $paymentDetails['data']['reference']
+                            ]);
+        }else{
+            $payment = new Payment();
+            $payment->paid_by = $paidBy->guardian->fullName();
+            $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
+            $payment->amount = $amount;
+            $payment->payable = $paymentDetails['data']['metadata']['payable'];
+            $payment->balance = $balance;
+            $payment->type = $paymentType;
+            $payment->term_id = $paymentDetails['data']['metadata']['term_id'];
+            $payment->period_id = period('id');
+            $payment->method = $paymentDetails['data']['channel'];
+            $payment->trans_id = $paymentDetails['data']['id'];
+            $payment->ref_id= $paymentDetails['data']['reference'];
+            $payment->authoredBy($user);
+            $payment->save();
+        }
+       
+        event(new PaymentEvent($payment));
   
         $notification = array(
             'messege'     => 'Transaction is Successfull!',
-            'alert-type'    => 'success'
+            'alert-type'    => 'success',
+            'button'        => 'Okay'
         );
         return redirect()->back()->with($notification);
     }

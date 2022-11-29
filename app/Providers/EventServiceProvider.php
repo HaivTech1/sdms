@@ -45,6 +45,6 @@ class EventServiceProvider extends ServiceProvider
     {
         // User::observe(UserObserver::class);
         // Fee::observe(FeeObserver::class);
-        Payment::observe(PaymentObserver::class);
+        // Payment::observe(PaymentObserver::class);
     }
 }
