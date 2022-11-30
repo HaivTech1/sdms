@@ -18,7 +18,7 @@
                     <h4 class="card-title">Basic Information</h4>
                     <p class="card-title-desc">Update {{ $student->firstName()}} Information</p>
 
-                    <form action="{{ route('student.update',$student) }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('student.update', $student) }}" method="post" enctype="multipart/form-data">
                         @method('PUT')
                         @csrf
                         

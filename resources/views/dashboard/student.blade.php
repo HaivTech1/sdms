@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h4 class="mb-sm-0 font-size-18">Dashboard</h4>
+        <h4 class="mb-sm-0 font-size-18">Student</h4>
 
         <div class="page-title-right">
             <ol class="breadcrumb m-0">
@@ -32,10 +32,15 @@
                                 <img src="{{ asset('storage/'.$user->image()) }}" alt="" class="img-thumbnail rounded-circle avatar-sm">
                             </div>
                             <div>
-                                <h5>{{  $user->student->fullName() }}</h5>
-                                <p class="text-muted mb-1">{{ $user->code() }}</p>
-                                <p class="text-muted mb-0">{{ $user->student->grade->title() }}</p>
-
+                                <h5><span class="badge badge-soft-info">Name:</span> {{  $user->student->fullName() }}</h5>
+                                <p class="text-muted mb-1"><span class="badge badge-soft-info">Reg No.:</span> {{ $user->code() }}</p>
+                                <p class="text-muted mb-0"><span class="badge badge-soft-info">Class:</span> {{ $user->student->grade->title() }}</p>
+                                     
+                                <ul>
+                                    @foreach ($user->student->grade->gradeClassTeacher as $key => $teacher)
+                                        <li><span class="badge badge-soft-info">{{ $key+1 }}. Class Teacher:</span> {{ $teacher->title() }}. {{ $teacher->name() }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         </div>
 
@@ -43,8 +48,16 @@
                             <div class="pt-4">
                                 <div class="row">
                                     <div class="col-12">
-                                        <h5 class="font-size-15">{{ $user->student->subjects->count() }}</h5>
-                                        <p class="text-muted mb-0">Subjects</p>
+                                        <div class="btn-group dropend">
+                                            <button type="button" class="btn dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="badge badge-soft-success">Subjects: </span> {{ $user->student->totalSubjects() }} <i class="mdi mdi-chevron-right"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                @foreach ($user->student->subjects as $subject)
+                                                    <p class="dropdown-item">{{ $subject->title() }}</p>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

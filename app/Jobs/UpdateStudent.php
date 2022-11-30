@@ -2,12 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Models\User;
 use App\Models\Student;
+use App\Services\SaveImageService;
+use Illuminate\Support\Facades\File;
 use App\Http\Requests\StoreStudentRequest;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Services\SaveImageService;
-use Illuminate\Support\Facades\File;
 
 
 class UpdateStudent implements ShouldQueue
@@ -153,8 +154,8 @@ class UpdateStudent implements ShouldQueue
         ]);
 
         if (!is_null($this->image)) {
-            File::delete(storage_path('app/' . $this->student->image));
-            SaveImageService::UploadImage($this->image, $this->student, Student::TABLE);
+            File::delete(storage_path('app/' . $this->student->user->profile_photo_path));
+            SaveImageService::UploadImage($this->image, $this->student->user, User::TABLE, 'profile_photo_path');
         }
 
         $this->student->guardian->update([

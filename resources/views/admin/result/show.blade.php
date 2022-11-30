@@ -32,7 +32,7 @@
                             </div>
 
                             <div class='col-xs-2 col-sm-2 col-md-2 text-center text-responsive'>
-                                <img src='{{ asset('storage/students/'.$student->image()) }}' class='img-rounded img-responsive' alt='{{ $student->firstName()}}' />
+                                <img src='{{ asset('storage/'.$student->user->image()) }}' class='img-rounded img-responsive' alt='{{ $student->firstName()}}' />
                             </div>
                         </div>
 

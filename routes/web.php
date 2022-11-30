@@ -13,6 +13,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\HouseController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\BookingController;
@@ -151,6 +152,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/cognitive/upload', [ResultController::class, 'cognitiveUpload'])->name('cognitive.upload');
         Route::get('/publish/cummulative', [ResultController::class, 'publish']);
         Route::get('/cummulative/get', [ResultController::class, 'cummulative']);
+        Route::get('/verify/pin', [ResultController::class, 'verify']);
     });
     
     Route::group(['prefix' => 'fee', 'as' => 'fee.'], function () {
@@ -201,6 +203,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/messaging/email/send', [MessagingController::class, 'sendEmail'])->name('sendMail');
         Route::get('/messaging/sms', [MessagingController::class, 'indexSMS'])->name('sms');
         Route::post('/messaging/sms/send', [MessagingController::class, 'sendSMS'])->name('sendSMS');
+    });
+
+    Route::group(['prefix' => 'lesson', 'as' => 'lesson.'], function () {
+        Route::get('/', [LessonController::class, 'index'])->name('index');
+        Route::get('/teacher', [LessonController::class, 'create'])->name('teacher');
+        Route::get('show/{lesson}', [LessonController::class, 'show'])->name('show');
+        Route::post('/', [LessonController::class, 'store'])->name('store');
+        Route::patch('/{id}', [LessonController::class, 'update'])->name('update');
+        Route::delete('/destroy/{id}', [LessonController::class, 'destroy'])->name('destroy');
+        Route::get('download/{id}', [LessonController::class, 'downloadFile'])->name('download');
     });
 
     // Fingerprint Devices

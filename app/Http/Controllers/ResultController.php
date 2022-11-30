@@ -6,6 +6,7 @@ use App\Models\Term;
 use App\Models\Event;
 use App\Models\Period;
 use App\Models\Result;
+use App\Models\Pincode;
 use App\Models\Student;
 use App\Models\Cognitive;
 use App\Jobs\CreateResult;
@@ -14,6 +15,7 @@ use App\Models\psychomotor;
 use Illuminate\Http\Request;
 use App\Policies\ResultPolicy;
 use App\Jobs\CreateSingleResult;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreResultRequest;
 use App\Http\Requests\SingleResultRequest;
 use App\Http\Requests\UpdateResultRequest;
@@ -25,8 +27,6 @@ class ResultController extends Controller
         $user = auth()->user();
         return view('admin.result.index',[
             'user' => $user,
-            'periods' => Period::all()->pluck('title', 'id'),
-            'terms' => Term::all()->pluck('title', 'id')
         ]);
     }
 
@@ -52,6 +52,7 @@ class ResultController extends Controller
 
     public function show(Student $student, Request $request)
     {
+        
         if($request->term_id == 1){
             $know = (int) $request->term_id +1;
         }elseif($request->term_id == 1){
@@ -62,16 +63,19 @@ class ResultController extends Controller
        
         $nextTermKnow = Term::whereId($know)->first();
         $nextTerm = Event::whereTerm_id($nextTermKnow->id())->wherePeriod_id($request->period_id)->first();
+        // dd($nextTerm);
         $date = Event::where('period_id', $request->period_id)
         ->where('term_id', $request->term_id)->where('category', 'bg-success')->get();
 
         $last_date = count($date) > 0 ? $date[0]->start : date('d-m-y H:i:s');
         $current_date = count($date) > 0 ? $date[0]->end : date('d-m-y H:i:s');
+        // dd($current_date);
     
          //NUMBER DAYS BETWEEN TWO DATES CALCULATOR
         $start_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $last_date);
         $end_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $current_date);
         $termDuration = $start_date->diffInDays($end_date);
+        // dd($termDuration);
 
         $result = $student->results->where('period_id', $request->period_id)
                                     ->where('term_id', $request->term_id)
@@ -168,7 +172,7 @@ class ResultController extends Controller
             'termDuration' => $termDuration,
             'studentAttendanceAve' => $studentAttendanceAve,
             'endOfTerm' => count($date) > 0 ? $current_date->format('d-m-Y') : date('d-m-y'),
-            'endOfNextTerm' => count($date) > 0 ? $nextTerm->start->format('d-m-Y') : date('d-m-y'),
+            'endOfNextTerm' => count($date) == null ? $nextTerm->start->format('d-m-Y') : date('d-m-y'),
             'first_term_cumm' => $first_term_cumm,
             'second_term_cumm' => $second_term_cumm,
             'results' => $results
@@ -230,17 +234,7 @@ class ResultController extends Controller
     {
         return view('admin.result.check');
     }
-
-    public function update(UpdateResultRequest $request, Result $result)
-    {
-        //
-    }
-
-    public function destroy(Result $result)
-    {
-        //
-    }
-
+    
     public function psychomotor(Request $request)
     {
         $check = psychomotor::where('student_uuid', $request->student_uuid)
@@ -380,5 +374,39 @@ class ResultController extends Controller
             ->where('term_id', $request->term_id)->get();
 
             return response()->json(['status' => 'success', 'data' => $check]); 
+    }
+
+    public function verify(Request $request)
+    {
+        $code = $request->code;
+        $grade = $request->grade;
+        $period = $request->period;
+        $term = $request->term;
+
+        $user = auth()->user();
+        $userCode  = $user->scratchCard->code;
+        $pin = Pincode::whereStudent_id(auth()->id())->first();
+        
+        if (!is_null($pin)) {
+            if (Hash::check($code, $userCode))
+            {
+                if ($pin->count >= 3) {
+                    $pin->user->update(['pincode' => null]);
+                    $pin->delete();
+                    return response()->json(['status' => 'error', 'message' => 'The pin code is not valid. It is already used.'], 401); 
+                }else{
+                    if($pin->count <= 3){
+                        $pin->update(['count' => $pin->count +1]);
+                        return response()->json(['status' => 'success', 'redirectTo' => '/result/show/'.$user->student->id().'?grade_id='.$grade.'&period_id='.$period.'&term_id='.$term, 'message' => 'The pin code is valid, you will be redirected soon.'], 200); 
+                    }else{
+                        return response()->json(['status' => 'error', 'message' => 'The pin code is not valid. It is already used.'], 401); 
+                    }
+                }
+            }else{
+                return response()->json(['status' => 'error', 'message' => 'The pin code is not correct! Please try again.'], 401); 
+            }
+        }else{
+            return response()->json(['status' => 'error', 'message' => 'You need to purchase a pin code to check result.'], 401); 
+        }
     }
 }

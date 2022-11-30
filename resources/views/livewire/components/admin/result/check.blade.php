@@ -14,6 +14,7 @@
                                     <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
                                     @endforeach
                                 </select>
+                                <x-form.error for="state.grade_id" />
                             </div>
 
                             <div class="col-lg-3">
@@ -23,7 +24,7 @@
                                     <option value="{{  $period->id() }}">{{ $period->title() }}</option>
                                     @endforeach
                                 </select>
-
+                                <x-form.error for="state.period_id" />
                             </div>
 
                             <div class="col-lg-3">
@@ -33,7 +34,7 @@
                                     <option value="{{  $term->id() }}">{{ $term->title() }}</option>
                                     @endforeach
                                 </select>
-
+                                <x-form.error for="state.term_id" />
                             </div>
                             <div class="col-lg-3">
                                 <div class="d-flex justify-content-center align-self-center">
@@ -53,7 +54,9 @@
                                         <table class="table table-bordered table-striped table-nowrap mb-0">
                                             <thead>
                                                 <tr>
+                                                    @admin
                                                     <th scope="col" class="text-center">Name of Student</th>
+                                                    @endadmin
                                                     <th scope="col" class="text-center">
                                                         Class
                                                     </th>
@@ -74,7 +77,9 @@
                                             <tbody>
                                                 @foreach ($students as $student)
                                                 <tr>
+                                                    @admin
                                                     <td class='text-left'>{{ $student->firstName() }} {{ $student->lastName() }}</td>
+                                                    @endadmin
                                                     <td class='text-center'>{{ $student->grade->title() }}</td>
                                                     <td class='text-center'>
                                                         <div class="btn-group dropend">
@@ -119,7 +124,7 @@
                                                         @endadmin
                                                         @admin
                                                             <button type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                <i class="mdi mdi-upload d-block font-size-16"></i>
+                                                                <i class="mdi mdi-upload d-block font-size-16"></i> Publish
                                                             </button>
                                                         @endadmin
                                                         <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions{{ $student->id() }}"

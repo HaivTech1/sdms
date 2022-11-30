@@ -77,7 +77,6 @@
             "progressBar": true
         }
 
-
         window.addEventListener('success', event => {
             toastr.success(event.detail.message, 'Success!');
         });
@@ -122,7 +121,11 @@
     });
 
     window.addEventListener('show-student', event => {
-    $('#student').modal('show');
+        $('#student').modal('show');
+    });
+
+    window.addEventListener('show-scratch', event => {
+        $('#scratch').modal('show');
     });
 </script>
 
@@ -135,6 +138,117 @@
         });
 
     });
+</script>
+
+<script>
+    const supportsVideo = !!document.createElement('video').canPlayType;
+    if (supportsVideo) {
+            const videoContainer = document.getElementById('videoContainer');
+            const video = document.getElementById('video');
+            const videoControls = document.getElementById('video-controls');
+            const playpause = document.getElementById('playpause');
+            const stop = document.getElementById('stop');
+            const mute = document.getElementById('mute');
+            const volinc = document.getElementById('volinc');
+            const voldec = document.getElementById('voldec');
+            const progress = document.getElementById('progress');
+            const progressBar = document.getElementById('progress-bar');
+            const fullscreen = document.getElementById('fs');
+
+
+            // Hide the default controls
+            video.controls = false;
+
+            // Display the user defined video controls
+            videoControls.style.display = 'block';
+
+            playpause.addEventListener('click', (e) => {
+                if (video.paused || video.ended) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+
+            stop.addEventListener('click', (e) => {
+                video.pause();
+                video.currentTime = 0;
+                progress.value = 0;
+            });
+
+            mute.addEventListener('click', (e) => {
+                video.muted = !video.muted;
+            });
+
+            volinc.addEventListener('click', (e) => {
+                alterVolume('+');
+            });
+
+            voldec.addEventListener('click', (e) => {
+                alterVolume('-');
+            });
+
+            function alterVolume(dir) {
+                const currentVolume = Math.floor(video.volume * 10) / 10;
+                if (dir === '+' && currentVolume < 1) {
+                    video.volume += 0.1;
+                } else if (dir === '-' && currentVolume > 0) {
+                    video.volume -= 0.1;
+                }
+            }
+
+            video.addEventListener('loadedmetadata', () => {
+                progress.setAttribute('max', video.duration);
+            });
+
+            video.addEventListener('timeupdate', () => {
+                progress.value = video.currentTime;
+                progressBar.style.width = `${Math.floor(video.currentTime * 100 / video.duration)}%`;
+            });
+
+
+            video.addEventListener('timeupdate', () => {
+                if (!progress.getAttribute('max')) progress.setAttribute('max', video.duration);
+                progress.value = video.currentTime;
+                progressBar.style.width = `${Math.floor(video.currentTime * 100 / video.duration)}%`;
+            });
+
+            progress.addEventListener('click', (e) => {
+                const rect = progress.getBoundingClientRect();
+                const pos = (e.pageX  - rect.left) / progress.offsetWidth;
+                video.currentTime = pos * video.duration;
+            });
+
+            if (!document?.fullscreenEnabled) {
+                fullscreen.style.display = 'none';
+            }
+
+            fullscreen.addEventListener('click', (e) => {
+                handleFullscreen();
+            });
+
+            function handleFullscreen() {
+                if (document.fullscreenElement !== null) {
+                    // The document is in fullscreen mode
+                    document.exitFullscreen();
+                    setFullscreenData(false);
+                } else {
+                    // The document is not in fullscreen mode
+                    videoContainer.requestFullscreen();
+                    setFullscreenData(true);
+                }
+            }
+
+            function setFullscreenData(state) {
+                videoContainer.setAttribute('data-fullscreen', !!state);
+            }
+
+            document.addEventListener('fullscreenchange', (e) => {
+                setFullscreenData(!!document.fullscreenElement);
+            });
+
+
+    }
 </script>
 
 @yield('scripts')

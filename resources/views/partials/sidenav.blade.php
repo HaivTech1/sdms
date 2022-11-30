@@ -110,6 +110,12 @@
                             <span key="t-chat">Attendance Sheet</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('lesson.teacher') }}" class="waves-effect">
+                            <i class="bx bx-video"></i>
+                            <span key="t-chat">Virtual Lesson</span>
+                        </a>
+                    </li>
                 @endstaff
 
                 @student
@@ -120,9 +126,21 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('result.check') }}" class="waves-effect">
+                        <a href="{{ route('result.index') }}" class="waves-effect">
                             <i class="bx bx-right-indent"></i>
                             <span key="t-chat">Result</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="waves-effect">
+                            <i class="bx bx-right-indent"></i>
+                            <span key="t-chat">Assignment</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('lesson.index') }}" class="waves-effect">
+                            <i class="bx bx-video"></i>
+                            <span key="t-chat">Visual Class</span>
                         </a>
                     </li>
                 @endstudent
