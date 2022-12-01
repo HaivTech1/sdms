@@ -1,7 +1,11 @@
 <?php
 
+use App\NullAbout;
+use App\NullBanner;
 use App\Models\Term;
 use App\Models\User;
+use App\Models\About;
+use App\Models\Banner;
 use App\Models\Period;
 use App\NullApplication;
 use App\Models\Application;
@@ -13,6 +17,26 @@ function application($key)
         if ($application) {
 
             return $application->{$key};
+        }
+}
+
+function banner($key)
+{
+        $banner = Banner::first() ?? NullBanner::make();
+
+        if ($banner) {
+
+            return $banner->{$key};
+        }
+}
+
+function about($key)
+{
+        $about = About::first() ?? NullAbout::make();
+
+        if ($about) {
+
+            return $about->{$key};
         }
 }
 

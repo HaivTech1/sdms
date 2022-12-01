@@ -2,20 +2,9 @@
 <html lang="en">
     <head>
        <x-partials.head />
-    
-        @stack('styles')
-        @livewireStyles
     </head>
 
     <body>
-        
-        {{-- <div id="preloader">
-            <div class="preloader">
-                <span></span>
-                <span></span>
-            </div>
-        </div> --}}
-
         <x-partials.nav/>
 
         @if (isset($header))
@@ -31,8 +20,5 @@
         <x-partials.footer />
 
         <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
-
-    @stack('modals')
-    @livewireScripts
     </body>
 </html>

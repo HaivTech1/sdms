@@ -152,7 +152,7 @@
         $(document).ready(() => {
             // draw file onchange
             var input = document.querySelector('input[type=file]'); // see Example 4
-                input.onchange = function () {
+            input.onchange = function () {
                 var file = input.files[0];
                 drawOnCanvas(file);   // see Example 6
                 // displayAsImage(file); // see Example 7

@@ -9,10 +9,15 @@
                     </ul>
                 </div>
                 <div class="header_top_login">
-                    <ul>
-                        {{-- <li><a href="#">Create An Account</a></li> --}}
-                        <li><a class="main-btn" href="#"><i class="fa fa-user-o"></i> Portal </a></li>
-                    </ul>
+                    @if (Route::has('login'))
+                        <ul>
+                            @auth
+                                <li><a class="main-btn" href="{{ route('dashboard') }}"><i class="fa fa-user-o"></i> Portal </a></li>
+                            @else
+                                <li><a class="main-btn" href="{{ route('login') }}"><i class="fa fa-user-o"></i> Log in </a></li>
+                            @endauth
+                        </ul>
+                    @endif
                 </div>
             </div>
         </div>
@@ -33,7 +38,7 @@
                     <span class="toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                {{-- <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                     <ul class="navbar-nav m-auto">
                         <li>
                             <a class="active" href="{{ url('/') }}">Home</a>
@@ -48,7 +53,7 @@
                             <a href="contact.html">Contact</a>
                         </li>
                     </ul>
-                </div>
+                </div> --}}
 
                 {{-- <div class="navbar_meta">
                     <ul>

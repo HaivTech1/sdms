@@ -26,6 +26,12 @@
                             <li><a href="{{ route('user.pins') }}" key="t-products">Print Pins</a></li>
                         </ul>
                     </li> 
+                    <li>
+                        <a href="{{ route('design.index') }}" class="waves-effect">
+                            <i class="bx bx-cog"></i>
+                            <span key="t-chat">Frontend Management</span>
+                        </a>
+                    </li>
                 @endsuperadmin
 
                 @admin

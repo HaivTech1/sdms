@@ -19,7 +19,10 @@ class HomeController extends Controller
 
         if ($user->isSuperAdmin()) {
             return view('dashboard',[
-                'user' => $user
+                'user' => $user,
+                'session' => $session,
+                'term' => $term,
+                'events' => $events
             ]);
         }elseif($user->isStaff()){
             return view('dashboard/staff',[

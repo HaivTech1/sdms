@@ -27,6 +27,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\VisitorController;
+use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\MessagingController;
@@ -235,6 +236,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::group(['prefix' => 'comments', 'as' => 'comments.'], function () {
         Route::post('/', [CommentController::class, 'store'])->name('store');
+    });
+
+    Route::group(['prefix' => 'design', 'as' => 'design.'], function () {
+        Route::get('/', [FrontendController::class, 'index'])->name('index');
+        Route::post('/', [FrontendController::class, 'banner'])->name('banner');
+        Route::post('/about', [FrontendController::class, 'about'])->name('about');
+        Route::get('/show/banner', [FrontendController::class, 'bannerShow']);
     });
 
 });

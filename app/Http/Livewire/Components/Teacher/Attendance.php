@@ -17,7 +17,7 @@ class Attendance extends Component
     public function mount()
     {
         if(!auth()->user()->isSuperAdmin() || !auth()->user()->isAdmin()){
-            $this->grade = auth()->user()->gradeClassTeacher[0]->id();
+            $this->grade = auth()->user()->gradeClassTeacher[0]->id() ?? 1;
             $this->students = Student::where('grade_id', $this->grade)->get();
         }
     }
@@ -25,7 +25,7 @@ class Attendance extends Component
     public function updatedTeacher($id)
     {
         $teac = User::whereId($id)->first();
-        $this->grade = $teac->gradeClassTeacher[0]->id();
+        $this->grade = $teac->gradeClassTeacher[0]->id() ?? 1;
         $this->students = Student::where('grade_id', $this->grade)->get();
     }
 
