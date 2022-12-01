@@ -1,4 +1,4 @@
-<footer class="footer_area bg_cover" style="background-image: url({{ asset('frontend/images/footer_bg.jpg') }})">
+<footer class="footer_area bg_cover" style="background-image: url({{ asset('storage/' .banner('wide_banner')) }})">
     <div class="footer_widget pt-80 pb-130">
         <div class="container">
             <div class="row">
