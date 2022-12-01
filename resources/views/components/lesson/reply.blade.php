@@ -9,7 +9,8 @@
     </h2>
     @endif
     <div x-show="show">
-        <x-form action="{{ route('comments.store') }}" class="space-y-4">
+        <form action="{{ route('comments.store') }}" class="space-y-4" method="POST">
+            @csrf
             <x-form.textarea name="body" class="" placeholder="Leave a reply here...">
                 {{ old('body') }}
             </x-form.textarea>
@@ -24,6 +25,6 @@
             <x-buttons.default>
                 Submit
             </x-buttons.default>
-        </x-form>
+        </form>
     </div>
 </div>

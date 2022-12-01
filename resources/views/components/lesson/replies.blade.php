@@ -4,9 +4,9 @@
             $depth = ($comment->depth * 8)
         @endphp
 
-        @if($comment->depth > 0 )ml-{{ $depth }}@endif
-
-        <div class="d-flex py-3">
+        <div class="d-flex py-3
+        @if($comment->depth > 0 )mx-{{ $depth }}@endif"
+        >
             <div class="flex-shrink-0 me-3">
                 <div class="avatar-xs">
                     <img src="{{ asset('storage/'. $comment->author()->image())}}" alt="" class="img-fluid d-block rounded-circle">
