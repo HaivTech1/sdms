@@ -64,6 +64,9 @@
                                         <li class="list-inline-item me-3">
                                             <i class= "bx bxs-show me-1"></i> {{ views($lesson)->count(); }}
                                         </li>
+                                        <li class="list-inline-item me-3">
+                                            <i class= "bx bxs-comment me-1"></i> {{ $lesson->comments()->count() }}
+                                        </li>
                                         @admin
                                             @if ($lesson->transcript())
                                                 <li class="list-inline-item me-3 btn btn-sm btn-primary" title="Click to download file">

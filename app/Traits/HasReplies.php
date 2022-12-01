@@ -18,11 +18,11 @@ trait HasReplies
 
     public function depth()
     {
-        return $this->depth >= config('services.comments.max') - 1;
+        return $this->depth >= config('settings.comments.max') - 1;
     }
 
     public function maximumReplies(): bool
     {
-        return $this->repliesRelation->count() >= config('services.replies.max');
+        return $this->repliesRelation->count() >= config('settings.replies.max');
     }
 }

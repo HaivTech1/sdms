@@ -1,10 +1,5 @@
 @php
-$classes = 'form-control';
+$classes = 'border-gray-300 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 rounded-md shadow-sm w-full'
 @endphp
 
-<textarea></textarea>
-<div class="form-floating mb-3">
-    <input type="text"
-        {{ $attributes->merge(['class' => $classes, id="floatingnameInput", placeholder="start typing..."]) }}>
-    <label for="floatingnameInput">{{ $slot }}</label>
-</div>
+<textarea {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</textarea>

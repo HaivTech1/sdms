@@ -17,6 +17,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContestController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\OptionsController;
@@ -231,6 +232,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         return back();
     })->name('finger_device.clear.attendance');
+
+    Route::group(['prefix' => 'comments', 'as' => 'comments.'], function () {
+        Route::post('/', [CommentController::class, 'store'])->name('store');
+    });
 
 });
 

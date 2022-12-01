@@ -77,10 +77,13 @@
 
         <div class="col-lg-4">
             <div class="card">
+                <iframe src="{{ asset('storage/'.$lesson->transcript()) }}#toolbar=0" height="300" style="border:none;"></iframe>
+            </div>
+            <div class="card">
                 <div class="card-body">
                     <h4 class="card-title mb-4">Comments</h4>
 
-                    
+                    <x-lesson.comments :lesson="$lesson" />
                 </div>
             </div>
         </div>

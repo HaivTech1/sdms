@@ -67,7 +67,10 @@
                                                         <i class= "bx bx-calendar me-1"></i> {{ $lesson->createdAt() }}
                                                     </li>
                                                     <li class="list-inline-item me-3">
-                                                        <i class= "bx bxs-show me-1"></i> {{ views($lesson)->count(); }}
+                                                        <i class= "bx bxs-show me-1"></i> {{ views($lesson)->count() }}
+                                                    </li>
+                                                    <li class="list-inline-item me-3">
+                                                        <i class= "bx bxs-comment me-1"></i> {{ $lesson->comments()->count() }}
                                                     </li>
                                                 </ul>
                                             </div>

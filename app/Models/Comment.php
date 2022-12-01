@@ -24,7 +24,7 @@ class Comment extends Model
     protected $table = self::TABLE;
 
     protected $fillable = [
-        'description',
+        'body',
         'parent_id',
         'depth',
     ];
@@ -39,9 +39,9 @@ class Comment extends Model
         return $this->id;
     }
 
-    public function description(): string
+    public function body(): string
     {
-        return $this->description;
+        return $this->body;
     }
 
     public function parentId(): string
@@ -51,6 +51,6 @@ class Comment extends Model
 
     public function excerpt(int $limit = 100): string
     {
-        return Str::limit($this->description(), $limit);
+        return Str::limit($this->body(), $limit);
     }
 }
