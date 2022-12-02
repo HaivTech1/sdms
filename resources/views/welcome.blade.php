@@ -156,8 +156,8 @@
             <div class="row align-items-center">
                 <div class="col-lg-3">
                     <div class="about_certified mt-45">
-                        <h4 class="title">Certified Language center</h4>
-                        <p>What do you think is better to receive after each lesson: a lovely looking badge or important skills you can immediately put into practice? We thought you might choose the latter.</p>
+                        <h4 class="title">{{ application('slogan') }}</h4>
+                        <p>{{ application('description') }}</p>
                         <span><img src="{{ asset('frontend/images/call-3.png') }}" alt="call">  {{ application('line1') }}</span>
                     </div> 
                 </div>
@@ -203,53 +203,26 @@
                     <div class="why_choose_content">
                         <div class="section_title pb-20">
                             <h3 class="main_title">Why choose us?</h3>
-                            <p>What do you think is better to receive after each lesson: a lovely looking badge or important skills you can immediately put into practice.</p>
+                            <p>{{ application('description') }}</p>
                         </div>
+
+                        @php
+                            $chooses = \App\Models\Choose::all();
+                        @endphp
                         <div class="row">
-                            <div class="col-sm-6 choose_col">
-                                <div class="single_choose mt-30">
-                                    <div class="choose_icon">
-                                        <img src="{{ asset('frontend/images/choose_icon-1.png') }}" alt="Icon">
-                                    </div>
-                                    <div class="choose_content">
-                                        <h5 class="title"><a href="#">Big Library</a></h5>
-                                        <p>What do you think is better to receive after each lesson: a lovely looking .</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 choose_col">
-                                <div class="single_choose mt-30">
-                                    <div class="choose_icon">
-                                        <img src="{{ asset('frontend/images/choose_icon-2.png') }}" alt="Icon">
-                                    </div>
-                                    <div class="choose_content">
-                                        <h5 class="title"><a href="#">Certification</a></h5>
-                                        <p>What do you think is better to receive after each lesson: a lovely looking .</p>
+                            @foreach ($chooses as $choose)
+                                <div class="col-sm-6 choose_col">
+                                    <div class="single_choose mt-30">
+                                        <div class="choose_icon">
+                                            <img src="{{ asset('storage/' .$choose->logo) }}" alt="Icon">
+                                        </div>
+                                        <div class="choose_content">
+                                            <h5 class="title"><a href="#">{{ $choose->topic }}</a></h5>
+                                            <p>{{ $choose->intention }}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-sm-6 choose_col">
-                                <div class="single_choose mt-30">
-                                    <div class="choose_icon">
-                                        <img src="{{ asset('frontend/images/choose_icon-3.png') }}" alt="Icon">
-                                    </div>
-                                    <div class="choose_content">
-                                        <h5 class="title"><a href="#">Alumnai</a></h5>
-                                        <p>What do you think is better to receive after each lesson: a lovely looking .</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 choose_col">
-                                <div class="single_choose mt-30">
-                                    <div class="choose_icon">
-                                        <img src="{{ asset('frontend/images/choose_icon-4.png') }}" alt="Icon">
-                                    </div>
-                                    <div class="choose_content">
-                                        <h5 class="title"><a href="#">Abroad Student</a></h5>
-                                        <p>What do you think is better to receive after each lesson: a lovely looking .</p>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -262,7 +235,7 @@
         </div>
     </section>
 
-      <section class="about_area_4 pt-80">
+    {{-- <section class="about_area_4 pt-80">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6 col-md-8 col-sm-10">
@@ -281,95 +254,41 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
-    <section class="team_area pt-120 pb-60">
+    <section class="blog_area pt-120 pb-130">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <div class="section_title text-center pb-50">
+                    <div class="section_title text-center pb-20">
                         <h3 class="main_title">Top Teachers</h3>
                         <p>What do you think is better to receive after each lesson: a lovely looking badge or important skills you can immediately put into practice.</p>
                     </div>
                 </div>
             </div>
-            <div class="row no-gutters">
-                <div class="col-lg-6 team_col_1">
-                    <div class="single_team d-sm-flex flex-wrap align-items-center">
-                        <img class="team_arrow" src="{{ asset('frontend/images/left.png') }}" alt="left">
-                        <div class="team_image">
-                            <img src="{{ asset('frontend/images/team-1.jpg') }}" alt="team">
-                        </div>
-                        <div class="team_content">
-                            <div class="team_content_wrapper">
-                                <h4 class="title"><a href="#">Andrew Flecher</a></h4>
-                                <span>Business Studies</span>
-                                <ul class="social">
-                                    <li><a href="#"><i class="fa fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-                                </ul>
+            @php
+                $teachers = \App\Models\User::whereType(3)->inRandomOrder()->limit(3)->get();
+            @endphp
+            <div class="row justify-content-center">
+                @foreach ($teachers as $teacher)
+                    <div class="col-lg-4 col-md-7">
+                        <div class="single_blog mt-30">
+                            <div class="blog_image">
+                                <img src="{{ asset('storage/'.$teacher->image()) }}" alt="blog">
+                            </div>
+                            <div class="blog_content">
+                                <span class="date"><span>{{ $teacher->title() }}</span></span>
+                                
+                                <div class="blog_content_wrapper">
+                                    <ul class="blog_meta">
+                                        <li><a href="#">{{ $teacher->name() }}</a></li>
+                                        <li><a href="#">{{ $teacher->phone() }}</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="single_team d-sm-flex flex-wrap align-items-center flex-row-reverse">
-                        <img class="team_arrow" src="{{ asset('frontend/images/right.png') }}" alt="left">
-                        <div class="team_image">
-                            <img src="{{ asset('frontend/images/team-3.jpg') }}" alt="team">
-                        </div>
-                        <div class="team_content">
-                            <div class="team_content_wrapper">
-                                <h4 class="title"><a href="#">Andrew Flecher</a></h4>
-                                <span>Business Studies</span>
-                                <ul class="social">
-                                    <li><a href="#"><i class="fa fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 team_col_2">
-                    <div class="single_team d-sm-flex flex-wrap align-items-center">
-                        <img class="team_arrow" src="{{ asset('frontend/images/left.png') }}" alt="left">
-                        <div class="team_image">
-                            <img src="{{ asset('frontend/images/team-2.jpg') }}" alt="team">
-                        </div>
-                        <div class="team_content">
-                            <div class="team_content_wrapper">
-                                <h4 class="title"><a href="#">Andrew Flecher</a></h4>
-                                <span>Business Studies</span>
-                                <ul class="social">
-                                    <li><a href="#"><i class="fa fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="single_team d-sm-flex flex-wrap align-items-center flex-row-reverse">
-                        <img class="team_arrow" src="{{ asset('frontend/images/right.png') }}" alt="left">
-                        <div class="team_image">
-                            <img src="{{ asset('frontend/images/team-4.jpg') }}" alt="team">
-                        </div>
-                        <div class="team_content">
-                            <div class="team_content_wrapper">
-                                <h4 class="title"><a href="#">Andrew Flecher</a></h4>
-                                <span>Business Studies</span>
-                                <ul class="social">
-                                    <li><a href="#"><i class="fa fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>

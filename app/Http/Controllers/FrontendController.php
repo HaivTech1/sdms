@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\About;
 use App\Models\Banner;
+use App\Models\Choose;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -209,5 +210,35 @@ class FrontendController extends Controller
     {
        $about = About::first();
        return response()->json(['status'=> 'success', 'message' => 'About shown successfully!', 'about' => $about], 200);
+    }
+
+    public function choose(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'addmore.*.topic' => 'required',
+            'addmore.*.intention' => 'required',
+            'addmore.*.logo' => 'required',
+        ]);
+
+        
+        if ($validator->passes()) {
+
+            foreach ($request->addmore as $key => $value) {
+                $choose = new Choose();
+                $choose->topic = $value['topic'];
+                $choose->intention = $value['intention'];
+
+                $chooseFileName = $value['logo']->getClientOriginalName();
+                $chooseFilePath = 'choose/' . $chooseFileName;
+                $chooseIsFileUploaded = Storage::disk('public')->put($chooseFilePath, file_get_contents($value['logo']));
+                if ($chooseIsFileUploaded) {
+                    $choose->logo = $chooseFilePath;
+                }
+                $choose->save();
+            }
+
+            return response()->json(['status'=>'success', 'message' => 'Why choose use created successfully!'], 200);
+        }
+        return response()->json(['message'=> $validator->errors()->all()], 500);
     }
 }

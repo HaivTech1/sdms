@@ -201,21 +201,47 @@
                 <h2 class="accordion-header" id="headingThree">
                     <button class="accordion-button fw-medium collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        Accordion Item #3
+                       Choose
                     </button>
                 </h2>
                 <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
                     data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        <div class="text-muted">
-                            <strong class="text-dark">This is the third item's accordion body.</strong> It is hidden by
-                            default, until the collapse plugin adds the appropriate classes that we use to style each
-                            element. These classes control the overall appearance, as well as the showing and hiding via
-                            CSS transitions. You can modify any of this with custom CSS or overriding our default
-                            variables. It's also worth noting that just about any HTML can go within the
-                            <code>.accordion-body</code>, though the transition does limit overflow.
+                         <form id="chooseForm" enctype="multipart/form-data" method="POST">
+                            
+                            <div class="row">
+                                <table class="table table-bordered" id="dynamicTable">  
+                                    <tr>
 
-                        </div>
+                                        <th>Title</th>
+
+                                        <th>Description</th>
+
+                                        <th>Image</th>
+
+                                        <th>Action</th>
+
+                                    </tr>
+                                    <tr>  
+
+                                        <td><input type="text" name="addmore[0][topic]" placeholder="Enter your topic" class="form-control" /></td>  
+
+                                        <td><input type="text" name="addmore[0][intention]" placeholder="Enter your intention" class="form-control" /></td>  
+
+                                        <td><input type="file" name="addmore[0][logo]" placeholder="Enter your logo" class="form-control" /></td>  
+
+                                        <td><button type="button" name="add" id="add" class="btn btn-success"><i class="bx bx-plus"></i></button></td>  
+
+                                    </tr>  
+
+                                </table> 
+                            </div>
+
+                            <div class="float-right">
+                                <button class="btn btn-success upload-form"
+                                    type="submit">Create</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -324,6 +350,43 @@
                             showCancelButton:!0,
                             confirmButtonColor: "#f46a6a",
                         });
+                        toggleAble('.upload-image', false);
+                    });
+                });
+
+                $('#chooseForm').on('submit' ,function(e){
+                    e.preventDefault();
+                    let formData = new FormData($('#chooseForm')[0]);
+                    toggleAble('.upload-form', true, 'Submitting...');
+
+                    $.ajax({
+                        url: "{{ route('design.choose') }}",
+                        method: 'post',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                    }).then((response) => {
+                        Swal.fire({
+                                title: "Good job!",
+                                text: response.message,
+                                icon: "success",
+                                showCancelButton: !0,
+                                confirmButtonColor: "#556ee6",
+                                cancelButtonColor: "#f46a6a",
+                            });
+                            toggleAble('.upload-form', false);
+                            resetForm('#chooseForm');
+                            window.location.reload();
+                    }).catch((error) => {
+                        Swal.fire({
+                            title: "Oops!",
+                            text: "Something went wrong!!!",
+                            icon: "error",
+                            showCancelButton:!0,
+                            confirmButtonColor: "#f46a6a",
+                        });
+                        toggleAble('.upload-form', false);
                     });
                 });
                
@@ -388,6 +451,19 @@
                     reader.readAsDataURL(file);
                 }
             });
+        </script>
+
+        <script type="text/javascript">
+            var i = 0;
+            $("#add").click(function(){
+                ++i;
+                $("#dynamicTable").append('<tr><td><input type="text" name="addmore['+i+'][topic]" placeholder="Enter your topic" class="form-control" /></td><td><input type="text" name="addmore['+i+'][intention]" placeholder="Enter your intention" class="form-control" /></td><td><input type="file" name="addmore['+i+'][logo]" class="form-control" /></td><td><button type="button" class="btn btn-danger remove-tr"><i class="bx bx-trash"></i></button></td></tr>');
+            });
+        
+            $(document).on('click', '.remove-tr', function(){  
+                $(this).parents('tr').remove();
+            });  
+
         </script>
     @endsection
 

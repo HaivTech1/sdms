@@ -12,7 +12,7 @@ class SaveImageService
     {
         $path = Storage::putFile($folder, new File($image));
         $targetPath = storage_path('app/' . 'public/' . $path);
-        Image::make($image)->resize(1200, 630)->save($targetPath);
+        Image::make($image)->resize(1200, 750)->save($targetPath);
         $model->$row = $path;
         $model->save();
     }
