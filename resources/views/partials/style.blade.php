@@ -1,5 +1,5 @@
 <!-- App favicon -->
-<link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+<link rel="shortcut icon" href="{{ asset('storage/' .application('fav')) }}">
 
 <!-- Bootstrap Rating css -->
 <link href="{{ asset('libs/bootstrap-rating/bootstrap-rating.css') }}" rel="stylesheet" type="text/css" />

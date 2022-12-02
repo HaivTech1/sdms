@@ -21,6 +21,7 @@ class CreateApplicationsTable extends Migration
             $table->string('line1')->nullable();
             $table->string('line2')->nullable();
             $table->string('image')->nullable();
+            $table->string('fav')->nullable();
             $table->string('address')->nullable();
             $table->string('slogan')->nullable();
             $table->string('motto')->nullable();

@@ -204,4 +204,10 @@ class FrontendController extends Controller
     
         return response()->json(['message'=> $validator->errors()->all()], 500);
     }
+
+    public function aboutShow()
+    {
+       $about = About::first();
+       return response()->json(['status'=> 'success', 'message' => 'About shown successfully!', 'about' => $about], 200);
+    }
 }

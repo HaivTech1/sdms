@@ -243,6 +243,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [FrontendController::class, 'banner'])->name('banner');
         Route::post('/about', [FrontendController::class, 'about'])->name('about');
         Route::get('/show/banner', [FrontendController::class, 'bannerShow']);
+        Route::get('/show/about', [FrontendController::class, 'aboutShow']);
     });
 
 });

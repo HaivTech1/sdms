@@ -143,7 +143,7 @@
                             <div class="row">
                                 <div class="col-sm-4 mb-3">
                                     <x-form.label for="title" value="{{ __('Title') }}" />
-                                    <x-form.input id="title" class="block w-full mt-1" type="text" name="title"
+                                    <x-form.input id="about_title" class="block w-full mt-1" type="text" name="title"
                                         :value="old('title')" id="title" autofocus />
                                     <x-form.error for="title" />
                                 </div>
@@ -247,6 +247,16 @@
                     }
                 });
 
+                $.ajax({
+                    method: 'GET',
+                    url: 'design/show/about',
+                    success: function(response) {
+                        $('#about_title').val(response.about.title);
+                        $('#description_one').val(response.about.description_one);
+                        $('#description_two').val(response.about.description_two);
+                    }
+                });
+
                 $('#bannerForm').on('submit' ,function(e){
                     e.preventDefault();
                     let formData = new FormData($('#bannerForm')[0]);
@@ -282,7 +292,7 @@
                     });
                 });
 
-                 $('#aboutForm').on('submit' ,function(e){
+                $('#aboutForm').on('submit' ,function(e){
                     e.preventDefault();
                     let formData = new FormData($('#aboutForm')[0]);
                     toggleAble('.upload-image', true, 'Submitting...');

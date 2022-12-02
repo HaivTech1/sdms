@@ -22,6 +22,7 @@ class Application extends Model
         'line1',
         'line2',
         'image',
+        'fav',
         'slogan',
         'motto',
         'address',
@@ -163,6 +164,22 @@ class Application extends Model
             $setting->motto         = $request->motto;
             $setting->address         = $request->address;
             $setting->description         = $request->description;
+          }
+
+          $fileName = $request->logo->getClientOriginalName();
+          $filePath = 'applications/' . $fileName;
+          $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($request->logo));
+  
+          if ($isFileUploaded) {
+              $setting->image = $filePath;
+          }
+
+          $fileNameFav = $request->fav->getClientOriginalName();
+          $filePathFav = 'applications/' . $fileNameFav;
+          $isFileUploadedFav = Storage::disk('public')->put($filePathFav, file_get_contents($request->fav));
+  
+          if ($isFileUploadedFav) {
+              $setting->fav = $filePathFav;
           }
     
           $setting->save();

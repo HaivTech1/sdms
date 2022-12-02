@@ -82,13 +82,13 @@
                                                     <div class="col-sm-6">
                                                         <div>
                                                             <p class="text-muted text-truncate mb-2">Session</p>
-                                                            <h5 class="mb-0">{{ $session->title()}}</h5>
+                                                            <h5 class="mb-0">{{ $session?->title() ?? 'Not set'}}</h5>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div>
                                                             <p class="text-muted text-truncate mb-2">Term</p>
-                                                            <h5 class="mb-0">{{ $term->title()}}</h5>
+                                                            <h5 class="mb-0">{{ $term?->title() ?? 'Not set'}}</h5>
                                                         </div>
                                                     </div>
                                                   

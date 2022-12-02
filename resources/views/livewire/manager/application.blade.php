@@ -115,13 +115,17 @@
 
                 <!-- Site description -->
                 <div class="col-sm-12">
-
                     <div class="mb-3">
                         <x-form.label for="Postdesc" value="{{ __('Description') }}" />
                         <textarea class="form-control" id="Postdesc" rows="5" wire:model.defer="app.description"
                             value="old('description')" placeholder="Post Description"></textarea>
                     </div>
+                </div>
 
+                <div class="col-md-6 mb-3">
+                    <x-form.label for="fav" value="{{ __('Favicon') }}" />
+                    <x-form.input id="fav" type="text" class="block w-full mt-1" wire:model.defer="app.fav" type="file"/>
+                    <x-form.error for="fav" class="mt-2" />
                 </div>
             </div>
         </x-slot>

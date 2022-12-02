@@ -43,6 +43,12 @@ class Application extends Component
             return redirect()->route('setting.index');
         }
 
+        if (isset($this->fav)) {
+            File::delete(storage_path('app/' .$this->application->fav));
+            $this->application->update(['fav' => $this->fav->store('applications', 'public')]);
+            return redirect()->route('setting.index');
+        }
+
         $this->emit('saved');
     }
 

@@ -44,7 +44,7 @@
                                     {{ session('status') }}
                                 </div>
                                 @endif
-                                <form id="setup-form">
+                                <form id="setup-form" enctype="multipart/form-data" method="POST">
                                     @csrf
                                     <div class="mb-3">
                                         <label for="formrow-firstname-input" class="form-label">Name</label>
@@ -118,25 +118,25 @@
                                         </div>
                                     </div>
 
+                                     <div class="row mt-4">
+                                        <div class="col-md-4 mb-2">
+                                            <x-form.input id="logo" class="block w-full mt-1" type="file" name="logo" :value="old('logo')"/>
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <x-form.input id="fav" class="block w-full mt-1" type="file" name="fav" :value="old('fav')"/>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="image" id="img-show-container" style="display: none; width: 100px; height: 100px">
+                                                <div class="fa fa-remove blue delete" onclick="resetImgUpl()"></div>
+                                                <canvas id="img-show" class="img-thumbnail img-response"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div>
                                         <button id="submit" type="submit" class="btn btn-primary w-md">Submit</button>
                                     </div>
                                 </form>
-
-                                <form enctype="multipart/form-data">
-                                    <div class="form-group mt-4">
-                                        <div class="col-md-3">
-                                            <label class="control-label" for="logo">School Logo</label>
-                                        </div>
-                                        <div class="col-md-9">
-                                            <input required id="logo" class="file-control" type="file" accept="image/*" name="logo[]" >
-                                        </div>
-                                    </div>
-                                </form>
-                                <div class="image" id="img-show-container" style="display: none; width: 50px; height: 50px">
-                                    <div class="fa fa-remove blue delete" onclick="resetImgUpl()"></div>
-                                    <canvas id="img-show" class="img-thumbnail img-response"></canvas>
-                                </div>
                             </div>
 
                         </div>
@@ -157,6 +157,47 @@
                 drawOnCanvas(file);   // see Example 6
                 // displayAsImage(file); // see Example 7
             };
+
+
+            $.ajaxSetup({
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
+            });
+
+            $('#setup-form').on('submit' ,function(e){
+                    e.preventDefault();
+                    let formData = new FormData($('#setup-form')[0]);
+                    toggleAble('#submit', true, 'Submitting...');
+
+                    $.ajax({
+                        url: "{{ route('app.details') }}",
+                        method: 'post',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                    }).then((response) => {
+                        Swal.fire({
+                                title: "Good job!",
+                                text: response.message,
+                                icon: "success",
+                                showCancelButton: !0,
+                                confirmButtonColor: "#556ee6",
+                                cancelButtonColor: "#f46a6a",
+                            });
+                            toggleAble('#submit', false);
+                            resetForm('#setup-form');
+                            window.location.reload();
+                    }).catch((error) => {
+                        Swal.fire({
+                            title: "Oops!",
+                            text: "Something went wrong!!!",
+                            icon: "error",
+                            showCancelButton:!0,
+                            confirmButtonColor: "#f46a6a",
+                        });
+                        toggleAble('#submit', false);   
+                    });
+            });
         });
 
         function uploadImg(fn) {
@@ -184,32 +225,6 @@
             xhr.send(form)
             });
         }
-
-        // submit form on button click
-        $('#submit').click(() => {
-        $('#setup-form').submit()
-        })
-        
-        // form onsubmit
-        $('#setup-form').submit((e) => {
-            e.preventDefault()
-            data = $('#setup-form').serializeArray()
-            $.post("{{route('app.details')}}", data)
-            .done((res) => {
-                if (res.status) {
-                    toastr.success(res.message, 'Success!');
-                    uploadImg(() => {
-                        window.location.reload()
-                    });
-                } else {
-                    toastr.error(res.message, 'Failed!');
-                }
-            })
-            .fail((err) => {
-                console.log(err);
-                toastr.error(err.message, 'Failed!');
-            })
-        })
 
         // function to draw image on selection
         function drawOnCanvas(file) {
