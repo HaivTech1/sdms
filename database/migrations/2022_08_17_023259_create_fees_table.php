@@ -17,7 +17,7 @@ class CreateFeesTable extends Migration
             $table->id();
             $table->string('title');
             $table->double('price');
-            $table->boolean('status')->default(1);
+            $table->boolean('status')->default(0);
             $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
             $table->foreignId('grade_id')->constrained('grades')->onDelete('cascade');
             $table->foreignId('author_id')->constrained('users')->onDelete('cascade');

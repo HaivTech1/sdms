@@ -30,7 +30,7 @@ class CreateStudentsTable extends Migration
             $table->text('allergics')->nullable();
             $table->foreignId('grade_id')->nullable()->constrained('grades')->onDelete('set null');
             $table->foreignId('house_id')->nullable()->constrained('houses')->onDelete('set null');
-            $table->boolean('status')->default(1);
+            $table->boolean('status')->default(0);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();

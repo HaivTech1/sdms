@@ -27,6 +27,12 @@ class CreateApplicationsTable extends Migration
             $table->string('motto')->nullable();
             $table->string('regNo')->nullable();
             $table->text('description')->nullable();
+            $table->text('facebook')->nullable();
+            $table->text('instagram')->nullable();
+            $table->text('twitter')->nullable();
+            $table->text('linkedin')->nullable();
+            $table->text('website')->nullable();
+
             $table->timestamps();
         });
     }

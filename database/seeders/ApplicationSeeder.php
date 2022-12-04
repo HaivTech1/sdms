@@ -23,14 +23,16 @@ class ApplicationSeeder extends Seeder
             'line1'        =>  '09066100815',
             'line2'        =>  '09066100815',
             'image'      =>  'applications/haivtech.png',
-            'address'       =>  'Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis',
-            'motto'     =>  'Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis',
-            'slogan'        =>  'Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis',
-            'regNo'        =>  'RC43243',
-            'description'       =>  'Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis 
-                                    sunt nobis sequi ullam fugiat voluptas commodi voluptatem animi laboriosam 
-                                    doloribus? Consequuntur, beatae provident? Minus inventore et totam in aliquid nobis!',
-            
+            'address'       =>  '10, Ona Abayo, Ondo, Ondo State',
+            'motto'     =>  'Unique solutions for you',
+            'slogan'        =>  'Unique solutions for you',
+            'regNo'        =>  'RC2004222',
+            'description'       =>  'Unique solutions for you',
+            'facebook'        =>  'Haivtech',
+            'instagram'        =>  'Haivtech',
+            'twitter'        =>  'Haivtech',
+            'linkedin'        =>  'Haivtech',
+            'website'        =>  'https://www.haivtech.com.ng'
             ],
         ];
         

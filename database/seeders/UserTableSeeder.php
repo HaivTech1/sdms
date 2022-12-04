@@ -20,8 +20,9 @@ class UserTableSeeder extends Seeder
                 'shittuopeyemi24@gmail.com',
                 bcrypt('midshot17'),
                 User::SUPERADMIN,
-                'author-one.jpg',
-                '2349066100815'
+                'users/author-one.jpg',
+                '2349066100815',
+                'ADM/22/311464'
             ),
             $this->createUser(
                 'Mr',
@@ -29,8 +30,9 @@ class UserTableSeeder extends Seeder
                 'ojotifeema@gmail.com',
                 bcrypt('password'),
                 User::SUPERADMIN,
-                'author-two.jpg',
-                '2348139636506'
+                'users/author-two.jpg',
+                '2348139636506',
+                'ADM/22/311463'
             )
         ]);
 
@@ -41,8 +43,8 @@ class UserTableSeeder extends Seeder
         // ]));
     }
 
-    private function createUser(string $title, string $name, string $email, string $password, string $type, string $profile_photo_path, string $phone_number)
+    private function createUser(string $title, string $name, string $email, string $password, string $type, string $profile_photo_path, string $phone_number, string $reg_no)
     {
-        return User::factory()->create(compact('title', 'name', 'email', 'password', 'type', 'profile_photo_path', 'phone_number'));
+        return User::factory()->create(compact('title', 'name', 'email', 'password', 'type', 'profile_photo_path', 'phone_number', 'reg_no'));
     }
 }

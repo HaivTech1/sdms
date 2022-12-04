@@ -29,6 +29,11 @@ class Application extends Model
         'logistic',
         'cleaning',
         'description',
+        'facebook',
+        'instagram',
+        'twitter',
+        'linkedin',
+        'website'
     ];
 
     public function id(): int

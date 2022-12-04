@@ -113,6 +113,46 @@
                     <x-form.error for="address" class="mt-2" />
                 </div>
 
+                <!-- Site facebook -->
+                <div class="col-md-6 mb-3">
+                    <x-form.label for="facebook" value="{{ __('Facebook') }}" />
+                    <x-form.input id="facebook" type="text" class="block w-full mt-1" wire:model.defer="app.facebook"
+                        autocomplete="facebook" />
+                    <x-form.error for="facebook" class="mt-2" />
+                </div>
+
+                <!-- Site instagram -->
+                <div class="col-md-6 mb-3">
+                    <x-form.label for="instagram" value="{{ __('Instagram') }}" />
+                    <x-form.input id="instagram" type="text" class="block w-full mt-1" wire:model.defer="app.instagram"
+                        autocomplete="instagram" />
+                    <x-form.error for="instagram" class="mt-2" />
+                </div>
+
+                <!-- Site twitter -->
+                <div class="col-md-6 mb-3">
+                    <x-form.label for="twitter" value="{{ __('Twitter') }}" />
+                    <x-form.input id="twitter" type="text" class="block w-full mt-1" wire:model.defer="app.twitter"
+                        autocomplete="twitter" />
+                    <x-form.error for="twitter" class="mt-2" />
+                </div>
+
+                <!-- Site linkedin -->
+                <div class="col-md-6 mb-3">
+                    <x-form.label for="linkedin" value="{{ __('Linkedin') }}" />
+                    <x-form.input id="linkedin" type="text" class="block w-full mt-1" wire:model.defer="app.linkedin"
+                        autocomplete="linkedin" />
+                    <x-form.error for="linkedin" class="mt-2" />
+                </div>
+
+                      <!-- Site website -->
+                <div class="col-md-6 mb-3">
+                    <x-form.label for="website" value="{{ __('Website') }}" />
+                    <x-form.input id="website" type="text" class="block w-full mt-1" wire:model.defer="app.website"
+                        autocomplete="website" />
+                    <x-form.error for="website" class="mt-2" />
+                </div>
+
                 <!-- Site description -->
                 <div class="col-sm-12">
                     <div class="mb-3">

@@ -16,7 +16,7 @@ class CreatePeriodsTable extends Migration
         Schema::create('periods', function (Blueprint $table) {
             $table->id();
             $table->string('title')->unique();
-            $table->boolean('status')->default(1);
+            $table->boolean('status')->default(0);
             $table->timestamps();
         });
     }

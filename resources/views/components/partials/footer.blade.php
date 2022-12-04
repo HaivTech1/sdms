@@ -8,12 +8,11 @@
 
                         <p>{{ application('description') }}</p>
 
-                        <ul class="footer_social">
-                            <li><a href="#"><i class="fa fa-facebook-f"></i></a></li>
-                            <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                            <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-                            <li><a href="#"><i class="fa fa-pinterest-p"></i></a></li>
-                        </ul>
+                            @php
+                                $application = \App\Models\Application::first()
+                            @endphp
+                         {{-- Social Share --}}
+                        <x-social.links :application="$application" url="{{ Request::url() }}" />
                     </div>
                 </div>
                 <div class="col-lg-9">

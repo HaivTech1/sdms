@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(StudentSeeder::class);
         // $this->call(ScheduleStudentSeeder::class);
         // $this->call(GuardianSeeder::class);
-        $this->call(GradeSubjectSeeder::class);
+        // $this->call(GradeSubjectSeeder::class);
         // $this->call(EventSeeder::class);
         // $this->call(GradeUser::class);
     }

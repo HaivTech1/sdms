@@ -35,6 +35,11 @@ class Application extends Component
             'motto'         => $this->app['motto'],
             'address'         => $this->app['address'],
             'description'         => $this->app['description'],
+            'facebook'         => $this->app['facebook'],
+            'instagram'         => $this->app['instagram'],
+            'twitter'         => $this->app['twitter'],
+            'linkedin'         => $this->app['linkedin'],
+            'website'         => $this->app['website'],
         ]);
 
         if (isset($this->photo)) {
