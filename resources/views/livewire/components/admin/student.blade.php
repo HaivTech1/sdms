@@ -186,10 +186,8 @@
                                                                     <div class="row">
                                                                         <div class="col-sm-12">
                                                                             <h4>Assign Subjects for {{  $student->fullName() }}</h4>
-                                                                            <form
-                                                                                id="assignSubjects">
+                                                                            <form id="assignSubjects">
                                                                                 @csrf
-
                                                                                 <x-form.input type="hidden"
                                                                                     value="{{ $student->id() }}"
                                                                                     name="student_id" />
@@ -210,7 +208,7 @@
 
                                                                                 <div class="col-sm-12 mt-2">
                                                                                     <div class="float-right">
-                                                                                        <button id="submit_button1" type="submit"
+                                                                                        <button id="submit_button" type="submit"
                                                                                             class="btn btn-primary">Add</button>
                                                                                     </div>
                                                                                 </div>
@@ -249,10 +247,9 @@
     </div>
 
     @section('scripts')
-
         <script>
             $('#assignSubjects').submit((e) => {
-                    toggleAble('#submit_button1', true, 'Submitting...');
+                    toggleAble('#submit_button', true, 'Submitting...');
                     e.preventDefault()
                     var data = $('#assignSubjects').serializeArray();
                     var url = "{{ route('student.assignSubject') }}";
@@ -263,10 +260,10 @@
                         data
                     }).done((res) => {
                         if(res.status === 'success') {
-                            toggleAble('#submit_button1', false);
+                            toggleAble('#submit_button', false);
                             toastr.success(res.message, 'Success!');
                         }else{
-                            toggleAble('#submit_button1', false);
+                            toggleAble('#submit_button', false);
                             toastr.error(res.message, 'Failed!');
                         }
                         resetForm('#assignSubjects');
@@ -275,7 +272,7 @@
                     }).fail((res) => {
                         console.log(res.responseJSON.message);
                         toastr.error(res.responseJSON.message, 'Failed!');
-                        toggleAble('#submit_button1', false);
+                        toggleAble('#submit_button', false);
                     });
                 })
         </script>
