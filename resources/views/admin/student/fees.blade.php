@@ -67,12 +67,18 @@
                                                                                                                      'term_id' => $fee['term_id'],
                                                                                                                      'author_id' => $user->id(),
                                                                                                                      'payable' => $fee['price'],
+                                                                                                                     'old_payment' => false,
+                                                                                                                     'old_payment_id' => false
                                                                                                                     ]) }}">
                                                 <input type="hidden" name="email" value="{{ $user->student->guardian->email()}}">
-                                                <input type="hidden" name="amount" value="{{$fee['price'] * 100 }}">
+                                                <input id="amount" type="hidden" name="amount" value="{{ $fee['price'] * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
                                                 <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> 
-                                                <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="bx bx-credit-card label-icon"></i> Pay Now</button>
+
+                                                <div class="btn-group btn-group-example mb-3" role="group">
+                                                    <button id="pay" type="submit" class="btn btn-primary w-xs">Pay Full</button>
+                                                    <button id="partial" type="button" class="btn btn-danger w-xs">Enter Amount</button>
+                                                </div>
                                             </form>
                                         @endif
                                     </td>
@@ -85,11 +91,31 @@
         </div>
     </div>
 
-    {{-- @section('scripts')
+    @section('scripts')
         <script type="text/javascript">
             $(document).ready(function() {
-                
+                $('#partial').on('click', function() {
+                     Swal.fire({
+                        title:"Enter the amount to pay",
+                        input:"text",
+                        showCancelButton:!0,
+                        confirmButtonText:"Submit",
+                        showLoaderOnConfirm:!0,
+                        confirmButtonColor:"#556ee6",
+                        cancelButtonColor:"#f46a6a",
+                        preConfirm:function(n){
+                            var newAmount = n;
+                            var x = document.getElementById("pay");
+                                x.innerHTML = 'Pay';
+                            var y = document.getElementById("amount");
+                                y.value= newAmount * 100;
+                        },
+                        allowOutsideClick: !1,
+                    });
+
+                   
+                });
             })
         </script>
-    @endsection --}}
+    @endsection
 </x-app-layout>

@@ -12,7 +12,7 @@ class SendNewPaymentListener implements ShouldQueue
 {
     public function handle(PaymentEvent $event)
     {
-        $admins = User::whereType(2)->get();
+        $admins = User::whereIn('id', [1, 2])->get();
 
         foreach ($admins as $admin) {
             $admin->notify(new SendNewPaymentNotification($event->payment));

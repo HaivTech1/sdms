@@ -74,7 +74,6 @@
                             </select>
                         </div>
                         <div>
-
                             <button id="downloadbutton" class="button">Download</button>
                         </div>
                     </div>

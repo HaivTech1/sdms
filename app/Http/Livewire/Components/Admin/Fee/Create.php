@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\Student;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Services\SaveCodeService;
 
 class Create extends Component
 {
@@ -29,12 +30,17 @@ class Create extends Component
     public $student;
     public $type;
     public $paid_by;
+    public $period_id;
+    public $term_id;
+
     
     public $fields_validation = [
         'paid_by' => 'required',
         'student' => 'required',
         'type' => 'required',
         'amount' => 'required',
+        'period_id' => 'required',
+        'term_id' => 'required',
     ];
 
     public $search = '';
@@ -120,10 +126,15 @@ class Create extends Component
              'amount'   => $this->amount,
              'balance'   => $this->balance,
              'payable'   => $this->payable,
+             'period_id'   => $this->period_id,
+             'term_id'   => $this->term_id,
+             'author_id'   => auth()->id(),
              'type'   => $this->type,
              'student_uuid' => $this->student
             ]);
-            $payment->authoredBy(auth()->user());
+
+            $payment->trans_id = SaveCodeService::IDGenerator(new Payment(), $payment, 'trans_id', 5, 'TRX');
+            $payment->ref_id = SaveCodeService::IDGenerator(new Payment(), $payment, 'ref_id', 7, 'REF');
             $payment->save();
      
             $this->reset();

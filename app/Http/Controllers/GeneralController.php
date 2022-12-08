@@ -26,24 +26,6 @@ class GeneralController extends Controller
         ->groupBy('term_id')
         ->orderBy('term_id')
         ->get();
-
-        // dd($fees);
-
-        // $schoolFees = array();
-
-        // foreach ($fees as $value) {
-        //     foreach ($value as $get) {
-        //         foreach ($get as $value) {
-        //             $schoolFees[] = [
-        //                 'title' => $value->title,
-        //                 'term_id' => $value->term_id,
-        //                 'period_id' => $value->period_id,
-        //                 'price' => $value->price,
-        //             ];
-        //         }
-        //     }
-        // }
-
         return view('admin.student.fees',[
             'user' => $user,
             'fees' => $fees

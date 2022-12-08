@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\About;
 use App\Models\Banner;
 use App\Models\Period;
+use App\Models\Payment;
 use App\NullApplication;
 use App\Models\Affective;
 use App\Models\Cognitive;
@@ -175,4 +176,11 @@ function color($grade)
 function classAvg($grade)
 {
     
+}
+
+function paymentCheck($tran, $ref)
+{
+    $payment = Payment::whereTrans_id($tran)->whereRef_id($ref)->first();
+
+    return $payment;
 }

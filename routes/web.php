@@ -52,6 +52,7 @@ Route::post('/setup/details', [VisitorController::class, 'saveAppDetails'])->nam
 
 Route::post('/pay', [PaymentController::class, 'redirectToGateway'])->name('pay');
 Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback']);
+Route::get('/payment/receipt/{payment}', [PaymentController::class, 'receipt'])->name('receipt');
 
 Route::middleware(['auth:sanctum'])->group(function () {
     

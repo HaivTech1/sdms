@@ -37,40 +37,48 @@ class PaymentController extends Controller
         $paymentType = ($amount == $paymentDetails['data']['metadata']['payable']) ? 'full' : 'partial';
         $paidBy = Student::findOrFail($paymentDetails['data']['metadata']['student_uuid']);
 
+        $check = paymentCheck($paymentDetails['data']['id'], $paymentDetails['data']['reference'] );
 
-        if ($paymentDetails['data']['metadata']['old_payment_id']) {
-            $payment = Payment::findOrFail($paymentDetails['data']['metadata']['old_payment_id']);
-            $payment->update([
-                              'amount' => $paymentDetails['data']['metadata']['old_payment'] + $amount, 
-                              'type' => 'full', 
-                              'balance' => $balance,
-                              'trans_id' => $paymentDetails['data']['id'],
-                              'ref_id' => $paymentDetails['data']['reference']
-                            ]);
-        }else{
-            $payment = new Payment();
-            $payment->paid_by = $paidBy->guardian->fullName();
-            $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
-            $payment->amount = $amount;
-            $payment->payable = $paymentDetails['data']['metadata']['payable'];
-            $payment->balance = $balance;
-            $payment->type = $paymentType;
-            $payment->term_id = $paymentDetails['data']['metadata']['term_id'];
-            $payment->period_id = period('id');
-            $payment->method = $paymentDetails['data']['channel'];
-            $payment->trans_id = $paymentDetails['data']['id'];
-            $payment->ref_id= $paymentDetails['data']['reference'];
-            $payment->authoredBy($user);
-            $payment->save();
+        if(!$check){
+            if (!$paymentDetails['data']['metadata']['old_payment_id']) {
+                $payment = new Payment();
+                $payment->paid_by = $paidBy->guardian->fullName();
+                $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
+                $payment->amount = $amount;
+                $payment->payable = $paymentDetails['data']['metadata']['payable'];
+                $payment->balance = $balance;
+                $payment->type = $paymentType;
+                $payment->term_id = $paymentDetails['data']['metadata']['term_id'];
+                $payment->period_id = period('id');
+                $payment->method = $paymentDetails['data']['channel'];
+                $payment->trans_id = $paymentDetails['data']['id'];
+                $payment->ref_id= $paymentDetails['data']['reference'];
+                $payment->authoredBy($user);
+                $payment->save();
+                
+            }else{
+                $payment = Payment::findOrFail($paymentDetails['data']['metadata']['old_payment_id']);
+                $payment->update([
+                                  'amount' => $paymentDetails['data']['metadata']['old_payment'] + $amount, 
+                                  'type' => 'full', 
+                                  'balance' => $balance,
+                                  'trans_id' => $paymentDetails['data']['id'],
+                                  'ref_id' => $paymentDetails['data']['reference']
+                                ]);
+            }
+
+            event(new PaymentEvent($payment));
+            return view('student.receipt', ['payment' => $payment]);
         }
+        return view('student.receipt',['payment' => $check]);
        
-        event(new PaymentEvent($payment));
-  
-        $notification = array(
-            'messege'     => 'Transaction is Successfull!',
-            'alert-type'    => 'success',
-            'button'        => 'Okay'
-        );
-        return redirect()->back()->with($notification);
+    }
+
+    public function receipt($payment)
+    {
+        $check = Payment::findOrFail($payment);
+        return view('student.receipt',[
+            'payment' => $check
+        ]);
     }
 }

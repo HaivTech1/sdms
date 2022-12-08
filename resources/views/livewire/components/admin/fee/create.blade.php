@@ -14,17 +14,16 @@
 
                                 <div class="col-lg-8">
                                     <div class="row">
-
                                         @if ($selectedRows)
-                                        <div class="col-6">
-                                            <div class="btn-group btn-group-example mb-3" role="group">
-                                                <button wire:click.prevent="deleteAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
-                                                    <i class="bx bx-block"></i>
-                                                    Delete All
-                                                </button>
+                                            <div class="col-6">
+                                                <div class="btn-group btn-group-example mb-3" role="group">
+                                                    <button wire:click.prevent="deleteAll" type="button"
+                                                        class="btn btn-outline-primary w-sm">
+                                                        <i class="bx bx-block"></i>
+                                                        Delete All
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
                                         @endif
 
                                         <div class="col-lg-3">
@@ -47,6 +46,12 @@
                                         </div>
                                     </div>
                                 </diV>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="btn-group btn-group-example mb-3" role="group">
+                                <button type="button" class="btn btn-primary w-xs">Debtors List</button>
+                                <button type="button" class="btn btn-danger w-xs"><i class="mdi mdi-thumb-down"></i></button>
                             </div>
                         </div>
                     </div>
@@ -72,6 +77,7 @@
                                             <th class="align-middle"> Balance</th>
                                             <th class="align-middle"> Status</th>
                                             <th class="align-middle"> Date</th>
+                                            <th class="align-middle"> Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -110,6 +116,10 @@
                                             </td>
                                             <td>
                                                 {{ $payment->createdAt()}}
+                                            </td>
+                                            <td>
+                                                <a class="btn btn-primary btn-sm"
+                                                    href="{{ route('receipt', $payment) }}">Print Receipt</a>
                                             </td>
                                         </tr>
                                         @endforeach
@@ -151,6 +161,30 @@
                                                     @endforeach
                                                 </select>
                                                 <x-form.error for="student" />
+                                            </div>
+
+                                            <div class="col-sm-6 mt-2">
+                                                <select wire:model.defer="period_id" class="form-control">
+                                                    <option>Select Period</option>
+                                                    @foreach ($periods as $period)
+                                                    <option value="{{ $period->id() }}">
+                                                       {{ $period->title() }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                                <x-form.error for="period_id" />
+                                            </div>
+
+                                            <div class="col-sm-6 mt-2">
+                                                <select wire:model.defer="term_id" class="form-control">
+                                                    <option>Select Term</option>
+                                                    @foreach ($terms as $term)
+                                                    <option value="{{ $term->id() }}">
+                                                        {{ $term->title() }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                                <x-form.error for="term_id" />
                                             </div>
 
                                             <div class="col-sm-6 mt-2">
