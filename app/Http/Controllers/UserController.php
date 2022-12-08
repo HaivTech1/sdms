@@ -49,4 +49,9 @@ class UserController extends Controller
     {
         return view('manager.user.pins');
     }
+
+    public function certificate()
+    {
+        return view('manager.user.certificate');
+    }
 }

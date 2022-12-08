@@ -10,7 +10,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use Livewire\Component;
 use App\Models\Cognitive;
-use App\Models\psychomotor;
+use App\Models\Psychomotor;
 use Livewire\WithPagination;
 
 class Check extends Component
@@ -67,7 +67,7 @@ class Check extends Component
                     $query->whereHas('term', function ($query) use ($term){
                         $query->where('id', $term);
                     });
-                 });
+                });
             });
         })->paginate($this->count);        
     }
@@ -76,10 +76,10 @@ class Check extends Component
     {
         return view('livewire.components.admin.result.check',[
             'students' => $this->students,
-            'grades' => Grade::all(),
+            'grades' => Grade::whereIn('id', [10, 11, 12, 13, 14, 15])->get(),
             'periods' => Period::all(),
             'terms' => Term::all(),
-            'psychomotors' => psychomotor::where('term_id', $this->term_id)->where('period_id', $this->period_id)->get(),
+            'psychomotors' => Psychomotor::where('term_id', $this->term_id)->where('period_id', $this->period_id)->get(),
             'cognitives' => Cognitive::where('term_id', $this->term_id)->where('period_id', $this->period_id)->get(),
         ]);
     }

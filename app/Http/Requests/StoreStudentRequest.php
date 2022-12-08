@@ -123,6 +123,11 @@ class StoreStudentRequest extends FormRequest
     {
         return $this->get('house_id');
     }
+
+    public function club(): string
+    {
+        return $this->get('club_id');
+    }
     
     public function schedule(): string
     {

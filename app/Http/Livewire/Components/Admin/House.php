@@ -2,14 +2,16 @@
 
 namespace App\Http\Livewire\Components\Admin;
 
-use App\Models\House as HouseDetails;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Scopes\HasActiveScope;
+use App\Models\House as HouseDetails;
 
 class House extends Component
 {
     use WithPagination;
 
+    public $selectedRows = [];
     public $selectPageRows = false;
     public $per_page = 5;
     public $state = []; 
@@ -34,7 +36,7 @@ class House extends Component
 
     public function getHousesProperty()
     {
-        return HouseDetails::search(trim($this->search))->loadLatest($this->per_page);
+        return HouseDetails::withoutGlobalScope(new HasActiveScope)->search(trim($this->search))->loadLatest($this->per_page);
     }
 
     public function createHouse()

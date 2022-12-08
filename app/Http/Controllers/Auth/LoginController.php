@@ -54,7 +54,7 @@ class LoginController extends Controller
 
         if (Auth::guard('student')->attempt(['reg_no' => $request->reg_no, 'password' => $request->password])) {
 
-          if (auth()->user()->isStaff) {
+          if (auth()->user()->isTeacher) {
                 return redirect()->route('dashboard');
           }else{
                 return redirect()->route('dashboard/student');

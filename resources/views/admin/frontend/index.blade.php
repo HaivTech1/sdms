@@ -315,6 +315,7 @@
                             showCancelButton:!0,
                             confirmButtonColor: "#f46a6a",
                         });
+                        toggleAble('.upload-image', false);
                     });
                 });
 

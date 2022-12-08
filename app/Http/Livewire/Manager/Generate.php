@@ -56,7 +56,7 @@ class Generate extends Component
 
     public function updatedGrade($id)
     {
-        $this->students = Student::whereGrade_id($id)->get();
+        $this->students = Student::whereStatus(true)->whereGrade_id($id)->get();
     }
 
     public function generateSinglePin(Student $student)
@@ -100,7 +100,7 @@ class Generate extends Component
 
     public function generatePin()
     {
-        $students = Student::whereIn('uuid', $this->selectedRows)->get();
+        $students = Student::whereStatus(true)->whereIn('uuid', $this->selectedRows)->get();
         $term = Term::whereStatus(1)->select('id')->first();
         $period = Period::whereStatus(1)->select('id')->first();
 
@@ -125,7 +125,7 @@ class Generate extends Component
 
     public function regeneratePin()
     {
-        $students = Student::whereIn('uuid', $this->selectedRows)->get();
+        $students = Student::whereStatus(true)->whereIn('uuid', $this->selectedRows)->get();
 
         foreach ($students as $value) {
             $pin = Pincode::where('student_id', $value->user->id())->first();
@@ -139,7 +139,7 @@ class Generate extends Component
 
     public function deleteAll()
     {
-        $students = Student::whereIn('uuid', $this->selectedRows)->get();
+        $students = Student::whereStatus(true)->whereIn('uuid', $this->selectedRows)->get();
 
         foreach ($students as $value) {
             Pincode::whereStudent_id($value->user->id())->delete();

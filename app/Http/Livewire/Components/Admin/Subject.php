@@ -2,10 +2,11 @@
 
 namespace App\Http\Livewire\Components\Admin;
 
-use Livewire\Component;
-use App\Models\Subject as ClientSubject;
 use App\Models\Grade;
+use Livewire\Component;
 use Livewire\WithPagination;
+use App\Scopes\HasActiveScope;
+use App\Models\Subject as ClientSubject;
 
 class Subject extends Component
 {
@@ -62,15 +63,25 @@ class Subject extends Component
 
     public function getsubjectsProperty()
     {
-        return ClientSubject::search(trim($this->search))->loadLatest($this->per_page);;
+        return ClientSubject::withoutGlobalScope(new HasActiveScope)->search(trim($this->search))->loadLatest($this->per_page);;
     }
 
     public function deleteAll()
     {
         ClientSubject::whereIn('id', $this->selectedRows)->delete();
 
-        $this->dispatchBrowserEvent('alert', ['message' => 'All selected sessions
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected subjects
             were deleted']);
+
+        $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+    public function activateAll()
+    {
+        ClientSubject::whereIn('id', $this->selectedRows)->update(['status' => 1]);
+
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected subjects
+            were activated successfully']);
 
         $this->reset(['selectedRows', 'selectPageRows']);
     }

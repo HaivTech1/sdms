@@ -19,9 +19,18 @@
                                         <div class="col-6">
                                             <div class="btn-group btn-group-example mb-3" role="group">
                                                 <button wire:click.prevent="deleteAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
+                                                    class="btn btn-outline-danger w-sm">
                                                     <i class="bx bx-block"></i>
                                                     Delete All
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="btn-group btn-group-example mb-3" role="group">
+                                                <button wire:click.prevent="activateAll" type="button"
+                                                    class="btn btn-outline-primary w-sm">
+                                                    <i class="bx bx-block"></i>
+                                                    Activate All
                                                 </button>
                                             </div>
                                         </div>

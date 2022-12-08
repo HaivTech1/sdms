@@ -107,12 +107,14 @@
                                                     </td>
                                                    
                                                     <td class='d-flex justify-content-center align-items-center gap-2'>
-                                                        <a href="{{ route('result.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
-                                                            type="button"
-                                                            data-bs-toggle="tooltip" data-bs-placement="top"
-                                                            title="Click to view result">
-                                                            <i class="fa fa-eye"></i>
-                                                        </a>
+                                                        @if ($cognitives->count() > 0 && $psychomotors->count() > 0)
+                                                            <a href="{{ route('result.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
+                                                                type="button"
+                                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                                title="Click to view result">
+                                                                <i class="fa fa-eye"></i>
+                                                            </a>
+                                                        @endif
                                                         @admin
                                                             @if (!$cognitives->count() > 0 || !$psychomotors->count() > 0)
                                                                 <button type="button" data-bs-toggle="offcanvas"
@@ -123,9 +125,11 @@
                                                             @endif
                                                         @endadmin
                                                         @admin
-                                                            <button type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                <i class="mdi mdi-upload d-block font-size-16"></i> Publish
-                                                            </button>
+                                                            @if ($cognitives->count() > 0 && $psychomotors->count() > 0)
+                                                                <button type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                    <i class="mdi mdi-upload d-block font-size-16"></i> Publish
+                                                                </button>
+                                                            @endif
                                                         @endadmin
                                                         <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions{{ $student->id() }}"
                                                                     aria-labelledby="offcanvasWithBothOptionsLabel">
@@ -135,8 +139,9 @@
 
                                                             <div class="offcanvas-body">
                                                                 <div class="row">
+                                                                    <p class="mb-2">Please rate on a scale of 1 - 5</p>
                                                                     <div class="col-sm-6" id="psychings">
-                                                                        <h1 class="font-size-5 text-center mb-1">Student's Psychomotor</h1>(<span class="text-danger font-size-5 text-center"> 1 - 5 </span>) 
+                                                                        <h1 class="font-size-5 text-center mb-1">Student's Psychomotor</h1> 
                                                                         <form id="CreatePsychomotor">
                                                                             @csrf
 
@@ -186,9 +191,9 @@
                                                                     </div>
 
                                                                     <div class="col-sm-6" id="cogniting">
-                                                                        <h1 class="font-size-5 text-center mb-1">Student's Cognitive</h1>(<span class="text-danger font-size-5 text-center"> 1 - 5 </span>)
+                                                                        <h1 class="font-size-5 text-center mb-1">Student's Cognitive</h1>
 
-                                                                        <form id="CreateCognitive">
+                                                                        <form id="CreateCognitive" method="POST">
                                                                             @csrf
 
                                                                             <input type="hidden" name="student_uuid" value="{{ $student->id() }}" />
@@ -313,8 +318,9 @@
                 
                 
                 $('#CreatePsychomotor').submit((e) => {
+                    e.preventDefault();
                     toggleAble('#submit_button1', true, 'Submitting...');
-                    e.preventDefault()
+
                     var data = $('#CreatePsychomotor').serializeArray();
                     var url = "{{ route('result.psychomotor.upload') }}";
 
@@ -342,10 +348,11 @@
                 })
 
                 $('#CreateCognitive').submit((e) => {
+                    e.preventDefault();
                     toggleAble('#submit_button2', true, 'Submitting...');
-                    e.preventDefault()
+
                     var data = $('#CreateCognitive').serializeArray();
-                    var url = "{{ route('result.cognitive.upload') }}";
+                    var url = "{{ route('result.affective.upload') }}";
 
                     $.ajax({
                         type: "POST",

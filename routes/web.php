@@ -3,6 +3,7 @@
 use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FeeController;
+use App\Http\Controllers\ClubController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TaskController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\MessagingController;
+use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ContestantController;
@@ -100,6 +102,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/{user}', [UserController::class, 'update'])->name('update');
         Route::get('generate/pin', [UserController::class, 'generatePin'])->name('generatePin');
         Route::get('pins', [UserController::class, 'pins'])->name('pins');
+        Route::get('certificate', [UserController::class, 'certificate'])->name('certificate');
     });
 
     Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
@@ -125,6 +128,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('subject',SubjectController::class);
     Route::resource('term',TermController::class);
     Route::resource('house', HouseController::class);
+    Route::resource('club', ClubController::class);
 
     Route::group(['prefix' => 'student', 'as' => 'student.'], function () {
         Route::get('/', [StudentController::class, 'index'])->name('index');
@@ -141,19 +145,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::group(['prefix' => 'result', 'as' => 'result.'], function () {
         Route::get('/', [ResultController::class, 'index'])->name('index');
         Route::post('/', [ResultController::class, 'store'])->name('store');
+        Route::get('primary/show/{student}', [ResultController::class, 'primaryShow'])->name('primary.show');
         Route::get('show/{student}', [ResultController::class, 'show'])->name('show');
         Route::get('edit/{result}', [ResultController::class, 'edit'])->name('edit');
         Route::get('create', [ResultController::class, 'create'])->name('create');
         Route::get('/singleUpload', [ResultController::class, 'singleUpload'])->name('singleUpload');
         Route::post('/singleUpload', [ResultController::class, 'storeSingleUpload'])->name('storeSingleUpload');
-        Route::get('/check', [ResultController::class, 'check'])->name('check');
-        Route::get('/psychomotor/get', [ResultController::class, 'psychomotor']);
+        Route::post('/storeSinglePrimaryUpload', [ResultController::class, 'singlePrimaryUpload'])->name('storeSinglePrimaryUpload');
+        Route::get('/check/secondary', [ResultController::class, 'secondary'])->name('secondary');
+        Route::get('/check/primary', [ResultController::class, 'primary'])->name('primary');
+        Route::get('/psychomotor/get', [ResultController::class, 'psychomotor'])->name('psychomotor.get');
         Route::post('/psychomotor/upload', [ResultController::class, 'psychomotorUpload'])->name('psychomotor.upload');
 
-        Route::get('/cognitive/get', [ResultController::class, 'cognitive']);
-        Route::post('/cognitive/upload', [ResultController::class, 'cognitiveUpload'])->name('cognitive.upload');
+        Route::get('/affective/get', [ResultController::class, 'affective'])->name('affective.get');
+        Route::post('/affective/upload', [ResultController::class, 'affectiveUpload'])->name('affective.upload');
         Route::get('/publish/cummulative', [ResultController::class, 'publish']);
-        Route::get('/cummulative/get', [ResultController::class, 'cummulative']);
+        Route::get('/primary/publish/cummulative', [ResultController::class, 'primaryPublish'])->name('primary.publish');
+        Route::get('/cummulative/get', [ResultController::class, 'cummulative'])->name('cummulative.get');
         Route::get('/verify/pin', [ResultController::class, 'verify']);
     });
     
@@ -245,6 +253,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/choose', [FrontendController::class, 'choose'])->name('choose');
         Route::get('/show/banner', [FrontendController::class, 'bannerShow']);
         Route::get('/show/about', [FrontendController::class, 'aboutShow']);
+    });
+
+    Route::group(['prefix' => 'timetable', 'as' => 'timetable.'], function () {
+        Route::get('/', [TimetableController::class, 'index'])->name('index');
+        Route::post('/', [TimetableController::class, 'store'])->name('store');
     });
 
 });

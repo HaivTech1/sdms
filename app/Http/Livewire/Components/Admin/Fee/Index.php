@@ -8,6 +8,7 @@ use App\Models\Grade;
 use App\Models\Period;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Scopes\HasActiveScope;
 
 class Index extends Component
 {
@@ -38,7 +39,7 @@ class Index extends Component
 
     public function getFeesProperty()
     {
-        return Fee::search(trim($this->search))->loadLatest($this->per_page);
+        return Fee::withoutGlobalScope(new HasActiveScope)->search(trim($this->search))->loadLatest($this->per_page);
     }
 
     public function resetState()

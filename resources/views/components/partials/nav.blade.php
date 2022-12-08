@@ -10,11 +10,7 @@
                 </div>
                 <div class="header_top_login">
                     <ul>
-                        @auth
-                            <li><a class="main-btn" href="{{ route('dashboard') }}"><i class="fa fa-user-o"></i> Portal </a></li>
-                        @else
-                            <li><a class="main-btn" href="{{ route('login') }}"><i class="fa fa-user-o"></i> Log in </a></li>
-                        @endauth
+                        <li><a class="main-btn" href="{{ route('login') }}"><i class="fa fa-user-o"></i> Portal </a></li>
                     </ul>
                 </div>
             </div>

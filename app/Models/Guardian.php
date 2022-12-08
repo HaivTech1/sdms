@@ -54,12 +54,12 @@ class Guardian extends Model
         return (string) $this->phone_number;
     }
 
-    public function occupation(): string
+    public function occupation(): ?string
     {
         return (string) $this->occupation;
     }
 
-    public function officeAddress(): string
+    public function officeAddress(): ?string
     {
         return (string) $this->office_address;
     }
@@ -69,7 +69,7 @@ class Guardian extends Model
         return (string) $this->home_address;
     }
 
-    public function relationship(): string
+    public function relationship(): ?string
     {
         return (string) $this->relationship;
     }

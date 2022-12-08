@@ -3,8 +3,9 @@
 namespace App\Http\Livewire\Components\Admin;
 
 use Livewire\Component;
-use App\Models\Grade as ClientGrade;
 use Livewire\WithPagination;
+use App\Scopes\HasActiveScope;
+use App\Models\Grade as ClientGrade;
 
 class Grade extends Component
 {
@@ -36,7 +37,7 @@ class Grade extends Component
 
     public function getGradesProperty()
     {
-        return ClientGrade::search(trim($this->search))->loadLatest($this->per_page);
+        return ClientGrade::withoutGlobalScope(new HasActiveScope)->search(trim($this->search))->loadLatest($this->per_page);
     }
 
     public function createGrade()

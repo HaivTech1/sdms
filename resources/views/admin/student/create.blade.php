@@ -75,6 +75,16 @@
                                     </div>
 
                                     <div class="col-sm-6 mb-3">
+                                        <x-form.label for="club_id" value="{{ __('Club') }}" />
+                                        <select class="form-control" name="club_id">
+                                            <option>Select</option>
+                                            @foreach ($clubs as $club)
+                                            <option value="{{ $club->id() }}">{{ $club->title() }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-6 mb-3">
                                         <x-form.label for="schedule_id" value="{{ __('Schedule') }}" />
                                         <select class="form-control" name="schedule_id">
                                             <option>Select</option>

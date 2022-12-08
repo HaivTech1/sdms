@@ -84,7 +84,7 @@ class User extends Component
         Validator::make(['type' => $type], [
             'type'      => [
                 'required', 
-                Rule::in(ClientUser::SUPERADMIN, ClientUser::ADMIN, ClientUser::STAFF, ClientUser::STUDENT),
+                Rule::in(ClientUser::SUPERADMIN, ClientUser::ADMIN, ClientUser::teacher, ClientUser::STUDENT),
             ],
         ]);
         $use = ClientUser::findOrFail($user['id']);

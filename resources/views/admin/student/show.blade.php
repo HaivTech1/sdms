@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-body">
+                <div class="card-body p-2">
                     <div class='panel panel-primary'>
                         <div class='panel-body'>
                             <div class='parent'>
@@ -37,7 +37,7 @@
                                 </div>
 
                                 <div class='col-xs-2 col-sm-2 col-md-2 text-center text-responsive'>
-                                    <img src='{{  asset('storage/'.$student->image()) }}' class='img-rounded
+                                    <img src='{{  asset('storage/'.$student->user->image()) }}' class='img-rounded
                                     img-responsive' alt='{{ $student->firstName()}}' />
                                 </div>
                             </div>
@@ -51,7 +51,6 @@
                                     <p>Surname: {{ $student->lastName()}}<p>
                                     <p>First Name: {{ $student->firstName()}}</p>
                                     <p>Other Name: {{ $student->otherName()}}</p>
-                                    <p>Reg. No: {{ $student->code() }}</p>
                                     <p>Gender: {{ $student->gender()}}</p>
                                     <p>State of Origin: {{ $student->stateOfOrigin()}}</p>
                                     <p>Nationality: {{ $student->nationality()}}</p>
@@ -66,7 +65,7 @@
                                 </div>
                                 <div class='col-xs-4 col-md-4'>
                                     <legend>Guardian Details</legend>
-                                    <p>Home Address: {{ $student->guardian->homeAddress()}}</p>
+                                    <p>Home Address: {{ $student->guardian->homeAddress() ?? ''}}</p>
                                     <p>Office Address: {{ $student->guardian->officeAddress()}}</p>
                                     <p>Email: {{ $student->guardian->email()}}</p>
                                     <p>Phone Number: {{ $student->guardian->phoneNumber()}}</p>
@@ -79,9 +78,9 @@
                             <div class='parent'>
                                 <div class='col-xs-4 col-md-4'>
                                     <legend>Academics</legend>
-                                    <p>Class: {{ $student->grade->title()}}</p>
-                                    <p>Password: knafkasnfkjnfa</p>
-                                    <p>Class: ljfksnflnks</p>
+                                    <p>Reg. No: {{ $student->user->code() }}</p>
+                                    <p>Class: {{ $student->grade->title() ?? ''}}</p>
+                                    <p>Portal Password: password123</p>
                                 </div>
                                
                                 <div class='col-xs-4 col-md-4'>

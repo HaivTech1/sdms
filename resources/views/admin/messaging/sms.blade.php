@@ -40,7 +40,7 @@
                                             <select class="form-control block w-full mt-1 select2-multiple" name="to[]"
                                                 multiple="multiple" data-placeholder="Choose Receipient..."
                                                 id="num-selector" name="to[]">
-                                                <optgroup label="Select Staffs">
+                                                <optgroup label="Select teachers">
                                                     @foreach ($users as $user)
                                                     <option value="{{ $user->phone() }}">{{ $user->name() . ' - ' .
                                                         $user->phone() }}

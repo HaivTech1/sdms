@@ -68,7 +68,8 @@ class Kernel extends HttpKernel
         'teamowner' => \Mpociot\Teamwork\Middleware\TeamOwner::class,
         'superadmin' => \App\Http\Middleware\IsSuperAdmin::class,
         'admin' => \App\Http\Middleware\IsAdmin::class,
-        'staff' => \App\Http\Middleware\IsStaff::class,
+        'teacher' => \App\Http\Middleware\IsTeacher::class,
+        'bursal' => \App\Http\Middleware\IsBursal::class,
         'student' => \App\Http\Middleware\IsStudent::class,
     ];
 }

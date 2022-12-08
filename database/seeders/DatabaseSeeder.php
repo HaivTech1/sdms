@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Database\Seeders\GradeUser;
 use Illuminate\Database\Seeder;
+use Database\Seeders\ClubSeeder;
 use Database\Seeders\TermSeeder;
 use Database\Seeders\EventSeeder;
 use Database\Seeders\GradeSeeder;
@@ -36,9 +37,9 @@ class DatabaseSeeder extends Seeder
         $this->call(GradeSeeder::class);
         $this->call(SubjectSeeder::class);
         $this->call(HouseSeeder::class);
-        // $this->call(StudentSeeder::class);
-        // $this->call(ScheduleStudentSeeder::class);
-        // $this->call(GuardianSeeder::class);
+        $this->call(ClubSeeder::class);
+        $this->call(StudentSeeder::class);
+        $this->call(GuardianSeeder::class);
         // $this->call(GradeSubjectSeeder::class);
         // $this->call(EventSeeder::class);
         // $this->call(GradeUser::class);

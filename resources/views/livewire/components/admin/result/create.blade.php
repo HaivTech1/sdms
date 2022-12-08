@@ -135,7 +135,7 @@
                                                     <td>
                                                         {{ $result->student->firstName() }} {{ $result->student->lastName() }}
                                                     </td>
-                                                    <td>{{ $result->student->id() }}</td>
+                                                    <td>{{ $result->student->user->code() }}</td>
                                                     <td>{{ $result->author()->name() }}</td>
                                                     <td>{{ $result->createdAt() }}</td>
                                                     {{-- <td>

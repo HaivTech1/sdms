@@ -62,9 +62,10 @@
                                         </div>
                                     </th>
                                     <th class="align-middle"></th>
-                                    <th class="align-middle">Teacher's Name</th>
-                                    <th class="align-middle">Teacher's email</th>
-                                    <th class="align-middle">Teacher's Status</th>
+                                    <th class="align-middle">Name</th>
+                                    <th class="align-middle">email</th>
+                                    <th class="align-middle">Id</th>
+                                    <th class="align-middle">Status</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -95,6 +96,9 @@
                                     <td>
                                         <livewire:components.edit-title :model='$teacher' field='email'
                                             :key='$teacher->id()' />
+                                    </td>
+                                    <td>
+                                        {{ $teacher->code() }}
                                     </td>
         
                                     <td>
@@ -178,7 +182,7 @@
 
     <script>
         $('#assignClasses').submit((e) => {
-            toggleAble('#submit', true, 'Submitting...');
+            toggleAble('#submit_button1', true, 'Submitting...');
             e.preventDefault()
             var data = $('#assignClasses').serializeArray();
             var url = "{{ route('teacher.assignClass') }}";
@@ -197,7 +201,7 @@
                 }
                 resetForm('#assignClasses');
                 setInterval(function () {
-                    location.reload()
+                    window.location.reload()
                 }, 1000);
 
             }).fail((res) => {

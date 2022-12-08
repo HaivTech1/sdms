@@ -11,20 +11,26 @@ class UserPolicy
 
     const SUPERADMIN = 'superadmin';
     const ADMIN = 'admin';
-    const STAFF = 'staff';
+    const TEACHER = 'teacher';
     const STUDENT = 'student';
+    const BURSAL = 'bursal';
     const BAN = 'ban';
     const DELETE = 'delete';
 
 
     public function student(User $user): bool
     {
-        return $user->isStudent() || $user->isAdmin() || $user->isSuperAdmin();
+        return $user->isStudent();
     }
 
-    public function staff(User $user): bool
+    public function teacher(User $user): bool
     {
-        return $user->isStaff() || $user->isAdmin() || $user->isSuperAdmin();
+        return $user->isTeacher() || $user->isSuperAdmin();
+    }
+
+    public function bursal(User $user): bool
+    {
+        return $user->isBursal() || $user->isSuperAdmin();
     }
 
     public function admin(User $user): bool

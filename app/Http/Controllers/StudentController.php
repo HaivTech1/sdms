@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Club;
 use App\Models\Grade;
 use App\Models\House;
 use App\Models\Student;
@@ -39,6 +40,7 @@ class StudentController extends Controller
         return view('admin.student.create',[
             'grades' => Grade::all(),
             'houses' => House::all(),
+            'clubs' => Club::all(),
             'schedules' => Schedule::all(),
             // 'subjects' => Subject::orderBy('name')->get()
         ]);

@@ -30,7 +30,7 @@
                                     <span>Pin: <b style="color: red">{{ $pin->user->pin() }}</b></span>
                                     <span style="font-size: 5px">{{ $pin->term->title() }} - {{ $pin->period->title() }}</span>
                                     <br />
-                                    <span style="font-size: 8px">visit: haivtech.com.ng</span>
+                                    <span style="font-size: 8px">visit: {{ application('website') }}</span>
                                 </div>
                             </div>
                             </div>

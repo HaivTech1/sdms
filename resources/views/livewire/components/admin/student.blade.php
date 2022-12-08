@@ -152,86 +152,88 @@
                                                     :key='$student->id()' />
                                             </td>
                                             <td>
-                                                <div class="row">
-                                                    <div class="col-sm-4">
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('student.show', $student) }}"><i
-                                                                class="fa fa-eye"></i>
-                                                        </a>
-                                                    </div>
-                                                    <div class="col-sm-4">
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('student.edit', $student) }}"><i
-                                                                class="fa fa-edit"></i>
-                                                        </a>
-                                                    </div>
-                                                    <div class="col-sm-4">
-                                                        <button type="button" data-bs-toggle="offcanvas"
-                                                            data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
-                                                            aria-controls="offcanvasWithBothOptions">
-                                                            <i class="fas fa-compress-arrows-alt"></i>
-                                                        </button>
+                                                @if ($student->status == true)
+                                                    <div class="row">
+                                                        <div class="col-sm-4">
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('student.show', $student) }}"><i
+                                                                    class="fa fa-eye"></i>
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('student.edit', $student) }}"><i
+                                                                    class="fa fa-edit"></i>
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <button type="button" data-bs-toggle="offcanvas"
+                                                                data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
+                                                                aria-controls="offcanvasWithBothOptions">
+                                                                <i class="fas fa-compress-arrows-alt"></i>
+                                                            </button>
 
-                                                        <div class="offcanvas offcanvas-start" data-bs-scroll="true"
-                                                            tabindex="-1"
-                                                            id="offcanvasWithBothOptions{{ $student->id() }}"
-                                                            aria-labelledby="offcanvasWithBothOptionsLabel">
-                                                            <div class="offcanvas-header">
-                                                                <button type="button" class="btn-close text-reset"
-                                                                    data-bs-dismiss="offcanvas"
-                                                                    aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="offcanvas-body">
-                                                                <div class="row">
-                                                                    <div class="col-sm-12">
-                                                                        <h4>Assign Subjects for {{  $student->fullName() }}</h4>
-                                                                        <form
-                                                                            id="assignSubjects">
-                                                                            @csrf
+                                                            <div class="offcanvas offcanvas-start" data-bs-scroll="true"
+                                                                tabindex="-1"
+                                                                id="offcanvasWithBothOptions{{ $student->id() }}"
+                                                                aria-labelledby="offcanvasWithBothOptionsLabel">
+                                                                <div class="offcanvas-header">
+                                                                    <button type="button" class="btn-close text-reset"
+                                                                        data-bs-dismiss="offcanvas"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="offcanvas-body">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <h4>Assign Subjects for {{  $student->fullName() }}</h4>
+                                                                            <form
+                                                                                id="assignSubjects">
+                                                                                @csrf
 
-                                                                            <x-form.input type="hidden"
-                                                                                value="{{ $student->id() }}"
-                                                                                name="student_id" />
+                                                                                <x-form.input type="hidden"
+                                                                                    value="{{ $student->id() }}"
+                                                                                    name="student_id" />
 
-                                                                            <div class="col-sm-12 mt-2">
-                                                                                
-                                                                                <select name="subjects[]"
-                                                                                    class="form-control select2-multiple"
-                                                                                    multiple>
-                                                                                    @foreach ($subjects as $subject)
-                                                                                    <option
-                                                                                        value="{{ $subject->id() }}">
-                                                                                        {{ $subject->title() }}</option>
-                                                                                    @endforeach
-                                                                                </select>
-                                                                                <x-form.error for="subjects" />
-                                                                            </div>
-
-                                                                            <div class="col-sm-12 mt-2">
-                                                                                <div class="float-right">
-                                                                                    <button id="submit_button1" type="submit"
-                                                                                        class="btn btn-primary">Add</button>
+                                                                                <div class="col-sm-12 mt-2">
+                                                                                    
+                                                                                    <select name="subjects[]"
+                                                                                        class="form-control select2-multiple"
+                                                                                        multiple>
+                                                                                        @foreach ($subjects as $subject)
+                                                                                        <option
+                                                                                            value="{{ $subject->id() }}">
+                                                                                            {{ $subject->title() }}</option>
+                                                                                        @endforeach
+                                                                                    </select>
+                                                                                    <x-form.error for="subjects" />
                                                                                 </div>
-                                                                            </div>
 
-                                                                        </form>
-                                                                    </div>
+                                                                                <div class="col-sm-12 mt-2">
+                                                                                    <div class="float-right">
+                                                                                        <button id="submit_button1" type="submit"
+                                                                                            class="btn btn-primary">Add</button>
+                                                                                    </div>
+                                                                                </div>
 
-                                                                    <div class="col-sm-12 mt-4">
-                                                                        <h1>List of subjects assigned</h1>
+                                                                            </form>
+                                                                        </div>
 
-                                                                        <ul>
-                                                                            @foreach ($student->subjects as $subject)
-                                                                                <li><span class="badge badge-soft-info">{{ $subject->title() }}</span></li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    
+                                                                        <div class="col-sm-12 mt-4">
+                                                                            <h1>List of subjects assigned</h1>
+
+                                                                            <ul>
+                                                                                @foreach ($student->subjects as $subject)
+                                                                                    <li><span class="badge badge-soft-info">{{ $subject->title() }}</span></li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                @endif
                                             </td>
                                         </tr>
                                         @endforeach
@@ -250,7 +252,7 @@
 
         <script>
             $('#assignSubjects').submit((e) => {
-                    toggleAble('#submit', true, 'Submitting...');
+                    toggleAble('#submit_button1', true, 'Submitting...');
                     e.preventDefault()
                     var data = $('#assignSubjects').serializeArray();
                     var url = "{{ route('student.assignSubject') }}";
@@ -268,7 +270,7 @@
                             toastr.error(res.message, 'Failed!');
                         }
                         resetForm('#assignSubjects');
-                        setInterval(function () {location.reload()}, 2000);
+                        setInterval(function () {window.location.reload()}, 2000);
                         
                     }).fail((res) => {
                         console.log(res.responseJSON.message);

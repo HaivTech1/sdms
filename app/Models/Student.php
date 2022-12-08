@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasUuid;
 use App\Traits\HasAuthor;
+use App\Scopes\HasActiveScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,6 +47,7 @@ class Student extends Authenticatable
         'image',
         'grade_id',
         'house_id',
+        'club_id',
         'status',
         'user_id',
         'author_id',
@@ -69,6 +71,11 @@ class Student extends Authenticatable
     protected $with = [
         'authorRelation'
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new HasActiveScope);
+    }
 
     public function id(): string
     {
@@ -169,6 +176,11 @@ class Student extends Authenticatable
     {
         return $this->belongsTo(House::class);
     }
+
+    public function club(): BelongsTo
+    {
+        return $this->belongsTo(Club::class);
+    }
     
     public function guardian(): HasOne
     {
@@ -180,14 +192,19 @@ class Student extends Authenticatable
         return $this->hasMany(Result::class, 'student_id');
     }
 
+    public function primaryResults(): HasMany
+    {
+        return $this->hasMany(PrimaryResult::class, 'student_id');
+    }
+
     public function psychomotors(): hasMany
     {
         return $this->hasMany(psychomotor::class);
     }
 
-    public function cognitives(): hasMany
+    public function affectives(): hasMany
     {
-        return $this->hasMany(Cognitive::class);
+        return $this->hasMany(Affective::class);
     }
 
     public function subjects(): BelongsToMany

@@ -20,6 +20,11 @@ class Schedule extends Model
         'time_out',
     ];
 
+    protected $casts = [
+        'time_in' => 'datetime',
+        'time_out' => 'datetime'
+    ];
+
        public function id(): string
     {
         return (string) $this->id;

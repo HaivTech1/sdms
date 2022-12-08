@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Club;
 use App\Models\User;
 use App\Models\Grade;
 use App\Models\House;
@@ -34,6 +35,7 @@ class StudentFactory extends Factory
             'allergics'             => $this->faker->paragraph(30),
             'grade_id'              => $attribute['grade_id'] ?? Grade::factory(),
             'house_id'              => $attribute['house_id'] ?? House::factory(),
+            'club_id'              => $attribute['club_id'] ?? Club::factory(),
             'user_id'               => $attribute['user_id'] ?? User::factory(),
             'author_id'             => $attribute['author_id'] ?? User::factory(),
         ];

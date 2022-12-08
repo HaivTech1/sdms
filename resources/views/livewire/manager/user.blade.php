@@ -70,9 +70,10 @@
                                         </div>
                                     </th>
                                     <th class="align-middle"></th>
-                                    <th class="align-middle">User Name</th>
-                                    <th class="align-middle">User email</th>
-                                    <th class="align-middle">User Status</th>
+                                    <th class="align-middle">Name</th>
+                                    <th class="align-middle">email</th>
+                                    <th class="align-middle">Id</th>
+                                    <th class="align-middle">Status</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -98,7 +99,9 @@
                                     <td>
                                             <livewire:components.edit-title :model='$user' field='email' :key='$user->id()'/>
                                     </td>
-                                   
+                                    <td>
+                                        {{ $user->code() }}
+                                    </td>
                                     <td>
                                         <livewire:components.toggle-button :model='$user'
                                                         field='isAvailable' :key='$user->id()' />
@@ -112,7 +115,7 @@
                                                 </option>
                                                 <option value="2" @if($user->type() === 2) selected @endif>Admin
                                                 </option>
-                                                <option value="3" @if($user->type() === 3) selected @endif>Staff
+                                                <option value="3" @if($user->type() === 3) selected @endif>teacher
                                                 </option>
                                                 <option value="4" @if($user->type() === 4) selected @endif>Student
                                                 </option>

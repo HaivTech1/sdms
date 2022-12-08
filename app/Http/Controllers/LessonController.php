@@ -27,7 +27,7 @@ class LessonController extends Controller
     {
         if(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()){
             $lessons = Lesson::paginate(5);
-        }elseif(auth()->user()->isStaff()) {
+        }elseif(auth()->user()->isTeacher()) {
             $lessons = Lesson::where('author_id', auth()->id())->paginate(5);
         }
 

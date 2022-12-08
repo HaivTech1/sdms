@@ -365,7 +365,7 @@
        
         margin-bottom: 12px; 
         -webkit-box-shadow: 0 -3px 1px #f3f3f3; 
-        box-shadow: 0 -3px 1px #f3f3f3 
+        box-shadow: 0 -3px 1px #f3f3f3;
     }
 
     .resultd td.comment {
@@ -387,7 +387,8 @@
     .table-condensed>tfoot>tr>th,
     .table-condensed>thead>tr>td,
     .table-condensed>thead>tr>th {
-        padding: 5px
+        padding: 2px;
+        border: 1px solid #000;
     }
 
     .cogd table td {
@@ -712,5 +713,38 @@ figure[data-fullscreen=true] .controls li {
 }
 figure[data-fullscreen=true] .controls .progress {
 	width:68%;
+}
+
+.box {
+    background-color: #F7FF00;
+    color: black;
+    padding: 20px;
+    margin: 20px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.rotateX {
+    margin: 0 0 0 200px;
+    font-size: 18px;
+    transform: rotateX(180deg);
+}
+
+.rotateY {
+    margin: 0 0 0 200px;
+    font-size: 18px;
+    transform: rotateY(3.14rad);
+}
+
+.rotateZ {
+    margin: 0 0 0 200px;
+    font-size: 18px;
+    transform: rotateZ(-180deg);
+}
+
+.rotate {
+   -webkit-transform: rotate(270deg);
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    writing-mode: lr-tb;
 }
 </style>

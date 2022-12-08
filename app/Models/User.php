@@ -35,8 +35,9 @@ class User extends Authenticatable
 
     const SUPERADMIN = 1;
     const ADMIN = 2;
-    const STAFF = 3;
+    const TEACHER = 3;
     const STUDENT = 4;
+    const BURSAL = 5;
 
     public function routeNotificationForVonage($notification)
     {
@@ -148,15 +149,21 @@ class User extends Authenticatable
         return $this->type() === self::ADMIN;
     }
 
-    public function isStaff(): bool
+    public function isTeacher(): bool
     {
-        return $this->type() === self::STAFF;
+        return $this->type() === self::TEACHER;
     }
 
     public function isStudent(): bool
     {
         return $this->type() === self::STUDENT;
     }
+
+    public function isBursal(): bool
+    {
+        return $this->type() === self::BURSAL;
+    }
+
 
 
     public function getAvailableBadgeAttribute()
@@ -190,7 +197,7 @@ class User extends Authenticatable
         $state = [
             '1' => 'Super Administrator',
             '2' => 'Administrator',
-            '3' => 'Staff',
+            '3' => 'teacher',
             '4' => 'Student',
         ];
 

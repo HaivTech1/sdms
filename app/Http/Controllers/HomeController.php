@@ -24,12 +24,12 @@ class HomeController extends Controller
                 'term' => $term,
                 'events' => $events
             ]);
-        }elseif($user->isStaff()){
-            return view('dashboard/staff',[
+        }elseif($user->isTeacher()){
+            return view('dashboard/teacher',[
                 'user' => $user
             ]);
-        }elseif($user->isStaff()){
-            return view('dashboard/staff',[
+        }elseif($user->isBursal()){
+            return view('dashboard/bursal',[
                 'user' => $user
             ]);
         }elseif($user->isStudent()){

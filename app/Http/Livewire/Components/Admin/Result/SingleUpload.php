@@ -7,7 +7,7 @@ use App\Models\Grade;
 use App\Models\Period;
 use App\Models\Student;
 use App\Models\Subject;
-use App\Models\Psychomotor;
+use App\Models\psychomotor;
 use Livewire\Component;
 
 class SingleUpload extends Component
@@ -29,6 +29,7 @@ class SingleUpload extends Component
 
     public $subjects = [];
     public $selectedStudent;
+    public $state = [];
 
     public function updatedGradeId($grade_id)
     {
@@ -38,20 +39,22 @@ class SingleUpload extends Component
         $this->selectedGrade = $class;
     }
 
-    public function updatedPeriodId($period_id)
+    public function selectStudent()
     {
-        $this->selectedPeriod = Period::where('id', $period_id)->first();
-    }
 
-    public function updatedTermId($term_id)
-    {
-        $this->selectedTerm = Term::where('id', $term_id)->first();
-    }
+        $this->validate([
+            'state.period_id' => ['required'],
+            'state.student_id' => ['required'],
+            'state.term_id' => ['required'],
+        ],[
+            'state.period_id.required' => 'Please select Session',
+            'state.student_id.required' => 'Please select Student',
+            'state.term_id.required' => 'Please select Term',
+        ]);
 
-
-    public function updatedStudentId($student_id)
-    {
-        $this->selectedStudent = Student::where('uuid', $student_id)->first();
+        $this->selectedStudent = Student::where('uuid', $this->state['student_id'])->first();
+        $this->selectedPeriod = Period::where('id', $this->state['period_id'])->first();
+        $this->selectedTerm = Term::where('id', $this->state['term_id'])->first();
     }
 
     public function getStudentsProperty()
@@ -68,7 +71,7 @@ class SingleUpload extends Component
             'grades' => Grade::all(),
             'periods' => Period::all(),
             'terms' => Term::all(),
-            'psychomotors' => Psychomotor::all(),
+            'psychomotors' => psychomotor::all(),
         ]);
     }
 }

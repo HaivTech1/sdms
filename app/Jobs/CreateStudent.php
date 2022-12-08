@@ -37,6 +37,7 @@ class CreateStudent implements ShouldQueue
     private $image;
     private $grade;
     private $house;
+    private $club;
     private $schedule;
     private $fullName;
     private $email;
@@ -69,6 +70,7 @@ class CreateStudent implements ShouldQueue
         ?string $image,
         string $grade,
         string $house,
+        string $club,
         string $schedule,
         string $fullName,
         ?string $email,
@@ -96,6 +98,7 @@ class CreateStudent implements ShouldQueue
         $this->image     = $image;
         $this->grade     = $grade;
         $this->house     = $house;
+        $this->club     = $club;
         $this->schedule     = $schedule;
         $this->fullName     = $fullName;
         $this->email     = $email;
@@ -126,6 +129,7 @@ class CreateStudent implements ShouldQueue
             $request->image(),
             $request->grade(),
             $request->house(),
+            $request->club(),
             $request->schedule(),
             $request->fullName(),
             $request->email(),
@@ -179,6 +183,7 @@ class CreateStudent implements ShouldQueue
             'allergics'  => $this->allergics,
             'grade_id'  => $this->grade,
             'house_id'  => $this->house,
+            'club_id'  => $this->club,
             'user_id' => $user->id()
         ]);
         $student->authoredBy($this->author);

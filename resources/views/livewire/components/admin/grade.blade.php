@@ -48,6 +48,7 @@
                                             </th>
                                             <th class="align-middle">#</th>
                                             <th class="align-middle"> Title</th>
+                                            <th class="align-middle"> Status</th>
                                             <th class="align-middle">Action</th>
                                         </tr>
                                     </thead>
@@ -67,6 +68,9 @@
                                             </td>
                                             <td>
                                                 <livewire:components.edit-title :model='$grade' field='title' :key='$grade->id()'/>
+                                            </td>
+                                            <td>
+                                                <livewire:components.toggle-button :model='$grade' field='status' :key='$grade->id()'/>
                                             </td>
                                             <td>
                                                 <button type="button"  class="btn btn-primary waves-effect waves-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Click to show class details" wire:click="GradeDetails({{ $grade->id() }})" class="dropdown-item">

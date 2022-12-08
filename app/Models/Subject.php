@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\HasActiveScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +24,11 @@ class Subject extends Model
     protected $casts = [
         'status'  => 'boolean', 
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new HasActiveScope);
+    }
 
     public function id(): string
     {

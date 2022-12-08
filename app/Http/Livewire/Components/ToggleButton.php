@@ -30,7 +30,7 @@ class ToggleButton extends Component
         $this->model->setAttribute($this->field, $value)->save();
 
         $this->emit('refreshData');
-
+        
         $this->dispatchBrowserEvent('success', [
             'message'     => 'Status changed successfully, please refresh!',
         ]);

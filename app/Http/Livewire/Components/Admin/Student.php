@@ -6,6 +6,7 @@ use App\Models\Grade;
 use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Scopes\HasActiveScope;
 use App\Models\Student as ClientStudent;
 
 class Student extends Component
@@ -29,6 +30,10 @@ class Student extends Component
         'grade' => ['except' => ''],
     ];
 
+    protected $listeners = [
+        'refreshData' => 'refresh',
+    ];
+
     public function mount()
     {
         $this->subjects = Subject::orderBy('title')->get();
@@ -46,9 +51,14 @@ class Student extends Component
         }
     }
 
+    public function refresh()
+    {
+        $this->reset();
+    }
+
     public function getStudentsProperty()
     {
-        return ClientStudent::when($this->grade, function($query, $grade) {
+        return ClientStudent::withoutGlobalScope(new HasActiveScope)->when($this->grade, function($query, $grade) {
             $query->whereHas('grade', function($query) use ($grade){
                $query->where('id', $grade);
             })

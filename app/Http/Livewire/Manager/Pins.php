@@ -27,7 +27,7 @@ class Pins extends Component
 
     public function updatedGrade($id)
     {
-        $this->students = Student::whereGrade_id($id)->get();
+        $this->students = Student::whereStatus(true)->whereGrade_id($id)->get();
     }
     
     public function render()

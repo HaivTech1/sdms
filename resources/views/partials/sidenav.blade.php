@@ -44,6 +44,7 @@
                             <li><a href="{{ route('period.index') }}" key="t-products">Session</a></li>
                             <li><a href="{{ route('term.index') }}" key="t-products">Term</a></li>
                             <li><a href="{{ route('house.index') }}" key="t-products">House</a></li>
+                            <li><a href="{{ route('club.index') }}" key="t-products">Club</a></li>
                             <li><a href="{{ route('grade.index') }}" key="t-products">Class</a></li>
                             <li><a href="{{ route('subject.index') }}" key="t-products">Subjects</a></li>
                             <li><a href="{{ route('event.index') }}" key="t-products">Event</a></li>
@@ -74,10 +75,20 @@
                             <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li>
                         </ul>
                     </li> 
-                    <li>
-                        <a href="{{ route('result.check') }}" class="waves-effect">
-                            <i class="bx bx-spreadsheet"></i>
-                            <span key="t-chat">Results</span>
+                     <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-command"></i>
+                            <span key="t-ecommerce">Result Management</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="{{ route('result.primary') }}" key="t-products">Primary</a></li>
+                            <li><a href="{{ route('result.secondary') }}" key="t-products">Secondary</a></li>
+                        </ul>
+                    </li>
+                     <li>
+                        <a href="{{ route('user.certificate') }}" class="waves-effect">
+                            <i class="bx bx-paperclip"></i>
+                            <span key="t-chat">Certificate</span>
                         </a>
                     </li>
                     <li>
@@ -90,15 +101,25 @@
                             <li><a href="{{ route('messaging.sms') }}" key="t-add-product">Bulk SMS</a></li>
                         </ul>
                     </li>
+                    
+                    <li>
+                        <a href="{{ route('timetable.index') }}" class="waves-effect">
+                            <i class="bx bx-calendar"></i>
+                            <span key="t-chat">Timetable</span>
+                        </a>
+                    </li>
+                @endadmin
+
+                @bursal
                     <li>
                         <a href="{{ route('fee.index') }}" class="waves-effect">
                             <i class="bx bx-money"></i>
                             <span key="t-chat">Manage Fees</span>
                         </a>
                     </li>
-                @endadmin
+                @endbursal
 
-                @staff
+                @teacher
                     <li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bxs-folder-open"></i>
@@ -122,7 +143,7 @@
                             <span key="t-chat">Virtual Lesson</span>
                         </a>
                     </li>
-                @endstaff
+                @endteacher
 
                 @student
                      <li>
