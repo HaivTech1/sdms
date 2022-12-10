@@ -1,4 +1,4 @@
-
+{{-- 
     <!-- Delete -->
     <div class="modal fade" id="delete{{ $schedule->slug }}">
         <div class="modal-dialog">
@@ -90,4 +90,4 @@
 
             </div>
         </div>
-    </div
+    </div --}}

@@ -115,9 +115,11 @@
                                                 </option>
                                                 <option value="2" @if($user->type() === 2) selected @endif>Admin
                                                 </option>
-                                                <option value="3" @if($user->type() === 3) selected @endif>teacher
+                                                <option value="3" @if($user->type() === 3) selected @endif>Teacher
                                                 </option>
                                                 <option value="4" @if($user->type() === 4) selected @endif>Student
+                                                </option>
+                                                <option value="5" @if($user->type() === 5) selected @endif>Bursal
                                                 </option>
                                             </select>
                                         </div>

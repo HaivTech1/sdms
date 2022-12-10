@@ -15,6 +15,10 @@ class Teacher extends Component
     public $selectPageRows = false;
     public $per_page = 5;
     public $search = '';
+    public $user_id;
+    public $grade_id;
+
+
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -46,6 +50,11 @@ class Teacher extends Component
     {
         return User::where('type', 3)->search(trim($this->search))
         ->load($this->per_page);
+    }
+
+    public function assignClasses()
+    {
+        dd($this->grade_id, $this->user_id);
     }
 
     public function render()

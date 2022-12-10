@@ -8,7 +8,7 @@
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end d-none d-sm-block">
-                    {{ application('name')}} ({{ application('alias')}}.).
+                    Haiv Techonology Support Limited
                 </div>
             </div>
         </div>

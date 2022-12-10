@@ -100,71 +100,15 @@
                                     <td>
                                         {{ $teacher->code() }}
                                     </td>
-        
                                     <td>
                                         <livewire:components.toggle-button :model='$teacher' field='isAvailable'
                                             :key='$teacher->id()' />
                                     </td>
-
                                     <td>
                                         <div class="col-sm-4">
-                                            <button type="button" data-bs-toggle="offcanvas"
-                                                data-bs-target="#offcanvasWithBothOptions{{ $teacher->id() }}"
-                                                aria-controls="offcanvasWithBothOptions">
+                                            <button type="button" value="{{ $teacher->id() }}" id="assignClass">
                                                 <i class="fas fa-compress-arrows-alt"></i>
                                             </button>
-
-                                            <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
-                                                id="offcanvasWithBothOptions{{ $teacher->id() }}"
-                                                aria-labelledby="offcanvasWithBothOptionsLabel">
-                                                <div class="offcanvas-header">
-                                                    <button type="button" class="btn-close text-reset"
-                                                        data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                                                </div>
-                                                <div class="offcanvas-body">
-                                                    <div class="row">
-                                                        <div class="col-sm-12">
-                                                            <h4>Assign Class for {{  $teacher->title() }} {{  $teacher->name() }}</h4>
-                                                            <form id="assignClasses">
-                                                                @csrf
-
-                                                                <x-form.input type="hidden" value="{{ $teacher->id() }}"
-                                                                    name="user_id" />
-
-                                                                <div class="col-sm-12 mt-2">
-                                                                    <select name="grade_id[]"
-                                                                        class="form-control select2-multiple" multiple>
-                                                                        @foreach ($grades as $id => $grade)
-                                                                        <option value="{{ $id }}">
-                                                                            {{ $grade }}</option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                    <x-form.error for="grade_id" />
-                                                                </div>
-
-                                                                <div class="col-sm-12 mt-2">
-                                                                    <div class="float-right">
-                                                                        <button id="submit_button1" type="submit"
-                                                                            class="btn btn-primary">Add</button>
-                                                                    </div>
-                                                                </div>
-
-                                                            </form>
-                                                        </div>
-
-                                                        <div class="col-sm-12 mt-4">
-                                                            <h1>List of classes assigned</h1>
-
-                                                            <ul>
-                                                                @foreach ($teacher->gradeClassTeacher as $grade)
-                                                                    <li><span class="badge badge-soft-info">{{ $grade->title() }}</span></li>
-                                                                @endforeach
-                                                            </ul>
-                                                           
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -178,12 +122,28 @@
         </div>
     </div>
 
+    @include('partials.add_class')
     @section('scripts')
 
     <script>
-        $('#assignClasses').submit((e) => {
-            toggleAble('#submit_button1', true, 'Submitting...');
-            e.preventDefault()
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+        });
+
+        $(document).on('click', '#assignClass', function(e) {
+            e.preventDefault();
+            var id = $(this).val();
+
+            $('#user_id').val(id);
+            $('.addClass').modal('show');
+        });
+
+        $(document).on('submit', '#assignClasses', function (e) {
+            e.preventDefault();
+            toggleAble('#submit_button', true, 'Submitting...');
             var data = $('#assignClasses').serializeArray();
             var url = "{{ route('teacher.assignClass') }}";
 
@@ -193,21 +153,18 @@
                 data
             }).done((res) => {
                 if (res.status === 'success') {
-                    toggleAble('#submit_button1', false);
+                    toggleAble('#submit_button', false);
                     toastr.success(res.message, 'Success!');
+                    $('.addClass').modal('show');
                 } else {
-                    toggleAble('#submit_button1', false);
+                    toggleAble('#submit_button', false);
                     toastr.error(res.message, 'Failed!');
                 }
                 resetForm('#assignClasses');
-                setInterval(function () {
-                    window.location.reload()
-                }, 1000);
-
             }).fail((res) => {
                 console.log(res.responseJSON.message);
                 toastr.error(res.responseJSON.message, 'Failed!');
-                toggleAble('#submit_button1', false);
+                toggleAble('#submit_button', false);
             });
         })
     </script>

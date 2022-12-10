@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -25,7 +26,17 @@ class Schedule extends Model
         'time_out' => 'datetime'
     ];
 
-       public function id(): string
+    public function getTimeInFormatAttribute()
+    {
+        return Carbon::createFromFormat('H:i:s', $this->attributes['time_in']);
+    } 
+
+    public function getTimeOutFormatAttribute()
+    {
+        return Carbon::createFromFormat('H:i:s', $this->attributes['time_out']);
+    } 
+
+    public function id(): string
     {
         return (string) $this->id;
     }

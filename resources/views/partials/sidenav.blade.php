@@ -102,12 +102,6 @@
                         </ul>
                     </li>
                     
-                    <li>
-                        <a href="{{ route('timetable.index') }}" class="waves-effect">
-                            <i class="bx bx-calendar"></i>
-                            <span key="t-chat">Timetable</span>
-                        </a>
-                    </li>
                 @endadmin
 
                 @bursal
@@ -147,7 +141,20 @@
                             <span key="t-chat">Virtual Lesson</span>
                         </a>
                     </li>
+                    {{-- <li>
+                        <a href="{{ route('lesson.teacher') }}" class="waves-effect">
+                            <i class="bx bx-archive-out"></i>
+                            <span key="t-chat">Assignment Management</span>
+                        </a>
+                    </li> --}}
                 @endteacher
+
+                <li>
+                    <a href="{{ route('timetable.index') }}" class="waves-effect">
+                        <i class="bx bx-calendar"></i>
+                        <span key="t-chat">Timetable</span>
+                    </a>
+                </li>
 
                 @student
                      <li>

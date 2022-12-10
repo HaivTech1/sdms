@@ -74,8 +74,17 @@ class CreateUser implements ShouldQueue
             'type' => $this->type
         ]);
 
-        
-        $code = SaveCode::Generator('TCH/', 5, 'reg_no', $user);
+        if($this->type == 2){
+            $initial = 'ADM';
+        }elseif($this->type == 3){
+            $initial = 'TCH';
+        }elseif($this->type == 4){
+            $initial = 'STD';
+        }elseif($this->type == 5){
+            $initial = 'BUR';
+        }
+
+        $code = SaveCode::Generator($initial, 5, '/reg_no', $user);
         $user->reg_no = $code;
 
         SaveImageService::UploadImage($this->image, $user, User::TABLE, 'profile_photo_path');

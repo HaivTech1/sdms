@@ -7,21 +7,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreStudentRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
+    
     public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
@@ -36,6 +27,8 @@ class StoreStudentRequest extends FormRequest
             'address'       => 'required',
             'grade_id'       => 'required',
             'house_id'       => 'required',
+            'schedule_id'       => 'required',
+            'club_id'       => 'required',
         ];
     }
 

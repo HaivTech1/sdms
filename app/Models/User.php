@@ -195,10 +195,11 @@ class User extends Authenticatable
     {
 
         $state = [
-            '1' => 'Super Administrator',
-            '2' => 'Administrator',
-            '3' => 'teacher',
-            '4' => 'Student',
+            '1' => 'Super Administrator Dashboard',
+            '2' => 'Administrator Dashboard',
+            '3' => 'Teacher Dashboard',
+            '4' => 'Student Dashboard',
+            '5' => 'Bursal Dashboard',
         ];
 
         return $state[$this->type];

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Schedule;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreScheduleRequest;
 use App\Http\Requests\UpdateScheduleRequest;
 
@@ -18,6 +19,12 @@ class ScheduleController extends Controller
         return view('admin.schedule.index', [
             'schedules' => Schedule::all()
         ]);
+    }
+
+    public function fetch()
+    {
+        $schedules = Schedule::all();
+        return response()->json(['schedules' => $schedules]);
     }
    
     public function store(StoreScheduleRequest $request)
@@ -39,39 +46,24 @@ class ScheduleController extends Controller
 
         return redirect()->back()->with($notification);
     }
-
-    
-    public function show(Schedule $schedule)
-    {
-        //
-    }
-
    
-    public function edit(Schedule $schedule)
+    public function edit($id)
     {
-        //
+        $schedule = Schedule::findOrFail($id);
+        return response()->json(['schedule' => $schedule]);
     }
 
   
-    public function update(StoreScheduleRequest $request, Schedule $schedule)
+    public function update(Request $request, $id)
     {
-        $request['time_in'] = str_split($request->time_in, 5)[0];
-        $request['time_out'] = str_split($request->time_out, 5)[0];
+        $schedule = Schedule::findOrFail($id);
+        $schedule->update([
+            'slug' => $request->slug,
+            'time_in' => $request->time_in,
+            'time_out' => $request->time_out
+        ]);
 
-        $request->validated();
-
-        $schedule->slug = $request->slug;
-        $schedule->time_in = $request->time_in;
-        $schedule->time_out = $request->time_out;
-        $schedule->save();
-
-        $notification = array (
-            'messege' => 'Schedule has been Updated successfully!',
-            'alert-type' => 'success',
-            'button' => 'Okay!',
-            'title' => 'Success'
-        );
-        return redirect()->back()->with($notification);
+        return response()->json(['message' => 'Schedule has been Updated successfully!'], 200);
     }
 
     public function destroy(Schedule $schedule)

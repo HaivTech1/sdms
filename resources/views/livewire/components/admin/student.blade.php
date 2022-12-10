@@ -167,9 +167,7 @@
                                                             </a>
                                                         </div>
                                                         <div class="col-sm-4">
-                                                            <button type="button" data-bs-toggle="offcanvas"
-                                                                data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
-                                                                aria-controls="offcanvasWithBothOptions">
+                                                            <button type="button" id="assingSubject" value="{{ $student->id() }}">
                                                                 <i class="fas fa-compress-arrows-alt"></i>
                                                             </button>
 
@@ -246,35 +244,54 @@
         </div>
     </div>
 
+    @include('partials.add_subject')
+
     @section('scripts')
         <script>
-            $('#assignSubjects').submit((e) => {
-                    toggleAble('#submit_button', true, 'Submitting...');
-                    e.preventDefault()
-                    var data = $('#assignSubjects').serializeArray();
-                    var url = "{{ route('student.assignSubject') }}";
 
-                    $.ajax({
-                        type: "POST",
-                        url,
-                        data
-                    }).done((res) => {
-                        if(res.status === 'success') {
-                            toggleAble('#submit_button', false);
-                            toastr.success(res.message, 'Success!');
-                        }else{
-                            toggleAble('#submit_button', false);
-                            toastr.error(res.message, 'Failed!');
-                        }
-                        resetForm('#assignSubjects');
-                        setInterval(function () {window.location.reload()}, 2000);
-                        
-                    }).fail((res) => {
-                        console.log(res.responseJSON.message);
-                        toastr.error(res.responseJSON.message, 'Failed!');
+            
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            });
+
+            $(document).on('click', '#assingSubject', function(e) {
+                e.preventDefault();
+                var id = $(this).val();
+
+                $('#student_id').val(id);
+                $('.addSubject').modal('show');
+            });
+
+            $(document).on('submit', '#createSubjects', function(e){
+                e.preventDefault();
+                toggleAble('#submit_button', true, 'Submitting...');
+                var data = $('#createSubjects').serializeArray();
+                var url = "{{ route('student.assignSubject') }}";
+
+                $.ajax({
+                    type: "POST",
+                    url,
+                    data
+                }).done((res) => {
+                    if(res.status === 'success') {
                         toggleAble('#submit_button', false);
-                    });
-                })
+                        toastr.success(res.message, 'Success!');
+                    }else{
+                        toggleAble('#submit_button', false);
+                        toastr.error(res.message, 'Failed!');
+                    }
+                    resetForm('#createSubjects');
+                    setInterval(function () {window.location.reload()}, 2000);
+                    
+                }).fail((res) => {
+                    console.log(res.responseJSON.message);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                    toggleAble('#submit_button', false);
+                });
+                
+            });
         </script>
         
     @endsection

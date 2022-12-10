@@ -16,21 +16,21 @@ class ScheduleSeeder extends Seeder
     public function run()
     {
         Schedule::factory()->create([
-            'slug'      => 'Students',
-            'time_in'     =>  Carbon::now()->format('H:i:s'),
-            'time_out'  =>  Carbon::now()->format('H:i:s'),
+            'slug'      => 'Student',
+            'time_in'   =>  '07:00',
+            'time_out'  =>  '16:00',
         ]);
 
         Schedule::factory()->create([
-            'slug'      => 'Teachers',
-            'time_in'     =>  Carbon::now()->format('H:i:s'),
-            'time_out'  =>  Carbon::now()->format('H:i:s'),
+            'slug'      => 'Teacher',
+            'time_in'     =>  '06:30',
+            'time_out'     =>  '16:30',
         ]);
 
         Schedule::factory()->create([
             'slug'      => 'Administator',
-            'time_in'     =>  Carbon::now()->format('H:i:s'),
-            'time_out'  =>  Carbon::now()->format('H:i:s'),
+            'time_in'     =>  '06:30',
+            'time_out'     =>  '16:30',
         ]);
     }
        

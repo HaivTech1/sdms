@@ -86,7 +86,8 @@
                                         <select class="form-control select2" name="type" value="old('type')">
                                             <option>Select</option>
                                             <option value="2">Administrator</option>
-                                            <option value="3">teacher</option>
+                                            <option value="3">Teacher</option>
+                                            <option value="5">Bursal</option>
                                         </select>
                                         <x-form.error for="type" />
                                     </div>

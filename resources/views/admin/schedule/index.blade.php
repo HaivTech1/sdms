@@ -44,26 +44,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($schedules as $schedule)
-                                            <tr>
-                                                <td> {{ $schedule->id }} </td>
-                                                <td> {{ $schedule->slug }} </td>
-                                                <td> {{ $schedule->time_in }} </td>
-                                                <td> {{ $schedule->time_out }} </td>
-                                                <td>
-
-                                                    <a href="#edit{{ $schedule->slug }}" data-toggle="modal"
-                                                        class="btn btn-success btn-sm edit btn-flat"><i
-                                                            class='fa fa-edit'></i>
-                                                        Edit</a>
-                                                    <a href="#delete{{ $schedule->slug }}" data-toggle="modal"
-                                                        class="btn btn-danger btn-sm delete btn-flat"><i
-                                                            class='fa fa-trash'></i> Delete</a>
-
-                                                </td>
-                                            </tr>
-
-                                            @endforeach
+                                            
                                         </tbody>
                                     </table>
                                 </div>
@@ -74,9 +55,106 @@
             </div>
         </div>
     </div>
+
+    @section('scripts')
+
+        <script>
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            })
+
+            fetchSchedule();
+
+            function fetchSchedule(){
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('schedule.fetch') }}',
+                    dataType: 'json',
+                    success: function(response) {
+                        $('tbody').html("");
+                        $.each(response.schedules, function(index, schedule) {
+                            $('tbody').append(
+                                `
+                                <tr>
+                                    <td> `+schedule.id+`</td>
+                                    <td> `+schedule.slug+` </td>
+                                    <td> `+startTime(schedule.time_in)+` </td>
+                                    <td> `+startTime(schedule.time_out)+` </td>
+                                    <td>
+                                        <button value="`+schedule.id+`" data-toggle="modal"
+                                            class="btn btn-success btn-sm edit_btn btn-flat"><i
+                                                class='fa fa-edit'></i>
+                                        </button>
+                                        <button value="`+schedule.id+`" data-toggle="modal"
+                                            class="btn btn-danger btn-sm delete_btn btn-flat"><i
+                                                class='fa fa-trash'></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                `
+                            );
+                        })
+                    }
+                });
+            }
+
+            function startTime(s) {
+                var today = new Date(s);
+                var h = today.getHours(s);
+                var m = today.getMinutes(s);
+                var s = today.getSeconds(s);
+                var time = h + ":" + m + ":" + s;
+                return time;
+            }
+
+            $(document).on('click', '.edit_btn', function(e){
+                e.preventDefault();
+                var sch_id = $(this).val();
+                $('.editSchedule').modal('show');
+
+                $.ajax({
+                    type: "GET",
+                    url: '/schedule/edit-schedule/'+sch_id,
+                    success: function(response){
+                        $('#schedule_id').val(response.schedule.id);
+                        $('#edit_name').val(response.schedule.slug);
+                        $('#edit_time_in').val(startTime(response.schedule.time_in));
+                        $('#edit__time_out').val(startTime(response.schedule.time_out));
+                    }
+                });
+            })
+
+            $(document).on('submit', '#updateSchdule', function(e){
+                e.preventDefault();
+                toggleAble('#edit_btn', true, 'Submitting...');
+                var id = $('#schedule_id').val();
+                let editFormData = new FormData($('#updateSchdule')[0]);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/schedule/update-schedule/'+id,
+                    data: editFormData,
+                    contentType: false,
+                    processData: false,
+                }).then((response) => {
+                    toggleAble('#edit_btn', false);
+                    toastr.success(response.message);
+                    window.location.reload();
+                }).catch((error) => {
+                    toggleAble('#edit_btn', false);
+                    toastr.error(error);
+                })
+            })
+        </script>
+        
+    @endsection
 </x-app-layout>
 
 @include('partials.add_schedule')
+@include('partials.edit_schedule')
 
 @foreach ($schedules as $schedule)
 @include('partials.edit_delete_schedule')

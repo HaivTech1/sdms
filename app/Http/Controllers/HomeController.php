@@ -26,15 +26,24 @@ class HomeController extends Controller
             ]);
         }elseif($user->isTeacher()){
             return view('dashboard/teacher',[
-                'user' => $user
+                'user' => $user,
+                'session' => $session,
+                'term' => $term,
+                'events' => $events
             ]);
         }elseif($user->isBursal()){
             return view('dashboard/bursal',[
-                'user' => $user
+                'user' => $user,
+                'session' => $session,
+                'term' => $term,
+                'events' => $events
             ]);
         }elseif($user->isStudent()){
             return view('dashboard/student',[
                 'user' => $user,
+                'session' => $session,
+                'term' => $term,
+                'events' => $events,
                 'session' => $session,
                 'term' => $term,
                 'events' => $events

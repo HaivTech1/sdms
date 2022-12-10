@@ -185,8 +185,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::group(['prefix' => 'schedule', 'as' => 'schedule.'], function () {
         Route::get('/', [ScheduleController::class, 'index'])->name('index');
+        Route::get('/fetch', [ScheduleController::class, 'fetch'])->name('fetch');
         Route::post('/', [ScheduleController::class, 'store'])->name('store');
-        Route::put('/', [ScheduleController::class, 'update'])->name('update');
+        Route::get('/edit-schedule/{id}', [ScheduleController::class, 'edit']);
+        Route::post('/update-schedule/{id}', [ScheduleController::class, 'update']);
         Route::delete('/', [ScheduleController::class, 'destroy'])->name('destroy');
     });
 

@@ -11,7 +11,7 @@ class CalendarService
 {
     public function generateCalendarData($weekDays)
     {
-        $schedule = Schedule::whereSlug('Students')->first();
+        $schedule = Schedule::whereSlug('Student')->first();
         $calendarData = [];
         $timeRange = (new TimeService)->generateTimeRange($schedule->time_in->format('H:i'), $schedule->time_out->format('H:i'));
         $lessons   = Timetable::with('grade', 'teacher')
