@@ -67,9 +67,8 @@
 {{-- <script src="{{ asset('js/pages/form-advanced.init.js') }}"></script> --}}
 
 <!-- Datatable init js -->
-<script src="{{ asset('js/pages/datatables.init.js') }}"></script> 
-<script src="{{ asset('libs/sweetalert2/sweetalert2.min.js') }}"></script>
-
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
 <script>
     $(document).ready(function() {
         toastr.options = {
@@ -88,7 +87,11 @@
         window.addEventListener('info', event => {
             toastr.info(event.detail.message, 'Info!');
         });
-    })
+    });
+
+    $('#summernote').summernote({
+        height: 100
+    });
 </script>
 
 <script>

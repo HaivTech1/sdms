@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Team;
+use App\Models\Assignment;
 use App\Policies\TeamPolicy;
+use App\Policies\AssignmentPolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Team::class => TeamPolicy::class,
+        Assignment::class => AssignmentPolicy::class
     ];
 
     /**

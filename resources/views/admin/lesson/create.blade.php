@@ -109,7 +109,7 @@
                         </div>
                     @endforeach
                 </div>
-                    {{ $lessons->links('pagination::custom-pagination')}}
+                {{ $lessons->links('pagination::custom-pagination')}}
             </div>
             <div class="col-lg-3">
                 <form action="{{ route('lesson.store') }}" method="POST" enctype="multipart/form-data">

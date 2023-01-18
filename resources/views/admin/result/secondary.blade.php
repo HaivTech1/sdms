@@ -391,32 +391,32 @@
                                             </thead>
 
 
-                                            @foreach ($cognitives as $cognitive)     
+                                            @foreach ($affectives as $affective)     
                                                 <tbody class="beh-d">
                                                     <tr>
-                                                        <th>{{ $cognitive->title() }}</th>
+                                                        <th>{{ $affective->title() }}</th>
                                                         <td>
-                                                         @if ($cognitive->rate == 5)
+                                                         @if ($affective->rate == 5)
                                                                 <i class="fa txt-color-primary -checkmark-round">✔</i>
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if ($cognitive->rate == 4)
+                                                            @if ($affective->rate == 4)
                                                                 <i class="fa txt-color-primary -checkmark-round">✔</i>
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if ($cognitive->rate == 3)
+                                                            @if ($affective->rate == 3)
                                                                 <i class="fa txt-color-primary -checkmark-round">✔</i>
                                                             @endif
                                                         </td>
                                                         <td>
-                                                             @if ($cognitive->rate == 2)
+                                                             @if ($affective->rate == 2)
                                                                 <i class="fa txt-color-primary -checkmark-round">✔</i>
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if ($cognitive->rate == 1)
+                                                            @if ($affective->rate == 1)
                                                                 <i class="fa txt-color-primary -checkmark-round">✔</i>
                                                             @endif
                                                         </td>

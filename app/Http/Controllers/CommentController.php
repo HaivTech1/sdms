@@ -23,6 +23,7 @@ class CommentController extends Controller
      */
     public function store(CommentRequest $request)
     {
+        dd($request);
         $this->dispatchSync(CreateComment::fromRequest($request));
 
         return back();

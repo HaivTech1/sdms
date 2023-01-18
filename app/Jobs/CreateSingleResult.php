@@ -20,7 +20,6 @@ class CreateSingleResult implements ShouldQueue
     private $student;
     private $ca1;
     private $ca2;
-    private $ca3;
     private $exam;
 
     /**
@@ -37,7 +36,6 @@ class CreateSingleResult implements ShouldQueue
         string $student,
         ?array $ca1,
         ?array $ca2,
-        ?array $ca3,
         ?array $exam
     )
     {
@@ -49,7 +47,6 @@ class CreateSingleResult implements ShouldQueue
         $this->student = $student;
         $this->ca1 = $ca1;
         $this->ca2 = $ca2;
-        $this->ca3 = $ca3;
         $this->exam = $exam;
     }
 
@@ -64,7 +61,6 @@ class CreateSingleResult implements ShouldQueue
             $request->student(),
             $request->ca1(),
             $request->ca2(),
-            $request->ca3(),
             $request->exam(),
         );
     }
@@ -87,7 +83,6 @@ class CreateSingleResult implements ShouldQueue
                 'student_id'        => $this->student,
                 'ca1'       => $this->ca1[$i],
                 'ca2'       => $this->ca2[$i],
-                'ca3'       => $this->ca3[$i],
                 'exam'      => $this->exam[$i],
             ]);
 

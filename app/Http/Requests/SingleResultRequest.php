@@ -67,11 +67,6 @@ class SingleResultRequest extends FormRequest
         return $this->get('ca2', []);
     }
 
-    public function ca3(): ?array
-    {
-        return $this->get('ca3', []);
-    }
-
     public function exam(): ?array
     {
         return $this->get('exam', []);

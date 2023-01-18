@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\About;
 use App\Models\Banner;
 use App\Models\Period;
+use App\Models\MidTerm;
 use App\Models\Payment;
 use App\NullApplication;
 use App\Models\Affective;

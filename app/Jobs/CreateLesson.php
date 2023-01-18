@@ -61,13 +61,13 @@ class CreateLesson implements ShouldQueue
             'grade_id' => $this->grade,
             'subject_id' => $this->subject,
         ]);
-        dd($this->video);
+        // dd($this->video);
 
 
         $fileName = $this->video->getClientOriginalName();
         $filePath = 'videos/' . $fileName;
         $fileMimeType = $this->video->getMimeType(); 
-        dd($fileMimeType);
+        // dd($fileMimeType);
         $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($this->video));
 
         // File URL to access the video in frontend

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use App\Models\Lesson;
+use App\Models\Assignment;
 use App\Contracts\CommentAble;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
@@ -32,7 +33,7 @@ class CommentRequest extends FormRequest
             'parent_id'         => ['nullable'],
             'depth'             => ['nullable'],
             'commentable_id'    => ['required'],
-            'commentable_type'  => ['required', 'in:' . Lesson::TABLE],
+            // 'commentable_type'  => ['required', 'in:' . Lesson::TABLE],
         ];
     }
 
@@ -66,7 +67,9 @@ class CommentRequest extends FormRequest
         switch ($type) {
             case Lesson::TABLE:
                 return Lesson::find($id);
+            case Assignment::TABLE:
+                    return Assignment::find($id);
         }
-        abort(404, 'Lesson NOT FOUND');
+        abort(404, $type.' NOT FOUND');
     }
 }

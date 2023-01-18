@@ -249,6 +249,8 @@
     </div>
 
     @section('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+        
         <script type="text/javascript">
 
             $(document).ready(function () {
@@ -296,6 +298,7 @@
                         processData: false,
                         dataType: 'json',
                     }).then((response) => {
+                        toggleAble('.upload-image', false);
                         Swal.fire({
                                 title: "Good job!",
                                 text: response.message,
@@ -304,10 +307,10 @@
                                 confirmButtonColor: "#556ee6",
                                 cancelButtonColor: "#f46a6a",
                             });
-                            toggleAble('.upload-image', false);
                             resetForm('#bannerForm');
                             window.location.reload();
                     }).catch((error) => {
+                        toggleAble('.upload-image', false);
                         Swal.fire({
                             title: "Oops!",
                             text: "Something went wrong!!!",
@@ -315,7 +318,6 @@
                             showCancelButton:!0,
                             confirmButtonColor: "#f46a6a",
                         });
-                        toggleAble('.upload-image', false);
                     });
                 });
 

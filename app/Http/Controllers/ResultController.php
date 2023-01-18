@@ -6,19 +6,24 @@ use App\Models\Term;
 use App\Models\Event;
 use App\Models\Period;
 use App\Models\Result;
+use App\Models\MidTerm;
 use App\Models\Pincode;
 use App\Models\Student;
 use App\Models\Affective;
 use App\Models\Cognitive;
 use App\Jobs\CreateResult;
+use App\Events\ResultEvent;
 use App\Models\Cummulative;
 use App\Models\psychomotor;
 use Illuminate\Http\Request;
+use App\Mail\SendMidtermMail;
 use App\Models\PrimaryResult;
 use App\Policies\ResultPolicy;
 use App\Jobs\CreateSingleResult;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StoreResultRequest;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
 use App\Http\Requests\UpdateResultRequest;
 
@@ -31,6 +36,17 @@ class ResultController extends Controller
             'user' => $user,
         ]);
     }
+
+    public function midtermIndex()
+    {
+        $user = auth()->user();
+
+        return view('admin.result.midterm_index',[
+            'user' => $user,
+        ]);
+    }
+    
+    
 
     public function create()
     {
@@ -94,7 +110,7 @@ class ResultController extends Controller
         $psychomotors = $student->psychomotors->where('period_id', $request->period_id)
         ->where('term_id', $request->term_id);
 
-        $cognitives = $student->cognitives->where('period_id', $request->period_id)
+        $affectives = $student->affectives->where('period_id', $request->period_id)
         ->where('term_id', $request->term_id);
 
         $attendance = $student->attendance->where('period_id', $request->period_id)
@@ -159,6 +175,17 @@ class ResultController extends Controller
             $results = $thirdTermResult;
         }
 
+        // dd($nextTerm);
+        if(!$nextTerm){
+            $notification = array (
+                'messege' => 'Please set next term resumption first before you can view result!',
+                'alert-type' => 'info',
+                'button' => 'Okay!',
+                'title' => 'Info'
+            );
+            return redirect()->route('event.index')->with($notification);
+        }
+
         return view('admin.result.secondary',[
             'student' => $student,
             'period' => $period,
@@ -167,7 +194,7 @@ class ResultController extends Controller
             'totalSubject' => $totalSubject,
             'average' => $average,
             'psychomotors' => $psychomotors,
-            'cognitives' => $cognitives,
+            'affectives' => $affectives,
             'attendance' => $attendance,
             'termDuration' => $termDuration,
             'studentAttendanceAve' => $studentAttendanceAve,
@@ -307,6 +334,23 @@ class ResultController extends Controller
         ]);
     }
 
+    public function midtermShow(Student $student, Request $request)
+    {
+        $period = Period::where('id', $request->period_id)->first();
+        $term = Term::where('id', $request->term_id)->first();
+        $result = $student->midTermResults->where('period_id', $request->period_id)
+        ->where('term_id', $request->term_id)
+        ->where('grade_id', $request->grade_id)
+        ->where('student_id', $student->id());
+
+        return view('admin.result.midterm_show',[
+            'student' => $student,
+            'period' => $period,
+            'term' => $term,
+            'results' => $result
+        ]);
+    }
+
     private function custom_array_merge($newResult, $newFirst) {
         $result = Array();
         foreach ($newResult as $key_1 => $value_1) {
@@ -325,7 +369,12 @@ class ResultController extends Controller
         return view('admin.result.singleUpload');
     }
 
-    public function storeSingleUpload(SingleResultRequest $request)
+    public function secondaryUpload()
+    {
+        return view('admin.result.secondary_upload');
+    }
+
+    public function storeSecondaryUpload(SingleResultRequest $request)
     {
         // dd($request);        
         $check = Result::where('period_id', $request->period_id)
@@ -416,6 +465,11 @@ class ResultController extends Controller
     public function primary()
     {
         return view('admin.result.check_primary');
+    }
+
+    public function midterm()
+    {
+        return view('admin.result.check_midterm');
     }
     
     public function psychomotor(Request $request)
@@ -577,6 +631,27 @@ class ResultController extends Controller
         }
     }
 
+    public function midtermPublish(Request $request)
+    {
+        $results = MidTerm::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+
+        foreach($results as $result){
+            if ($result->published == false) {
+                $result->update(['published' => true]);
+
+                $message = "<p>Your child's mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . ' to access the result</p>';
+                $subject = 'Mid-term result';
+
+                Mail::to($result->student->guardian->email())->send(new SendMidtermMail($message, $subject));
+                return response()->json(['status' => 'success','message' => 'Result Made available successfully! And email sent to parent.' ], 200);
+            }else{
+                $result->update(['published' => false]);
+                return response()->json(['status' => 'success','message' => 'Result is made unavailable successfully!' ], 200);
+            }
+        }
+
+    }
+
 
     public function cummulative(Request $request)
     {
@@ -619,5 +694,71 @@ class ResultController extends Controller
         }else{
             return response()->json(['status' => 'error', 'message' => 'You need to purchase a pin code to check result.'], 401); 
         }
+    }
+
+    public function midTermUpload()
+    {
+        return view('admin.result.midterm');
+    }
+
+    public function storeMidTerm(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'period_id'          => ['required'],
+            'term_id'              => ['required'],
+            'grade_id'              => ['required'],
+            'student_id'              => ['required'],
+        ],[
+            "period_id.required" => "Session is required",
+            "term_id.required" => "Session is required",
+            "grade_id.required" => "Please select a class",
+            "student_id.required" => "Please select a student!",
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json([
+                'success' => 'false',
+                'errors'  => $validator->errors()->all(),
+            ], 400);
+        }else{
+            try{
+                $check = MidTerm::where('period_id', $request->period_id)
+                ->where('term_id', $request->term_id)
+                ->where('grade_id', $request->grade_id)
+                ->where('student_id', $request->student_id)
+                ->first();
+                
+                if ($check) {
+                    return response()->json(['success' => 'false', 'message' => 'Result for this student already exists!'], 400);
+                }else {
+                    for ($i=0; $i < count($request->subject_id); $i++) { 
+                        $midterm = new MidTerm([
+                            'period_id'     => $request->period_id,
+                            'term_id'       => $request->term_id,
+                            'grade_id'      => $request->grade_id,
+                            'student_id'        => $request->student_id,
+                            'subject_id'        => $request->subject_id[$i],
+                            'entry_1'       => $request->entry_1[$i],
+                            'first_test'       => $request->first_test[$i],
+                            'entry_2'      => $request->entry_2[$i],
+                            'ca'      => $request->ca[$i],
+                            'project'      => $request->project[$i],
+                        ]);
+            
+                        $midterm->authoredBy(auth()->user());
+                        $midterm->save();
+                    }
+                    return response()->json(['status' => 'success', 'errors' => ['Result uploaded successfully!']], 200);
+                }
+            }catch(\Exception $e){
+                return response()->json([
+                    'success' => 'false',
+                    'errors'  => $e->getMessage(),
+                ], 400);
+            }
+        }
+
     }
 }

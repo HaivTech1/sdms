@@ -34,36 +34,6 @@ class UserTableSeeder extends Seeder
                 '2348139636506',
                 'ADM/22/311463'
             ),
-            $this->createUser(
-                'Mr',
-                'Akinnusi Iyanuoluwa',
-                'iyanuoluwa@gmail.com',
-                bcrypt('password'),
-                User::TEACHER,
-                'users/author-two.jpg',
-                '2349066100815',
-                'ADM/22/311453'
-            ),
-            $this->createUser(
-                'Mrs',
-                'Obayomi Oluwaseun',
-                'oluwaseun@gmail.com',
-                bcrypt('password'),
-                User::TEACHER,
-                'users/author-two.jpg',
-                '2349066100815',
-                'ADM/22/312453'
-            ),
-            $this->createUser(
-                'Mrs',
-                'Olubunmi Adesodun',
-                'bunmi@gmail.com',
-                bcrypt('password'),
-                User::BURSAL,
-                'users/author-two.jpg',
-                '2349066100815',
-                'ADM/22/311353'
-            ),
         ]);
 
         // $user->ownedTeams()->save(Team::forceCreate([

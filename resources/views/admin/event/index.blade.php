@@ -111,6 +111,33 @@
                                             <div class="invalid-feedback">Please select a valid event category</div>
                                         </div>
                                     </div>
+
+                                    <div class="col-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Period</label>
+                                            <select class="form-control form-select" name="period_id"
+                                                id="event-period">
+                                                <option selected> --Select-- </option>
+                                                @foreach ($periods as $period)
+                                                    <option value="{{ $period->id() }}">{{ $period->title() }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Term</label>
+                                            <select class="form-control form-select" name="term_id"
+                                                id="event-term">
+                                                <option selected> --Select-- </option>
+                                                @foreach ($terms as $term)
+                                                    <option value="{{ $term->id() }}">{{ $term->title() }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <div class="row mt-2">
                                     <div class="col-6">
@@ -181,6 +208,8 @@
                         a[0].reset(),
                         g("#event-title").val(),
                         g("#event-category").val(),
+                        g("#event-period").val(),
+                        g("#event-term").val(),
                         t.text("Add Event"),
                         (r = e);
                 }
@@ -202,6 +231,8 @@
                             (i = e.event),
                             g("#event-title").val(i.title),
                             g("#event-category").val(i.classNames[0]),
+                            g("#event-period").val(i.classNames[0]),
+                            g("#event-term").val(i.classNames[0]),
                             (r = null),
                             t.text("Edit Event"),
                             b.text("Update"),
@@ -231,6 +262,8 @@
                     var t,
                         a = g("#event-title").val(),
                         n = g("#event-category").val();
+                        period = g("#event-period").val();
+                        term = g("#event-term").val();
                         var start = g("#event-start").val();
                         var end = g("#event-end").val();
 
@@ -246,7 +279,7 @@
                             url:"{{ route('event.store') }}",
                             type:"POST",
                             dataType:'json',
-                            data:{ title: a, start_date, end_date, n  },
+                            data:{ title: a, start_date, end_date, period, term, n  },
                             success:function(response)
                             {          
                                 if(response.status === 'success') {

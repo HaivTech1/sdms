@@ -17,22 +17,22 @@ class ApplicationSeeder extends Seeder
         $application = [
             [
             'id'        => 1,
-            'name'      =>  'Haivtech Group of School',
-            'alias'     =>  'CL',
-            'email'     =>  'haivtech@gmail.com',
-            'line1'        =>  '09066100815',
-            'line2'        =>  '09066100815',
+            'name'      =>  'St. Louis Nursery and Primary School, Ondo',
+            'alias'     =>  'St. Louis',
+            'email'     =>  'contact@st.louisNPSO.com.ng',
+            'line1'        =>  '08032426364',
+            'line2'        =>  '08032426364',
             'image'      =>  'applications/haivtech.png',
-            'address'       =>  '10, Ona Abayo, Ondo, Ondo State',
-            'motto'     =>  'Unique solutions for you',
-            'slogan'        =>  'Unique solutions for you',
+            'address'       =>  'Kilometer 2, Ife road, Valentino, Ondo State',
+            'motto'     =>  'Ut-Snt-Unum - Dieu le veux',
+            'slogan'        =>  'Ut-Snt-Unum - Dieu le veux',
             'regNo'        =>  'RC2004222',
-            'description'       =>  'Unique solutions for you',
-            'facebook'        =>  'Haivtech',
+            'description'       =>  'Ut-Snt-Unum - Dieu le veux',
+            'facebook'        =>  'St.Loius Nursery/Primary, Ondo',
             'instagram'        =>  'Haivtech',
             'twitter'        =>  'Haivtech',
             'linkedin'        =>  'Haivtech',
-            'website'        =>  'https://www.haivtech.com.ng'
+            'website'        =>  'https://www.st.louisNPSO.com.ng'
             ],
         ];
         

@@ -72,7 +72,12 @@
                             </tr>
                             <tr>
                                 <th>Age:</th>
-                                <td>15</td>
+                                <td>
+                                     <?php
+                                        $year = Carbon\Carbon::parse($student->dob)->age
+                                    ?>
+                                    {{$year}}
+                                </td>
                             </tr>
                             <tr>
                                 <th>Admission</th>
@@ -124,13 +129,13 @@
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">FT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">CA1 </th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">CA2</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">PROJECT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">TOTAL</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">EXAM</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Activities</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
                             </tr>
                             <tr>
                                 <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">GRADE</th>
@@ -174,21 +179,21 @@
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">FT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">CA1 </th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">CA2</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">PROJECT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">TOTAL</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">EXAM</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Activities</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
                             </tr>
                             <tr>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">1st TS</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">G. TOTAL</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">AVG</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">GRADE</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">C. AVG</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center" colspan="2">Remarks</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">1st Term Score</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grand TOTAL</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Avg.</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">GRADE</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg.</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center" colspan="2">Remarks</th>
                             </tr>
                             </tr>
                             <tr style="text-align: center">
@@ -244,22 +249,22 @@
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">FT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">CA1 </th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">CA2</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">PROJECT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">TOTAL</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">EXAM</th>
-                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Re-Entry Test Class Activities</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
                             </tr>
                             <tr>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">1st TS</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">2nd TS</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">G. TOTAL</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">AVG</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">GRADE</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">C. AVG</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center" colspan="2">Remarks</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">1st TS</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">2nd TS</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grand TOTAL</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Avg.</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">GRADE</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg.</th>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center" colspan="2">Remarks</th>
                             </tr>
                             </tr>
                             <tr style="text-align: center">

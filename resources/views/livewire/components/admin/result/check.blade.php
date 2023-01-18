@@ -107,16 +107,16 @@
                                                     </td>
                                                    
                                                     <td class='d-flex justify-content-center align-items-center gap-2'>
-                                                        @if ($cognitives->count() > 0 && $psychomotors->count() > 0)
-                                                            <a href="{{ route('result.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
-                                                                type="button"
-                                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                title="Click to view result">
-                                                                <i class="fa fa-eye"></i>
-                                                            </a>
+                                                         @if (affectives($student, $term_id, $period_id) === true && psychomotors($student, $term_id, $period_id) === true)
+                                                        <a href="{{ route('result.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
+                                                            type="button"
+                                                            data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="Click to view result">
+                                                            <i class="fa fa-eye"></i>
+                                                        </a>
                                                         @endif
                                                         @admin
-                                                            @if (!$cognitives->count() > 0 || !$psychomotors->count() > 0)
+                                                            @if (affectives($student, $term_id, $period_id) === false || psychomotors($student, $term_id, $period_id) === false)
                                                                 <button type="button" data-bs-toggle="offcanvas"
                                                                     data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
                                                                     aria-controls="offcanvasWithBothOptions">
@@ -125,9 +125,9 @@
                                                             @endif
                                                         @endadmin
                                                         @admin
-                                                            @if ($cognitives->count() > 0 && $psychomotors->count() > 0)
+                                                            @if (affectives($student, $term_id, $period_id) === true && psychomotors($student, $term_id, $period_id) === true && cummulatives($student, $term_id, $period_id, $grade_id) == false)
                                                                 <button type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                    <i class="mdi mdi-upload d-block font-size-16"></i> Publish
+                                                                    <i class="mdi mdi-upload d-block font-size-16"></i> 
                                                                 </button>
                                                             @endif
                                                         @endadmin
@@ -141,8 +141,9 @@
                                                                 <div class="row">
                                                                     <p class="mb-2">Please rate on a scale of 1 - 5</p>
                                                                     <div class="col-sm-6" id="psychings">
-                                                                        <h1 class="font-size-5 text-center mb-1">Student's Psychomotor</h1> 
-                                                                        <form id="CreatePsychomotor">
+                                                                        <h1 class="font-size-5 text-center mb-1">Student's Affective</h1> 
+                                                                        
+                                                                        <form id="CreateAffective" action="{{ route('result.affective.upload') }}" method="POST">
                                                                             @csrf
 
                                                                             <input type="hidden" name="student_uuid" value="{{ $student->id() }}" />
@@ -191,9 +192,9 @@
                                                                     </div>
 
                                                                     <div class="col-sm-6" id="cogniting">
-                                                                        <h1 class="font-size-5 text-center mb-1">Student's Cognitive</h1>
+                                                                        <h1 class="font-size-5 text-center mb-1">Student's Psychomotor</h1>
 
-                                                                        <form id="CreateCognitive" method="POST">
+                                                                        <form id="CreatePsychomotor" action="{{ route('result.psychomotor.upload') }}" method="POST">
                                                                             @csrf
 
                                                                             <input type="hidden" name="student_uuid" value="{{ $student->id() }}" />

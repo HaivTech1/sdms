@@ -42,6 +42,9 @@
 
 <!-- Responsive datatable examples -->
 <link href="{{ asset('libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('css/summernote-bs4.min.css') }}" rel="stylesheet">
+<script src="{{ asset('js/summernote-bs4.min.js') }}"></script>
+
 
 @yield('styles')
 @livewireStyles
@@ -311,6 +314,7 @@
     .parent {
         display: flex;
         justify-content: space-between;
+        align-items: center;
     }
 
     .img-responsive {

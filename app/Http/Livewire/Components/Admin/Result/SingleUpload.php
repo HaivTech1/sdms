@@ -7,8 +7,8 @@ use App\Models\Grade;
 use App\Models\Period;
 use App\Models\Student;
 use App\Models\Subject;
-use App\Models\psychomotor;
 use Livewire\Component;
+use App\Models\Psychomotor;
 
 class SingleUpload extends Component
 {
@@ -68,10 +68,10 @@ class SingleUpload extends Component
         
         return view('livewire.components.admin.result.single-upload',[
             'students' => $this->students,
-            'grades' => Grade::all(),
+            'grades' => Grade::whereIn('id', [1,2,3,4,5,6,7,8,9])->get(),
             'periods' => Period::all(),
             'terms' => Term::all(),
-            'psychomotors' => psychomotor::all(),
+            'psychomotors' => Psychomotor::all(),
         ]);
     }
 }

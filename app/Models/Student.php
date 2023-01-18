@@ -197,6 +197,11 @@ class Student extends Authenticatable
         return $this->hasMany(PrimaryResult::class, 'student_id');
     }
 
+    public function midTermResults(): HasMany
+    {
+        return $this->hasMany(MidTerm::class, 'student_id');
+    }
+
     public function psychomotors(): hasMany
     {
         return $this->hasMany(psychomotor::class);

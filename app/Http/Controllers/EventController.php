@@ -31,7 +31,9 @@ class EventController extends Controller
             ];
         }
         return view('admin.event.index',[
-            'events' => $events
+            'events' => $events,
+            'periods' => Period::all(),
+            'terms' => Term::all(),
         ]);
     }
     
@@ -46,8 +48,8 @@ class EventController extends Controller
             'start' => $request->start_date,
             'end' => $request->end_date,
             'category' => $request->n,
-            'period_id' => Period::whereStatus(1)->pluck('id')[0],
-            'term_id'=> Term::whereStatus(1)->pluck('id')[0],
+            'period_id' => $request->period ? $request->period : Period::whereStatus(1)->pluck('id')[0],
+            'term_id'=>  $request->term ? $request->term : Term::whereStatus(1)->pluck('id')[0],
             'author_id' => auth()->user()->id()
         ]);
 

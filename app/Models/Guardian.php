@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -11,6 +12,7 @@ class Guardian extends Model
 {
     use HasFactory;
     use HasUuid;
+    use Notifiable;
 
     const TABLE = 'guardians';
 

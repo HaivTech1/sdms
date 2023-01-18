@@ -159,7 +159,7 @@ class CreateStudent implements ShouldQueue
             'type' => '4'
         ]);
 
-        $code = SaveCode::Generator('STD/', 5, 'reg_no', $user);
+        $code = SaveCode::Generator('SLNP/', 5, 'reg_no', $user);
         $user->reg_no = $code;
         if (!is_null($this->image)) {
             SaveImageService::UploadImage($this->image, $user, User::TABLE, 'profile_photo_path');

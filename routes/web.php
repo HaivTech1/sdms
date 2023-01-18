@@ -33,6 +33,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\MessagingController;
 use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ContestantController;
@@ -140,21 +141,39 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/{student}', [StudentController::class, 'update'])->name('update');
         Route::post('assignSubject', [StudentController::class, 'assignSubject'])->name('assignSubject');
         Route::get('/school/fees', [GeneralController::class, 'fees'])->name('fees');
+    });
 
+    Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
+        Route::get('/', [AssignmentController::class, 'index'])->name('index');
+        Route::get('/student/assignment', [AssignmentController::class, 'get'])->name('get');
+        Route::post('/', [AssignmentController::class, 'store'])->name('store');
+        Route::get('/assignment/publish', [AssignmentController::class, 'publish'])->name('publish');
+        Route::get('/show/{assignment}', [AssignmentController::class, 'show'])->name('show');
+        Route::get('download/{id}', [AssignmentController::class, 'downloadFile'])->name('download');
     });
 
     Route::group(['prefix' => 'result', 'as' => 'result.'], function () {
         Route::get('/', [ResultController::class, 'index'])->name('index');
+        Route::get('/all/midterm', [ResultController::class, 'midtermIndex'])->name('midtermIndex');
         Route::post('/', [ResultController::class, 'store'])->name('store');
         Route::get('primary/show/{student}', [ResultController::class, 'primaryShow'])->name('primary.show');
+        Route::get('midterm/show/{student}', [ResultController::class, 'midtermShow'])->name('midterm.show');
         Route::get('show/{student}', [ResultController::class, 'show'])->name('show');
         Route::get('edit/{result}', [ResultController::class, 'edit'])->name('edit');
         Route::get('create', [ResultController::class, 'create'])->name('create');
         Route::get('/singleUpload', [ResultController::class, 'singleUpload'])->name('singleUpload');
-        Route::post('/singleUpload', [ResultController::class, 'storeSingleUpload'])->name('storeSingleUpload');
+        // Route::post('/singleUpload', [ResultController::class, 'storeSingleUpload'])->name('storeSingleUpload');
         Route::post('/storeSinglePrimaryUpload', [ResultController::class, 'singlePrimaryUpload'])->name('storeSinglePrimaryUpload');
+
+        Route::get('/midterm/upload', [ResultController::class, 'midTermUpload'])->name('midterm.upload');
+        Route::post('/store/midterm/score', [ResultController::class, 'storeMidTerm'])->name('upload.midterm.score');
+
+        Route::get('/single/secondary', [ResultController::class, 'secondaryUpload'])->name('secondary.upload');
+        Route::post('/store/Single/Secondary/Upload', [ResultController::class, 'storeSecondaryUpload'])->name('storeSingleSecondaryUpload');
+
         Route::get('/check/secondary', [ResultController::class, 'secondary'])->name('secondary');
         Route::get('/check/primary', [ResultController::class, 'primary'])->name('primary');
+        Route::get('/check/midterm', [ResultController::class, 'midterm'])->name('midterm');
         Route::get('/psychomotor/get', [ResultController::class, 'psychomotor'])->name('psychomotor.get');
         Route::post('/psychomotor/upload', [ResultController::class, 'psychomotorUpload'])->name('psychomotor.upload');
 
@@ -162,6 +181,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/affective/upload', [ResultController::class, 'affectiveUpload'])->name('affective.upload');
         Route::get('/publish/cummulative', [ResultController::class, 'publish']);
         Route::get('/primary/publish/cummulative', [ResultController::class, 'primaryPublish'])->name('primary.publish');
+        Route::get('/midterm/publish/cummulative', [ResultController::class, 'midtermPublish'])->name('midterm.publish');
+
         Route::get('/cummulative/get', [ResultController::class, 'cummulative'])->name('cummulative.get');
         Route::get('/verify/pin', [ResultController::class, 'verify']);
     });

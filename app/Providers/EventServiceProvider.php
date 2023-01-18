@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Fee;
 use App\Models\User;
 use App\Models\Payment;
+use App\Events\ResultEvent;
 use App\Observers\FeeObserver;
 use App\Observers\UserObserver;
 use App\Events\SendNewTaskEvent;
@@ -13,6 +14,7 @@ use App\Events\Student\PaymentEvent;
 use Illuminate\Support\Facades\Event;
 use App\Listeners\SendNewTaskListener;
 use Illuminate\Auth\Events\Registered;
+use App\Listeners\SendMidTermResultListener;
 use App\Listeners\Student\SendNewPaymentListener;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -33,6 +35,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         PaymentEvent::class => [
             SendNewPaymentListener::class,
+        ],
+        ResultEvent::class => [
+            SendMidTermResultListener::class
         ],
     ];
 

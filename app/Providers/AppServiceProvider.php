@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Models\Lesson;
 use App\Models\Comment;
+use App\Models\Assignment;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -40,6 +42,8 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             User::TABLE => User::class,
             Comment::TABLE    => Comment::class,
+            Lesson::TABLE    => Lesson::class,
+            Assignment::TABLE    => Assignment::class,
         ]);
     }
 }
