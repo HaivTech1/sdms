@@ -1,14 +1,27 @@
 <!doctype html>
 <html lang="en">
-
-
 <head>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-    <meta content="Themesbrand" name="author" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <meta property="description" content="{{ application('description') }}" />
+    <meta property="keywords" content="@yield('keywords')" />
+
+    {{-- facebook Meta --}}
+    <meta property="og:description" content="@yield('description')" />
+    <meta property="og:image" content="{{ asset('storage/'.application('image')) }}" />
+    <meta property="og:image:type" content="image/jpeg" />
+
+
+    {{-- twitter Meta --}}
+    <meta property="twitter:card" content="@yield('summary_large_image')" />
+    <meta property="twitter:site" content="{{ config('services.twitter.handle') }}" />
+    <meta property="twitter:image" content="{{ asset('storage/'.application('image')) }}" />
+    <meta property="twitter:description" content="@yield('description')" />
+    <meta property="twitter:title" content="@yield('title')" />
+    <meta name="theme-color" content="#6777ef" />
 
     <title>Create a New School Account</title>
 
@@ -176,25 +189,12 @@
                         processData: false,
                         dataType: 'json',
                     }).then((response) => {
-                        Swal.fire({
-                                title: "Good job!",
-                                text: response.message,
-                                icon: "success",
-                                showCancelButton: !0,
-                                confirmButtonColor: "#556ee6",
-                                cancelButtonColor: "#f46a6a",
-                            });
-                            toggleAble('#submit', false);
-                            resetForm('#setup-form');
-                            window.location.reload();
+                        toast.success(response.message);
+                        toggleAble('#submit', false);
+                        resetForm('#setup-form');
+                        window.location.reload();
                     }).catch((error) => {
-                        Swal.fire({
-                            title: "Oops!",
-                            text: "Something went wrong!!!",
-                            icon: "error",
-                            showCancelButton:!0,
-                            confirmButtonColor: "#f46a6a",
-                        });
+                        toast.error(error.responseText);
                         toggleAble('#submit', false);   
                     });
             });
