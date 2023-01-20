@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\Club;
+use App\Models\Grade;
+use App\Models\House;
+use App\Models\Schedule;
 use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FeeController;
@@ -38,6 +42,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ContestantController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\BiometricDeviceController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -45,6 +50,14 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/registration', function () {
+    return view('registration',[
+        'grades' => Grade::all(),
+    ]);
+});
+
+Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
 
 Route::get('/setup/user', [VisitorController::class, 'setupUser'])->name('setupUser');
 Route::post('/setup/user', [VisitorController::class, 'register'])->name('visitor.register');
@@ -283,6 +296,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/', [TimetableController::class, 'index'])->name('index');
         Route::post('/', [TimetableController::class, 'store'])->name('store');
     });
+
+    Route::get('/index/registration', [RegistrationController::class, 'index']);
+    Route::get('/show/registration/{registration}', [RegistrationController::class, 'show']);
+    Route::delete('/delete/registration/{id}', [RegistrationController::class, 'destroy']);
 
 });
 

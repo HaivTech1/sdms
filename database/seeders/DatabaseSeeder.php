@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(ApplicationSeeder::class);
+        $this->call(ApplicationSeeder::class);
         $this->call(UserTableSeeder::class);
         $this->call(PeriodSeeder::class);
         $this->call(ScheduleSeeder::class);

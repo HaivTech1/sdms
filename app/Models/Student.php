@@ -51,6 +51,12 @@ class Student extends Authenticatable
         'status',
         'user_id',
         'author_id',
+        'religion',
+        'denomination',
+        'blood_group',
+        'genotype',
+        'speech_development',
+        'sight'
     ];
 
     protected $casts = [

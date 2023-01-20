@@ -86,7 +86,7 @@
         </div>
     </section>
 
-    @php
+    {{-- @php
         $classes = \App\Models\Grade::all();
         $students = \App\Models\Student::all();
         $teachers = \App\Models\user::whereType(3)->get();
@@ -149,7 +149,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
     <section class="counter_area pb-10">
          <div class="container">
@@ -196,7 +196,7 @@
         </div>
     </section>
 
-    <section class="why_choose_area pt-120 pb-60">
+    <section class="why_choose_area pt-120" style="margin-bottom: 350px">
         <div class="container">
             <div class="row">
                 <div class="col-lg-6">
@@ -256,7 +256,7 @@
         </div>
     </section> --}}
 
-    <section class="blog_area pt-120 pb-130">
+    {{-- <section class="blog_area pt-120 pb-130">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -291,5 +291,5 @@
                 @endforeach
             </div>
         </div>
-    </section>
+    </section> --}}
 </x-base-layout>

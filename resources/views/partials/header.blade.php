@@ -6,22 +6,22 @@
                 <a href="{{ url('/') }}" class="logo logo-dark">
                     <span class="logo-sm">
                         <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
-                            height="22">
+                            height="22" style="border-radius: 100%;">
                     </span>
                     <span class="logo-lg">
                         <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
-                            height="17">
+                            height="17" style="border-radius: 100%">
                     </span>
                 </a>
 
                 <a href="{{ url('/')  }}" class="logo logo-light">
                     <span class="logo-sm">
                         <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
-                            height="32px" width="100px">
+                            height="32px" width="60px" style="border-radius: 100%">
                     </span>
                     <span class="logo-lg">
                         <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}"
-                            height="32px" width="100px">
+                            height="32px" width="60px" style="border-radius: 100%">
                     </span>
                 </a>
             </div>

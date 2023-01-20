@@ -10,6 +10,7 @@ use App\Models\Schedule;
 use App\Jobs\CreateStudent;
 use App\Jobs\UpdateStudent;
 use Illuminate\Http\Request;
+use App\Http\Requests\RegistrationRequest;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 

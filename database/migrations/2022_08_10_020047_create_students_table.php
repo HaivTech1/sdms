@@ -27,6 +27,12 @@ class CreateStudentsTable extends Migration
             $table->string('prev_school')->nullable();
             $table->string('prev_class')->nullable();
             $table->text('medical_history')->nullable();
+            $table->text('religion')->nullable();
+            $table->text('denomination')->nullable();
+            $table->text('blood_group')->nullable();
+            $table->text('genotype')->nullable();
+            $table->text('speech_development')->nullable();
+            $table->text('sight')->nullable();
             $table->text('allergics')->nullable();
             $table->foreignId('grade_id')->nullable()->constrained('grades')->onDelete('set null');
             $table->foreignId('house_id')->nullable()->constrained('houses')->onDelete('set null');

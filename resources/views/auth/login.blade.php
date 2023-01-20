@@ -4,14 +4,29 @@
 
 <head>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-    <meta content="Themesbrand" name="author" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Sign in</title>
+    <meta property="description" content="{{ application('description') }}" />
+    <meta property="keywords" content="@yield('keywords')" />
 
+    {{-- facebook Meta --}}
+    <meta property="og:description" content="@yield('description')" />
+    <meta property="og:image" content="{{ asset('storage/'.application('image')) }}" />
+    <meta property="og:image:type" content="image/jpeg" />
+
+
+    {{-- twitter Meta --}}
+    <meta property="twitter:card" content="@yield('summary_large_image')" />
+    <meta property="twitter:site" content="{{ config('services.twitter.handle') }}" />
+    <meta property="twitter:image" content="{{ asset('storage/'.application('image')) }}" />
+    <meta property="twitter:description" content="@yield('description')" />
+    <meta property="twitter:title" content="@yield('title')" />
+    <meta name="theme-color" content="#6777ef" />
+
+    {{-- Title --}}
+    <title>Login into your account</title>
     @include('partials.style')
 
 </head>
@@ -27,7 +42,7 @@
                                 <div class="col-7">
                                     <div class="text-primary p-4">
                                         <h5 class="text-primary">Welcome Back !</h5>
-                                        <p>Sign in to continue to {{ application('name')}} as a {{ isset($url) ? ucwords($url) : ""}}.</p>
+                                        <p>Sign in to continue to {{ application('name')}}.</p>
                                     </div>
                                 </div>
                                 <div class="col-5 align-self-end">

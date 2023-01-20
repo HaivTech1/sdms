@@ -23,6 +23,12 @@
         </a>
     </li>
     <li>
+        <a href="{{ url('index/registration') }}" class="waves-effect">
+            <i class="bx bx-folder"></i>
+            <span key="t-chat">Registrations</span>
+        </a>
+    </li>
+    <li>
         <a href="{{ route('student.index') }}" class="waves-effect">
             <i class="bx bx-user"></i>
             <span key="t-chat">Students</span>

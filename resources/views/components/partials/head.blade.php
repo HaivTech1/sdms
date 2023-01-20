@@ -25,4 +25,8 @@
 
 <link rel="stylesheet" href="{{ URL::asset('frontend/css/responsive.css') }}">
 
+<link href="{{ asset('css/toastr.min.css') }}" rel="stylesheet">
+<link href="{{ asset('css/notiflix.css') }}" rel="stylesheet">
+<link href="{{ asset('css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+
 @bukStyles

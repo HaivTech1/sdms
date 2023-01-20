@@ -54,12 +54,12 @@ class EventController extends Controller
         ]);
 
         return response()->json([ 'status' => 'success', 'data' => [
-                                                            'id' => $event->id,
-                                                            'start' => $event->start,
-                                                            'end' => $event->end,
-                                                            'title' => $event->title,
-                                                            'category' => $event->category,
-                                                        ],
+                                                        'id' => $event->id,
+                                                        'start' => $event->start,
+                                                        'end' => $event->end,
+                                                        'title' => $event->title,
+                                                        'category' => $event->category,
+                                                ],
                                     'message' => 'Event saved successfully'
                                 ]);
     }

@@ -9,7 +9,7 @@ class SaveCode
 
     public static function Generator($int, $count, $row, $model)
     {
-        $code = $int.''. date('y') . '/'. str_pad(random_int(100000, 999999), $count, "5", STR_PAD_LEFT);
+        $code = $int.''. date('y') . '/'. str_pad(random_int(100000, 999999), $count, "4", STR_PAD_LEFT);
 
         $check = $model::where($row, $code)->exists();
 
