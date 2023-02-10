@@ -14,7 +14,7 @@
                 </div>
                 <div class="header_top_login">
                     <ul>
-                        <li><a class="main-btn text-center" href="{{ route('login') }}"><i class="fa fa-user-o"></i> Portal </a></li>
+                        <li><a class="main-btn text-center" href="{{ route('login') }}"><i class="fa fa-user"></i> Portal </a></li>
                     </ul>
                 </div>
             </div>

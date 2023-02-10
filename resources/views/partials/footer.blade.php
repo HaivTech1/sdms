@@ -8,7 +8,7 @@
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end d-none d-sm-block">
-                    Haiv Techonology Support Limited
+                    <a href="https://haivtech.com.ng">Haiv Technology Support Limited</a>
                 </div>
             </div>
         </div>

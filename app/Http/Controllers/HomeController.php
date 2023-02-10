@@ -17,7 +17,7 @@ class HomeController extends Controller
 
         $events = Event::where('category', 'bg-info')->get();
 
-        if ($user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() || $user->isAdmin()) {
             return view('dashboard',[
                 'user' => $user,
                 'session' => $session,

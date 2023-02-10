@@ -2,8 +2,11 @@
 
 namespace App\Http\Livewire\Components\Admin\Registration;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Grade;
+use App\Models\Father;
+use App\Models\Mother;
 use App\Models\Student;
 use Livewire\Component;
 use App\Models\Guardian;
@@ -25,7 +28,7 @@ class Index extends Component
     public $search = '';
     public $gender = '';
     public $sortBy = 'asc';
-    public $orderBy = 'first_name';
+    public $orderBy = 'created_at';
     public $grade = '';
     public $subjects = [];
 
@@ -76,7 +79,6 @@ class Index extends Component
         $registrations = Registration::withoutGlobalScope(new HasActiveScope)->whereIn('id', $this->selectedRows)->get();
         foreach ($registrations as $key => $value) {
             if ($value->update(['status' => true])) {
-                if($value->status === false) {
                     $user = new User([
                         'title' => 'student',
                         'name' => $value->lastName(). ' '. $value->firstName(). ' '. $value->otherName(),
@@ -119,26 +121,57 @@ class Index extends Component
     
                     $student->authoredBy(auth()->user());
                     $student->save();
-            
-                    $guardian = new Guardian([
-                        'student_id'  => $student->id(),
-                        'full_name'  => $value->guardian_full_name,
-                        'email' =>  $value->guardian_email,
-                        'phone_number' =>  $value->guardian_phone_number,
-                        'occupation'  => $value->guardian_occupation,
-                        'office_address' =>  $value->guardian_office_address,
-                        'home_address' =>  $value->guardian_home_address,
-                        'relationship' =>  $value->guardian_relationship,
-                    ]);
-    
-                    $guardian->save();
+
+                    if($student->father_name !== null){
+                        $father = new Father([
+                            'student_id'  => $student->id(),
+                            'name'  => $value->father_name,
+                            'email' =>  $value->father_email,
+                            'phone' =>  $value->father_phone,
+                            'occupation'  => $value->father_occupation,
+                            'office_address' =>  $value->father_office_address,
+                        ]);
+                        $father->save();
+                    }
+
+                    if($student->mother_name !== null){
+                        $mother = new Mother([
+                            'student_id'  => $student->id(),
+                            'fname'  => $value->mother_name,
+                            'email' =>  $value->mother_email,
+                            'phone' =>  $value->mother_phone,
+                            'occupation'  => $value->mother_occupation,
+                            'office_address' =>  $value->mother_office_address,
+                        ]);
+                        $mother->save();
+                    }
+
+                    if($student->guardian_full_name !== null){
+                        $guardian = new Guardian([
+                            'student_id'  => $student->id(),
+                            'full_name'  => $value->guardian_full_name,
+                            'email' =>  $value->guardian_email,
+                            'phone_number' =>  $value->guardian_phone_number,
+                            'occupation'  => $value->guardian_occupation,
+                            'office_address' =>  $value->guardian_office_address,
+                            'home_address' =>  $value->guardian_home_address,
+                            'relationship' =>  $value->guardian_relationship,
+                        ]);
+                        $guardian->save();
+                    }
+                    
                     $student->schedules()->sync(1);
-    
-                    $message = "<p>We are pleased to inform your that your child: " . $value->first_name. " " .$value->last_name. " has been granted admission into " .$value->grade->title(). ". Proceed to the school to make necessary payments so as to retain this admission. </p>";
+                    $message = "<p>
+                        We are pleased to inform your that your child: 
+                        " . $value->first_name. " " .$value->last_name.
+                        " has been granted admission into " .$value->grade->title(). 
+                        ". Proceed to the school to make necessary payments so as to retain this admission. 
+                        Please hold a copy of your child's birth certificate (photocopy) and/or '
+                        Baptisimal Card photocopy (Catholics only) with latest school report (if applicable).'
+                        </p>";
                     $subject = 'Admission Status from ' . application('name');
     
                     Mail::to($value->guardian_email)->send(new SendAdmissionMail($message, $subject));
-                }
             }
         }
         $this->dispatchBrowserEvent('success', ['message' => 'Student admitted successfully!']);
@@ -155,6 +188,9 @@ class Index extends Component
         return view('livewire.components.admin.registration.index', [
             'registrations' => $this->registrations,
             'grades' => Grade::all(),
+            'todayRegistrations' => Registration::withoutGlobalScope(new HasActiveScope)->whereDate('created_at', '>=', Carbon::today())->get(),
+            'admittedRegistrations' => Registration::withoutGlobalScope(new HasActiveScope)->where('status', true)->get(),
+            'unadmittedRegistrations' => Registration::withoutGlobalScope(new HasActiveScope)->where('created_at', false)->get(),
         ]);
     }
 }

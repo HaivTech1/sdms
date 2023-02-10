@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Scopes\HasActiveScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -38,6 +39,16 @@ class Registration extends Model
         'speech_development',
         'sight',
         'status',
+        'father_name',
+        'father_email',
+        'father_phone',
+        'father_occupation',
+        'father_office_address',
+        'mother_name',
+        'mother_email',
+        'mother_phone',
+        'mother_occupation',
+        'mother_office_address',
         'guardian_full_name',
         'guardian_email',
         'guardian_phone_number',
@@ -142,6 +153,16 @@ class Registration extends Model
         return $this->belongsTo(Grade::class);
     }
 
+    public function father(): HasOne
+    {
+        return $this->hasOne(Father::class);
+    }
+
+    public function mother(): HasOne
+    {
+        return $this->hasOne(Mother::class);
+    }
+
     public function createdAt()
     {
         return $this->created_at->format('M, d Y');
@@ -160,7 +181,7 @@ class Registration extends Model
     public function scopeLoadLatest(Builder $query, $count = 4, $orderBy, $sortBy)
     {
         return $query->orderBy($orderBy, $sortBy)
-        ->where('status', false)
+        // ->where('status', false)
         ->paginate($count);
     }
 }

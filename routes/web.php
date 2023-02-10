@@ -35,6 +35,7 @@ use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SubGradeController;
 use App\Http\Controllers\MessagingController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\AssignmentController;
@@ -122,6 +123,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
         Route::get('/', [TeacherController::class, 'index'])->name('index');
+        Route::get('/students', [TeacherController::class, 'students'])->name('students');
         Route::post('assignClass', [TeacherController::class, 'assignClass'])->name('assignClass');
     });
     
@@ -140,6 +142,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::resource('period',PeriodController::class);
     Route::resource('grade',GradeController::class);
+    Route::resource('subgrade', SubGradeController::class);
     Route::resource('subject',SubjectController::class);
     Route::resource('term',TermController::class);
     Route::resource('house', HouseController::class);
@@ -300,6 +303,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/index/registration', [RegistrationController::class, 'index']);
     Route::get('/show/registration/{registration}', [RegistrationController::class, 'show']);
     Route::delete('/delete/registration/{id}', [RegistrationController::class, 'destroy']);
+
+    Route::group(['prefix' => 'upload', 'as' => 'upload.'], function () {
+        Route::get('/', [FrontendController::class, 'uploadSignature'])->name('uploadSignature');
+        Route::post('/', [FrontendController::class, 'uploadSignaturePost'])->name('uploadSignature');
+    });
 
 });
 

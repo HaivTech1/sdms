@@ -5,11 +5,13 @@
             <span key="t-ecommerce">Settings Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
+            <li><a href="{{ route('upload.uploadSignature') }}" key="t-products">Upload Signatures</a></li>
             <li><a href="{{ route('period.index') }}" key="t-products">Session</a></li>
             <li><a href="{{ route('term.index') }}" key="t-products">Term</a></li>
             <li><a href="{{ route('house.index') }}" key="t-products">House</a></li>
             <li><a href="{{ route('club.index') }}" key="t-products">Club</a></li>
             <li><a href="{{ route('grade.index') }}" key="t-products">Class</a></li>
+            <li><a href="{{ route('subgrade.index') }}" key="t-products">Sub Class</a></li>
             <li><a href="{{ route('subject.index') }}" key="t-products">Subjects</a></li>
             <li><a href="{{ route('event.index') }}" key="t-products">Event</a></li>
             <li><a href="{{ route('schedule.index') }}" key="t-products">Schedule</a></li>
@@ -33,22 +35,11 @@
             <i class="bx bx-user"></i>
             <span key="t-chat">Students</span>
         </a>
-    </li>
+    </li> 
     <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
-            <i class="bx bxs-folder-open"></i>
-            <span key="t-ecommerce">Attendance Management</span>
-        </a>
-        <ul class="sub-menu" aria-expanded="true">
-            <li><a href="{{ route('attendance.index') }}" key="t-products">Attendance Log</a>
-            </li>
-            <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li>
-        </ul>
-    </li> 
-        <li>
-        <a href="javascript: void(0);" class="has-arrow waves-effect">
             <i class="bx bx-command"></i>
-            <span key="t-ecommerce">Result Management</span>
+            <span key="t-ecommerce">Check Result Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
             <li><a href="{{ route('result.midterm') }}" key="t-products">Mid Term Result</a></li>
@@ -72,5 +63,10 @@
             <li><a href="{{ route('messaging.sms') }}" key="t-add-product">Bulk SMS</a></li>
         </ul>
     </li>
-    
+    <li>
+        <a href="{{ route('design.index') }}" class="waves-effect">
+            <i class="bx bx-cog"></i>
+            <span key="t-chat">Frontend Management</span>
+        </a>
+    </li>
 @endadmin

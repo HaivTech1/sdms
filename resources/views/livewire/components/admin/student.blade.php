@@ -6,15 +6,26 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row mb-2">
-                        <div class="col-sm-8">
+                        <div class="col-sm-12">
                             <div class="row">
-                                <div class="col-lg-4">
+                                <div class="col-lg-6">
                                     <x-search />
                                 </div>
+                                <div class=" col-sm-6">
+                                    <div class="text-sm-end">
+                                        <a href="{{ route('student.create') }}"
+                                            class="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2"><i
+                                                class="mdi mdi-plus me-1"></i> Add Student</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                <div class="col-lg-8">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="col-lg-12">
                                     <div class="row">
-                                        <div class="col-lg-3">
+                                        <div class="col-lg-2">
                                             <select class="form-control select2" wire:model="gender">
                                                 <option value=''>Select Gender</option>
                                                 <option value="male">Male</option>
@@ -24,7 +35,7 @@
 
                                         </div>
 
-                                        <div class="col-lg-3">
+                                        <div class="col-lg-2">
                                             <select class="form-control select2" wire:model="grade">
                                                 <option value=''>Select Grade</option>
                                                 @foreach ($grades as $grade)
@@ -34,7 +45,7 @@
 
                                         </div>
 
-                                        <div class="col-lg-3">
+                                        <div class="col-lg-2">
                                             <select class="form-control select2" wire:model="sortBy">
                                                 <option value=''>Sort By</option>
                                                 <option value="asc">ASC</option>
@@ -43,62 +54,79 @@
 
                                         </div>
 
-                                        <div class="col-lg-3">
+                                        <div class="col-lg-2">
                                             <select class="form-control select2" wire:model="orderBy">
                                                 <option value=''>Order By</option>
                                                 <option value="first_name">First Name</option>
                                                 <option value="last_name">Last Name</option>
                                             </select>
                                         </div>
-                                    </div>
-                                    @if ($selectedRows)
-                                        <div class="row justify-content-center align-items-center g-2 mt-2">
-                                            <div class="col-sm-4">
-                                                <div class="btn-group btn-group-example" role="group">
-                                                    <button wire:click.prevent="deleteAll" type="button"
-                                                        class="btn btn-outline-danger w-sm">
-                                                        <i class="bx bx-trash"></i>
-                                                        Delete All
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="btn-group btn-group-example" role="group">
-                                                    <button wire:click.prevent="promoteAll" type="button"
-                                                        class="btn btn-outline-success w-sm">
-                                                        <i class="bx bx-caret-right"></i>
-                                                        Promote All
-                                                    </button>
-                                                </div>
-                                            </div>
 
-                                            <div class="col-sm-4">
-                                                <div class="btn-group btn-group-example" role="group">
-                                                    <button wire:click.prevent="repeatAll" type="button"
-                                                        class="btn btn-outline-primary w-sm">
-                                                        <i class="bx bx-caret-left"></i>
-                                                        Repeat All
-                                                    </button>
-                                                </div>
-                                            </div>
+                                        <div class="col-lg-2">
+                                            <select class="form-control select2" wire:model="status">
+                                                <option value=''>Status</option>
+                                                <option value="1">Active</option>
+                                                <option value="false">Inactive</option>
+                                            </select>
                                         </div>
-                                    @endif
-                                      
+
+                                         <div class="col-lg-2">
+                                            <select class="form-control select2" wire:model="gender">
+                                                <option value=''>Gender</option>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </diV>
                             </div>
                         </div>
 
-                        <div class=" col-sm-4">
-                            <div class="text-sm-end">
-                                <a href="{{ route('student.create') }}"
-                                    class="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2"><i
-                                        class="mdi mdi-plus me-1"></i> Add Student</a>
-                            </div>
-                        </div>
+                        <div class="col-lg-12">
+                            @if ($selectedRows)
+                                <div class="row mt-2">
+                                    <div class="col-sm-2">
+                                        <div class="btn-group btn-group-example" role="group">
+                                            <button wire:click.prevent="activateAll" type="button"
+                                                class="btn btn-outline-primary w-sm">
+                                                <i class="bx bx-trash"></i>
+                                                Activate All
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="btn-group btn-group-example" role="group">
+                                            <button wire:click.prevent="deleteAll" type="button"
+                                                class="btn btn-outline-danger w-sm">
+                                                <i class="bx bx-trash"></i>
+                                                Delete All
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="btn-group btn-group-example" role="group">
+                                            <button wire:click.prevent="promoteAll" type="button"
+                                                class="btn btn-outline-success w-sm">
+                                                <i class="bx bx-caret-right"></i>
+                                                Promote All
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="btn-group btn-group-example" role="group">
+                                            <button wire:click.prevent="repeatAll" type="button"
+                                                class="btn btn-outline-danger w-sm">
+                                                <i class="bx bx-caret-left"></i>
+                                                Repeat All
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </diV>
                     </div>
 
                     <div class='row'>
-
                         <div class='col-sm-12'>
                             <div class="table-responsive">
                                 <table class="table align-middle table-nowrap table-check">
@@ -142,7 +170,7 @@
                                                 {{ $student->grade->title() }}
                                             </td>
                                             <td>
-                                                {{ $student->user->code() }}
+                                                <livewire:components.edit-title :model='$student->user' field='reg_no' :key='$student->user->id()'/>
                                             </td>
                                             <td>
                                                 {{ $student->subjects->count() }}
@@ -278,13 +306,13 @@
                     if(res.status === 'success') {
                         toggleAble('#submit_button', false);
                         toastr.success(res.message, 'Success!');
+                        resetForm('#createSubjects');
+                        setInterval(function () {window.location.reload()}, 2000);
+
                     }else{
                         toggleAble('#submit_button', false);
                         toastr.error(res.message, 'Failed!');
                     }
-                    resetForm('#createSubjects');
-                    setInterval(function () {window.location.reload()}, 2000);
-                    
                 }).fail((res) => {
                     console.log(res.responseJSON.message);
                     toastr.error(res.responseJSON.message, 'Failed!');

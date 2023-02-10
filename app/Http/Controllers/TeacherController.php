@@ -9,7 +9,7 @@ class TeacherController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin']);
+        $this->middleware(['auth', 'admin'])->except(['students']);
     }
 
 
@@ -20,10 +20,19 @@ class TeacherController extends Controller
 
     public function assignClass(Request $request)
     {
-        $teacher = User::findOrFail($request->user_id);
-        $teacher->gradeClassTeacher()->detach();
-        $teacher->gradeClassTeacher()->attach($request->grade_id);
+        try{
+            $teacher = User::findOrFail($request->user_id);
+            $teacher->gradeClassTeacher()->detach();
+            $teacher->gradeClassTeacher()->attach($request->grade_id);
+            return response()->json(['status' => true, 'message' => 'Classes synced successfully!'], 200);
+        }catch(\Throwable $th){
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+       
+    }
 
-        return response()->json(['status' => 'success', 'message' => 'Classes synced successfully!'], 200);
+    public function students()
+    {
+        return view('admin.teacher.students');
     }
 }

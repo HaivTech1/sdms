@@ -124,11 +124,11 @@
             </div>
 
             <div style="display: flex; justify-content: center; margin-top: 50px; position: relative">
-                <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 100px; left: 250px;  bottom: 0;" />
+                <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 40px; left: 250px;  bottom: 0;" />
                 <div style="border-bottom: 1px solid #000000; width: 300px;"></div>
                 <div>Signature & School Stamp:</div>
                 <div style="border-bottom: 1px solid #000000; width: 300px;"></div>
-                <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 100px; right: 250px;  bottom: 0;" />
+                <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 40px; right: 250px;  bottom: 0;" />
             </div>
             
             <div class="row">

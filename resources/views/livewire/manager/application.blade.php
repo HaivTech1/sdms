@@ -161,12 +161,6 @@
                             value="old('description')" placeholder="Post Description"></textarea>
                     </div>
                 </div>
-
-                <div class="col-md-6 mb-3">
-                    <x-form.label for="fav" value="{{ __('Favicon') }}" />
-                    <x-form.input id="fav" type="text" class="block w-full mt-1" wire:model.defer="app.fav" type="file"/>
-                    <x-form.error for="fav" class="mt-2" />
-                </div>
             </div>
         </x-slot>
         <div class="col-sm-12">

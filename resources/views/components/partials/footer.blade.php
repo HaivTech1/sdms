@@ -60,7 +60,7 @@
                     <p style="font-size: 12px">&copy; Copyrights {{ date('Y') }} {{ application('name') }}. All rights reserved. </p>
                 </div>
                 <div class="copyright">
-                    <p style="font-size: 10px">Haiv Technology Support Limited</p>
+                    <a href="https://haivtech.com.ng" style="font-size: 10px">Haiv Technology Support Limited</a>
                 </div>
             </div>
         </div>

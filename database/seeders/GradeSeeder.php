@@ -17,54 +17,69 @@ class GradeSeeder extends Seeder
         $grade = collect([
             $this->createGrade(
                 'Kindergertin ',
+                1
             ),
             $this->createGrade(
                 'Creche',
+                1
             ),
             $this->createGrade(
                 'Nursery 1',
+                1
             ),
             $this->createGrade(
                 'Nursery 2',
+                1
             ),
             $this->createGrade(
                 'Primary 1',
+                1
             ),
             $this->createGrade(
                 'Primary 2',
+                1
             ),
             $this->createGrade(
                 'Primary 3',
+                1
             ),
             $this->createGrade(
                 'Primary 4',
+                1
             ),
             $this->createGrade(
                 'Primary 5',
+                1
             ),
             $this->createGrade(
                 'JSS 1',
+                1
             ),
             $this->createGrade(
                 'JSS 2',
+                1
             ),
             $this->createGrade(
                 'JSS 3',
+                1
             ),
             $this->createGrade(
                 'SSS 1',
+                1
             ),
             $this->createGrade(
                 'SSS 2',
+                1
             ),
             $this->createGrade(
                 'SSS 3',
+                1
             ),
         ]);
     }
 
-    private function createGrade(string $title)
+    private function createGrade(string $title, bool $status)
     {
-        return Grade::factory()->create(compact('title'));
+        return Grade::factory()->create(compact('title', 'status'));
     }
 }

@@ -46,6 +46,7 @@ class Student extends Authenticatable
         'allergics',
         'image',
         'grade_id',
+        'sub_grade_id',
         'house_id',
         'club_id',
         'status',
@@ -239,9 +240,14 @@ class Student extends Authenticatable
         });
     }
 
-    public function scopeLoadLatest(Builder $query, $count = 4, $orderBy, $sortBy)
+    public function scopeLoadLatest(Builder $query, $count = 4, $orderBy, $sortBy, $status, $gender)
     {
-        return $query->orderBy($orderBy, $sortBy)
+        return $query->when($status, function($query, $status) {
+                    return $query->whereStatus($status);
+                })->when($gender, function($query, $gender) {
+                    return $query->where('gender', $gender);
+                })
+        ->orderBy($orderBy, $sortBy)
         ->paginate($count);
     }
 

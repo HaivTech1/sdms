@@ -49,18 +49,17 @@
                                             <th class="align-middle">#</th>
                                             <th class="align-middle"> Title</th>
                                             <th class="align-middle"> Status</th>
-                                            <th class="align-middle">Sub class</th>
                                             <th class="align-middle">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($grades as $key => $grade)
+                                        @foreach($subgrades as $key => $subgrade)
                                         <tr>
                                             <td>
                                                 <div class="form-check font-size-16">
-                                                    <input class="form-check-input" value="{{ $grade->id() }}"
-                                                        type="checkbox" id="{{ $grade->id() }}" wire:model="selectedRows">
-                                                    <label class="form-check-label" for="{{ $grade->id() }}"></label>
+                                                    <input class="form-check-input" value="{{ $subgrade->id() }}"
+                                                        type="checkbox" id="{{ $subgrade->id() }}" wire:model="selectedRows">
+                                                    <label class="form-check-label" for="{{ $subgrade->id() }}"></label>
                                                 </div>
                                             </td>
                                             <td>
@@ -68,16 +67,14 @@
                                                     class="text-body fw-bold">{{ $key+1 }}</a>
                                             </td>
                                             <td>
-                                                <livewire:components.edit-title :model='$grade' field='title' :key='$grade->id()'/>
+                                                <span>{{ $subgrade->grade->title() }}</span>
+                                                <span><livewire:components.edit-title :model='$subgrade' field='title' :key='$subgrade->id()'/></span>
                                             </td>
                                             <td>
-                                                <livewire:components.toggle-button :model='$grade' field='status' :key='$grade->id()'/>
+                                                <livewire:components.toggle-button :model='$subgrade' field='status' :key='$subgrade->id()'/>
                                             </td>
                                             <td>
-                                                {{ $grade->SubGrade->count() }}
-                                            </td>
-                                            <td>
-                                                <button type="button"  class="btn btn-primary waves-effect waves-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Click to show class details" wire:click="GradeDetails({{ $grade->id() }})" class="dropdown-item">
+                                                <button type="button"  class="btn btn-primary waves-effect waves-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Click to show class details" wire:click="subgradeDetails({{ $subgrade->id() }})" class="dropdown-item">
                                                     <i class="fa fa-eye"></i>
                                                 </button>
                                             </td>
@@ -86,21 +83,36 @@
                                     </tbody>
                                 </table>
                             </div>
-                            {{ $grades->links('pagination::custom-pagination')}}
+                            {{ $subgrades->links('pagination::custom-pagination')}}
                         </div>
                         <div class='col-sm-4'>
-                            <form wire:submit.prevent="createGrade">
-                                <div class="hstack gap-3">
+                            <form wire:submit.prevent="createSubGrade">
+                                <div class="col-sm-12">
+                                    <x-form.label for="title" value="{{ __('Sub Class Name') }}" />
                                     <input class="form-control me-auto" wire:model.defer="title" placeholder="Add your class here..."
                                         aria-label="Add your class here...">
                                     <x-form.error for="title" />
+                                </div>
+
+                                <div class="col-sm-12 mb-3">
+                                    <x-form.label for="grade_id" value="{{ __('Class') }}" />
+                                    <select class="form-control" wire:model.defer="grade_id">
+                                        <option>Select</option>
+                                        @foreach ($grades as $grade)
+                                        <option value="{{ $grade->id() }}">{{ $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                    <x-form.error for="grade_id" />
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2">
                                     <button type="submit" class="btn btn-secondary">Add</button>
                                     <div class="vr"></div>
                                     <button wire:click="resetState" type="button" class="btn btn-outline-danger">Reset</button>
                                 </div>
                             </form>
 
-                            @if ($grade_details)
+                            @if ($subgrade_details)
                                 <div id="details" class="modal fade" tabindex="-1" aria-labelledby="#exampleModalFullscreenLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-fullscreen">
                                         <div class="modal-content">
@@ -111,7 +123,7 @@
                                             <div class="modal-body">
                                                 <div class="row">
                                                     <div class="col sm-12">
-                                                        <h5>{{ $grade_details->title() }}</h5>
+                                                        <h5>{{ $subgrade_details->title() }}</h5>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered table-striped table-nowrap mb-0">
                                                         <thead>

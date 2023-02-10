@@ -23,11 +23,13 @@ class Student extends Component
     public $grade = '';
     public $student_details;
     public $subjects = [];
+    public $status = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
         'gender' => ['except' => ''],
         'grade' => ['except' => ''],
+        'status' => ['except' => ''],
     ];
 
     protected $listeners = [
@@ -61,17 +63,14 @@ class Student extends Component
         return ClientStudent::withoutGlobalScope(new HasActiveScope)->when($this->grade, function($query, $grade) {
             $query->whereHas('grade', function($query) use ($grade){
                $query->where('id', $grade);
-            })
-            ->when($this->gender, function($query, $gender) {
-                return $query->where('gender', $gender);
             });
         })
-        ->search(trim($this->search))->loadLatest($this->per_page, $this->orderBy, $this->sortBy);
+        ->search(trim($this->search))->loadLatest($this->per_page, $this->orderBy, $this->sortBy, $this->status, $this->gender);
     }
 
     public function deleteAll()
     {
-        ClientStudent::whereIn('uuid', $this->selectedRows)->delete();
+        ClientStudent::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $this->selectedRows)->delete();
 
         $this->dispatchBrowserEvent('success', ['message' => 'All selected students
             were deleted']);
@@ -79,9 +78,22 @@ class Student extends Component
         $this->reset(['selectedRows', 'selectPageRows']);
     }
 
+    public function activateAll()
+    {
+        $student = ClientStudent::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $this->selectedRows)->update([
+            'status' => true,
+        ]);
+
+
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected students
+            were activated']);
+
+        $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
     public function promoteAll()
     {
-        $toBePromoted = ClientStudent::whereIn('uuid', $this->selectedRows)->get();
+        $toBePromoted = ClientStudent::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $this->selectedRows)->get();
 
         foreach ($toBePromoted as $value) {
             $newGrade = $value->grade_id +1;
@@ -96,7 +108,7 @@ class Student extends Component
 
     public function repeatAll()
     {
-        $toBePromoted = ClientStudent::whereIn('uuid', $this->selectedRows)->get();
+        $toBePromoted = ClientStudent::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $this->selectedRows)->get();
 
         foreach ($toBePromoted as $value) {
             $newGrade = $value->grade_id -1;

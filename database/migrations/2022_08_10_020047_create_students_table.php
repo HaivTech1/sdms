@@ -35,6 +35,7 @@ class CreateStudentsTable extends Migration
             $table->text('sight')->nullable();
             $table->text('allergics')->nullable();
             $table->foreignId('grade_id')->nullable()->constrained('grades')->onDelete('set null');
+            $table->foreignId('sub_grade_id')->nullable()->constrained('sub_grades')->onDelete('set null');
             $table->foreignId('house_id')->nullable()->constrained('houses')->onDelete('set null');
             $table->foreignId('club_id')->nullable()->constrained('clubs')->onDelete('set null');
             $table->boolean('status')->default(0);

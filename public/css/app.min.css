@@ -170,7 +170,7 @@
 }
 
 body[data-topbar=dark] #page-topbar {
-    background-color: #502179
+    background-color: #0F28D5
 }
 
 body[data-topbar=dark] .navbar-header .dropdown .show.header-item {
@@ -216,7 +216,7 @@ body[data-topbar=dark] .app-search span {
 }
 
 body[data-sidebar=dark] .navbar-brand-box {
-    background: #502179
+    background: #0F28D5
 }
 
 body[data-sidebar=dark] .logo-dark {
@@ -701,7 +701,7 @@ body[data-layout=horizontal] .footer {
 }
 
 body[data-sidebar=dark] .vertical-menu {
-    background: #502179
+    background: #0F28D5
 }
 
 body[data-sidebar=dark] #sidebar-menu ul li a {
@@ -750,7 +750,7 @@ body[data-sidebar=dark].vertical-collpsed .vertical-menu #sidebar-menu>ul>li:hov
 }
 
 body[data-sidebar=dark].vertical-collpsed .vertical-menu #sidebar-menu>ul ul {
-    background-color: #502179
+    background-color: #0F28D5
 }
 
 body[data-sidebar=dark].vertical-collpsed .vertical-menu #sidebar-menu ul li.mm-active .active {
@@ -1968,17 +1968,17 @@ body[data-layout=horizontal][data-layout-size=boxed] .navbar-header {
 }
 
 .form-check-info .form-check-input:checked {
-    background-color: #50a5f1;
-    border-color: #50a5f1
+    background-color: #373773;
+    border-color: #373773
 }
 
 .form-radio-info .form-check-input:checked {
-    border-color: #50a5f1;
-    background-color: #50a5f1
+    border-color: #373773;
+    background-color: #373773
 }
 
 .form-radio-info .form-check-input:checked:after {
-    background-color: #50a5f1
+    background-color: #373773
 }
 
 .form-check-warning .form-check-input:checked {
@@ -2792,8 +2792,8 @@ input[type=checkbox].tui-full-calendar-checkbox-round+span {
 }
 
 .swal2-icon.swal2-question {
-    border-color: #50a5f1;
-    color: #50a5f1
+    border-color: #373773;
+    color: #373773
 }
 
 .swal2-icon.swal2-success [class^=swal2-success-line] {
@@ -2891,7 +2891,7 @@ input[type=checkbox].tui-full-calendar-checkbox-round+span {
 }
 
 .toast-info {
-    border: 2px solid #50a5f1 !important;
+    border: 2px solid #373773 !important;
     background-color: rgba(80, 165, 241, .8) !important
 }
 
@@ -3249,7 +3249,7 @@ input[switch=success]:checked+label {
 }
 
 input[switch=info]:checked+label {
-    background-color: #50a5f1
+    background-color: #373773
 }
 
 input[switch=warning]:checked+label {
@@ -5188,7 +5188,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control:before {
 
 .landing-footer {
     padding: 80px 0 40px;
-    background-color: #502179;
+    background-color: #0F28D5;
     color: rgba(255, 255, 255, .5)
 }
 

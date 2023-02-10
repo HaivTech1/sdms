@@ -13,7 +13,7 @@
 
                 <div class="row" style="display: flex; justify-content: center; align-items: center">
                         <div style="margin-right: 10px; padding: 5px">
-                             <x-form.label for="first_name" value="{{ __('Passport Photograph') }}" />
+                             <x-form.label for="image" value="{{ __('Passport Photograph') }}" />
                              <x-form.input id="image" class="block w-full mt-1" type="file" name="image"/>
                         </div>
                         <div style="">
@@ -26,7 +26,7 @@
                     <div class="col-sm-6 mb-3">
                         <x-form.label for="first_name" value="{{ __('First Name') }}" />
                         <x-form.input id="first_name" class="block w-full mt-1" type="text" name="first_name"
-                            :value="old('first_name')" id="first_name" autofocus />
+                            :value="old('first_name')" id="first_name"  />
                         <x-form.error for="first_name" />
                     </div>
 
@@ -201,7 +201,95 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <h5 style="margin-bottom: 10px">Guardian Details</h5>
+                        <h5 style="margin-bottom: 10px">Parent's Section</h5>
+                        <hr/>
+                        <div class="row justify-content-center align-items-center g-2">
+                            <div class="col-sm-6">
+                                <h5>Father's Details</h5>
+
+                                <div class="row">
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="father_name" value="{{ __('Full Name') }}" />
+                                        <x-form.input id="father_name" class="block w-full mt-1" type="text"
+                                            name="father_name" :value="old('father_name')" />
+                                        <x-form.error for="father_name" />
+                                    </div>
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="father_email" value="{{ __('Email') }}" />
+                                        <x-form.input id="father_email" class="block w-full mt-1" type="email" name="father_email"
+                                            :value="old('father_email')" />
+                                        <x-form.error for="father_email" />
+                                    </div>
+
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="father_phone" value="{{ __('Phone Number') }}" />
+                                        <x-form.input id="father_phone" class="block w-full mt-1" type="tel"
+                                            name="father_phone" :value="old('father_phone')" />
+                                        <x-form.error for="father_phone" />
+                                    </div>
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="father_occupation" value="{{ __('Occupation') }}" />
+                                        <x-form.input id="father_occupation" class="block w-full mt-1"
+                                            type="father_occupation" name="father_occupation" :value="old('father_occupation')" />
+                                        <x-form.error for="father_occupation" />
+                                    </div>
+
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="father_office_address" value="{{ __('Office Address') }}" />
+                                        <x-form.input id="father_office_address" class="block w-full mt-1"
+                                            type="text" name="father_office_address" :value="old('father_office_address')" />
+                                        <x-form.error for="father_office_address" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <h5>Mother's Details</h5>
+
+                                <div class="row">
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="mother_name" value="{{ __('Full Name') }}" />
+                                        <x-form.input id="mother_name" class="block w-full mt-1" type="text"
+                                            name="mother_name" :value="old('mother_name')" />
+                                        <x-form.error for="mother_name" />
+                                    </div>
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="mother_email" value="{{ __('Email') }}" />
+                                        <x-form.input id="mother_email" class="block w-full mt-1" type="mother_email" name="mother_email"
+                                            :value="old('mother_email')" />
+                                        <x-form.error for="mother_email" />
+                                    </div>
+
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="mother_phone" value="{{ __('Phone Number') }}" />
+                                        <x-form.input id="mother_phone" class="block w-full mt-1" type="tel"
+                                            name="mother_phone" :value="old('mother_phone')" />
+                                        <x-form.error for="mother_phone" />
+                                    </div>
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="mother_occupation" value="{{ __('Occupation') }}" />
+                                        <x-form.input id="mother_occupation" class="block w-full mt-1"
+                                            type="mother_occupation" name="mother_occupation" :value="old('mother_occupation')" />
+                                        <x-form.error for="mother_occupation" />
+                                    </div>
+
+                                    <div class="col-sm-12 mb-3">
+                                        <x-form.label for="mother_office_address" value="{{ __('Office Address') }}" />
+                                        <x-form.input id="mother_office_address" class="block w-full mt-1"
+                                            type="text" name="mother_office_address" :value="old('mother_office_address')" />
+                                        <x-form.error for="mother_office_address" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 style="">Guardian Section</h5>
+                        <p><span style="color: red; font-size: 10px">If child is living with a relative complete the information below.</span></p>
+                        <hr />
 
                         <div class="row">
                             <div class="col-sm-6 mb-3">
@@ -252,8 +340,18 @@
                     </div>
                 </div>
 
+                 <div class="row">
+                    <div class="col-md-12">
+                        <h5 style="">Declaration</h5>
+                        <div class="col-sm-12 mb-3">
+                            <input type="checkbox" id="agreement" />
+                            <x-form.label class="text-danger" for="agree" value="{{ __('I hereby confirm that the information provided above is correct.') }}" />
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
-                    <button id="submit" type="submit" class="btn btn-secondary block waves-effect waves-light pull-right">Submit</button>
+                    <button disabled="disabled" id="submit" type="submit" class="btn btn-secondary block waves-effect waves-light pull-right">Submit</button>
                 </div>
             </form>
         </div>
@@ -261,6 +359,16 @@
 
     @section('scripts')
         <script>
+            var cherker = document.getElementById('agreement');
+            var sendBtn = document.getElementById('submit');
+
+            cherker.onchange = function(){
+                if(this.checked){
+                    sendBtn.disabled = false;
+                }else{
+                    sendBtn.disabled = true;
+                }
+            }
             var input = document.querySelector('input[type=file]'); // see Example 4
             input.onchange = function () {
                 var file = input.files[0];
@@ -312,6 +420,7 @@
                     if(res.status === 'success') {
                         toggleAble('#submit', false);
                         toastr.success(res.message, 'Success!');
+                        $('#img-show-container').hide();
                     }else{
                         toggleAble('#submit', false);
                         toastr.error(res.message, 'Success!');

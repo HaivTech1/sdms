@@ -179,8 +179,7 @@ class User extends Authenticatable
 
     public function scopeLoad(Builder $query, $count = 5)
     {
-        return $query->inRandomOrder()
-            ->paginate($count);
+        return $query->paginate($count);
     }
 
     public function scopeSearch($query, $term)

@@ -75,7 +75,7 @@ class CheckPrimary extends Component
     {
         return view('livewire.components.admin.result.check-primary',[
             'students' => $this->students,
-            'grades' => Grade::whereIn('id', [1, 2, 3, 4, 5, 6, 7, 8, 9])->get(),
+            'grades' => Grade::get(),
             'periods' => Period::all(),
             'terms' => Term::all(),
             'psychomotors' => Psychomotor::where('term_id', $this->term_id)->where('period_id', $this->period_id)->get(),

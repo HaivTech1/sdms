@@ -13,7 +13,7 @@ class Teacher extends Component
 
     public $selectedRows = [];
     public $selectPageRows = false;
-    public $per_page = 5;
+    public $per_page = 10;
     public $search = '';
     public $user_id;
     public $grade_id;
@@ -61,7 +61,10 @@ class Teacher extends Component
     {
         return view('livewire.components.admin.teacher',[
             'teachers' => $this->teachers,
-            'grades' => Grade::orderBy('title')->pluck('title', 'id')
+            'grades' => Grade::orderBy('title')->pluck('title', 'id'),
+            'allTeachers' => User::where('type', 3)->get(),
+            'activeTeachers' => User::where('type', 3)->where('isAvailable', true)->get(),
+            'unactiveTeachers' => User::where('type', 3)->where('isAvailable', false)->get(),
         ]);
     }
 }

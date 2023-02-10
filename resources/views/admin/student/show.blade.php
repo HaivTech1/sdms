@@ -63,15 +63,17 @@
                                     <p>Previous School: {{ $student->prevSchool()}}</p>
                                     <p>Previous Class: {{ $student->prevClass()}}</p>
                                 </div>
-                                <div class='col-xs-4 col-md-4'>
-                                    <legend>Guardian Details</legend>
-                                    <p>Home Address: {{ $student->guardian->homeAddress() ?? ''}}</p>
-                                    <p>Office Address: {{ $student->guardian->officeAddress()}}</p>
-                                    <p>Email: {{ $student->guardian->email()}}</p>
-                                    <p>Phone Number: {{ $student->guardian->phoneNumber()}}</p>
-                                    <p>Occupation: {{ $student->guardian->occupation()}}</p>
-                                    <p>Relationship: {{ $student->guardian->relationship()}}</p>
-                                </div>
+                                @if (isset($student->guardian))
+                                    <div class='col-xs-4 col-md-4'>
+                                        <legend>Guardian Details</legend>
+                                        <p>Home Address: {{ $student->guardian->homeAddress() ?? ''}}</p>
+                                        <p>Office Address: {{ $student->guardian->officeAddress()}}</p>
+                                        <p>Email: {{ $student->guardian->email()}}</p>
+                                        <p>Phone Number: {{ $student->guardian->phoneNumber()}}</p>
+                                        <p>Occupation: {{ $student->guardian->occupation()}}</p>
+                                        <p>Relationship: {{ $student->guardian->relationship()}}</p>
+                                    </div>
+                                @endif
                             </div>
                             <br />
 

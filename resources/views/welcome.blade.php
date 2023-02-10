@@ -173,8 +173,12 @@
                                         <img src="{{ asset('frontend/images/clock.png') }}" alt="clock">
                                     </div>
                                     <div class="info_content media-body">
-                                        <h5 class="info_title">7:00AM  -  05:00 PM</h5>
-                                        <p>Monday - Friday</p>
+                                        <h5 class="info_title">8:00AM  -  04:00 PM</h5>
+                                        <p>Monday - Thursday</p>
+                                    </div>
+                                    <div class="info_content media-body">
+                                        <h5 class="info_title">8:00AM  -  01:00 PM</h5>
+                                        <p>Friday</p>
                                     </div>
                                 </div>
                             </div>
@@ -230,7 +234,7 @@
         </div>
         <div class="why_choose_image d-none d-lg-table">
             <div class="image">
-                <img src="{{ asset('frontend/images/choose_bg.png') }}" alt="">
+                <img src="{{ asset('frontend/images/dots.png') }}" width="100%" alt="">
             </div>
         </div>
     </section>

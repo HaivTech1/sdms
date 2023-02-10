@@ -32,7 +32,6 @@ class CreateApplicationsTable extends Migration
             $table->text('twitter')->nullable();
             $table->text('linkedin')->nullable();
             $table->text('website')->nullable();
-
             $table->timestamps();
         });
     }

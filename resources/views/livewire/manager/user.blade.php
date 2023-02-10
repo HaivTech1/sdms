@@ -100,7 +100,7 @@
                                             <livewire:components.edit-title :model='$user' field='email' :key='$user->id()'/>
                                     </td>
                                     <td>
-                                        {{ $user->code() }}
+                                            <livewire:components.edit-title :model='$user' field='reg_no' :key='$user->id()'/>
                                     </td>
                                     <td>
                                         <livewire:components.toggle-button :model='$user'

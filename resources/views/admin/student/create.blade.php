@@ -65,6 +65,13 @@
                                     </div>
 
                                     <div class="col-sm-6 mb-3">
+                                        <x-form.label for="sub_grade_id" value="{{ __('Sub Class') }}" />
+                                        <select class="form-control" name="sub_grade_id">
+                                            
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-6 mb-3">
                                         <x-form.label for="house_id" value="{{ __('Sport House') }}" />
                                         <select class="form-control" name="house_id">
                                             <option>Select</option>

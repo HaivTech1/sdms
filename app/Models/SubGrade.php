@@ -5,25 +5,21 @@ namespace App\Models;
 use App\Scopes\HasActiveScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Grade extends Model
+class SubGrade extends Model
 {
     use HasFactory;
 
-    const TABLE = 'grades';
+    const TABLE = 'sub_grades';
 
     protected $table = self::TABLE;
 
     protected $fillable = [
         'title', 
+        'grade_id',
         'status'
-    ];
-
-    protected $with = [
-     'students'
     ];
 
     protected $casts = [
@@ -50,9 +46,9 @@ class Grade extends Model
         return $this->status;
     }
 
-    public function students(): HasMany
+    public function grade(): BelongsTo
     {
-        return $this->hasMany(Student::class, 'grade_id');
+        return $this->belongsTo(Grade::class, 'grade_id');
     }
 
     public function scopeSearch($query, $term)
@@ -68,18 +64,5 @@ class Grade extends Model
         return $query->paginate($count);
     }
 
-    public function gradeClassTeacher(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'grade_user');
-    }
 
-    public function fee(): hasMany
-    {
-        return $this->hasMany(Fee::class);
-    }
-
-    public function SubGrade(): hasMany
-    {
-        return $this->hasMany(SubGrade::class);
-    }
 }

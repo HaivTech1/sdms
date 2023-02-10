@@ -18,7 +18,7 @@ class StudentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin']);
+        $this->middleware(['auth', 'admin'])->except(['assignSubject']);
     }
     
     /**
@@ -132,19 +132,16 @@ class StudentController extends Controller
 
     public function assignSubject (Request $request)
     {
-        $student = Student::findOrFail($request->student_id);
-        $student->subjects()->detach();
-        $student->subjects()->attach($request->subjects);
+        try {
+            $student = Student::findOrFail($request->student_id);
+            $student->subjects()->detach();
+            $student->subjects()->attach($request->subjects);
+            return response()->json(['status' => 'success', 'message' => 'Subjects synced successfully!'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'success', 'message' => $th->getMessage()], 500);
+        }
+        
 
-        // $notification = array(
-        //     'messege' => 'Subject attached Successfully',
-        //     'alert-type' => 'success',
-        //     'button' => 'Okay!',
-        //     'title' => 'Success'
-        // );
-
-        // return redirect()->back()->with($notification);
-        return response()->json(['status' => 'success', 'message' => 'Subjects synced successfully!'], 200);
     }
 
     public function promotion()

@@ -1,5 +1,22 @@
 @teacher
     <li>
+        <a href="{{ route('teacher.students') }}" class="waves-effect">
+            <i class="bx bx-list-check"></i>
+            <span key="t-chat">Pupils List</span>
+        </a>
+    </li>
+    <li>
+        <a href="javascript: void(0);" class="has-arrow waves-effect">
+            <i class="bx bxs-folder-open"></i>
+            <span key="t-ecommerce">Attendance Management</span>
+        </a>
+        <ul class="sub-menu" aria-expanded="true">
+            <li><a href="{{ route('attendance.index') }}" key="t-products">Attendance Log</a>
+            </li>
+            <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li>
+        </ul>
+    </li>
+    <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
             <i class="bx bxs-folder-open"></i>
             <span key="t-ecommerce">Result Management</span>

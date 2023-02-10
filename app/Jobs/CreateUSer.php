@@ -5,9 +5,11 @@ namespace App\Jobs;
 use App\Models\User;
 use App\Services\SaveCode;
 use Illuminate\Bus\Queueable;
+use App\Mail\SendTeacherDetails;
 use App\Http\Requests\UserRequest;
 use App\Services\SaveImageService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -75,17 +77,24 @@ class CreateUser implements ShouldQueue
         ]);
 
         if($this->type == 2){
-            $initial = 'ADM';
+            $initial = 'ADM/';
         }elseif($this->type == 3){
-            $initial = 'TCH';
+            $initial = 'TCH/';
         }elseif($this->type == 4){
-            $initial = 'STD';
+            $initial = 'STD/';
         }elseif($this->type == 5){
-            $initial = 'BUR';
+            $initial = 'BUR/';
         }
 
-        $code = SaveCode::Generator($initial, 5, '/reg_no', $user);
+        $code = SaveCode::Generator($initial, 5, 'reg_no', $user);
         $user->reg_no = $code;
+
+        $message = "<p>You are welcome to ".application('name')." portal. Please visit ".application('website')." to login with your credentials. Id: ".$code." and your password: password1234</p>";
+        $subject = 'Welcome to '.application('name'). ' Portal';
+
+        if($this->type === '3'){
+            Mail::to($this->email)->send(new SendTeacherDetails($message, $subject));
+        }
 
         SaveImageService::UploadImage($this->image, $user, User::TABLE, 'profile_photo_path');
         return $user;

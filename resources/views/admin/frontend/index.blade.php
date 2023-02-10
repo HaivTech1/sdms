@@ -299,25 +299,12 @@
                         dataType: 'json',
                     }).then((response) => {
                         toggleAble('.upload-image', false);
-                        Swal.fire({
-                                title: "Good job!",
-                                text: response.message,
-                                icon: "success",
-                                showCancelButton: !0,
-                                confirmButtonColor: "#556ee6",
-                                cancelButtonColor: "#f46a6a",
-                            });
-                            resetForm('#bannerForm');
-                            window.location.reload();
+                        toastr.success(response.message);
+                        resetForm('#bannerForm');
+                        window.location.reload();
                     }).catch((error) => {
                         toggleAble('.upload-image', false);
-                        Swal.fire({
-                            title: "Oops!",
-                            text: "Something went wrong!!!",
-                            icon: "error",
-                            showCancelButton:!0,
-                            confirmButtonColor: "#f46a6a",
-                        });
+                        toastr.error(error.message);
                     });
                 });
 
@@ -334,26 +321,13 @@
                         processData: false,
                         dataType: 'json',
                     }).then((response) => {
-                        Swal.fire({
-                                title: "Good job!",
-                                text: response.message,
-                                icon: "success",
-                                showCancelButton: !0,
-                                confirmButtonColor: "#556ee6",
-                                cancelButtonColor: "#f46a6a",
-                            });
+                            toastr.success(response.message);
                             toggleAble('.upload-image', false);
                             resetForm('#bannerForm');
                             window.location.reload();
                     }).catch((error) => {
-                        Swal.fire({
-                            title: "Oops!",
-                            text: "Something went wrong!!!",
-                            icon: "error",
-                            showCancelButton:!0,
-                            confirmButtonColor: "#f46a6a",
-                        });
                         toggleAble('.upload-image', false);
+                        toastr.error(error.message);
                     });
                 });
 
@@ -370,25 +344,12 @@
                         processData: false,
                         dataType: 'json',
                     }).then((response) => {
-                        Swal.fire({
-                                title: "Good job!",
-                                text: response.message,
-                                icon: "success",
-                                showCancelButton: !0,
-                                confirmButtonColor: "#556ee6",
-                                cancelButtonColor: "#f46a6a",
-                            });
+                            toastr.success(response.message);
                             toggleAble('.upload-form', false);
                             resetForm('#chooseForm');
                             window.location.reload();
                     }).catch((error) => {
-                        Swal.fire({
-                            title: "Oops!",
-                            text: "Something went wrong!!!",
-                            icon: "error",
-                            showCancelButton:!0,
-                            confirmButtonColor: "#f46a6a",
-                        });
+                        toastr.error(error.message);
                         toggleAble('.upload-form', false);
                     });
                 });
@@ -402,14 +363,7 @@
                             $("input[name='sub_title']").val('');
                             $("input[name='description']").val('');
                             $("input[name='button_text']").val('');
-                            swal.fire({
-                                title: "Good job!",
-                                text: "Banner section created successfully!",
-                                icon: "success",
-                                showCancelButton: !0,
-                                confirmButtonColor: "#556ee6",
-                                cancelButtonColor: "#f46a6a",
-                            });
+                            toastr.success('Banner section created successfully!');
                         }else{
                             printErrorMsg(response.responseJSON.error);
                         }

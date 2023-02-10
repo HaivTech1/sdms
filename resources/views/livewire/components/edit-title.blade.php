@@ -11,7 +11,7 @@
     "
     x-cloak
 >
-    <div x-show=!isEditing class="p-2" style="cursor: pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit score">
+    <div x-show=!isEditing class="p-2" style="cursor: pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit">
         <span
             x-bind:class="{ 'font-bold': isTitle }"
             x-on:click="isEditing = true; $nextTick(() => focus())"
@@ -19,7 +19,7 @@
             @if ($origTitle)
                 {{ $origTitle }}
             @else
-                0
+                -
             @endif
             
         </span>

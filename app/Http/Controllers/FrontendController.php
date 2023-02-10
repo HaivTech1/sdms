@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\About;
 use App\Models\Banner;
 use App\Models\Choose;
+use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +15,7 @@ class FrontendController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'superadmin']);
+        $this->middleware(['auth', 'admin']);
     }
 
     public function index()
@@ -53,14 +54,14 @@ class FrontendController extends Controller
            if($request->hasFile('wide_banner')){
                 $path = 'storage/'.$banner->wide_banner;
                 if(File::exists($path)){
-                    File::delete();
+                    File::delete($path);
                 }
 
                 $bannerFileName = $request->wide_banner->getClientOriginalName();
                 $bannerFilePath = 'banner/' . $bannerFileName;
                 $bannerIsFileUploaded = Storage::disk('public')->put($bannerFilePath, file_get_contents($request->wide_banner));
                 if ($bannerIsFileUploaded) {
-                    $banner->wide_banner = $bannerFilePath;
+                    $banner->update(['wide_banner' =>$bannerFilePath]);
                 }
            }
 
@@ -135,6 +136,7 @@ class FrontendController extends Controller
                 $aboutIsFileUploaded = Storage::disk('public')->put($aboutFilePath, file_get_contents($request->big_image));
                 if ($aboutIsFileUploaded) {
                     $about->big_image = $aboutFilePath;
+                    $about->save();
                 }
            }
 
@@ -149,6 +151,7 @@ class FrontendController extends Controller
                 $aboutIsFileUploaded = Storage::disk('public')->put($aboutFilePath, file_get_contents($request->small_image_one));
                 if ($aboutIsFileUploaded) {
                     $about->small_image_one = $aboutFilePath;
+                    $about->save();
                 }
             }
 
@@ -163,6 +166,7 @@ class FrontendController extends Controller
                 $aboutIsFileUploaded = Storage::disk('public')->put($aboutFilePath, file_get_contents($request->small_image_two));
                 if ($aboutIsFileUploaded) {
                     $about->small_image_two = $aboutFilePath;
+                    $about->save();
                 }
             }
 
@@ -240,5 +244,46 @@ class FrontendController extends Controller
             return response()->json(['status'=>'success', 'message' => 'Why choose use created successfully!'], 200);
         }
         return response()->json(['message'=> $validator->errors()->all()], 500);
+    }
+
+    public function uploadSignature()
+    {
+        return view('admin.frontend.upload_ignature');
+    }
+
+    public function uploadSignaturePost(Request $request)
+    {
+
+        $application = Application::first();
+
+        if($request->hasFile('signature')){
+            $path = 'storage/'.$application->signature;
+            if(File::exists($path)){
+                File::delete($path);
+            }
+
+            $ignatureFileName = $request->signature->getClientOriginalName();
+            $ignatureFilePath = 'applications/' . $ignatureFileName;
+            $ignatureIsFileUploaded = Storage::disk('public')->put($ignatureFilePath, file_get_contents($request->signature));
+            if ($ignatureIsFileUploaded) {
+                $application->update(['signature' =>$ignatureFilePath]);
+            }
+        }
+
+        if($request->hasFile('stamp')){
+            $path = 'storage/'.$application->stamp;
+            if(File::exists($path)){
+                File::delete($path);
+            }
+
+            $stampFileName = $request->stamp->getClientOriginalName();
+            $stampFilePath = 'applications/' . $stampFileName;
+            $stampIsFileUploaded = Storage::disk('public')->put($stampFilePath, file_get_contents($request->stamp));
+            if ($stampIsFileUploaded) {
+                $application->update(['stamp' =>$stampFilePath]);
+            }
+        }
+
+       return response()->json(['status'=> 'success', 'message' => 'Uploaded successfully!'], 200);
     }
 }

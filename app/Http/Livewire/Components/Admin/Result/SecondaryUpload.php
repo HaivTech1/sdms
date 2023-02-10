@@ -65,7 +65,7 @@ class SecondaryUpload extends Component
     {
         return view('livewire.components.admin.result.secondary-upload',[
             'students' => $this->students,
-            'grades' => Grade::whereIn('id', [10, 11, 12, 13, 14, 15, 16])->get(),
+            'grades' => Grade::get(),
             'periods' => Period::all(),
             'terms' => Term::all(),
             'psychomotors' => Psychomotor::all(),

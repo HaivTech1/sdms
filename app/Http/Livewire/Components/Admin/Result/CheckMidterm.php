@@ -66,7 +66,7 @@ class CheckMidterm extends Component
     {
         return view('livewire.components.admin.result.check-midterm',[
             'students' => $this->students,
-            'grades' => Grade::whereIn('id', [1, 2, 3, 4, 5, 6, 7, 8, 9])->get(),
+            'grades' => Grade::get(),
             'periods' => Period::all(),
             'terms' => Term::all(),
         ]);

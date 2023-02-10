@@ -33,7 +33,9 @@ class Application extends Model
         'instagram',
         'twitter',
         'linkedin',
-        'website'
+        'website',
+        'signature',
+        'stamp',
     ];
 
     public function id(): int

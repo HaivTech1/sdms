@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Father;
+use App\Models\Mother;
 use App\Models\Registration;
 use Illuminate\Http\Request;
 use App\Scopes\HasActiveScope;
@@ -24,10 +26,11 @@ class RegistrationController extends Controller
         return view('admin.registration.index');
     }
 
-    public function show(Registration $registration)
+    public function show($id)
     {
+        $checking = Registration::withoutGlobalScope(new HasActiveScope)->findOrFail($id);
        return view('admin.registration.show', [
-        'registration' => $registration
+        'registration' => $checking
        ]);
     }
 
@@ -54,6 +57,16 @@ class RegistrationController extends Controller
             'sight'  => $request->sight,
             'allergics'  => $request->allergics,
             'grade_id'  => $request->grade_id,
+            'father_name' => $request->father_name,
+            'father_email' => $request->father_email,
+            'father_phone' => $request->father_phone,
+            'father_occupation' => $request->father_occupation,
+            'father_office_address' => $request->father_office_address,
+            'mother_name' => $request->mother_name,
+            'mother_email' => $request->mother_email,
+            'mother_phone' => $request->mother_phone,
+            'mother_office_address' => $request->mother_office_address,
+            'mother_occupation' => $request->mother_occupation,
             'guardian_full_name'  => $request->guardian_full_name,
             'guardian_email'  => $request->guardian_email,
             'guardian_phone_number'  => $request->guardian_phone_number,
@@ -76,7 +89,7 @@ class RegistrationController extends Controller
             $message = "<p>A new student registration form has just been completed! Please visit the school's portal for review.</p>";
             $subject = 'New Student Registration';
 
-            $admins = User::whereType(1)->get();
+            $admins = User::whereType(2)->get();
 
             foreach($admins as $admin){
                 Mail::to($admin->email())->send(new SendNewRegistrationMail($message, $subject));

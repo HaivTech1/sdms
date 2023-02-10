@@ -50,6 +50,69 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card mini-stats-wid">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-grow-1">
+                                            <p class="text-muted fw-medium">Registered Teachers</p>
+                                            <h4 class="mb-0">{{ count($allTeachers) }}</h4>
+                                        </div>
+
+                                        <div class="flex-shrink-0 align-self-center">
+                                            <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                                                <span class="avatar-title">
+                                                    <i class="bx bx-copy-alt font-size-24"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card mini-stats-wid">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-grow-1">
+                                            <p class="text-muted fw-medium">Active Teachers</p>
+                                            <h4 class="mb-0">{{ count($activeTeachers) }}</h4>
+                                        </div>
+
+                                        <div class="flex-shrink-0 align-self-center">
+                                            <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                                                <span class="avatar-title">
+                                                    <i class="bx bx-copy-alt font-size-24"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card mini-stats-wid">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-grow-1">
+                                            <p class="text-muted fw-medium">Unactive Teachers</p>
+                                            <h4 class="mb-0">{{ count($unactiveTeachers) }}</h4>
+                                        </div>
+
+                                        <div class="flex-shrink-0 align-self-center">
+                                            <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                                                <span class="avatar-title">
+                                                    <i class="bx bx-copy-alt font-size-24"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table align-middle table-nowrap table-check">
                             <thead class="table-light">
@@ -65,6 +128,7 @@
                                     <th class="align-middle">Name</th>
                                     <th class="align-middle">email</th>
                                     <th class="align-middle">Id</th>
+                                    <th class="align-middle">Assign Class</th>
                                     <th class="align-middle">Status</th>
                                     <th></th>
                                 </tr>
@@ -89,9 +153,9 @@
                                     <td>
                                         <livewire:components.edit-title :model='$teacher' field='name'
                                             :key='$teacher->id()' />
-                                            @if ($teacher->gradeClassTeacher()->count() < 1)
+                                            {{-- @if ($teacher->gradeClassTeacher()->count() < 1)
                                                 <span class="badge badge-soft-danger">Assign Class</span>
-                                            @endif
+                                            @endif --}}
                                     </td>
                                     <td>
                                         <livewire:components.edit-title :model='$teacher' field='email'
@@ -99,6 +163,13 @@
                                     </td>
                                     <td>
                                         {{ $teacher->code() }}
+                                    </td>
+                                    <td>
+                                        @forelse ($teacher->gradeClassTeacher as $grade)
+                                            <span class="badge badge-soft-primary">{{ $grade->title() }}</span>
+                                        @empty
+                                            <span class="badge badge-soft-danger">Assign Class</span>
+                                        @endforelse
                                     </td>
                                     <td>
                                         <livewire:components.toggle-button :model='$teacher' field='isAvailable'
