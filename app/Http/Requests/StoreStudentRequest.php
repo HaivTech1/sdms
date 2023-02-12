@@ -26,9 +26,9 @@ class StoreStudentRequest extends FormRequest
             'local_government'      => 'required',
             'address'       => 'required',
             'grade_id'       => 'required',
-            'house_id'       => 'required',
-            'schedule_id'       => 'required',
-            'club_id'       => 'required',
+            'house_id'       => 'nullable',
+            'schedule_id'       => 'nullable',
+            'club_id'       => 'nullable',
         ];
     }
 

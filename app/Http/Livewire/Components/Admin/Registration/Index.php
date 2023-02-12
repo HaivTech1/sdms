@@ -171,7 +171,7 @@ class Index extends Component
                         </p>";
                     $subject = 'Admission Status from ' . application('name');
     
-                    Mail::to($value->guardian_email)->send(new SendAdmissionMail($message, $subject));
+                    Mail::to($value->mother_email)->send(new SendAdmissionMail($message, $subject));
             }
         }
         $this->dispatchBrowserEvent('success', ['message' => 'Student admitted successfully!']);

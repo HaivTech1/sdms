@@ -82,7 +82,7 @@
                                     <div class="col-sm-6 mb-3">
                                         <x-form.label for="dob" value="{{ __('Date of Birth') }}" />
                                         <x-form.input id="dob" class="block w-full mt-1" type="date" name="dob"
-                                            id="dob" value="{{ old('dob', $student->dob()) }}" autofocus />
+                                            id="dob" value="{{ old('dob', \Carbon\Carbon::parse($student->dob())->format('Y-m-d')) }}" autofocus />
                                         <x-form.error for="dob" />
                                     </div>
     
@@ -150,7 +150,7 @@
                                 
                             </div>
 
-                            <div class="col-md-12 mt-2">
+                            {{-- <div class="col-md-12 mt-2">
                                 <h3>Guardian Details</h3>
 
                                 <div class="row">
@@ -201,7 +201,7 @@
                                 </div>
 
                                
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="d-flex flex-wrap gap-2">

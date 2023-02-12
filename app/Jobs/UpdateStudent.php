@@ -32,13 +32,13 @@ class UpdateStudent implements ShouldQueue
     private $image;
     private $grade;
     private $house;
-    private $fullName;
-    private $email;
-    private $phoneNumber;
-    private $occupation;
-    private $officeAddress;
-    private $homeAddress;
-    private $relationship;
+    // private $fullName;
+    // private $email;
+    // private $phoneNumber;
+    // private $occupation;
+    // private $officeAddress;
+    // private $homeAddress;
+    // private $relationship;
 
     /**
      * Create a new job instance.
@@ -62,14 +62,14 @@ class UpdateStudent implements ShouldQueue
         ?string $allergics,
         ?string $image,
         string $grade,
-        string $house,
-        string $fullName,
-        string $email,
-        string $phoneNumber,
-        string $occupation,
-        string $officeAddress,
-        string $homeAddress,
-        string $relationship
+        string $house
+        // string $fullName,
+        // string $email,
+        // string $phoneNumber,
+        // string $occupation,
+        // string $officeAddress,
+        // string $homeAddress,
+        // string $relationship
     )
     {
         $this->student = $student;
@@ -89,13 +89,13 @@ class UpdateStudent implements ShouldQueue
         $this->image     = $image;
         $this->grade     = $grade;
         $this->house     = $house;
-        $this->fullName     = $fullName;
-        $this->email     = $email;
-        $this->phoneNumber     = $phoneNumber;
-        $this->occupation     = $occupation;
-        $this->officeAddress     = $officeAddress;
-        $this->homeAddress     = $homeAddress;
-        $this->relationship = $relationship;
+        // $this->fullName     = $fullName;
+        // $this->email     = $email;
+        // $this->phoneNumber     = $phoneNumber;
+        // $this->occupation     = $occupation;
+        // $this->officeAddress     = $officeAddress;
+        // $this->homeAddress     = $homeAddress;
+        // $this->relationship = $relationship;
     }
 
     public static function fromRequest(Student $student, StoreStudentRequest $request): self
@@ -117,14 +117,14 @@ class UpdateStudent implements ShouldQueue
             $request->allergics(),
             $request->image(),
             $request->grade(),
-            $request->house(),
-            $request->fullName(),
-            $request->email(),
-            $request->phoneNumber(),
-            $request->occupation(),
-            $request->officeAddress(),
-            $request->homeAddress(),
-            $request->relationship()
+            $request->house()
+            // $request->fullName(),
+            // $request->email(),
+            // $request->phoneNumber(),
+            // $request->occupation(),
+            // $request->officeAddress(),
+            // $request->homeAddress(),
+            // $request->relationship()
         );
     }
 
@@ -158,15 +158,15 @@ class UpdateStudent implements ShouldQueue
             SaveImageService::UploadImage($this->image, $this->student->user, User::TABLE, 'profile_photo_path');
         }
 
-        $this->student->guardian->update([
-            'full_name'  => $this->fullName,
-            'email' =>  $this->email,
-            'phone_number' =>  $this->phoneNumber,
-            'occupation'  => $this->occupation,
-            'office_address' =>  $this->officeAddress,
-            'home_address' =>  $this->homeAddress,
-            'relationship' =>  $this->relationship,
-        ]);
+        // $this->student->guardian->update([
+        //     'full_name'  => $this->fullName,
+        //     'email' =>  $this->email,
+        //     'phone_number' =>  $this->phoneNumber,
+        //     'occupation'  => $this->occupation,
+        //     'office_address' =>  $this->officeAddress,
+        //     'home_address' =>  $this->homeAddress,
+        //     'relationship' =>  $this->relationship,
+        // ]);
 
         return $this->student;
     }
