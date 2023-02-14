@@ -194,6 +194,16 @@ class Student extends Authenticatable
         return $this->hasOne(Guardian::class, 'student_id');
     }
 
+    public function father(): HasOne
+    {
+        return $this->hasOne(Father::class, 'student_uuid');
+    }
+
+    public function mother(): HasOne
+    {
+        return $this->hasOne(Mother::class, 'student_uuid');
+    }
+
     public function results(): HasMany
     {
         return $this->hasMany(Result::class, 'student_id');

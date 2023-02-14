@@ -63,6 +63,24 @@
                                     <p>Previous School: {{ $student->prevSchool()}}</p>
                                     <p>Previous Class: {{ $student->prevClass()}}</p>
                                 </div>
+                                @if (isset($student->father))
+                                    <div class='col-xs-4 col-md-4'>
+                                        <legend>Father Details</legend>
+                                        <p>Office Address: {{ $student->father->officeAddress()}}</p>
+                                        <p>Email: {{ $student->father->email()}}</p>
+                                        <p>Phone Number: {{ $student->father->phoneNumber()}}</p>
+                                        <p>Occupation: {{ $student->father->occupation()}}</p>
+                                    </div>
+                                @endif
+                                @if (isset($student->mother))
+                                    <div class='col-xs-4 col-md-4'>
+                                        <legend>mother Details</legend>
+                                        <p>Office Address: {{ $student->mother->officeAddress()}}</p>
+                                        <p>Email: {{ $student->mother->email()}}</p>
+                                        <p>Phone Number: {{ $student->mother->phoneNumber()}}</p>
+                                        <p>Occupation: {{ $student->mother->occupation()}}</p>
+                                    </div>
+                                @endif
                                 @if (isset($student->guardian))
                                     <div class='col-xs-4 col-md-4'>
                                         <legend>Guardian Details</legend>
@@ -98,9 +116,18 @@
                                         <blockquote style="margin-top: 15px"><b>Medical Health Condition:</b> {{
                                             $student->medical()}}</blockquote>
                             </div>
-                        </div>
 
-                        <br />
+                             <div class='parent'>
+                                <div class='col-xs-4 col-md-4'>
+                                    <h5 class="mt-4" style="font-weight: bold">Subjects Information</h5>
+                                    @forelse($student->subjects as $subject)
+                                        <p>{{ $subject->title()}}<p>
+                                    @empty
+                                        -
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="d-print-none">
                             <div class='col-xs-12 col-md-12 text-center'>

@@ -20,12 +20,41 @@ class Father extends Model
         'phone', 
         'occupation',
         'office_address',
-        'student_id'
+        'student_uuid'
     ];
 
+    public function id(): string
+    {
+        return (string) $this->uuid;
+    }
+
+    public function fullName(): string
+    {
+        return (string) $this->name;
+    }
+
+    public function email(): ?string
+    {
+        return (string) $this->email;
+    }
+
+    public function phoneNumber(): string
+    {
+        return (string) $this->phone;
+    }
+
+    public function occupation(): ?string
+    {
+        return (string) $this->occupation;
+    }
+
+    public function officeAddress(): ?string
+    {
+        return (string) $this->office_address;
+    }
 
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class, 'student_uuid');
     }
 }

@@ -125,6 +125,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/', [TeacherController::class, 'index'])->name('index');
         Route::get('/students', [TeacherController::class, 'students'])->name('students');
         Route::post('assignClass', [TeacherController::class, 'assignClass'])->name('assignClass');
+        Route::get('/student/edit/{id}', [TeacherController::class, 'edit']);
+        Route::post('/student/update', [TeacherController::class, 'update'])->name('student.update');
     });
     
     Route::group(['prefix' => 'order', 'as' => 'order.'], function () {

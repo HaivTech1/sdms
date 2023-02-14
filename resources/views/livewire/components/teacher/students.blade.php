@@ -56,8 +56,7 @@
                         </div>
                     </div>
 
-                    <div class='row'>
-
+                    <div class='row' id="main">
                         <div class='col-sm-12'>
                             <div class="table-responsive">
                                 <table class="table align-middle table-nowrap table-check">
@@ -73,7 +72,7 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($students as $key => $student)
-                                        <tr>
+                                        <tr id="sid{{ $student->id() }}">
                                             <td>
                                                 <a href="javascript: void(0);" class="text-body fw-bold">{{ $key + 1
                                                     }}</a>
@@ -85,7 +84,36 @@
                                                 {{ $student->grade->title() }}
                                             </td>
                                             <td>
-                                                <livewire:components.edit-title :model='$student->user' field='reg_no' :key='$student->user->id()'/>
+                                                <a href="javascript:void(0)" class="cursor-pointer" onclick="editReg({{ $student->user->id() }})">{{ $student->user->reg_no }}</a>
+                                                {{-- <livewire:components.edit-title :model='$student->user' field='reg_no' :key='$student->user->id()'/> --}}
+
+                                                <div id="editReg" class="modal fade" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="myModalLabel">Update Students Registration Number</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <form id="editStudentReg">
+                                                                <div class="modal-body">
+                                                                    <div class="col-sm-12 mb-3">
+                                                                        <input id="id" class="form-control d-none" type="text" name="id" />
+                                                                    </div>
+
+                                                                    <div class="col-sm-12 mb-3">
+                                                                        <x-form.label for="reg_no" value="{{ __('Reg. Number') }}" />
+                                                                        <input id="reg_no" class="form-control" type="text" name="reg_no" />
+                                                                        <x-form.error for="reg_no" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Close</button>
+                                                                    <button type="submit" id="edit_button" class="btn btn-primary waves-effect waves-light">Save changes</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td>
                                                 {{ $student->subjects->count() }}
@@ -174,12 +202,46 @@
     @section('scripts')
         <script>
 
-            
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
             });
+
+            function editReg(id){
+                $.get('/teacher/student/edit/'+ id, function(response){
+                    const {student} = response
+                    $('#id').val(student.id);
+                    $('#reg_no').val(student.reg_no);
+                    $('#editReg').modal('toggle');
+                });
+            }
+
+             $(document).on('submit', '#editStudentReg', function(e){
+                e.preventDefault();
+                toggleAble('#edit_button', true, 'Submitting...');
+                var data = $('#editStudentReg').serializeArray();
+                var url = "{{ route('teacher.student.update') }}";
+
+                $.ajax({
+                    type: "POST",
+                    url,
+                    data
+                }).done((res) => {
+                    if(res.status) {
+                        toggleAble('#edit_button', false);
+                        toastr.success(res.message, 'Success!');
+                        $('#editReg').modal('hide');
+                    }else{
+                        toggleAble('#edit_button', false);
+                        toastr.error(res.responseJSON.message, 'Failed!');
+                    }
+                }).fail((res) => {
+                    console.log(res.responseJSON.message);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                    toggleAble('#edit_button', false);
+                });
+             });
 
             $(document).on('click', '#assingSubject', function(e) {
                 e.preventDefault();

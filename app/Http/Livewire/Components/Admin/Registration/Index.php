@@ -122,9 +122,9 @@ class Index extends Component
                     $student->authoredBy(auth()->user());
                     $student->save();
 
-                    if($student->father_name !== null){
+                    if($value->father_name !== null){
                         $father = new Father([
-                            'student_id'  => $student->id(),
+                            'student_uuid'  => $student->id(),
                             'name'  => $value->father_name,
                             'email' =>  $value->father_email,
                             'phone' =>  $value->father_phone,
@@ -134,9 +134,9 @@ class Index extends Component
                         $father->save();
                     }
 
-                    if($student->mother_name !== null){
+                    if($value->mother_name !== null){
                         $mother = new Mother([
-                            'student_id'  => $student->id(),
+                            'student_uuid'  => $student->id(),
                             'fname'  => $value->mother_name,
                             'email' =>  $value->mother_email,
                             'phone' =>  $value->mother_phone,
@@ -146,7 +146,7 @@ class Index extends Component
                         $mother->save();
                     }
 
-                    if($student->guardian_full_name !== null){
+                    if($value->guardian_full_name !== null){
                         $guardian = new Guardian([
                             'student_id'  => $student->id(),
                             'full_name'  => $value->guardian_full_name,

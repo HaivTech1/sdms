@@ -9,7 +9,7 @@ class TeacherController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'])->except(['students']);
+        $this->middleware(['auth', 'admin'])->except(['students', 'edit', 'update']);
     }
 
 
@@ -34,5 +34,17 @@ class TeacherController extends Controller
     public function students()
     {
         return view('admin.teacher.students');
+    }
+
+    public function edit($id)
+    {
+        $student = User::findOrFail($id);
+        return response()->json(['student' => $student], 200);
+    }
+
+    public function update(Request $request,)
+    {
+        $user = User::findOrFail($request->id)->update(['reg_no' => $request->reg_no]);
+        return response()->json(['status' => true, 'message' => 'Registration Number updated successfully!'], 200);
     }
 }
