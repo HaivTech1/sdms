@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Student;
 use Illuminate\Http\Request;
 
 class TeacherController extends Controller
@@ -39,12 +40,17 @@ class TeacherController extends Controller
     public function edit($id)
     {
         $student = User::findOrFail($id);
-        return response()->json(['student' => $student], 200);
+        $userStudent = Student::where('user_id',$id)->first();
+        return response()->json(['student' => $student, 'user' => $userStudent], 200);
     }
 
     public function update(Request $request,)
     {
         $user = User::findOrFail($request->id)->update(['reg_no' => $request->reg_no]);
-        return response()->json(['status' => true, 'message' => 'Registration Number updated successfully!'], 200);
+        $student = Student::where('user_id', $request->id)->update([
+            'house_id' => $request->house_id,
+            'club_id' => $request->club_id
+        ]);
+        return response()->json(['status' => true, 'message' => 'Information updated successfully!'], 200);
     }
 }

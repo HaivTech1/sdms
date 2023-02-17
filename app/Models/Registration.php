@@ -59,7 +59,7 @@ class Registration extends Model
     ];
 
     protected $casts = [
-        'dob' => 'datetime',
+        'dob' => 'date',
         'status' => 'boolean',
     ];
 

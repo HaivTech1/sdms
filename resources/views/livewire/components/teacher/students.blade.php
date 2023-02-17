@@ -105,6 +105,28 @@
                                                                         <input id="reg_no" class="form-control" type="text" name="reg_no" />
                                                                         <x-form.error for="reg_no" />
                                                                     </div>
+
+                                                                    <div class="col-sm-12 mb-3">
+                                                                        <x-form.label for="house_id" value="{{ __('House') }}" />
+                                                                        <select class="form-control" name="house_id">
+                                                                            <option>Select</option>
+                                                                            @foreach ($houses as $house)
+                                                                            <option value="{{ $house->id() }}" {{ ( $student->house_id == $house->id()) ? 'selected' : '' }}>{{ $house->title() }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                        <x-form.error for="house_id" />
+                                                                    </div>
+
+                                                                    <div class="col-sm-12 mb-3">
+                                                                        <x-form.label for="club_id" value="{{ __('Club') }}" />
+                                                                        <select class="form-control" name="club_id">
+                                                                            <option>Select</option>
+                                                                            @foreach ($clubs as $club)
+                                                                            <option value="{{ $club->id() }}" {{ ( $student->club_id == $club->id()) ? 'selected' : '' }}>{{ $club->title() }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                        <x-form.error for="club_id" />
+                                                                    </div>
                                                                 </div>
                                                                 <div class="modal-footer">
                                                                     <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Close</button>
@@ -210,9 +232,11 @@
 
             function editReg(id){
                 $.get('/teacher/student/edit/'+ id, function(response){
-                    const {student} = response
+                    const {student, user} = response
                     $('#id').val(student.id);
                     $('#reg_no').val(student.reg_no);
+                    $('#house_id').val(user.house_id);
+                    $('#club_id').val(user.club_id);
                     $('#editReg').modal('toggle');
                 });
             }

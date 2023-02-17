@@ -23,6 +23,7 @@
 <link href="{{ asset('css/toastr.min.css') }}" rel="stylesheet">
 <link href="{{ asset('css/notiflix.css') }}" rel="stylesheet">
 <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet">
+<link href="{{ asset('css/sweetalert2.min.css') }}" rel="stylesheet">
 
 <link href="{{ asset('libs/dropzone/min/dropzone.min.css') }}" rel="stylesheet" type="text/css" />
 
@@ -313,8 +314,17 @@
 
     .parent {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
+    }
+
+    @media screen and (max-width: 480px) {
+         .parent {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
     }
 
     .img-responsive {

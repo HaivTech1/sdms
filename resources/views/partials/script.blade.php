@@ -27,6 +27,7 @@
 <script src="{{ asset('js/toastr.min.js') }}"></script>
 <script src="{{ asset('js/notiflix.js') }}"></script>
 <script src="{{ asset('js/select2.min.js') }}"></script>
+<script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
 
 <!-- plugin js -->
 <script src="{{ asset('libs/moment/min/moment.min.js')}}"></script>

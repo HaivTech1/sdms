@@ -108,12 +108,27 @@
                                                     <img src="{{ asset('storage/'.application('image')) }}" alt="" class="avatar-md rounded-circle img-thumbnail">
                                                 </div>
                                                 <div class="flex-grow-1 align-self-center">
-                                                    <div class="text-muted">
-                                                        <p class="mb-2">{{ $user->student->guardian->fullName()}}</p>
-                                                        <p class="mb-2">{{ $user->student->guardian->email()}}</p>
-                                                        <p class="mb-0">{{ $user->student->guardian->relationship()}}</p>
-                                                        <p class="mb-0">{{ $user->student->guardian->phoneNumber()}}</p>
-                                                    </div>
+                                                    @if (isset($user->student->guardian))
+                                                        <div class="text-muted">
+                                                            <p class="mb-2">{{ $user->student->guardian->fullName()}}</p>
+                                                            <p class="mb-2">{{ $user->student->guardian->email()}}</p>
+                                                            <p class="mb-0">{{ $user->student->guardian->relationship()}}</p>
+                                                            <p class="mb-0">{{ $user->student->guardian->phoneNumber()}}</p>
+                                                        </div>
+                                                    @elseif (isset($user->student->father))
+                                                        <div class="text-muted">
+                                                            <p class="mb-2">{{ $user->student->father->fullName()}}</p>
+                                                            <p class="mb-2">{{ $user->student->father->email()}}</p>
+                                                            <p class="mb-0">{{ $user->student->father->phoneNumber()}}</p>
+                                                        </div>
+                                                    @elseif (isset($user->student->mother))
+                                                        <div class="text-muted">
+                                                            <p class="mb-2">{{ $user->student->mother->fullName()}}</p>
+                                                            <p class="mb-2">{{ $user->student->mother->email()}}</p>
+                                                            <p class="mb-0">{{ $user->student->mother->phoneNumber()}}</p>
+                                                        </div>
+                                                    @endif
+
                                                 </div>
                                             </div>
                                         </div>
@@ -124,13 +139,13 @@
                                                     <div class="col-sm-6">
                                                         <div>
                                                             <p class="text-muted text-truncate mb-2">Session</p>
-                                                            <h5 class="mb-0">{{ $session->title()}}</h5>
+                                                            {{-- <h5 class="mb-0">{{ $session->title()}}</h5> --}}
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div>
                                                             <p class="text-muted text-truncate mb-2">Term</p>
-                                                            <h5 class="mb-0">{{ $term->title()}}</h5>
+                                                            {{-- <h5 class="mb-0">{{ $term->title()}}</h5> --}}
                                                         </div>
                                                     </div>
                                                   

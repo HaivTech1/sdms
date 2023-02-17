@@ -1,6 +1,46 @@
 <x-app-layout>
     @section('title', application('name')." | Mid Term Result Page")
 
+    @section('styles')
+        <style>
+            .mainContainer {
+                width: 60%;
+            }
+            .minorContainer{
+                width: 30%
+            }
+            .majorContainer{
+                display: flex; 
+                flex-wrap: wrap;
+                justify-content: space-between; 
+                margin-top: 1px
+            }
+            .appName{
+                font-size: 35px; 
+                font-weight: bold; 
+                text-transform : uppercase
+            }
+
+            
+            @media screen and (max-width: 480px) {
+                .mainContainer{
+                    width: 100%;
+                }
+                .minorContainer{
+                    width: 100%;
+                }
+                .majorContainer{
+                    margin-top: 5px;
+                    flex-direction: column;
+                }
+                .appName{
+                    font-size: 15px;
+                    margin: 10px;
+                }
+            }
+        </style>
+    @endsection
+
     <div class="row">
         <div class="col-lg-12">
             <div class='parent'>
@@ -9,9 +49,7 @@
                 </div>
 
                 <div class='col-xs-8 col-sm-8 col-md-8 text-center'>
-                    <h1 style="font-size: 35px; font-weight: bold; text-transform : uppercase"> {{
-                        application('name') }}</h1>
-                        
+                    <h1 class="appName"> {{ application('name') }}</h1>
                         <p style='font-size: 15px; font-family: Arial, Helvetica, sans-serif'>
                             {{ application('address') }}
                         </p>
@@ -27,8 +65,8 @@
                 <p style="font-weight: bold; text-align: center; text-transform : uppercase">{{ $term->title() }} {{ $period->title() }} Academic Session</p>
             </div>
 
-            <div style="display: flex; justify-content: space-between; margin-top: 1px">
-                <div style="width: 60%">
+            <div class="majorContainer">
+                <div class="mainContainer">
                     <table class="table table-bordered table-condensed">
                         <thead>
                             <tr>
@@ -50,7 +88,7 @@
                         </thead>
                     </table>
                 </div>
-                <div style="width: 30%">
+                <div class="minorContainer">
                     <table class="table table-bordered table-condensed">
                         <tbody>
                             <tr>
@@ -59,7 +97,7 @@
                             </tr>
                             <tr>
                                 <th>No. In Class:</th>
-                                <td>{{ $student->grade->count()}}</td>
+                                <td>{{ $student->grade->students->count()}}</td>
                             </tr>
                             <tr>
                                 <th>Age:</th>
@@ -79,7 +117,7 @@
                 </div>
             </div>
 
-            <div class="table-wrapper">
+            <div class="table-wrapper table-responsive">
                 <table class="table table-bordered table-condensed">
                     <thead id="ch">
                         <tr>
@@ -123,13 +161,12 @@
                 </table>
             </div>
 
-            <div style="display: flex; justify-content: center; margin-top: 50px; position: relative">
-                <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 40px; left: 250px;  bottom: 0;" />
-                <div style="border-bottom: 1px solid #000000; width: 300px;"></div>
-                <div>Signature & School Stamp:</div>
-                <div style="border-bottom: 1px solid #000000; width: 300px;"></div>
-                <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 40px; right: 250px;  bottom: 0;" />
-            </div>
+            {{-- <div style="margin-top: 50px;">
+                <div style="text-align: center">Signature & School Stamp:</div>
+                <div style="margin-top: 5px; display: flex; justify-content: center">
+                    <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="width: 150px" />
+                </div>
+            </div> --}}
             
             <div class="row">
                 <div class="d-print-none">

@@ -42,7 +42,7 @@ class PaymentController extends Controller
         if(!$check){
             if (!$paymentDetails['data']['metadata']['old_payment_id']) {
                 $payment = new Payment();
-                $payment->paid_by = $paidBy->guardian->fullName();
+                $payment->paid_by = $paidBy->first_name . ' ' . $paidBy->last_name;
                 $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
                 $payment->amount = $amount;
                 $payment->payable = $paymentDetails['data']['metadata']['payable'];

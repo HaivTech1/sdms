@@ -63,6 +63,11 @@
                                     <p>Previous School: {{ $student->prevSchool()}}</p>
                                     <p>Previous Class: {{ $student->prevClass()}}</p>
                                 </div>
+                                
+                            </div>
+                            <br />
+
+                            <div class='parent'>
                                 @if (isset($student->father))
                                     <div class='col-xs-4 col-md-4'>
                                         <legend>Father Details</legend>
@@ -93,7 +98,8 @@
                                     </div>
                                 @endif
                             </div>
-                            <br />
+
+                             <br/> 
 
                             <div class='parent'>
                                 <div class='col-xs-4 col-md-4'>

@@ -2,7 +2,9 @@
 
 namespace App\Http\Livewire\Components\Teacher;
 
+use App\Models\Club;
 use App\Models\Grade;
+use App\Models\House;
 use App\Models\Student;
 use App\Models\Subject;
 use Livewire\Component;
@@ -51,6 +53,8 @@ class Students extends Component
         return view('livewire.components.teacher.students', [
             'students' => $this->students,
             'grades' => Grade::all(),
+            'houses' => House::all(),
+            'clubs' => Club::all(),
             'subjects' => Subject::orderBy('title')->get()
         ]);
     }

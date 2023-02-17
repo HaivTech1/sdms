@@ -223,7 +223,7 @@
                 url,
                 data
             }).done((res) => {
-                if (res.status === 'success') {
+                if (res.status) {
                     toggleAble('#submit_button', false);
                     toastr.success(res.message, 'Success!');
                     $('.addClass').modal('show');

@@ -54,7 +54,13 @@
                                                                                                                      'old_payment_id' => $verification->id()
                                                                                                                     ])
                                                                                             }}">
-                                                <input type="hidden" name="email" value="{{ $user->student->guardian->email()}}">
+                                                @if(isset($student->mother))
+                                                    <input type="hidden" name="email" value="{{ $user->student->mother->email()}}">
+                                                @elseif(isset($user->student->father))
+                                                    <input type="hidden" name="email" value="{{ $user->student->father->email()}}">
+                                                @else
+                                                    <input type="hidden" name="email" value="{{ application('email')}}">
+                                                @endif
                                                 <input type="hidden" name="amount" value="{{($verification->payable() - $verification->amount()) * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
                                                 <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> 
@@ -70,7 +76,14 @@
                                                                                                                      'old_payment' => false,
                                                                                                                      'old_payment_id' => false
                                                                                                                     ]) }}">
-                                                <input type="hidden" name="email" value="{{ $user->student->guardian->email()}}">
+                                                @if(isset($student->mother))
+                                                    <input type="hidden" name="email" value="{{ $user->student->mother->email()}}">
+                                                @elseif(isset($user->student->father))
+                                                    <input type="hidden" name="email" value="{{ $user->student->father->email()}}">
+                                                @else
+                                                    <input type="hidden" name="email" value="{{ application('email')}}">
+                                                @endif
+                                                
                                                 <input id="amount" type="hidden" name="amount" value="{{ $fee['price'] * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
                                                 <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> 
