@@ -256,6 +256,7 @@
                         toggleAble('#edit_button', false);
                         toastr.success(res.message, 'Success!');
                         $('#editReg').modal('hide');
+                        setInterval(function () {window.location.reload()}, 1000);
                     }else{
                         toggleAble('#edit_button', false);
                         toastr.error(res.responseJSON.message, 'Failed!');

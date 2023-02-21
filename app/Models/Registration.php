@@ -178,10 +178,12 @@ class Registration extends Model
         });
     }
 
-    public function scopeLoadLatest(Builder $query, $count = 4, $orderBy, $sortBy)
+    public function scopeLoadLatest(Builder $query, $count = 4, $orderBy, $status, $sortBy)
     {
-        return $query->orderBy($orderBy, $sortBy)
-        // ->where('status', false)
+        return $query->when($status, function($query, $status) {
+            return $query->whereStatus($status);
+        })
+        ->orderBy($orderBy, $sortBy)
         ->paginate($count);
     }
 }

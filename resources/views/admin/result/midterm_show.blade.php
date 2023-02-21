@@ -125,36 +125,80 @@
                         </tr>
                         <tr>
                             <th rowspan="3" style="width: 30%; padding-left: 10px">Subjects</th>
-                            <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Re-Entry 1</th>
-                            <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">1st Organized Test </th>
-                            <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Re-Entry 2</th>
+                            @if ($results[0]->entry1() != null)
+                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Re-Entry 1</th>
+                            @endif
+                            @if ($results[0]->firstTest() != null)
+                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">1st Organized Test </th>
+                            @endif
+                            @if ($results[0]->entry2() != null)
+                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Re-Entry 2</th>
+                            @endif
+                            @if ($results[0]->ca() != null)
                             <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Continuous Assessment</th>
-                            <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Project</th>
-                            <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Total</th>
+                            @endif
+                            @if ($results[0]->project() != null)
+                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Project</th>
+                            @endif
+                            @if ($results[0]->total() != null)
+                                <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Total</th>
+                            @endif
                             <th rowspan="2" style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">Percentage</th>
                         </tr>
                     </thead>
                     <tbody style="">
                             <tr style="text-align: center; color: green;">
                                 <td></td>
-                                <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">10</td>
-                                <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">10</td>
-                                <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">10</td>
-                                <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">20</td>
-                                <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">10</td>
-                                <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">60</td>
+                                @if ($results[0]->entry1() != null)
+                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">10</td>
+                                @endif
+                                @if ($results[0]->firstTest() != null)
+                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">10</td>
+                                @endif
+                                @if ($results[0]->entry2() != null)
+                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">10</td>
+                                @endif
+                                @if ($results[0]->ca() != null)
+                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">20</td>
+                                @endif
+                                @if ($results[0]->project() != null)
+                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">10</td>
+                                @endif
+                                @if ($results[0]->entry2() == null && $results[0]->project() == null)
+                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">40</td>
+                                @elseif($results[0]->total() != null)
+                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">60</td>
+                                @endif
                                 <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">100</td>
                             </tr>
                         @foreach ($results as $result)
                             <tr>
-                                <td style="padding-left: 10px">{{ $result->subject->title() }}</td>
-                                <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry1() }}</td>
-                                <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->firstTest() }}</td>
-                                <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry2() }}</td>
-                                <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->ca() }}</td>
-                                <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->project() }}</td>
-                                <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->total() }}</td>
-                                <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum($result->total() * 100, 60))}}</td>
+                                @if($result->subject->title() != null)
+                                    <td style="padding-left: 10px">{{ $result->subject->title() }}</td>
+                                @endif
+                                @if($result->entry1() != null)
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry1() }}</td>
+                                @endif
+                                @if($result->firstTest() != null)
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->firstTest() }}</td>
+                                @endif
+                                @if($result->entry2() != null)
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry2() }}</td>
+                                @endif
+                                @if($result->ca() != null)
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->ca() }}</td>
+                                @endif
+                                @if($result->project() != null)
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->project() }}</td>
+                                @endif
+                                @if($result->total() != null)
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->total() }}</td>
+                                @endif
+                                @if ($results[0]->entry2() == null && $results[0]->project() == null)
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum($result->total() * 100, 40))}}</td>
+                                @else
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum($result->total() * 100, 60))}}</td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

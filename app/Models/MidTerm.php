@@ -60,7 +60,7 @@ class MidTerm extends Model
 
     public function entry2(): ?int
     {
-        return (int) $this->entry_1;
+        return (int) $this->entry_2;
     }
 
     public function firstTest(): ?int

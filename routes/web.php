@@ -305,6 +305,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/index/registration', [RegistrationController::class, 'index']);
     Route::get('/show/registration/{registration}', [RegistrationController::class, 'show']);
     Route::delete('/delete/registration/{id}', [RegistrationController::class, 'destroy']);
+    Route::get('/compare/registration', [RegistrationController::class, 'compare']);
+    Route::get('/accept/student/{id}', [RegistrationController::class, 'accept']);
+    Route::post('/accept/student/all', [RegistrationController::class, 'acceptAll']);
+
 
     Route::group(['prefix' => 'upload', 'as' => 'upload.'], function () {
         Route::get('/', [FrontendController::class, 'uploadSignature'])->name('uploadSignature');

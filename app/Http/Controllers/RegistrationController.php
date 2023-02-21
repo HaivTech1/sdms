@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Father;
 use App\Models\Mother;
+use App\Models\Student;
+use App\Models\Guardian;
+use App\Services\SaveCode;
 use App\Models\Registration;
 use Illuminate\Http\Request;
 use App\Scopes\HasActiveScope;
+use App\Mail\SendAdmissionMail;
 use App\Services\SaveImageService;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendNewRegistrationMail;
 use Illuminate\Support\Facades\Storage;
@@ -109,5 +114,285 @@ class RegistrationController extends Controller
             'status' => 'success',
             'message' => 'Registration deleted successfully!'
         ], 200);
+    }
+
+    public function compare()
+    {
+        try{
+
+                $registrations = Registration::withoutGlobalScope(new HasActiveScope)->get();
+                $students = Student::withoutGlobalScope(new HasActiveScope)->get();
+
+                $newDataArray = [];
+                foreach ($registrations as $registration) {
+                    $exists = false;
+                
+                    foreach ($students as $student) {
+                        if ($registration->first_name == $student->first_name && $registration->last_name == $student->last_name && $registration->other_name == $student->other_name) {
+                            $exists = true;
+                            break;
+                        }
+                    }
+                
+                    if (!$exists) {
+                        $newDataArray[] = $registration;
+                    }
+                }
+                // dd($newDataArray);
+
+            return response()->json([
+                'status' => true,
+                'data' => $newDataArray,
+                'message' => 'The following students have been registered but have not been accepted as students!'
+            ], 200);
+        }catch(\Throwable $th){
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ],);
+        }
+    }
+
+    public function accept($id)
+    {
+        $registration = Registration::withoutGlobalScope(new HasActiveScope)->where('id', $id)->first();
+        
+        try {
+            if ($registration->update(['status' => true])) {
+
+                $randomNumbers;
+
+                for ($i = 0; $i < 4; $i++) {
+                    $randomNumbers = rand(0, 9999);
+                }
+
+                $user = new User([
+                    'title' => 'student',
+                    'name' => $registration->lastName(). ' '. $registration->firstName(). ' '. $registration->otherName(),
+                    'email' => $registration->lastName(). $registration->firstName().$randomNumbers.'@gmail.com',
+                    'phone_number' => '',
+                    'password' => Hash::make('password1234'),
+                    'type' => '4'
+                ]);
+        
+                $code = SaveCode::Generator('SLNP/', 4, 'reg_no', $user);
+                $user->reg_no = $code;
+                $user->profile_photo_path = $registration->image;
+                $user->save();
+        
+                $student = new Student([
+                    'first_name'  => $registration->first_name,
+                    'last_name'  => $registration->last_name,
+                    'other_name'  => $registration->other_name,
+                    'gender'  => $registration->gender,
+                    'dob'  => $registration->dob,
+                    'nationality'  => $registration->nationality,
+                    'state_of_origin'  => $registration->state_of_origin,
+                    'local_government'  => $registration->local_government,
+                    'address'  => $registration->address,
+                    'prev_school'  => $registration->prev_school,
+                    'prev_class'  => $registration->prev_class,
+                    'medical_history'  => $registration->medical_history,
+                    'allergics'  => $registration->allergics,
+                    'religion'  => $registration->religion,
+                    'denomination'  => $registration->denomination,
+                    'blood_group'  => $registration->blood_group,
+                    'genotype'  => $registration->genotype,
+                    'speech_development'  => $registration->speech_development,
+                    'sight'  => $registration->sight,
+                    'grade_id'  => $registration->grade_id,
+                    'house_id'  => 1,
+                    'club_id'  => 1,
+                    'user_id' => $user->id()
+                ]);
+
+                $student->authoredBy(auth()->user());
+                $student->save();
+
+                if($registration->father_name !== null){
+                    $father = new Father([
+                        'student_uuid'  => $student->id(),
+                        'name'  => $registration->father_name,
+                        'email' =>  $registration->father_email,
+                        'phone' =>  $registration->father_phone,
+                        'occupation'  => $registration->father_occupation,
+                        'office_address' =>  $registration->father_office_address,
+                    ]);
+                    $father->save();
+                }
+
+                if($registration->mother_name !== null){
+                    $mother = new Mother([
+                        'student_uuid'  => $student->id(),
+                        'fname'  => $registration->mother_name,
+                        'email' =>  $registration->mother_email,
+                        'phone' =>  $registration->mother_phone,
+                        'occupation'  => $registration->mother_occupation,
+                        'office_address' =>  $registration->mother_office_address,
+                    ]);
+                    $mother->save();
+                }
+
+                if($registration->guardian_full_name !== null){
+                    $guardian = new Guardian([
+                        'student_id'  => $student->id(),
+                        'full_name'  => $registration->guardian_full_name,
+                        'email' =>  $registration->guardian_email,
+                        'phone_number' =>  $registration->guardian_phone_number,
+                        'occupation'  => $registration->guardian_occupation,
+                        'office_address' =>  $registration->guardian_office_address,
+                        'home_address' =>  $registration->guardian_home_address,
+                        'relationship' =>  $registration->guardian_relationship,
+                    ]);
+                    $guardian->save();
+                }
+                
+                $student->schedules()->sync(1);
+                $message = "<p>
+                    We are pleased to inform your that your child: 
+                    " . $registration->first_name. " " .$registration->last_name.
+                    " has been granted admission into " .$registration->grade->title(). 
+                    ". Proceed to the school to make necessary payments so as to retain this admission. 
+                    Please hold a copy of your child's birth certificate (photocopy) and/or '
+                    Baptisimal Card photocopy (Catholics only) with latest school report (if applicable).'
+                    </p>";
+                $subject = 'Admission Status from ' . application('name');
+
+                Mail::to($registration->mother_email)->send(new SendAdmissionMail($message, $subject));
+
+                return response()->json([
+                    'status' => true,
+                    'message' => "Student admitted successfully!",
+                ], 200);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function acceptAll(Request $request)
+    {
+        try {
+            $selected = $request->input('selected');
+            $array = explode(",", $selected);
+            
+            $registrations = Registration::withoutGlobalScope(new HasActiveScope)->whereIn('id', $array)->get();
+
+            $randomNumbers;
+
+            for ($i = 0; $i < 4; $i++) {
+                $randomNumbers = rand(0, 9999);
+            }
+
+            foreach ($registrations as $key => $value) {
+                if ($value->update(['status' => true])) {
+                        $user = new User([
+                            'title' => 'student',
+                            'name' => $value->lastName(). ' '. $value->firstName(). ' '. $value->otherName(),
+                            'email' => $value->lastName(). $value->firstName().$randomNumbers.'@gmail.com',
+                            'phone_number' => '',
+                            'password' => Hash::make('password1234'),
+                            'type' => '4'
+                        ]);
+                
+                        $code = SaveCode::Generator('SLNP/', 4, 'reg_no', $user);
+                        $user->reg_no = $code;
+                        $user->profile_photo_path = $value->image;
+                        $user->save();
+                
+                        $student = new Student([
+                            'first_name'  => $value->first_name,
+                            'last_name'  => $value->last_name,
+                            'other_name'  => $value->other_name,
+                            'gender'  => $value->gender,
+                            'dob'  => $value->dob,
+                            'nationality'  => $value->nationality,
+                            'state_of_origin'  => $value->state_of_origin,
+                            'local_government'  => $value->local_government,
+                            'address'  => $value->address,
+                            'prev_school'  => $value->prev_school,
+                            'prev_class'  => $value->prev_class,
+                            'medical_history'  => $value->medical_history,
+                            'allergics'  => $value->allergics,
+                            'religion'  => $value->religion,
+                            'denomination'  => $value->denomination,
+                            'blood_group'  => $value->blood_group,
+                            'genotype'  => $value->genotype,
+                            'speech_development'  => $value->speech_development,
+                            'sight'  => $value->sight,
+                            'grade_id'  => $value->grade_id,
+                            'house_id'  => 1,
+                            'club_id'  => 1,
+                            'user_id' => $user->id()
+                        ]);
+        
+                        $student->authoredBy(auth()->user());
+                        $student->save();
+
+                        if($value->father_name !== null){
+                            $father = new Father([
+                                'student_uuid'  => $student->id(),
+                                'name'  => $value->father_name,
+                                'email' =>  $value->father_email,
+                                'phone' =>  $value->father_phone,
+                                'occupation'  => $value->father_occupation,
+                                'office_address' =>  $value->father_office_address,
+                            ]);
+                            $father->save();
+                        }
+
+                        if($value->mother_name !== null){
+                            $mother = new Mother([
+                                'student_uuid'  => $student->id(),
+                                'fname'  => $value->mother_name,
+                                'email' =>  $value->mother_email,
+                                'phone' =>  $value->mother_phone,
+                                'occupation'  => $value->mother_occupation,
+                                'office_address' =>  $value->mother_office_address,
+                            ]);
+                            $mother->save();
+                        }
+
+                        if($value->guardian_full_name !== null){
+                            $guardian = new Guardian([
+                                'student_id'  => $student->id(),
+                                'full_name'  => $value->guardian_full_name,
+                                'email' =>  $value->guardian_email,
+                                'phone_number' =>  $value->guardian_phone_number,
+                                'occupation'  => $value->guardian_occupation,
+                                'office_address' =>  $value->guardian_office_address,
+                                'home_address' =>  $value->guardian_home_address,
+                                'relationship' =>  $value->guardian_relationship,
+                            ]);
+                            $guardian->save();
+                        }
+                        
+                        $student->schedules()->sync(1);
+                        $message = "<p>
+                            We are pleased to inform your that your child: 
+                            " . $value->first_name. " " .$value->last_name.
+                            " has been granted admission into " .$value->grade->title(). 
+                            ". Proceed to the school to make necessary payments so as to retain this admission. 
+                            Please hold a copy of your child's birth certificate (photocopy) and/or '
+                            Baptisimal Card photocopy (Catholics only) with latest school report (if applicable).'
+                            </p>";
+                        $subject = 'Admission Status from ' . application('name');
+        
+                        Mail::to($value->mother_email)->send(new SendAdmissionMail($message, $subject));
+                }
+            }
+            return response()->json([
+                'status' => true,
+                'message' => "Students admitted successfully!",
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 }

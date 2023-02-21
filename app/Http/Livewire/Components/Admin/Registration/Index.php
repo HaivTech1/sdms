@@ -30,12 +30,14 @@ class Index extends Component
     public $sortBy = 'asc';
     public $orderBy = 'created_at';
     public $grade = '';
+    public $status = '';
     public $subjects = [];
 
     protected $queryString = [
         'search' => ['except' => ''],
         'gender' => ['except' => ''],
         'grade' => ['except' => ''],
+        'status' => ['except' => ''],
     ];
 
     protected $listeners = [
@@ -64,7 +66,7 @@ class Index extends Component
                 return $query->where('gender', $gender);
             });
         })
-        ->search(trim($this->search))->loadLatest($this->per_page, $this->orderBy, $this->sortBy);
+        ->search(trim($this->search))->loadLatest($this->per_page, $this->orderBy, $this->status, $this->sortBy);
     }
 
     public function deleteAll()
@@ -79,12 +81,19 @@ class Index extends Component
         $registrations = Registration::withoutGlobalScope(new HasActiveScope)->whereIn('id', $this->selectedRows)->get();
         foreach ($registrations as $key => $value) {
             if ($value->update(['status' => true])) {
+
+                    $randomNumbers;
+
+                    for ($i = 0; $i < 4; $i++) {
+                        $randomNumbers = rand(0, 9999);
+                    }
+
                     $user = new User([
                         'title' => 'student',
                         'name' => $value->lastName(). ' '. $value->firstName(). ' '. $value->otherName(),
-                        'email' => $value->lastName(). $value->firstName().'@gmail.com',
+                        'email' => $value->lastName(). $value->firstName().$randomNumbers.'@gmail.com',
                         'phone_number' => '',
-                        'password' => Hash::make('password123'),
+                        'password' => Hash::make('password1234'),
                         'type' => '4'
                     ]);
             
@@ -190,7 +199,7 @@ class Index extends Component
             'grades' => Grade::all(),
             'todayRegistrations' => Registration::withoutGlobalScope(new HasActiveScope)->whereDate('created_at', '>=', Carbon::today())->get(),
             'admittedRegistrations' => Registration::withoutGlobalScope(new HasActiveScope)->where('status', true)->get(),
-            'unadmittedRegistrations' => Registration::withoutGlobalScope(new HasActiveScope)->where('created_at', false)->get(),
+            'unadmittedRegistrations' => Registration::withoutGlobalScope(new HasActiveScope)->where('status', false)->get(),
         ]);
     }
 }
