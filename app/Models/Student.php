@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Cast\TitleCast;
 use App\Traits\HasUuid;
 use App\Traits\HasAuthor;
 use App\Scopes\HasActiveScope;
@@ -63,6 +64,10 @@ class Student extends Authenticatable
     protected $casts = [
         'dob' => 'datetime',
         'status' => 'boolean',
+        'first_name' => TitleCast::class,
+        'last_name' => TitleCast::class,
+        'other_name' => TitleCast::class,
+        'gender' => TitleCast::class,
     ];
 
     protected $hidden = [

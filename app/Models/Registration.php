@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Cast\TitleCast;
 use App\Scopes\HasActiveScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -61,6 +62,9 @@ class Registration extends Model
     protected $casts = [
         'dob' => 'date',
         'status' => 'boolean',
+        'first_name' => TitleCast::class,
+        'last_name' => TitleCast::class,
+        'other_name' => TitleCast::class,
     ];
 
     protected static function booted()
