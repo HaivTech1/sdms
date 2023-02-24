@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Components\Admin\Result;
 use App\Models\Term;
 use App\Models\Grade;
 use App\Models\Period;
+use App\Models\MidTerm;
 use App\Models\Student;
 use Livewire\Component;
 
@@ -28,6 +29,7 @@ class MidtermUpload extends Component
     public $subjects = [];
     public $selectedStudent;
     public $state = [];
+    public $results = null;
 
     public function updatedGradeId($grade_id)
     {
@@ -53,6 +55,9 @@ class MidtermUpload extends Component
         $this->selectedStudent = Student::where('uuid', $this->state['student_id'])->first();
         $this->selectedPeriod = Period::where('id', $this->state['period_id'])->first();
         $this->selectedTerm = Term::where('id', $this->state['term_id'])->first();
+
+        $res = MidTerm::where('student_id', $this->state['student_id'])->where('period_id', $this->state['period_id'])->where('term_id', $this->state['term_id'])->get();
+        $this->results = $res;
     }
 
     public function getStudentsProperty()

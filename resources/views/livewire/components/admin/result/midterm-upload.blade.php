@@ -108,11 +108,7 @@
                             </div>
                         </div>
                         @if ($selectedTerm)
-                            <form id="midFormSubmit" method="POST">
-                                @csrf
-
-                                <div class="modalErrorr"></div>
-
+                            @if (count($results) > 0)
                                 <div class='col-sm-12'>
                             
                                     <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
@@ -128,12 +124,13 @@
                                         <table class="table align-middle table-nowrap table-check">
                                             <thead class="table-light">
                                                 <tr class="">
-                                                    <th></th>
+                                                    <th>Subject</th>
                                                     <th>Re-Entry 1</th>
                                                     <th>1st Organized Test</th>
                                                     <th>Re-Entry 2</th>
                                                     <th>Cont. Assessment</th>
                                                     <th>Project</th>
+                                                    <th>Created Date</th>
                                                 </tr>
                                                 <tr>
                                                     <th></th>
@@ -142,11 +139,38 @@
                                                     <th>10</th>
                                                     <th>20</th>
                                                     <th>10</th>
+                                                    <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($selectedStudent->subjects as $subject)
-                                                <tr>
+                                                @foreach ($results as $result)
+                                                    <tr id='{{ $result->id() }}'>
+                                                        <td>
+                                                            {{ $result->subject->title() }}
+                                                        </td>
+                                                        <td>
+                                                            <livewire:components.edit-title :model='$result' field='entry_1' :key='$result->id()' />
+                                                        </td>
+                                                        <td>
+                                                            <livewire:components.edit-title :model='$result' field='first_test' :key='$result->id()' />
+                                                        </td>
+                                                        <td>
+                                                            <livewire:components.edit-title :model='$result' field='entry_2' :key='$result->id()' />
+                                                        </td>
+                                                        <td>
+                                                            <livewire:components.edit-title :model='$result' field='ca' :key='$result->id()' />
+                                                        </td>
+                                                            <td>
+                                                            <livewire:components.edit-title :model='$result' field='project' :key='$result->id()' />
+                                                        </td>
+                                                        <td>{{ $result->createdAt() }}</td>
+                                                        {{-- <td>
+                                                            <a href="{{ route('result.show', $result) }}" class="dropdown-item">
+                                                                <i class="fa fa-eye"></i>
+                                                            </a>
+                                                        </td> --}}
+                                                    </tr>
+                                                {{-- <tr>
                                                     <td>
                                                         {{ $subject->title() }}
                                                         <x-form.input style='width: 50px' class="text-center" type='hidden'
@@ -172,20 +196,92 @@
                                                         <x-form.input style='width: 50px' class="text-center" type='number'
                                                             name='project[]' value="" autofocus />
                                                     </td>
-                                                </tr>
+                                                </tr> --}}
                                                 @endforeach
                                             </tbody>
                                         </table>
                                     </div>
-
-                                    <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
-                                        <button id="submit_button" type="submit"
-                                            class="btn btn-primary block waves-effect waves-light pull-right">
-                                            Upload Result
-                                        </button>
-                                    </div>
                                 </div>
-                            </form>
+                            @else
+                                <form id="midFormSubmit" method="POST">
+                                    @csrf
+
+                                    <div class="modalErrorr"></div>
+
+                                    <div class='col-sm-12'>
+                                
+                                        <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
+                                            value="{{ $selectedPeriod->id() }}" autofocus />
+                                        <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
+                                            value="{{ $selectedTerm->id() }}" autofocus />
+                                        <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
+                                            value="{{ $grade_id }}" autofocus />
+                                        <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
+                                            value="{{  $selectedStudent->id() }}" autofocus />
+
+                                        <div class='table-responsive'>
+                                            <table class="table align-middle table-nowrap table-check">
+                                                <thead class="table-light">
+                                                    <tr class="">
+                                                        <th></th>
+                                                        <th>Re-Entry 1</th>
+                                                        <th>1st Organized Test</th>
+                                                        <th>Re-Entry 2</th>
+                                                        <th>Cont. Assessment</th>
+                                                        <th>Project</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>10</th>
+                                                        <th>10</th>
+                                                        <th>10</th>
+                                                        <th>20</th>
+                                                        <th>10</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($selectedStudent->subjects as $subject)
+                                                    <tr>
+                                                        <td>
+                                                            {{ $subject->title() }}
+                                                            <x-form.input style='width: 50px' class="text-center" type='hidden'
+                                                                name='subject_id[]' value="{{ $subject->id() }}" autofocus />
+                                                        </td>
+                                                        <td>
+                                                            <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                name='entry_1[]' value="" autofocus />
+                                                        </td>
+                                                        <td>
+                                                            <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                name='first_test[]' value="" autofocus />
+                                                        </td>
+                                                        <td>
+                                                            <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                name='entry_2[]' value="" autofocus />
+                                                        </td>
+                                                        <td>
+                                                            <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                name='ca[]' value="" autofocus />
+                                                        </td>
+                                                        <td>
+                                                            <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                name='project[]' value="" autofocus />
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
+                                            <button id="submit_button" type="submit"
+                                                class="btn btn-primary block waves-effect waves-light pull-right">
+                                                Upload Result
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            @endif
                         @endif
                         
                     </div>

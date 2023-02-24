@@ -27,6 +27,12 @@
     <li>
         <a href="{{ url('index/registration') }}" class="waves-effect">
             <i class="bx bx-folder"></i>
+            <?php
+                $newRegistration = \App\Models\Registration::where('status', false)->get()
+            ?>
+            @if (count($newRegistration) !== 0)
+                <span class="badge rounded-pill bg-danger float-end">{{ $newRegistration->count() }}</span>
+            @endif
             <span key="t-chat">Registrations</span>
         </a>
     </li>
@@ -39,7 +45,16 @@
     <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
             <i class="bx bx-command"></i>
-            <span key="t-ecommerce">Check Result Management</span>
+            <?php
+                $newMidResult = \App\Models\MidTerm::where('created_at', '>=', \Carbon\Carbon::today())->where('published', false)->get();
+                $newExamResult = \App\Models\Result::where('created_at', '>=', \Carbon\Carbon::today())->where('published', false)->get();
+            ?>
+            @if (count($newExamResult) !== 0 || count($newExamResult) !== 0)
+                <span class="badge rounded-pill bg-success float-end">
+                    New
+                </span>
+            @endif
+            <span key="t-ecommerce">Check Result</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
             <li><a href="{{ route('result.midterm') }}" key="t-products">Mid Term Result</a></li>
