@@ -63,7 +63,7 @@
                                                 @endif
                                                 <input type="hidden" name="amount" value="{{($verification->payable() - $verification->amount()) * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
-                                                <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> 
+                                                <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"/>
                                                 <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="bx bx-credit-card label-icon"></i> Pay Now</button>
                                             </form>
                                         @else
@@ -86,7 +86,7 @@
                                                 
                                                 <input id="amount" type="hidden" name="amount" value="{{ $fee['price'] * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
-                                                <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> 
+                                                <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"/> 
 
                                                 <div class="btn-group btn-group-example mb-3" role="group">
                                                     <button id="pay" type="submit" class="btn btn-primary w-xs">Pay Full</button>

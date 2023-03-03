@@ -83,7 +83,7 @@
                                             <td>
                                                 {{ $student->grade->title() }}
                                             </td>
-                                            <td>
+                                            <td wire:ignore.self>
                                                 <a href="javascript:void(0)" class="cursor-pointer" onclick="editReg({{ $student->user->id() }})">{{ $student->user->reg_no }}</a>
                                                 {{-- <livewire:components.edit-title :model='$student->user' field='reg_no' :key='$student->user->id()'/> --}}
 

@@ -13,6 +13,20 @@ use Unicodeveloper\Paystack\Facades\Paystack;
 class PaymentController extends Controller
 {
 
+    public function generateToken(Request $request)
+    {
+        $paystack = new Paystack();
+        $paystack->initialize('sk_test_ba1a48170406832ff34b737b4571e39f76ee8326');
+
+        $token = $paystack->genTranxRef();
+        $authorization_url = $paystack->getAuthorizationUrl();
+
+        return response()->json([
+            'token' => $token,
+            'authorization_url' => $authorization_url,
+        ]);
+    }
+
     public function redirectToGateway(Request $request)
     {
         try{
@@ -20,7 +34,9 @@ class PaymentController extends Controller
         }catch(\Exception $e) {
             $notification = array(
                 'messege'     => 'The paystack token has expired. Please refresh the page and try again.!',
-                'alert-type'    => 'alert'
+                'alert-type'    => 'error',
+                'button' => 'Okay',
+                'title' => 'Expired Token',
             );
             return redirect()->back()->with($notification);
         }
@@ -42,7 +58,7 @@ class PaymentController extends Controller
         if(!$check){
             if (!$paymentDetails['data']['metadata']['old_payment_id']) {
                 $payment = new Payment();
-                $payment->paid_by = $paidBy->first_name . ' ' . $paidBy->last_name;
+                $payment->paid_by = $paidBy->first_name . ' ' . $paidBy->last_name. ' ' . $paidBy->other_name;
                 $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
                 $payment->amount = $amount;
                 $payment->payable = $paymentDetails['data']['metadata']['payable'];
