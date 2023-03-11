@@ -7,6 +7,7 @@ use App\Models\Grade;
 use App\Models\Period;
 use App\Models\Student;
 use Livewire\Component;
+use Illuminate\Http\Request;
 use Livewire\WithPagination;
 
 class CheckMidterm extends Component
@@ -22,22 +23,18 @@ class CheckMidterm extends Component
     public $state = [];
     public $psych = [];
 
-    public function fetchResult()
-    {
-        $this->validate([
-            'state.period_id' => ['required'],
-            'state.term_id' => ['required'],
-            'state.grade_id' => ['required'],
-        ],[
-            'state.period_id.required' => 'Please select Session',
-            'state.term_id.required' => 'Please select Term',
-            'state.grade_id.required' => 'Please select Class',
-        ]);
-        
-        $this->period_id = $this->state['period_id'];
-        $this->term_id = $this->state['term_id'];
-        $this->grade_id = $this->state['grade_id'];
-    }
+    protected $queryString = [
+        'period_id' => ['except' => ''],
+        'term_id' => ['except' => ''],
+        'grade_id' => ['except' => ''],
+    ];
+
+    // public function mount(Request $request)
+    // {
+    //    $this->grade_id = $request->get('grade_id');
+    //    $this->period_id = $request->get('period_id');
+    //    $this->period_id = $request->get('period_id');
+    // }
 
     public function getStudentsProperty()
     {
@@ -57,9 +54,26 @@ class CheckMidterm extends Component
                     $query->whereHas('term', function ($query) use ($term){
                         $query->where('id', $term);
                     });
-                });
+                 });
             });
         })->paginate($this->count);        
+    }
+
+    public function fetchResult()
+    {
+        $this->validate([
+            'state.period_id' => ['required'],
+            'state.term_id' => ['required'],
+            'state.grade_id' => ['required'],
+        ],[
+            'state.period_id.required' => 'Please select Session',
+            'state.term_id.required' => 'Please select Term',
+            'state.grade_id.required' => 'Please select Class',
+        ]);
+        
+        $this->period_id = $this->state['period_id'];
+        $this->term_id = $this->state['term_id'];
+        $this->grade_id = $this->state['grade_id'];
     }
 
     public function render()

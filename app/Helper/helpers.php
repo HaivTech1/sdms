@@ -185,3 +185,16 @@ function paymentCheck($tran, $ref)
 
     return $payment;
 }
+
+function publishMidState($student, $period, $term)
+{
+    $results = MidTerm::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
+
+    if ($results->every(function ($item) {
+        return $item->published;
+    })) {
+        return true;
+    }else{
+        return false;
+    }
+}

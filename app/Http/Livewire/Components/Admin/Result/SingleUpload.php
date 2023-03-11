@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use Livewire\Component;
 use App\Models\Psychomotor;
+use App\Models\PrimaryResult;
 
 class SingleUpload extends Component
 {
@@ -30,6 +31,8 @@ class SingleUpload extends Component
     public $subjects = [];
     public $selectedStudent;
     public $state = [];
+
+    public $results = null;
 
     public function updatedGradeId($grade_id)
     {
@@ -55,6 +58,8 @@ class SingleUpload extends Component
         $this->selectedStudent = Student::where('uuid', $this->state['student_id'])->first();
         $this->selectedPeriod = Period::where('id', $this->state['period_id'])->first();
         $this->selectedTerm = Term::where('id', $this->state['term_id'])->first();
+        $res = PrimaryResult::where('student_id', $this->state['student_id'])->where('period_id', $this->state['period_id'])->where('term_id', $this->state['term_id'])->get();
+        $this->results = $res;
     }
 
     public function getStudentsProperty()

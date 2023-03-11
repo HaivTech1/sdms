@@ -14,7 +14,7 @@ use App\Models\Cognitive;
 use App\Jobs\CreateResult;
 use App\Events\ResultEvent;
 use App\Models\Cummulative;
-use App\Models\psychomotor;
+use App\Models\Psychomotor;
 use Illuminate\Http\Request;
 use App\Mail\SendMidtermMail;
 use App\Models\PrimaryResult;
@@ -474,7 +474,7 @@ class ResultController extends Controller
     
     public function psychomotor(Request $request)
     {
-        $check = psychomotor::where('student_uuid', $request->student_uuid)
+        $check = Psychomotor::where('student_uuid', $request->student_uuid)
             ->where('period_id', $request->period_id)
             ->where('term_id', $request->term_id)->get();
 
@@ -484,7 +484,7 @@ class ResultController extends Controller
     public function psychomotorUpload(Request $request)
     {
 
-        $check = psychomotor::where('student_uuid', $request->student_uuid)
+        $check = Psychomotor::where('student_uuid', $request->student_uuid)
             ->where('period_id', $request->period_id)
             ->where('term_id', $request->term_id)->get();
 
@@ -501,7 +501,7 @@ class ResultController extends Controller
                 // return response()->json(['status' => 'error', 'message' => 'Psychomotor already exist']); 
             }else{
                 for ($i = 0; $i < count($request->title); $i++) { 
-                    $psychomotor = new psychomotor([
+                    $psychomotor = new Psychomotor([
                         'title' => $request->title[$i],
                         'rate' => $request->rate[$i],
                         'period_id'     => $request->period_id,
@@ -634,21 +634,25 @@ class ResultController extends Controller
     public function midtermPublish(Request $request)
     {
         $results = MidTerm::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+        $student = Student::findOrfail($request->student_id);
+        $idNumber = $student->user->code();
+        $password = 'password123';
+        $message = "<p>".$student->first_name. " ".$student->last_name. "'s mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+        $subject = 'Mid-term result';
 
         foreach($results as $result){
-            if ($result->published == false) {
-                $result->update(['published' => true]);
-
-                $message = "<p>Your child's mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . ' to access the result</p>';
-                $subject = 'Mid-term result';
-
-                Mail::to($result->student->guardian->email())->send(new SendMidtermMail($message, $subject));
-                return response()->json(['status' => 'success','message' => 'Result Made available successfully! And email sent to parent.' ], 200);
-            }else{
-                $result->update(['published' => false]);
-                return response()->json(['status' => 'success','message' => 'Result is made unavailable successfully!' ], 200);
-            }
+            $result->update(['published' => true]);
         }
+
+        if(isset($student->mother)){
+            Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+        }elseif(isset($student->father)){
+            Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+        }else{
+            Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+        }
+
+        return response()->json(['status' => 'success','message' => 'Result made available successfully! And email sent to parent.' ], 200);
 
     }
 
@@ -760,5 +764,44 @@ class ResultController extends Controller
             }
         }
 
+    }
+
+    public function getMidTermData(Request $request)
+    {
+        $grade = $request->input('grade_id');
+        $period = $request->input('period_id');
+        $term = $request->input('term_id');
+
+        $data = Student::when($grade, function($query, $grade) use ($period, $term) {
+                $query->whereHas('grade', function($query) use ($grade){
+                $query->where('id', $grade);
+                })
+                ->when($period, function($query) use ($period){
+                    $query->whereHas('midTermResults', function($query) use ($period){
+                        $query->whereHas('period', function ($query) use ($period){
+                            $query->where('id', $period);
+                        });
+                    });
+                })
+                ->when($term, function($query) use ($term){
+                    $query->whereHas('midTermResults', function($query) use ($term){
+                        $query->whereHas('term', function ($query) use ($term){
+                            $query->where('id', $term);
+                        });
+                    });
+                });
+        })->paginate(10);
+
+
+        $responseData = array();
+        foreach($data as $value){
+            $responseData[] = [
+                'name' => $value->firstName() . ' ' . $value->lastName(),
+                'total_recorded' => $value->midTermResults->where('period_id', $period)->where('term_id', $term)->count(),
+            ];
+        }
+        
+
+        return response()->json($responseData);
     }
 }

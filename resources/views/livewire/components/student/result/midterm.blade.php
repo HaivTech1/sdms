@@ -64,12 +64,12 @@
                                                 <th scope="col" class="text-center">
                                                     Class
                                                 </th>
-                                                <th scope="col" class="text-center">
+                                                {{-- <th scope="col" class="text-center">
                                                     Total Subjects
                                                 </th>
                                                 <th scope="col" class="text-center">
                                                     Recorded Subjects
-                                                </th>
+                                                </th> --}}
 
                                                 <th scope="col" class="text-center" id="action">
                                                     Action
@@ -81,7 +81,7 @@
                                         <tbody>
                                             <tr>
                                                 <td class='text-center'>{{ $student->grade->title() }}</td>
-                                                <td class='text-center'>
+                                                {{-- <td class='text-center'>
                                                     <div class="btn-group dropend">
                                                         <button type="button" class="btn dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">
                                                             {{ $student->totalSubjects() }} <i class="mdi mdi-chevron-right"></i>
@@ -104,7 +104,7 @@
                                                             @endforeach
                                                         </div>
                                                     </div>
-                                                </td>
+                                                </td> --}}
                                                 
                                                 <td class='d-flex justify-content-center align-items-center'>
                                                     <a href="{{ route('result.midterm.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"

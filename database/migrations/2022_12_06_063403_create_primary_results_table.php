@@ -15,11 +15,11 @@ class CreatePrimaryResultsTable extends Migration
     {
         Schema::create('primary_results', function (Blueprint $table) {
             $table->uuid('uuid')->primary()->unique();
-            $table->integer('ca1')->nullable();
-            $table->integer('ca2')->nullable();
-            $table->integer('ca3')->nullable();
-            $table->integer('pr')->nullable();
-            $table->integer('exam')->nullable();
+            $table->double('ca1')->nullable();
+            $table->double('ca2')->nullable();
+            $table->double('ca3')->nullable();
+            $table->double('pr')->nullable();
+            $table->double('exam')->nullable();
             $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');
             $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
             $table->foreignId('grade_id')->constrained('grades')->onDelete('cascade');

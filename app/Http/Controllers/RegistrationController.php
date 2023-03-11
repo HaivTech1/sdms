@@ -395,4 +395,166 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
+
+    public function syncParent()
+    {
+        try{
+
+            $registrations = Registration::withoutGlobalScope(new HasActiveScope)->get();
+            $students = Student::withoutGlobalScope(new HasActiveScope)->get();
+
+            $newDataArray = [];
+            foreach ($students as $student) {
+                $exists = false;
+            
+                foreach ($registrations as $registration) {
+                    if ($registration->first_name === $student->first_name 
+                        && $registration->last_name === $student->last_name 
+                        && $registration->other_name === $student->other_name 
+                        && !isset($student->mother)
+                        && !isset($student->father)
+                        ) {
+                        $exists = true;
+                        break;
+                    }
+                }
+            
+                if ($exists) {
+                    $newDataArray[] = $student;
+                }
+            }
+            // dd($newDataArray);
+
+        return response()->json([
+            'status' => true,
+            'data' => $newDataArray,
+            'message' => 'These are all the students registered!'
+        ], 200);
+        }catch(\Throwable $th){
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ],);
+        }
+    }
+
+    public function resyncParent($id)
+    {
+        $student = Student::withoutGlobalScope(new HasActiveScope)->where('uuid', $id)->first();
+        
+        try {
+            if ($student) {
+                $registration = Registration::withoutGlobalScope(new HasActiveScope)->where('first_name', $student->first_name)->where('last_name', $student->last_name)->where('other_name', $student->other_name)->first();
+                if($registration->father_name !== null && !isset($student->father)){
+                    $father = new Father([
+                        'student_uuid'  => $student->id(),
+                        'name'  => $registration->father_name,
+                        'email' =>  $registration->father_email,
+                        'phone' =>  $registration->father_phone,
+                        'occupation'  => $registration->father_occupation,
+                        'office_address' =>  $registration->father_office_address,
+                    ]);
+                    $father->save();
+                }
+
+                if($registration->mother_name !== null  && !isset($student->mother)){
+                    $mother = new Mother([
+                        'student_uuid'  => $student->id(),
+                        'name'  => $registration->mother_name,
+                        'email' =>  $registration->mother_email,
+                        'phone' =>  $registration->mother_phone,
+                        'occupation'  => $registration->mother_occupation,
+                        'office_address' =>  $registration->mother_office_address,
+                    ]);
+                    $mother->save();
+                }
+
+                if($registration->guardian_full_name !== null  && !isset($student->guardian)){
+                    $guardian = new Guardian([
+                        'student_id'  => $student->id(),
+                        'full_name'  => $registration->guardian_full_name,
+                        'email' =>  $registration->guardian_email,
+                        'phone_number' =>  $registration->guardian_phone_number,
+                        'occupation'  => $registration->guardian_occupation,
+                        'office_address' =>  $registration->guardian_office_address,
+                        'home_address' =>  $registration->guardian_home_address,
+                        'relationship' =>  $registration->guardian_relationship,
+                    ]);
+                    $guardian->save();
+                }
+                
+                return response()->json([
+                    'status' => true,
+                    'message' => "Process successful!",
+                ], 200);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function syncAll(Request $request)
+    {
+        try {
+            $selected = $request->input('selected');
+            $array = explode(",", $selected);
+            $students = Student::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $array)->get();
+
+
+            foreach ($students as $key => $value) {
+                $registration = Registration::withoutGlobalScope(new HasActiveScope)->where('first_name', $value->first_name)->where('last_name', $value->last_name)->where('other_name', $value->other_name)->first();
+
+                if($registration->father_name !== null){
+                    $father = new Father([
+                        'student_uuid'  => $value->id(),
+                        'name'  => $registration->father_name,
+                        'email' =>  $registration->father_email,
+                        'phone' =>  $registration->father_phone,
+                        'occupation'  => $registration->father_occupation,
+                        'office_address' =>  $registration->father_office_address,
+                    ]);
+                    $father->save();
+                }
+
+                if($registration->mother_name !== null){
+                    $mother = new Mother([
+                        'student_uuid'  => $value->id(),
+                        'fname'  => $registration->mother_name,
+                        'email' =>  $registration->mother_email,
+                        'phone' =>  $registration->mother_phone,
+                        'occupation'  => $registration->mother_occupation,
+                        'office_address' =>  $registration->mother_office_address,
+                    ]);
+                    $mother->save();
+                }
+
+                if($registration->guardian_full_name !== null){
+                    $guardian = new Guardian([
+                        'student_id'  => $value->id(),
+                        'full_name'  => $registration->guardian_full_name,
+                        'email' =>  $registration->guardian_email,
+                        'phone_number' =>  $registration->guardian_phone_number,
+                        'occupation'  => $registration->guardian_occupation,
+                        'office_address' =>  $registration->guardian_office_address,
+                        'home_address' =>  $registration->guardian_home_address,
+                        'relationship' =>  $registration->guardian_relationship,
+                    ]);
+                    $guardian->save();
+                }
+                    
+            }
+            return response()->json([
+                'status' => true,
+                'message' => "Process successful!",
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
 }

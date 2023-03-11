@@ -26,13 +26,15 @@
     </div>
     <div x-show=isEditing class="flex flex-col">
         <form class="flex" wire:submit.prevent="save">
-            <x-form.input
+            <input
                 type="text"
-              placeholder="100 characters max."
+                placeholder="100 characters max."
                 x-ref="textInput"
                 wire:model.lazy="newTitle"
                 x-on:keydown.enter="isEditing = false"
                 x-on:keydown.escape="isEditing = false"
+                style="width: 150px; text-align: center"
+                class="form-control"
             />
             <button type="button" class="px-1 ml-2 text-3xl" title="Cancel" x-on:click="isEditing = false">X</button>
             <button

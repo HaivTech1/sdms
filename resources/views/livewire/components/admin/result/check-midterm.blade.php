@@ -112,9 +112,15 @@
                                                         <i class="fa fa-eye"></i>
                                                     </a>
                                                     @admin
-                                                        <button type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                            <i class="mdi mdi-upload d-block font-size-16"></i> 
-                                                        </button>
+                                                        @if (publishMidState($student->id(), $period_id, $term_id))
+                                                            <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                <span class="badge bg-success">Published</span>
+                                                            </button>
+                                                        @else
+                                                            <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                <i class="mdi mdi-upload d-block font-size-16"></i> 
+                                                            </button>
+                                                        @endif
                                                     @endadmin
                                                 </td>
                                             </tr>
@@ -139,7 +145,7 @@
                 var period_id = data[1];
                 var term_id = data[2];
                 var grade_id = data[3];
-                toggleAble('#cummulative', true);
+                toggleAble('#cummulative'+student_id, true);
 
                 $.ajax({
                     url: '{{ route('result.midterm.publish') }}' ,
@@ -147,16 +153,16 @@
                     data: {student_id, period_id, term_id, grade_id }
                 }).done((res) => {
                         if(res.status === 'success') {
-                            toggleAble('#cummulative', false);
+                            toggleAble('#cummulative'+student_id, false);
                             toastr.success(res.message, 'Success!');
                         }else{
-                            toggleAble('#cummulative', false);
+                            toggleAble('#cummulative'+student_id, false);
                             toastr.error(res.message, 'Success!');
                         }
                 }).fail((res) => {
                     console.log(res.responseJSON.message);
                     toastr.error(res.responseJSON.message, 'Failed!');
-                    toggleAble('#cummulative', false);
+                    toggleAble('#cummulative'+student_id, false);
                 });
             }
         </script>

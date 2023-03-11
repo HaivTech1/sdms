@@ -50,7 +50,12 @@ class PrimaryResult extends Model
     ];
 
     protected $casts = [
-        'published' => 'boolean'
+        'published' => 'boolean',
+        'ca1' => 'float',
+        'ca2' => 'float',
+        'ca3' => 'float',
+        'pr' => 'float',
+        'exam' => 'float',
     ];
 
     public function id(): string
@@ -58,34 +63,34 @@ class PrimaryResult extends Model
         return (string) $this->uuid;
     }
 
-    public function firstCA(): ?int
+    public function firstCA()
     {
-        return (int) $this->ca1;
+        return  $this->ca1;
     }
 
-    public function secondCA(): ?int
+    public function secondCA()
     {
-        return (int) $this->ca2;
+        return  $this->ca2;
     }
 
-    public function thirdCA(): ?int
+    public function thirdCA()
     {
-        return (int) $this->ca2;
+        return  $this->ca2;
     }
 
-    public function project(): ?int
+    public function project()
     {
-        return (int) $this->pr;
+        return  $this->pr;
     }
 
-    public function exam(): ?int
+    public function exam()
     {
-        return (int) $this->exam;
+        return  $this->exam;
     }
 
-    public function eTotal(): int
+    public function eTotal()
     {
-        return (int) $this->ca1 + $this->ca2 + $this->ca3 + $this->pr + $this->exam;
+        return  $this->ca1 + $this->ca2 + $this->ca3 + $this->pr + $this->exam;
     }
 
     public function createdAt(): string

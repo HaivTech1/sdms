@@ -159,6 +159,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/{student}', [StudentController::class, 'update'])->name('update');
         Route::post('assignSubject', [StudentController::class, 'assignSubject'])->name('assignSubject');
         Route::get('/school/fees', [GeneralController::class, 'fees'])->name('fees');
+        Route::post('/update/mother', [GeneralController::class, 'motherUpdate']);
+        Route::post('/update/father', [GeneralController::class, 'fatherUpdate']);
+        Route::post('/update/guardian', [GeneralController::class, 'guardianUpdate']);
+        Route::get('/parent/publish', [GeneralController::class, 'parentPublish']);
     });
 
     Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -203,6 +207,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::get('/cummulative/get', [ResultController::class, 'cummulative'])->name('cummulative.get');
         Route::get('/verify/pin', [ResultController::class, 'verify']);
+
+        Route::get('/data/midterm', [ResultController::class, 'getMidTermData']);
     });
     
     Route::group(['prefix' => 'fee', 'as' => 'fee.'], function () {
@@ -306,8 +312,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/show/registration/{registration}', [RegistrationController::class, 'show']);
     Route::delete('/delete/registration/{id}', [RegistrationController::class, 'destroy']);
     Route::get('/compare/registration', [RegistrationController::class, 'compare']);
+    Route::get('/sync/parent', [RegistrationController::class, 'syncParent']);
     Route::get('/accept/student/{id}', [RegistrationController::class, 'accept']);
+    Route::get('/resync/parent/{id}', [RegistrationController::class, 'resyncParent']);
     Route::post('/accept/student/all', [RegistrationController::class, 'acceptAll']);
+    Route::post('/sync/parent/all', [RegistrationController::class, 'syncAll']);
 
 
     Route::group(['prefix' => 'upload', 'as' => 'upload.'], function () {

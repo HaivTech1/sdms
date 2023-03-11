@@ -93,7 +93,7 @@ class Index extends Component
                         'name' => $value->lastName(). ' '. $value->firstName(). ' '. $value->otherName(),
                         'email' => $value->lastName(). $value->firstName().$randomNumbers.'@gmail.com',
                         'phone_number' => '',
-                        'password' => Hash::make('password1234'),
+                        'password' => Hash::make('password123'),
                         'type' => '4'
                     ]);
             
@@ -179,8 +179,15 @@ class Index extends Component
                         Baptisimal Card photocopy (Catholics only) with latest school report (if applicable).'
                         </p>";
                     $subject = 'Admission Status from ' . application('name');
+
+                    if($value->mother_email !== null){
+                        Mail::to($value->mother_email)->send(new SendAdmissionMail($message, $subject));
+                    }elseif($value->father_email !== null ){
+                        Mail::to($value->father_email)->send(new SendAdmissionMail($message, $subject));
+                    }else{
+                        Mail::to($value->guardian_email)->send(new SendAdmissionMail($message, $subject));
+                    }
     
-                    Mail::to($value->mother_email)->send(new SendAdmissionMail($message, $subject));
             }
         }
         $this->dispatchBrowserEvent('success', ['message' => 'Student admitted successfully!']);

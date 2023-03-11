@@ -219,10 +219,46 @@
                             class="btn btn-success waves-effect waves-light me-1"><i
                                 class="fa fa-print"></i>
                         </a>
+                        @admin
+                            <button class="btn btn-sm btn-primary w-md waves-effect waves-light" type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period->id() }}, {{ $term->id() }}, {{ $student ->grade->id() }}')">
+                                <i class="mdi mdi-upload d-block font-size-16"></i>
+                            </button>
+                        @endadmin
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+     @section('scripts')
+        <script>
+            function publish(student){
+                var data = student.split(",");
+                var student_id = data[0];
+                var period_id = data[1];
+                var term_id = data[2];
+                var grade_id = data[3];
+                toggleAble('#cummulative', true);
+
+                $.ajax({
+                    url: '{{ route('result.midterm.publish') }}' ,
+                    method: 'GET',
+                    data: {student_id, period_id, term_id, grade_id }
+                }).done((res) => {
+                        if(res.status === 'success') {
+                            toggleAble('#cummulative', false);
+                            toastr.success(res.message, 'Success!');
+                        }else{
+                            toggleAble('#cummulative', false);
+                            toastr.error(res.message, 'Success!');
+                        }
+                }).fail((res) => {
+                    console.log(res.responseJSON.message);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                    toggleAble('#cummulative', false);
+                });              
+            }
+        </script>
+    @endsection
 
 </x-app-layout>

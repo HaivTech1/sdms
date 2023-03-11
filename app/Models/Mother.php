@@ -25,7 +25,7 @@ class Mother extends Model
 
     public function id(): string
     {
-        return (string) $this->uuid;
+        return (string) $this->id;
     }
 
     public function fullName(): string

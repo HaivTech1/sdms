@@ -58,7 +58,8 @@ class Student extends Authenticatable
         'blood_group',
         'genotype',
         'speech_development',
-        'sight'
+        'sight',
+        'registration_id',
     ];
 
     protected $casts = [
@@ -209,6 +210,11 @@ class Student extends Authenticatable
         return $this->hasOne(Mother::class, 'student_uuid');
     }
 
+    public function registration(): BelongsTo
+    {
+        return $this->belongsTo(Registration::class);
+    }
+
     public function results(): HasMany
     {
         return $this->hasMany(Result::class, 'student_id');
@@ -226,7 +232,7 @@ class Student extends Authenticatable
 
     public function psychomotors(): hasMany
     {
-        return $this->hasMany(psychomotor::class);
+        return $this->hasMany(Psychomotor::class);
     }
 
     public function affectives(): hasMany

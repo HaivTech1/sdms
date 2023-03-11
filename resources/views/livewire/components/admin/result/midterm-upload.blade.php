@@ -249,23 +249,23 @@
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='entry_1[]' value="" autofocus />
+                                                                name='entry_1[]' value="" step="0.01" autofocus />
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='first_test[]' value="" autofocus />
+                                                                name='first_test[]' value="" step="0.01" autofocus />
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='entry_2[]' value="" autofocus />
+                                                                name='entry_2[]' value="" step="0.01" autofocus />
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='ca[]' value="" autofocus />
+                                                                name='ca[]' value="" step="0.01" autofocus />
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='project[]' value="" autofocus />
+                                                                name='project[]' value="" step="0.01" autofocus />
                                                         </td>
                                                     </tr>
                                                     @endforeach

@@ -37,14 +37,14 @@ class Midterm extends Component
             ->when($this->period_id, function($query, $period){
                 $query->whereHas('midTermResults', function($query) use ($period){
                     $query->whereHas('period', function ($query) use ($period){
-                        $query->where('id', $period);
+                        $query->where('id', $period)->where('published', true);
                     });
                  });
             })
             ->when($this->term_id, function($query, $term){
                 $query->whereHas('midTermResults', function($query) use ($term){
                     $query->whereHas('term', function ($query) use ($term){
-                        $query->where('id', $term);
+                        $query->where('id', $term)->where('published', true);
                     });
                  });
             });

@@ -38,6 +38,7 @@ class CreateStudentsTable extends Migration
             $table->foreignId('sub_grade_id')->nullable()->constrained('sub_grades')->onDelete('set null');
             $table->foreignId('house_id')->nullable()->constrained('houses')->onDelete('set null');
             $table->foreignId('club_id')->nullable()->constrained('clubs')->onDelete('set null');
+            $table->foreignId('registration_id')->nullable()->constrained('registrations')->onDelete('set null');
             $table->boolean('status')->default(0);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('author_id')->constrained('users')->onDelete('cascade');

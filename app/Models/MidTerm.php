@@ -45,7 +45,12 @@ class MidTerm extends Model
     ];
 
     protected $casts = [
-        'published' => 'boolean'
+        'published' => 'boolean',
+        'entry_1' => 'float',
+        'entry_2' => 'float',
+        'first_test' => 'float',
+        'ca' => 'float',
+        'project' => 'float',
     ];
 
     public function id(): string
@@ -53,34 +58,34 @@ class MidTerm extends Model
         return (string) $this->uuid;
     }
 
-    public function entry1(): ?int
+    public function entry1()
     {
-        return (int) $this->entry_1;
+        return  $this->entry_1;
     }
 
-    public function entry2(): ?int
+    public function entry2()
     {
-        return (int) $this->entry_2;
+        return  $this->entry_2;
     }
 
-    public function firstTest(): ?int
+    public function firstTest()
     {
-        return (int) $this->first_test;
+        return  $this->first_test;
     }
 
-    public function ca(): ?int
+    public function ca()
     {
-        return (int) $this->ca;
+        return  $this->ca;
     }
 
-    public function project(): ?int
+    public function project()
     {
-        return (int) $this->project;
+        return  $this->project;
     }
 
-    public function total(): int
+    public function total()
     {
-        return (int) $this->entry1() + $this->entry2() + $this->firstTest() + $this->ca() + $this->project();
+        return  $this->entry1() + $this->entry2() + $this->firstTest() + $this->ca() + $this->project();
     }
 
     public function createdAt(): string

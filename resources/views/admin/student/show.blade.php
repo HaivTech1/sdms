@@ -149,12 +149,40 @@
                         <div class="float-end">
                             <a href="javascript:window.print()" class="btn btn-success waves-effect waves-light me-1"><i
                                     class="fa fa-print"></i></a>
-                            <a href="javascript: void(0);"
-                                class="btn btn-primary w-md waves-effect waves-light">Send</a>
+
+                            <button data-id="{{ $student->id() }}" id="syncParent"  onclick="syncParent('{{ $student->id() }}')" type="button" class="btn btn-primary w-md waves-effect waves-light">Sync Parent</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    @section('scripts')
+        <script>
+            function syncParent(student) {
+                toggleAble('#syncParent', true);
+                var url = '/student/parent/publish';
+                var student_id = student;
+
+                $.ajax({
+                    url ,
+                    method: 'GET',
+                    data: {student_id}
+                }).done((res) => {
+                        if(res.status === 'success') {
+                            toggleAble('#syncParent', false);
+                            toastr.success(res.message, 'Success!');
+                        }else{
+                            toggleAble('#syncParent', false);
+                            toastr.error(res.message, 'Success!');
+                        }
+                }).fail((res) => {
+                    console.log(res.responseJSON.message);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                    toggleAble('#syncParent', false);
+                });
+            }
+        </script>
+    @endsection
 </x-app-layout>

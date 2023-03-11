@@ -62,7 +62,7 @@
                                         <div class="col-lg-2">
                                             <div class="btn-group btn-group-example mb-3" role="group">
                                                 <button type="button" id="compare" class="btn btn-primary w-xs"><i class="mdi mdi-thumb-up"></i></button>
-                                                <button type="button" class="btn btn-danger w-xs"><i class="mdi mdi-thumb-down"></i></button>
+                                                <button type="button" id="syncParent" class="btn btn-danger w-xs"><i class="fa fa-users"></i></button>
                                             </div>
                                         </div>
                                     </div>     
@@ -235,6 +235,7 @@
         </div>
     </div>
     @include('partials.compare')
+    @include('partials.parent')
 </div>
 
 
@@ -288,6 +289,29 @@
                 }
             });
         });
+
+        $('#syncParent').on('click', function(){
+            toggleAble('#syncParent', true, 'Fetching...');
+            $.get("/sync/parent", function(response){
+                const { data, message } = response;
+                if(response.status){
+                    toggleAble('#syncParent', false);
+                     var rows = "";
+                    $.each(data, function(key, value) {
+                        rows += "<tr>";
+                        rows += "<td><input type='checkbox' name='selected[]' value='" + value.uuid + "'></td>";
+                        rows += "<td>" + value.first_name + ' ' + value.last_name + ' ' + value.other_name +"</td>";
+                        rows += "<td><button type='button' class='btn btn-secondary' id='sync' data-id='" + value.uuid + "'>Sync</button></td>";
+                        rows += "</tr>";
+                    });
+                    $("#table-body2").append(rows);
+                    $(".message").append(message);
+                    $('.syncParentModal').modal('toggle');
+                }
+            });
+        });
+
+        
 
         $(document).on('click', '#table-body button', function() {
             var id = $(this).data('id');
@@ -375,6 +399,63 @@
                     console.log(error);
                     toastr.error(error, 'Failed!');
                     toggleAble('#submit_button', false);
+                }
+            });
+        });
+
+        $(document).on('click', '#table-body2 button', function() {
+            var id = $(this).data('id');
+            toggleAble('#sync', true);
+            $.ajax({
+                url:"/resync/parent" +'/'+ id,
+                type:"GET",
+                dataType:'json',
+                success:function(response)
+                {
+                    toastr.success(response.message, 'Success!');
+                    toggleAble('#sync', false);
+                    $('.syncParentModal').modal('toggle');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                },
+                error:function(error)
+                {
+                    console.log(error);
+                    toastr.error(error, 'Failed!');
+                    toggleAble('#sync', false);
+                },
+            });
+        });
+
+        $(document).on('submit', '#syncAllParents', function(e) {
+            e.preventDefault();
+            toggleAble('#sync_button', true, 'Submitting');
+            var selected = $('input[name="selected[]"]:checked').map(function() {
+                return this.value;
+            }).get();
+
+            var formData = new FormData();
+            formData.append('selected', selected);
+
+            $.ajax({
+                url: "/sync/parent/all",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    toastr.success(response.message, 'Success!');
+                    toggleAble('#sync_button', false);
+                    $('.syncParentModal').modal('toggle');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    toastr.error(error, 'Failed!');
+                    toggleAble('#sync_button', false);
                 }
             });
         });
