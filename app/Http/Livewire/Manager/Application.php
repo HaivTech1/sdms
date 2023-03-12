@@ -42,11 +42,11 @@ class Application extends Component
             'website'         => $this->app['website'],
         ]);
 
-        // if (isset($this->photo)) {
-        //     File::delete(storage_path('app/' .$this->application->image));
-        //     $this->application->update(['image' => $this->photo->store('applications', 'public')]);
-        //     return redirect()->route('setting.index');
-        // }
+        if (isset($this->photo)) {
+            File::delete(storage_path('app/' .$this->application->image));
+            $this->application->update(['image' => $this->photo->store('applications', 'public')]);
+            return redirect()->route('setting.index');
+        }
 
         // if (isset($this->fav)) {
         //     File::delete(storage_path('app/' .$this->application->fav));

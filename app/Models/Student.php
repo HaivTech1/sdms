@@ -68,7 +68,6 @@ class Student extends Authenticatable
         'first_name' => TitleCast::class,
         'last_name' => TitleCast::class,
         'other_name' => TitleCast::class,
-        'gender' => TitleCast::class,
     ];
 
     protected $hidden = [
@@ -132,7 +131,7 @@ class Student extends Authenticatable
 
     public function dob(): string
     {
-        return (string) $this->dob->format('d F Y');;
+        return (string) $this->dob->format('d F Y');
     }
 
     public function nationality(): string

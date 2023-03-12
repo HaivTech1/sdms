@@ -43,15 +43,15 @@ class SearchStudents extends SpotlightCommand
      */
     public function searchStudent($query)
     {
-        return Student::where('first_name', 'like', "%$query%")
-        ->orWhere('last_name', 'like', "%$query%")
+        return Student::where('last_name', 'like', "%$query%")
+        ->orWhere('first_name', 'like', "%$query%")
             ->get()
             ->map(function(Student $student) {
                 // You must map your search result into SpotlightSearchResult objects
                 return new SpotlightSearchResult(
                     $student->id(),
-                    $student->firstName(),
-                    $student->lastName(),
+                    $student->last_name,
+                    $student->first_name,
                     sprintf('Student for %s', $student->firstName())
                 );
             });
@@ -65,4 +65,5 @@ class SearchStudents extends SpotlightCommand
     {
         $spotlight->redirectRoute('student.show', $student);
     }
+    
 }

@@ -10,8 +10,11 @@
     <div>
         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
             @if (Laravel\Fortify\Features::canUpdateProfileInformation())
-                @livewire('profile.update-profile-information-form')
-
+                @student
+                    <livewire:components.student.edit-information />
+                @else
+                    @livewire('profile.update-profile-information-form')
+                @endstudent
                 <x-jet-section-border />
             @endif
 
