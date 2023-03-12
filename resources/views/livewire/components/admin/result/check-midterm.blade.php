@@ -1,6 +1,17 @@
 <div>
     <x-loading />
 
+    
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-lg-6">
+                    <x-search />
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
@@ -76,7 +87,7 @@
                                             @foreach ($students as $student)
                                             <tr>
                                                 @admin
-                                                <td class='text-left'>{{ $student->firstName() }} {{ $student->lastName() }}</td>
+                                                <td class='text-left'>{{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}</td>
                                                 @endadmin
                                                 <td class='text-center'>{{ $student->grade->title() }}</td>
                                                 <td class='text-center'>

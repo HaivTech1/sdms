@@ -164,7 +164,7 @@
                                                     }}</a>
                                             </td>
                                             <td>
-                                                {{ $student->firstName() }} {{ $student->lastName() }}
+                                                {{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}
                                             </td>
                                             <td>
                                                 {{ $student->grade->title() }}

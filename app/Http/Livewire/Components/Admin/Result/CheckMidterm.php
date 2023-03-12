@@ -22,11 +22,14 @@ class CheckMidterm extends Component
     public $subjects = [];
     public $state = [];
     public $psych = [];
+    public $search = '';
+    public $orderBy = 'last_name';
 
     protected $queryString = [
         'period_id' => ['except' => ''],
         'term_id' => ['except' => ''],
         'grade_id' => ['except' => ''],
+        'search' => ['except' => ''],
     ];
 
     // public function mount(Request $request)
@@ -56,7 +59,7 @@ class CheckMidterm extends Component
                     });
                  });
             });
-        })->paginate($this->count);        
+        })->search(trim($this->search))->paginate($this->count);        
     }
 
     public function fetchResult()

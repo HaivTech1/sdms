@@ -18,6 +18,7 @@ use App\Models\Psychomotor;
 use Illuminate\Http\Request;
 use App\Mail\SendMidtermMail;
 use App\Models\PrimaryResult;
+use App\Jobs\MidTermResultJob;
 use App\Policies\ResultPolicy;
 use App\Jobs\CreateSingleResult;
 use Illuminate\Support\Facades\Hash;
@@ -645,6 +646,7 @@ class ResultController extends Controller
         }
 
         if(isset($student->mother)){
+            // MidTermResultJob::dispatch($student, $message, $subject);
             Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
         }elseif(isset($student->father)){
             Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
