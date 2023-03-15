@@ -104,4 +104,42 @@
             </div>
         </div>
     </div>
+
+    @section('scripts')
+        <script>
+
+            var audio = document.getElementById("myAudio");
+
+            function playAudio() {
+                audio.play();
+            }
+
+            function pauseAudio() {
+                audio.pause();
+            }
+
+            @if(auth()->check() && auth()->user()->isAdmin() || auth()->check() && auth()->user()->isSuperAdmin())
+                setInterval(function () {
+                    $.get({
+                        url: '{{ route('pending.registration') }}',
+                        dataType: 'json',
+                        success: function (response) {
+                            if(response.status){
+                                let data = response.data;
+                                new_registration = data.new_registration;
+                                if (new_registration > 0) {
+                                    playAudio();
+                                    $('#popup-modal').appendTo("body").modal('show');
+                                }
+                            }
+                        },
+                    });
+                }, 10000);
+            @endif
+            
+            function check_registration() {
+                window.location.href = "/index/registration";
+            }
+        </script>
+    @endsection
 </x-app-layout>

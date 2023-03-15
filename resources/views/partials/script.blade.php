@@ -1,3 +1,30 @@
+<audio id="myAudio">
+    <source src="{{  asset('sound/notification.mp3') }}" type="audio/mpeg">
+</audio>
+
+<div class="modal fade" id="popup-modal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <center>
+                            <h2 style="color: rgba(96,96,96,0.68)">
+                                <i class="tio-shopping-cart-outlined"></i> <p>You have new registration, Check Please!</p>
+                            </h2>
+                            <hr>
+                            <br />
+
+                            <button onclick="check_registration()" class="btn btn-primary">Ok, let me check</button>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script src="{{ asset('libs/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('libs/metismenu/metisMenu.min.js') }}"></script>
@@ -70,6 +97,10 @@
 <!-- Datatable init js -->
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+    
+</script>
+
 <script>
     $(document).ready(function() {
         toastr.options = {

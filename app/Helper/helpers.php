@@ -9,6 +9,7 @@ use App\Models\Banner;
 use App\Models\Period;
 use App\Models\MidTerm;
 use App\Models\Payment;
+use App\Models\Subject;
 use App\NullApplication;
 use App\Models\Affective;
 use App\Models\Cognitive;
@@ -198,3 +199,53 @@ function publishMidState($student, $period, $term)
         return false;
     }
 }
+
+// function flash($title=null, $message=null)
+// {
+//     $flash = app('App\Http\Flash');
+//     if (func_num_args()==0) {
+//         return $flash;
+//     }
+//     return $flash->info($title, $message);
+// }
+
+function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100)
+{
+    // Set the maximum score for each subject
+    $max_score = $max;
+
+    // Find the threshold for a weak subject (e.g. less than or equal to 40% of the maximum score)
+    $threshold = round($max_score * $ratio);
+
+    // Find the weak subject(s) (i.e. score less than or equal to the threshold)
+    $weak_subjects = array_filter($scores, function ($score) use ($threshold) {
+        return $score <= $threshold;
+    });
+
+    // If there are no weak subjects, return a "Congratulations" message
+    if (empty($weak_subjects)) {
+        return "Congratulations! You did well in all subjects. We are so pleased with you. Please keep it up";
+    }
+
+    // Generate comments only for the weak subject(s)
+    $comments = [];
+    foreach ($weak_subjects as $subject_id => $score) {
+        $subject_name = Subject::find($subject_id)->title(); // assuming there is a title property on the Subject model
+        $comment = "Your score in $subject_name is low. Your percentage score is " . round(($score/$max_score)*100) . "%.";
+
+        $comments[] = $comment;
+    }
+
+    // Join the comments into a single string
+    $comment = implode(' ', $comments);
+
+     // If there are weak subjects, concatenate the info string to the beginning of the comment
+     if (!empty($weak_subjects)) {
+        $comment = $info . ' ' . $comment. ' We look forward to a more excellent result from you!';
+    }
+
+    return $comment;
+}
+
+
+

@@ -557,4 +557,14 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
+
+    public function pending()
+    {
+        $new_registration = Registration::withoutGlobalScope(new HasActiveScope)->where('status', false)->count();
+
+        return response()->json([
+            'status' => true,
+            'data' => ['new_registration' => $new_registration],
+        ], 200);
+    }
 }

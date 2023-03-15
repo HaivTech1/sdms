@@ -6,14 +6,26 @@
             <div class="card-body">            
                     <form wire:submit.prevent='selectStudent'>
                         <div class="row">
+                            @admin
+                                <div class="col-lg-2 mt-2">
+                                    <select class="form-control select2" wire:model="grade_id">
+                                        <option value=''>Class</option>
+                                        @foreach ($grades as $grade)
+                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @else 
+
                             <div class="col-lg-2 mt-2">
                                 <select class="form-control select2" wire:model="grade_id">
                                     <option value=''>Class</option>
-                                    @foreach ($grades as $grade)
+                                    @foreach (auth()->user()->gradeClassTeacher as $grade)
                                     <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
                                     @endforeach
                                 </select>
                             </div>
+                            @endadmin
 
                             <div class="col-lg-3 mt-2">
                                 <select class="form-control select2" wire:model.defer="state.student_id">

@@ -205,6 +205,10 @@
                 </table>
             </div>
 
+            <div style="margin: 0 10px">
+                <span style="font-weight: bold; font-size: 15px">Comment: </span><span>{{ $comment }}</span>
+            </div>
+
             {{-- <div style="margin-top: 50px;">
                 <div style="text-align: center">Signature & School Stamp:</div>
                 <div style="margin-top: 5px; display: flex; justify-content: center">

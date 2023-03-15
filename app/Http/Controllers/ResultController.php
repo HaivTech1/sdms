@@ -344,11 +344,22 @@ class ResultController extends Controller
         ->where('grade_id', $request->grade_id)
         ->where('student_id', $student->id());
 
+        $scores = [];
+
+        foreach ($result as $item) {
+            $total_score = $item->entry_1 + $item->entry_2 + $item->first_test + $item->ca + $item->project;
+            $subject_id = $item->subject_id;
+            $scores[$subject_id] = $total_score; // calculate percentage score
+        }
+        $weakness_info = "Dear $student->first_name, you need to improve in the following subject(s):";
+        $comment = generate_comment($scores, $weakness_info, 0.4, 60);
+
         return view('admin.result.midterm_show',[
             'student' => $student,
             'period' => $period,
             'term' => $term,
-            'results' => $result
+            'results' => $result,
+            'comment' => $comment
         ]);
     }
 
@@ -638,7 +649,8 @@ class ResultController extends Controller
         $student = Student::findOrfail($request->student_id);
         $idNumber = $student->user->code();
         $password = 'password123';
-        $message = "<p>".$student->first_name. " ".$student->last_name. "'s mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+        $name = $mother->student->last_name." ".$mother->student->first_name. " ".$mother->student->first_name;
+        $message = "<p> $name's mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
         $subject = 'Mid-term result';
 
         foreach($results as $result){

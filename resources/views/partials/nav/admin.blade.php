@@ -44,6 +44,16 @@
     </li> 
     <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
+            <i class="bx bx-transfer"></i>
+            <span key="t-ecommerce">Promotion</span>
+        </a>
+        <ul class="sub-menu" aria-expanded="false">
+            <li><a href="{{ route('student.batch.promotion') }}" key="t-add-product">Batch Promotion</a></li>
+            <li><a href="{{ route('student.single.promotion') }}" key="t-add-product">Single Promotion</a></li>
+        </ul>
+    </li>
+    <li>
+        <a href="javascript: void(0);" class="has-arrow waves-effect">
             <i class="bx bx-command"></i>
             <?php
                 $newMidResult = \App\Models\MidTerm::where('created_at', '>=', \Carbon\Carbon::today())->where('published', false)->get();

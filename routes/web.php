@@ -37,6 +37,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SubGradeController;
 use App\Http\Controllers\MessagingController;
+use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendanceController;
@@ -163,6 +164,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/update/father', [GeneralController::class, 'fatherUpdate']);
         Route::post('/update/guardian', [GeneralController::class, 'guardianUpdate']);
         Route::get('/parent/publish', [GeneralController::class, 'parentPublish']);
+        Route::get('/promotion', [PromotionController::class, 'index'])->name('batch.promotion');
+        Route::get('/single/promotion', [PromotionController::class, 'single'])->name('single.promotion');
     });
 
     Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -317,6 +320,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/resync/parent/{id}', [RegistrationController::class, 'resyncParent']);
     Route::post('/accept/student/all', [RegistrationController::class, 'acceptAll']);
     Route::post('/sync/parent/all', [RegistrationController::class, 'syncAll']);
+    Route::get('/pending/registration', [RegistrationController::class, 'pending'])->name('pending.registration');
 
 
     Route::group(['prefix' => 'upload', 'as' => 'upload.'], function () {
