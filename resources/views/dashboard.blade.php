@@ -9,6 +9,49 @@
         </div>
     </x-slot>
 
+    @php
+        $results = \App\Models\MidTerm::where('grade_id', 5)->select('subject_id', 'entry_1', 'entry_2', 'first_test', 'ca', 'project')->get();
+        $labels = $results->pluck('subject_id')->unique()->values()->toArray(); // array of unique subject IDs
+
+        $datasets = [];
+        $datasets[] = [
+            'label' => 'First Entry',
+            'data' => $results->pluck('entry_1')->toArray(),
+            'backgroundColor' => 'rgba(255, 99, 132, 0.2)', // set a color for the dataset
+            'borderColor' => 'rgba(255, 99, 132, 1)', // set the border color
+            'borderWidth' => 1 // set the border width
+        ];
+        $datasets[] = [
+            'label' => 'Second Entry',
+            'data' => $results->pluck('entry_2')->toArray(),
+            'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+            'borderColor' => 'rgba(54, 162, 235, 1)',
+            'borderWidth' => 1
+        ];
+        $datasets[] = [
+            'label' => 'First Test',
+            'data' => $results->pluck('first_test')->toArray(),
+            'backgroundColor' => 'rgba(255, 206, 86, 0.2)',
+            'borderColor' => 'rgba(255, 206, 86, 1)',
+            'borderWidth' => 1
+        ];
+        $datasets[] = [
+            'label' => 'Continuous Assessment',
+            'data' => $results->pluck('ca')->toArray(),
+            'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+            'borderColor' => 'rgba(75, 192, 192, 1)',
+            'borderWidth' => 1
+        ];
+        $datasets[] = [
+            'label' => 'Project',
+            'data' => $results->pluck('project')->toArray(),
+            'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+            'borderColor' => 'rgba(75, 192, 192, 1)',
+            'borderWidth' => 1
+        ];
+
+    @endphp
+
     <div class="row">
         <div class="col-xl-4">
             <div class="card overflow-hidden">
@@ -102,6 +145,11 @@
                     </div>
                 </div>
             </div>
+            <div class="card">
+                <div class="card-body">
+                   <canvas id="myChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -140,6 +188,33 @@
             function check_registration() {
                 window.location.href = "/index/registration";
             }
+        </script>
+        <script>
+            var ctx = document.getElementById('myChart').getContext('2d');
+
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: <?php echo json_encode($labels); ?>,
+                    datasets: <?php echo json_encode($datasets); ?>
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true // start the y-axis at zero
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Student Scores by Subject and Type'
+                        },
+                        legend: {
+                            position: 'bottom' // show the legend at the bottom
+                        }
+                    }
+                }
+            });
         </script>
     @endsection
 </x-app-layout>

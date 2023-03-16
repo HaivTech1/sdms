@@ -18,15 +18,25 @@
                 <div class="card-body">
                     <form wire:submit.prevent="fetchResult">
                         <div class="row">
-                            <div class="col-lg-3">
-                                <select class="form-control select2" wire:model.defer="grade_id">
-                                    <option value=''>Class</option>
-                                    @foreach ($grades as $grade)
-                                    <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                    @endforeach
-                                </select>
-                                <x-form.error for="grade_id" />
-                            </div>
+                            @admin
+                                <div class="col-lg-3 mt-2">
+                                    <select class="form-control select2" wire:model.defer="grade_id">
+                                        <option value=''>Class</option>
+                                        @foreach ($grades as $grade)
+                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @else 
+                                <div class="col-lg-3 mt-2">
+                                    <select class="form-control select2" wire:model.defer="grade_id">
+                                        <option value=''>Class</option>
+                                        @foreach (auth()->user()->gradeClassTeacher as $grade)
+                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endadmin
 
                             <div class="col-lg-3">
                                 <select class="form-control " wire:model.defer="period_id">
@@ -64,12 +74,12 @@
                                     @if (count($students) > 0)
                                         <thead>
                                             <tr>
-                                                @admin
+                                                {{-- @admin --}}
                                                 <th scope="col" class="text-center">Name of Student</th>
-                                                @endadmin
-                                                <th scope="col" class="text-center">
+                                                {{-- @endadmin --}}
+                                                {{-- <th scope="col" class="text-center">
                                                     Class
-                                                </th>
+                                                </th> --}}
                                                 <th scope="col" class="text-center">
                                                     Total Subjects
                                                 </th>
@@ -89,10 +99,10 @@
                                         @forelse ($students as $student)
                                             @if ($student->midTermResults->where('grade_id', $student->grade->id())->where('term_id', $term_id)->where('period_id', $period_id)->count())
                                                 <tr>
-                                                    @admin
-                                                    <td class='text-left'>{{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}</td>
-                                                    @endadmin
-                                                    <td class='text-center'>{{ $student->grade->title() }}</td>
+                                                    {{-- @admin --}}
+                                                    <td class='text-center'>{{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}</td>
+                                                    {{-- @endadmin --}}
+                                                    {{-- <td class='text-center'>{{ $student->grade->title() }}</td> --}}
                                                     <td class='text-center'>
                                                         <div class="btn-group dropend">
                                                             <button type="button" class="btn dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">

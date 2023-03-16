@@ -49,6 +49,7 @@
 <script src="{{ asset('libs/jquery.repeater/jquery.repeater.min.js') }}"></script>
 <script src="{{ asset('js/pages/task-create.init.js') }}"></script>
 <script src="{{ asset('libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {{-- <script src="{{ asset('js/pages/dashboard.init.js') }}"></script> --}}
 <script src="{{ asset('js/app.min.js') }}"></script>
 <script src="{{ asset('js/toastr.min.js') }}"></script>

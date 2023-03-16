@@ -28,35 +28,35 @@
                             @endadmin
 
                             <div class="col-lg-3 mt-2">
-                                <select class="form-control select2" wire:model.defer="state.student_id">
+                                <select class="form-control select2" wire:model.defer="student_id">
                                     <option value=''>Select Student</option>
                                     @foreach ($students as $student)
                                     <option value="{{  $student->id() }}">{{ $student->firstName() }} {{
                                         $student->lastName() }}
                                     </option>
                                     @endforeach
-                                    <x-form.error for="state.student_id" />
+                                    <x-form.error for="student_id" />
                                 </select>
                             </div>
 
                             <div class="col-lg-2 mt-2">
-                                <select class="form-control " wire:model.defer="state.period_id">
+                                <select class="form-control " wire:model.defer="period_id">
                                     <option value=''>Select Session</option>
                                     @foreach ($periods as $period)
                                     <option value="{{  $period->id() }}">{{ $period->title() }}</option>
                                     @endforeach
-                                    <x-form.error for="state.period_id" />
+                                    <x-form.error for="period_id" />
                                 </select>
 
                             </div>
 
                             <div class="col-lg-2 mt-2">
-                                <select class="form-control select2" wire:model.defer="state.term_id">
+                                <select class="form-control select2" wire:model.defer="term_id">
                                     <option value=''>Select Term</option>
                                     @foreach ($terms as $term)
                                     <option value="{{  $term->id() }}">{{ $term->title() }}</option>
                                     @endforeach
-                                    <x-form.error for="state.term_id" />
+                                    <x-form.error for="term_id" />
                                 </select>
 
                             </div>
@@ -154,7 +154,7 @@
                                                     <th></th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody wire:ignore>
                                                 @foreach ($results as $result)
                                                     <tr id='{{ $result->id() }}'>
                                                         <td>

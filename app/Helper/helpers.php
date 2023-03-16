@@ -209,7 +209,7 @@ function publishMidState($student, $period, $term)
 //     return $flash->info($title, $message);
 // }
 
-function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100)
+function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100, $type = 'mid term')
 {
     // Set the maximum score for each subject
     $max_score = $max;
@@ -224,7 +224,7 @@ function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100)
 
     // If there are no weak subjects, return a "Congratulations" message
     if (empty($weak_subjects)) {
-        return "Congratulations! You did well in all subjects. We are so pleased with you. Please keep it up";
+        return "Congratulations! You did well in all subjects in this term's $type. We are so pleased with you. Please keep it up";
     }
 
     // Generate comments only for the weak subject(s)

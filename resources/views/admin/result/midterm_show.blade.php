@@ -103,7 +103,7 @@
                                 <th>Age:</th>
                                 <td>
                                     <?php
-                                        $year = Carbon\Carbon::parse($student->dob)->age
+                                        $year = Carbon\Carbon::parse($student->dob())->age
                                     ?>
                                     {{$year}}
                                 </td>

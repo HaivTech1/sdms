@@ -7,34 +7,44 @@
                 <div class="card-body">
                     <form wire:submit.prevent="fetchResult">
                         <div class="row">
-                            <div class="col-lg-3">
-                                <select class="form-control select2" wire:model.defer="state.grade_id">
-                                    <option value=''>Class</option>
-                                    @foreach ($grades as $grade)
-                                    <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                    @endforeach
-                                </select>
-                                <x-form.error for="state.grade_id" />
-                            </div>
+                             @admin
+                                <div class="col-lg-3 mt-2">
+                                    <select class="form-control select2" wire:model.defer="grade_id">
+                                        <option value=''>Class</option>
+                                        @foreach ($grades as $grade)
+                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @else 
+                                <div class="col-lg-3 mt-2">
+                                    <select class="form-control select2" wire:model.defer="grade_id">
+                                        <option value=''>Class</option>
+                                        @foreach (auth()->user()->gradeClassTeacher as $grade)
+                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endadmin
 
                             <div class="col-lg-3">
-                                <select class="form-control " wire:model.defer="state.period_id">
+                                <select class="form-control " wire:model.defer="period_id">
                                     <option value=''>Select Session</option>
                                     @foreach ($periods as $period)
                                     <option value="{{  $period->id() }}">{{ $period->title() }}</option>
                                     @endforeach
                                 </select>
-                                <x-form.error for="state.period_id" />
+                                <x-form.error for="period_id" />
                             </div>
 
                             <div class="col-lg-3">
-                                <select class="form-control select2" wire:model.defer="state.term_id">
+                                <select class="form-control select2" wire:model.defer="term_id">
                                     <option value=''>Select Term</option>
                                     @foreach ($terms as $term)
                                     <option value="{{  $term->id() }}">{{ $term->title() }}</option>
                                     @endforeach
                                 </select>
-                                <x-form.error for="state.term_id" />
+                                <x-form.error for="term_id" />
                             </div>
                             <div class="col-lg-3">
                                 <div class="d-flex justify-content-center align-self-center">
@@ -46,18 +56,16 @@
                         </div>
                     </form>
                     <div class="row">
-                        <div class="col-12">
-                            @if ($state)
+                        <div class="col-12 py-4">
+                            @if ($grade_id)
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-striped table-nowrap mb-0">
                                         <thead>
                                             <tr>
-                                                @admin
                                                 <th scope="col" class="text-center">Name of Student</th>
-                                                @endadmin
-                                                <th scope="col" class="text-center">
+                                                {{-- <th scope="col" class="text-center">
                                                     Class
-                                                </th>
+                                                </th> --}}
                                                 <th scope="col" class="text-center">
                                                     Total Subjects
                                                 </th>
@@ -75,10 +83,8 @@
                                         <tbody>
                                             @foreach ($students as $student)
                                             <tr>
-                                                @admin
-                                                <td class='text-left'>{{ $student->firstName() }} {{ $student->lastName() }}</td>
-                                                @endadmin
-                                                <td class='text-center'>{{ $student->grade->title() }}</td>
+                                                <td class='text-center'>{{ $student->firstName() }} {{ $student->lastName() }}</td>
+                                                {{-- <td class='text-center'>{{ $student->grade->title() }}</td> --}}
                                                 <td class='text-center'>
                                                     <div class="btn-group dropend">
                                                         <button type="button" class="btn dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">

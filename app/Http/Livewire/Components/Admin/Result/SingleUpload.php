@@ -30,9 +30,15 @@ class SingleUpload extends Component
 
     public $subjects = [];
     public $selectedStudent;
-    public $state = [];
 
     public $results = null;
+
+    protected $queryString = [
+        'period_id' => ['except' => ''],
+        'term_id' => ['except' => ''],
+        'grade_id' => ['except' => ''],
+        'student_id' => ['except' => ''],
+    ];
 
     public function updatedGradeId($grade_id)
     {
@@ -46,19 +52,19 @@ class SingleUpload extends Component
     {
 
         $this->validate([
-            'state.period_id' => ['required'],
-            'state.student_id' => ['required'],
-            'state.term_id' => ['required'],
+            'period_id' => ['required'],
+            'student_id' => ['required'],
+            'term_id' => ['required'],
         ],[
-            'state.period_id.required' => 'Please select Session',
-            'state.student_id.required' => 'Please select Student',
-            'state.term_id.required' => 'Please select Term',
+            'period_id.required' => 'Please select Session',
+            'student_id.required' => 'Please select Student',
+            'term_id.required' => 'Please select Term',
         ]);
 
-        $this->selectedStudent = Student::where('uuid', $this->state['student_id'])->first();
-        $this->selectedPeriod = Period::where('id', $this->state['period_id'])->first();
-        $this->selectedTerm = Term::where('id', $this->state['term_id'])->first();
-        $res = PrimaryResult::where('student_id', $this->state['student_id'])->where('period_id', $this->state['period_id'])->where('term_id', $this->state['term_id'])->get();
+        $this->selectedStudent = Student::where('uuid', $this->student_id)->first();
+        $this->selectedPeriod = Period::where('id', $this->period_id)->first();
+        $this->selectedTerm = Term::where('id', $this->term_id)->first();
+        $res = PrimaryResult::where('student_id', $this->student_id)->where('period_id', $this->period_id)->where('term_id', $this->term_id)->get();
         $this->results = $res;
     }
 

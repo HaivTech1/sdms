@@ -54,9 +54,10 @@ Route::get('/', function () {
 });
 
 Route::get('/registration', function () {
-    return view('registration',[
-        'grades' => Grade::all(),
-    ]);
+    // return view('registration',[
+    //     'grades' => Grade::all(),
+    // ]);
+    return abort(500, 'Something went wrong!');
 });
 
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);

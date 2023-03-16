@@ -30,6 +30,11 @@ use App\Http\Requests\UpdateResultRequest;
 
 class ResultController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+    }
+
     public function index()
     {
         $user = auth()->user();
@@ -315,6 +320,16 @@ class ResultController extends Controller
             $results = $thirdTermResult;
         }
 
+        $scores = [];
+
+        foreach ($results as $item) {
+            $total_score = $item['ca1'] + $item['ca1'] + $item['ca3'] + $item['exam'];
+            $subject_id = $item['subject_id'];
+            $scores[$subject_id] = $total_score; // calculate percentage score
+        }
+        $weakness_info = "Dear $student->first_name, you need to improve in the following subject(s):";
+        $comment = generate_comment($scores, $weakness_info, 0.4, 100, 'examination');
+
         return view('admin.result.primary',[
             'student' => $student,
             'period' => $period,
@@ -331,7 +346,8 @@ class ResultController extends Controller
             'endOfNextTerm' => !$date->count() == 0 ? $nextTerm->start->format('d-m-Y') : date('d-m-y'),
             'first_term_cumm' => $first_term_cumm,
             'second_term_cumm' => $second_term_cumm,
-            'results' => $results
+            'results' => $results,
+            'comment' => $comment
         ]);
     }
 
@@ -351,7 +367,7 @@ class ResultController extends Controller
             $subject_id = $item->subject_id;
             $scores[$subject_id] = $total_score; // calculate percentage score
         }
-        $weakness_info = "Dear $student->first_name, you need to improve in the following subject(s):";
+        $weakness_info = "Dear $student->first_name, based on your current term score,, you need to improve in the following subject(s):";
         $comment = generate_comment($scores, $weakness_info, 0.4, 60);
 
         return view('admin.result.midterm_show',[
@@ -428,14 +444,15 @@ class ResultController extends Controller
                         ->first();
 
         if ($check) {
-            $notification = array (
-                'messege' => 'Result for this student already exist!',
-                'alert-type' => 'error',
-                'button' => 'Okay!',
-                'title' => 'Sorry'
-            );
+            // $notification = array (
+            //     'messege' => 'Result for this student already exist!',
+            //     'alert-type' => 'error',
+            //     'button' => 'Okay!',
+            //     'title' => 'Sorry'
+            // );
     
-            return redirect()->back()->with($notification);
+            // return redirect()->back()->with($notification);
+            return response()->json(['status' => false, 'message' => 'Result for this student already exist!'], 500); 
         }else {
 
             for ($i=0; $i < count($request->ca1); $i++) { 
@@ -456,14 +473,12 @@ class ResultController extends Controller
                 $result->save();
             }
     
-            $notification = array (
-                'messege' => 'Result uploaded successfully',
-                'alert-type' => 'success',
-                'button' => 'Okay!',
-                'title' => 'Success'
-            );
-
-            return redirect()->back()->with($notification);
+            return response()->json(['status' => true, 'message' => 'Result uploaded successfully!', 'data' => [
+                'student_uuid' => $request->student_id, 
+                'period_id' => $request->period_id, 
+                'term_id' => $request->term_id
+                ]
+            ], 200);
         }
         
     }
@@ -495,42 +510,29 @@ class ResultController extends Controller
 
     public function psychomotorUpload(Request $request)
     {
-
         $check = Psychomotor::where('student_uuid', $request->student_uuid)
             ->where('period_id', $request->period_id)
             ->where('term_id', $request->term_id)->get();
 
 
-            if (count($check) > 1) {
-                $notification = array (
-                    'messege' => 'Psychomotor already exist',
-                    'alert-type' => 'error',
-                    'button' => 'Okay!',
-                    'title' => 'Failed'
-                );
-        
-                return redirect()->back()->with($notification);
-                // return response()->json(['status' => 'error', 'message' => 'Psychomotor already exist']); 
-            }else{
-                for ($i = 0; $i < count($request->title); $i++) { 
-                    $psychomotor = new Psychomotor([
-                        'title' => $request->title[$i],
-                        'rate' => $request->rate[$i],
-                        'period_id'     => $request->period_id,
-                        'term_id'       => $request->term_id,
-                        'student_uuid'        => $request->student_uuid,
-                    ]);
-                    $psychomotor->save();
+            try {
+                if (count($check) > 1) {
+                    return response()->json(['status' => false, 'message' => 'Psychomotor already exist'], 500); 
+                }else{
+                    for ($i = 0; $i < count($request->title); $i++) { 
+                        $psychomotor = new Psychomotor([
+                            'title' => $request->title[$i],
+                            'rate' => $request->rate[$i],
+                            'period_id'     => $request->period_id,
+                            'term_id'       => $request->term_id,
+                            'student_uuid'        => $request->student_uuid,
+                        ]);
+                        $psychomotor->save();
+                    }
+                    return response()->json(['status' => true, 'message' => 'Psychomotor saved successfully'], 200);
                 }
-                $notification = array (
-                    'messege' => 'Psychomotor saved successfully',
-                    'alert-type' => 'success',
-                    'button' => 'Okay!',
-                    'title' => 'Success'
-                );
-        
-                return redirect()->back()->with($notification);
-                // return response()->json(['status' => 'success', 'message' => 'Psychomotor saved successfully']);
+            } catch (\Throwable $th) {
+                return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
             }
          
     }
@@ -551,37 +553,45 @@ class ResultController extends Controller
             ->where('period_id', $request->period_id)
             ->where('term_id', $request->term_id)->get();
 
-
-            if (count($check) > 1) {
-                $notification = array (
-                    'messege' => 'Affective domain already exist',
-                    'alert-type' => 'error',
-                    'button' => 'Okay!',
-                    'title' => 'Failed'
-                );
-        
-                return redirect()->back()->with($notification);
-                // return response()->json(['status' => 'error', 'message' => 'Affective domain already exist']); 
-            }else{
-                for ($i = 0; $i < count($request->title); $i++) { 
-                    $psychomotor = new Affective([
-                        'title' => $request->title[$i],
-                        'rate' => $request->rate[$i],
-                        'period_id'     => $request->period_id,
-                        'term_id'       => $request->term_id,
-                        'student_uuid'        => $request->student_uuid,
-                    ]);
-                    $psychomotor->save();
+            try {
+                if (count($check) > 1) {
+                    $notification = array (
+                        'messege' => 'Affective domain already exist',
+                        'alert-type' => 'error',
+                        'button' => 'Okay!',
+                        'title' => 'Failed'
+                    );
+            
+                    // return redirect()->back()->with($notification);
+                    return response()->json(['status' => false, 'message' => 'Affective domain already exist'], 500); 
+                }else{
+                    for ($i = 0; $i < count($request->title); $i++) { 
+                        $psychomotor = new Affective([
+                            'title' => $request->title[$i],
+                            'rate' => $request->rate[$i],
+                            'period_id'     => $request->period_id,
+                            'term_id'       => $request->term_id,
+                            'student_uuid'        => $request->student_uuid,
+                        ]);
+                        $psychomotor->save();
+                    }
+                    // $notification = array (
+                    //     'messege' => 'Affective domain saved successfully',
+                    //     'alert-type' => 'success',
+                    //     'button' => 'Okay!',
+                    //     'title' => 'Success'
+                    // );
+            
+                    // return redirect()->back()->with($notification);
+                    return response()->json(['status' => true, 'message' => 'Affective domain saved successfully','data' => [
+                            'student_uuid' => $request->student_uuid, 
+                            'period_id' => $request->period_id, 
+                            'term_id' => $request->term_id
+                        ]
+                    ], 200);
                 }
-                $notification = array (
-                    'messege' => 'Affective domain saved successfully',
-                    'alert-type' => 'success',
-                    'button' => 'Okay!',
-                    'title' => 'Success'
-                );
-        
-                return redirect()->back()->with($notification);
-                // return response()->json(['status' => 'success', 'message' => 'Affective domain saved successfully']);
+            } catch (\Throwable $th) {
+                return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
             }
          
     }
@@ -649,7 +659,7 @@ class ResultController extends Controller
         $student = Student::findOrfail($request->student_id);
         $idNumber = $student->user->code();
         $password = 'password123';
-        $name = $mother->student->last_name." ".$mother->student->first_name. " ".$mother->student->first_name;
+        $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
         $message = "<p> $name's mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
         $subject = 'Mid-term result';
 

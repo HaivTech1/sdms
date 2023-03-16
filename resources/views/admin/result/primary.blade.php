@@ -1,6 +1,46 @@
 <x-app-layout>
     @section('title', application('name')." | Primary Result Page")
 
+    @section('styles')
+        <style>
+            .mainContainer {
+                width: 60%;
+            }
+            .minorContainer{
+                width: 35%
+            }
+            .majorContainer{
+                display: flex; 
+                flex-wrap: wrap;
+                justify-content: space-between; 
+                margin-top: 1px
+            }
+            .appName{
+                font-size: 35px; 
+                font-weight: bold; 
+                text-transform : uppercase
+            }
+
+            
+            @media screen and (max-width: 480px) {
+                .mainContainer{
+                    width: 100%;
+                }
+                .minorContainer{
+                    width: 100%;
+                }
+                .majorContainer{
+                    margin-top: 5px;
+                    flex-direction: column;
+                }
+                .appName{
+                    font-size: 15px;
+                    margin: 10px;
+                }
+            }
+        </style>
+    @endsection
+
     <div class="row">
         <div class="col-lg-12">
             <div class='parent'>
@@ -9,12 +49,11 @@
                 </div>
 
                 <div class='col-xs-8 col-sm-8 col-md-8 text-center'>
-                    <h1 style="font-size: 35px; font-weight: bold; text-decoration: uppercase"> {{
-                        application('name') }}</h1>
+                    <h1 class="appName"> {{ application('name') }}</h1>
                         
-                        <p style='font-size: 15px; font-family: Arial, Helvetica, sans-serif'>
-                            {{ application('address') }}
-                        </p>
+                    <p style='font-size: 15px; font-family: Arial, Helvetica, sans-serif'>
+                        {{ application('address') }}
+                    </p>
                 </div>
 
                 <div class='col-xs-2 col-sm-2 col-md-2 text-center text-responsive'>
@@ -30,8 +69,8 @@
                 <div style="border: 1px solid #000; padding: 0 15px; font-weight: bold; text-align: right">{{ $period->title() }}</div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; margin-top: 1px">
-                <div style="width: 60%">
+            <div class="majorContainer">
+                <div class="mainContainer">
                     <table class="table table-bordered table-condensed">
                         <thead>
                             <tr>
@@ -59,7 +98,7 @@
                         </thead>
                     </table>
                 </div>
-                <div style="width: 30%">
+                <div class="minorContainer">
                     <table class="table table-bordered table-condensed">
                         <tbody>
                             <tr>
@@ -88,7 +127,7 @@
                 </div>
             </div>
 
-            <div class="table-wrapper">
+            <div class="table-wrapper table-responsive">
                 <table class="table table-bordered table-condensed">
                     <thead>
                         <tr>
@@ -110,17 +149,17 @@
                        
                         </tr>
                         <tr>
-                            <td>{{ $endOfTerm }}</td>
-                            <td>{{ $endOfTerm }}</td>
-                            <td>{{ $endOfTerm }}</td>
-                            <td>{{ $endOfTerm }}</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
                             <td colspan="2"> </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="table-wrapper">
+            <div class="table-wrapper table-responsive">
                 @if ($term->id() === '1')
                     <table class="table table-bordered table-condensed">
                         <thead id="ch">
@@ -234,9 +273,9 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color( $result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color(sum($result['total'], $result['first_term_cummulative'])) }}">{{ sum($result['total'], $result['first_term_cummulative']) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ divnum(sum($result['total'], $result['first_term_cummulative']), 2) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color(grade(divnum(sum($result['total'], $result['first_term_cummulative']), 2))) }}">{{ grade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ grade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">18</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; width: 20%">{{ remark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; width: 20%; color: {{ color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ remark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -316,10 +355,10 @@
                 @endif
             </div>
 
-            <div style="display: flex; justify-content: space-between; margin-top: 1px">
-                <div style="width: 70%">
-                    <div style="display: flex; justify-content: space-between">
-                        <div class="table-wrapper" style="width: 40%">
+            <div class="majorContainer">
+                <div class="mainContainer">
+                    <div class="majorContainer">
+                        <div class="table-wrapper minorContainer">
                             <table class="table table-bordered table-condensed">
                                 <thead>
                                     <tr>
@@ -370,7 +409,7 @@
                                 @endforeach
                             </table>
                         </div>
-                         <div class="table-wrapper" style="width: 40%">
+                         <div class="table-wrapper minorContainer">
                             <table class="table table-bordered table-condensed">
                                 <thead>
                                     <tr>
@@ -423,7 +462,7 @@
                         </div>
                     </div>
                 </div>
-                <div style="width: 20%">
+                <div class="minorContainer">
                     <div class="table-wrapper">
                         <table class="table table-condensed">
                             <thead>
@@ -462,61 +501,65 @@
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; margin-top: 1px">
-                <div class="table-wrapper">
-                    <table class="table table-condensed">
-                        <thead style="text-align: center">
-                            <tr>
-                                <th colspan="5" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">INTERPRETATION OF RESULT</th>
-                            </tr>
-                             <tr>
-                                <th style="padding: 0 25px">Color code</th>
-                                <th style="padding: 0 25px">Over 60</th>
-                                <th style="padding: 0 25px">Over 100</th>
-                                <th style="padding: 0 25px">Grade</th>
-                                <th style="padding: 0 25px">Remark</th>
-                            </tr>
-                        </thead>
-                        <tbody style="text-align: center">
-                            <tr>
-                                <td>BLACK</td>
-                                <td>48-60</td>
-                                <td>80-100</td>
-                                <td>A</td>
-                                <td>EXCELLENT</td>
-                            </tr>
-                            <tr>
-                                <td>BLACK</td>
-                                <td>42-47.9</td>
-                                <td>70-79.9</td>
-                                <td>B</td>
-                                <td>VERY GOOD</td>
-                            </tr>
-                            <tr>
-                                <td>GREEN</td>
-                                <td>42-47.9</td>
-                                <td>70-79.9</td>
-                                <td>B</td>
-                                <td>GOOD</td>
-                            </tr>
-                            <tr>
-                                <td>BLUE</td>
-                                <td>34.8-35.9</td>
-                                <td>70-79.9</td>
-                                <td>B</td>
-                                <td>PASS</td>
-                            </tr>
-                            <tr>
-                                <td>BLUE</td>
-                                <td>33.6-34.7</td>
-                                <td>70-79.9</td>
-                                <td>B</td>
-                                <td>FAIR</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="majorContainer">
+                <div class="mainContainer">
+                    <div class="table-wrapper table-responsive">
+                        <table class="table table-condensed">
+                            <thead style="text-align: center">
+                                <tr>
+                                    <th colspan="5" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">INTERPRETATION OF RESULT</th>
+                                </tr>
+                                <tr>
+                                    <th style="padding: 0 25px">Color code</th>
+                                    <th style="padding: 0 25px">Over 60</th>
+                                    <th style="padding: 0 25px">Over 100</th>
+                                    <th style="padding: 0 25px">Grade</th>
+                                    <th style="padding: 0 25px">Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody style="text-align: center">
+                                <tr>
+                                    <td>BLACK</td>
+                                    <td>48-60</td>
+                                    <td>80-100</td>
+                                    <td>A</td>
+                                    <td>EXCELLENT</td>
+                                </tr>
+                                <tr>
+                                    <td>BLACK</td>
+                                    <td>42-47.9</td>
+                                    <td>70-79.9</td>
+                                    <td>B</td>
+                                    <td>VERY GOOD</td>
+                                </tr>
+                                <tr>
+                                    <td>GREEN</td>
+                                    <td>42-47.9</td>
+                                    <td>70-79.9</td>
+                                    <td>B</td>
+                                    <td>GOOD</td>
+                                </tr>
+                                <tr>
+                                    <td>BLUE</td>
+                                    <td>34.8-35.9</td>
+                                    <td>70-79.9</td>
+                                    <td>B</td>
+                                    <td>PASS</td>
+                                </tr>
+                                <tr>
+                                    <td>BLUE</td>
+                                    <td>33.6-34.7</td>
+                                    <td>70-79.9</td>
+                                    <td>B</td>
+                                    <td>FAIR</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                    <div class="table-wrapper">
+
+                <div class="minorContainer">
+                    <div class="table-wrapper table-responsive">
                         <table class="table table-condensed">
                             <thead>
                                 <tr>
@@ -543,25 +586,27 @@
                             </tbody>
                         </table>
                     </div>
-                  <div class="table-wrapper">
-                    <table class="table table-condensed">
-                        <thead style="text-align: center">
-                            <tr>
-                                <th colspan="5" style="padding: 0 25px; background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">CLUB & SOCIETY</th>
-                            </tr>
-                        </thead>
-                        <tbody style="text-align: center">
-                            <tr>
-                                <td colspan="5" style="height: 20px"></td>
-                            </tr>
-                              <tr>
-                                <td colspan="5" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">OFFICE HELD</td>
-                            </tr>
-                             <tr>
-                                <td colspan="5" style="height: 20px"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <div class="table-wrapper table-responsive">
+                        <table class="table table-condensed">
+                            <thead style="text-align: center">
+                                <tr>
+                                    <th colspan="5" style="padding: 0 25px; background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">CLUB & SOCIETY</th>
+                                </tr>
+                            </thead>
+                            <tbody style="text-align: center">
+                                <tr>
+                                    <td colspan="5" style="height: 20px"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">OFFICE HELD</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" style="height: 20px"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -572,25 +617,25 @@
                                 <th>Class Teacher's Comment</th>
                             </tr>
                             <tr>
-                                <th colspan="5" style="height: 20px"></th>
+                                <th colspan="5" style="height: 20px; padding: 0 10px">{{ $comment }}</th>
                             </tr>
-                            <tr>
+                            {{-- <tr>
                                 <th>Headmistress' Comment</th>
                             </tr>
                             <tr>
-                                <th colspan="5" style="height: 20px"></th>
-                            </tr>
+                                <th colspan="5" style="height: 20px; padding: 0 10px"></th>
+                            </tr> --}}
                         </thead>
                     </table>
             </div>
 
-            <div style="display: flex; justify-content: center; margin-top: 50px; position: relative">
+            {{-- <div style="display: flex; justify-content: center; margin-top: 50px; position: relative">
                 <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 100px; left: 250px;  bottom: 0;" />
                 <div style="border-bottom: 1px solid #000000; width: 300px;"></div>
                 <div>Signature & School Stamp:</div>
                 <div style="border-bottom: 1px solid #000000; width: 300px;"></div>
                 <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 100px; right: 250px;  bottom: 0;" />
-            </div>
+            </div> --}}
             
             <div class="row">
                 <div class="d-print-none">

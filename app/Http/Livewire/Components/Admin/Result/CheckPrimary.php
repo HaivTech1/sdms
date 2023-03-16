@@ -22,30 +22,31 @@ class CheckPrimary extends Component
     public $grade_id;
 
     public $subjects = [];
-    public $state = [];
+    public $search = '';
     public $psych = [];
 
-    // protected $queryString = [
-    //     'period_id' => ['except' => ''],
-    //     'term_id' => ['except' => ''],
-    //     'grade_id' => ['except' => ''],
-    // ];
+    protected $queryString = [
+        'period_id' => ['except' => ''],
+        'term_id' => ['except' => ''],
+        'grade_id' => ['except' => ''],
+        'search' => ['except' => ''],
+    ];
 
     public function fetchResult()
     {
         $this->validate([
-            'state.period_id' => ['required'],
-            'state.term_id' => ['required'],
-            'state.grade_id' => ['required'],
+            'period_id' => ['required'],
+            'term_id' => ['required'],
+            'grade_id' => ['required'],
         ],[
-            'state.period_id.required' => 'Please select Session',
-            'state.term_id.required' => 'Please select Term',
-            'state.grade_id.required' => 'Please select Class',
+            'period_id.required' => 'Please select Session',
+            'term_id.required' => 'Please select Term',
+            'grade_id.required' => 'Please select Class',
         ]);
         
-        $this->period_id = $this->state['period_id'];
-        $this->term_id = $this->state['term_id'];
-        $this->grade_id = $this->state['grade_id'];
+        $this->period_id = $this->period_id;
+        $this->term_id = $this->term_id;
+        $this->grade_id = $this->grade_id;
     }
 
     public function getStudentsProperty()
@@ -68,7 +69,7 @@ class CheckPrimary extends Component
                     });
                 });
             });
-        })->paginate($this->count);        
+        })->search(trim($this->search))->paginate($this->count);        
     }
     
     public function render()
