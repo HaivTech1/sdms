@@ -73,9 +73,12 @@ class MidtermUpload extends Component
     
     public function render()
     {
+        $ids = Grade::getAllIdsExceptLast();
+        $grades = Grade::gradeIds($ids)->get();
+
         return view('livewire.components.admin.result.midterm-upload',[
             'students' => $this->students,
-            'grades' => Grade::all(),
+            'grades' => $grades,
             'periods' => Period::all(),
             'terms' => Term::all(),
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Arr;
 use App\Scopes\HasActiveScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -33,6 +34,17 @@ class Grade extends Model
     protected static function booted()
     {
         static::addGlobalScope(new HasActiveScope);
+    }
+
+    public static function getAllIdsExceptLast()
+    {
+        $ids = self::pluck('id')->toArray();
+        return Arr::except($ids, count($ids) - 1);
+    }
+
+    public function scopeGradeIds($query, $gradeIds)
+    {
+        return $query->whereIn('id', $gradeIds);
     }
 
     public function id(): string

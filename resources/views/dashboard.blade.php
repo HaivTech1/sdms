@@ -54,88 +54,99 @@
 
     <div class="row">
         <div class="col-xl-4">
-            <div class="card overflow-hidden">
-                <div class="bg-primary bg-soft">
-                    <div class="row">
-                        <div class="col-7">
-                            <div class="text-primary p-3">
-                                <h5 class="text-primary">Welcome Back to !</h5>
-                                <p>{{ application('name') }}</p>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card overflow-hidden">
+                        <div class="bg-primary bg-soft">
+                            <div class="row">
+                                <div class="col-7">
+                                    <div class="text-primary p-3">
+                                        <h5 class="text-primary">Welcome Back to !</h5>
+                                        <p>{{ application('name') }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-5 align-self-end">
+                                    <img src="{{ asset('images/profile-img.png') }}" alt="" class="img-fluid">
+                                </div>
                             </div>
                         </div>
-                        <div class="col-5 align-self-end">
-                            <img src="{{ asset('images/profile-img.png') }}" alt="" class="img-fluid">
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body pt-0">
-                    <div class="row">
-                        <div class="col-sm-6 col-lg-8">
-                            <div class="avatar-md profile-user-wid">
-                                <img src="{{ asset('storage/'.$user->image()) }}" alt="" class="img-thumbnail rounded-circle avatar-sm">
-                            </div>
-                            <div>
-                                <h5><span class="badge badge-soft-info">Name:</span> {{  $user->name() }}</h5>
-                                <p class="text-muted mb-1"><span class="badge badge-soft-info">Reg No.:</span> {{ $user->code() }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-8">
-            <div class="card">
-                <div>
-                    <div class="row">
-                    
-                        <div class="col-lg-12">
-                            <div class="p-4">
-                                <p style="font-weight: bold; font-size: 20px">{{ application('name') }}</p>
-                                <div class="mt-2">
-                                    <div class="onoffswitch3">
-                                        <input type="checkbox" name="onoffswitch3" class="onoffswitch3-checkbox" id="myonoffswitch3" checked>
-                                        <label class="onoffswitch3-label" for="myonoffswitch3">
-                                            <span class="onoffswitch3-inner">
-                                                <span class="onoffswitch3-active">
-                                                    <marquee class="scroll-text">
-                                                        @foreach($events as $event)
-                                                            <span>{{ $event->title()}}: {{ $event->start->format('d-M-y')}} to  {{ $event->end->format('d-M-y')}}</span> 
-                                                            <span class="bx bx-caret-right"></span> 
-                                                        @endforeach
-                                                    </marquee>
-                                                    <span class="onoffswitch3-switch">BREAKING NEWS <span class="bx bx-x"></span></span>
-                                                </span>
-                                                <span class="onoffswitch3-inactive"><span class="onoffswitch3-switch">SHOW BREAKING NEWS</span></span>
-                                            </span>
-                                        </label>
+                        <div class="card-body pt-0">
+                            <div class="row">
+                                <div class="col-sm-6 col-lg-8">
+                                    <div class="avatar-md profile-user-wid">
+                                        <img src="{{ asset('storage/'.$user->image()) }}" alt="" class="img-thumbnail rounded-circle avatar-sm">
+                                    </div>
+                                    <div>
+                                        <h5><span class="badge badge-soft-info">Name:</span> {{  $user->name() }}</h5>
+                                        <p class="text-muted mb-1"><span class="badge badge-soft-info">Reg No.:</span> {{ $user->code() }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-lg-4 align-self-center">
-                                            <div class="text-lg-center mt-4 mt-lg-0">
-                                                <div class="row">
-                                                    <div class="col-sm-6">
-                                                        <div>
-                                                            <p class="text-muted text-truncate mb-2">Session</p>
-                                                            <h5 class="mb-0">{{ $session?->title() ?? 'Not set'}}</h5>
-                                                        </div>
+                </div>
+                <div class="col-lg-12">
+                    <button type="button" class="btn btn-primary waves-effect waves-light" 
+                    data-bs-toggle="modal" data-bs-target=".newsModal">Create school News</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8">
+             <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-4">
+                        <p style="font-weight: bold; font-size: 20px">{{ application('name') }}</p>
+                        <div class="mt-2">
+                            <div class="onoffswitch3">
+                                <input type="checkbox" name="onoffswitch3" class="onoffswitch3-checkbox" id="myonoffswitch3" checked>
+                                <label class="onoffswitch3-label" for="myonoffswitch3">
+                                    <span class="onoffswitch3-inner">
+                                        <span class="onoffswitch3-active">
+                                            <marquee class="scroll-text">
+                                                @foreach($events as $event)
+                                                    <span>{{ $event->title()}}: {{ strip_tags($event->description())}}</span> 
+                                                    <span class="bx bx-caret-right"></span> 
+                                                @endforeach
+                                            </marquee>
+                                            <span class="onoffswitch3-switch">BREAKING NEWS <span class="bx bx-x"></span></span>
+                                        </span>
+                                        <span class="onoffswitch3-inactive"><span class="onoffswitch3-switch">SHOW BREAKING NEWS</span></span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @bursal
+            <div class="row p-4">
+                {{-- <x-card.slot title="Paystack Balance" amount="$balance" iconClass="bx bx-money"></x-card.slot> --}}
+            </div>
+            @endbursal
+            
+            @admin
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-4 align-self-center">
+                                        <div class="text-lg-center mt-4 mt-lg-0">
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div>
+                                                        <p class="text-muted text-truncate mb-2">Session</p>
+                                                        <h5 class="mb-0">{{ $session?->title() ?? 'Not set'}}</h5>
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        <div>
-                                                            <p class="text-muted text-truncate mb-2">Term</p>
-                                                            <h5 class="mb-0">{{ $term?->title() ?? 'Not set'}}</h5>
-                                                        </div>
-                                                    </div>
-                                                  
                                                 </div>
+                                                <div class="col-sm-6">
+                                                    <div>
+                                                        <p class="text-muted text-truncate mb-2">Term</p>
+                                                        <h5 class="mb-0">{{ $term?->title() ?? 'Not set'}}</h5>
+                                                    </div>
+                                                </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -144,16 +155,280 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            @endadmin
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                   <canvas id="myChart"></canvas>
+                     <div class="card-header">
+                        <div class="my-2 text-center">
+                            <h1 class="card-title">Students ranking per class</h1>
+                        </div>
+
+                        <form id="rankingForm">
+                            <div class="row">
+                                <div class="col-sm-3 form-group">
+                                    <label for="class-select">Class</label>
+                                    <select class="form-control" id="grade-select" name="class_id">
+                                        <option value="">Select Class</option>
+                                        @foreach($grades as $class)
+                                            <option value="{{ $class->id }}">{{ $class->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-sm-3 form-group">
+                                    <label for="term-select">Term</label>
+                                    <select class="form-control" id="term" name="term">
+                                        <option value="">Select Term</option>
+                                        @foreach($terms as $term)
+                                            <option value="{{ $term->id() }}">{{ $term->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-sm-3 form-group">
+                                    <label for="session-select">Session</label>
+                                    <select class="form-control" id="session" name="session">
+                                        <option value="">Select Session</option>
+                                        @foreach($sessions as $session)
+                                            <option value="{{ $session->id() }}">{{ $session->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-sm-3 my-4">
+                                    <button id="rankingBtn" type="submit" class="btn btn-primary btn-sm">
+                                        <i class="bx bx-search-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                   <canvas id="ranking"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                     <div class="card-header">
+                        <div class="my-2 text-center">
+                            <h1 class="card-title">Student's performance in all subjects</h1>
+                        </div>
+
+                        <form id="performance">
+                            <div class="row">
+                                <div class="col-sm-3 form-group">
+                                    <label for="class-select">Class</label>
+                                    <select class="form-control" id="class-select" name="class_id">
+                                        <option value="">Select Class</option>
+                                        @foreach($grades as $class)
+                                            <option value="{{ $class->id }}">{{ $class->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-sm-3 form-group">
+                                    <label for="student-select">Student</label>
+                                    <select class="form-control" id="student-select" name="student_id">
+                                        <option>Select Student</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2 form-group">
+                                    <label for="term-select">Term</label>
+                                    <select class="form-control" id="term-select" name="term">
+                                        <option value="">Select Term</option>
+                                        @foreach($terms as $term)
+                                            <option value="{{ $term->id() }}">{{ $term->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-sm-2 form-group">
+                                    <label for="session-select">Session</label>
+                                    <select class="form-control" id="session-select" name="session">
+                                        <option value="">Select Session</option>
+                                        @foreach($sessions as $session)
+                                            <option value="{{ $session->id() }}">{{ $session->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-sm-1 my-4">
+                                    <button id="submit" type="submit" class="btn btn-primary btn-sm">
+                                        <i class="bx bx-search-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                   <canvas id="resultChat"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                  <canvas id="studentsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade newsModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create school news</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="news" action="{{ route('news.store') }}" method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="title" value="{{ __('Title') }}" />
+                                <x-form.input id="title" class="block w-full mt-1" type="text" name="title"
+                                    :value="old('title')" id="title" autofocus />
+                                <x-form.error for="title" />
+                            </div>
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="description" value="{{ __('Content') }}" />
+                                        <textarea class="form-control" name="description" id="summernote">{{ old('content') }}</textarea>
+                                <x-form.error for="description" />
+                            </div>
+                            <div class="col-sm-12 mb-3">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="status" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Make news public</label>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
+                                <button id="newBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
     @section('scripts')
+
+         <script>
+            $(document).ready(function() {
+                // Populate student dropdown based on class selection
+                $('#class-select').on('change', function() {
+                    var classId = $(this).val();
+                    $.ajax({
+                        url: '/student/students-by-class',
+                        method: 'GET',
+                        data: {class: classId},
+                    }).done((data) => {
+                        $('#student-select').empty();
+                        $.each(data, function(index, student) {
+                            $('#student-select').append('<option value="' + student.uuid + '">' + student.last_name + ' ' + student.first_name + ' ' + student.other_name + '</option>');
+                        });
+                    }).fail((err) => {
+                        toastr.error(err.responseJSON.message, 'Failed!');
+                    });
+                });
+
+                // Update chart based on student selection
+                $(document).on('submit', '#performance', function(e) {
+                    var existingChart = Chart.getChart("resultChat");
+
+                    e.preventDefault();
+
+                    toggleAble('#submit', true, 'Fetching...');
+                    var classId = $('#class-select').val();
+                    var studentId = $('#student-select').val();
+                    var term = $('#term-select').val();
+                    var session = $('#session-select').val();
+                    $.ajax({
+                        url: '/student/performance-by-student',
+                        method: 'GET',
+                        data: {classId: classId, studentId: studentId, term: term, session: session},
+                    }).done((data) => {
+                        toggleAble('#submit', false);
+
+                            var subjects = [];
+                            var scores = [];
+
+                            $.each(data, function(index, result) {
+                                var totalScore = result.ca1 + result.ca2 + result.project + result.exam;
+                                subjects.push(result.subject);
+                                scores.push(totalScore);
+                            });
+
+                            if (existingChart) {
+                                existingChart.destroy();
+                            }
+
+                            var chartData = {
+                                labels: subjects,
+                                datasets: [
+                                    {
+                                        label: 'Total Score',
+                                        data: scores,
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        borderWidth: 1
+                                    }
+                                ]
+                            };
+
+                            var ctx = $('#resultChat');
+                            var chart = new Chart(ctx, {
+                                type: 'bar',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }]
+                                    }
+                                }
+                            });
+                    }).fail((err) => {
+                        toggleAble('#submit', false);
+                        console.log(err);
+                        toastr.error(err.responseJSON.message, 'Failed!');
+                    });
+                });
+
+                 $(document).on('submit', '#news', function(e) {
+                    e.preventDefault();
+                    toggleAble('#newBtn', true, 'Creating...');
+
+                    var url = $(this).attr('action');
+                    var data = $(this).serializeArray();
+                    var method = $(this).attr('method');
+                    
+                    $.ajax({
+                        url,
+                        method,
+                        data
+                    }).done((res) => {
+                        if(res.status === true) {
+                            toggleAble('#newBtn', false);
+                            toastr.success(res.message, 'Success!');
+                            resetForm('#news')
+                            $('.newsModal').modal('toggle');
+                        }
+                    }).fail((err) => {
+                        toggleAble('#newBtn', false);
+                        console.log(err);
+                        toastr.error(err.responseJSON.message, 'Failed!');
+                    });
+                });
+
+            });
+        </script>
+
         <script>
 
             var audio = document.getElementById("myAudio");
@@ -189,32 +464,105 @@
                 window.location.href = "/index/registration";
             }
         </script>
-        <script>
-            var ctx = document.getElementById('myChart').getContext('2d');
 
-            var chart = new Chart(ctx, {
+        <script>
+            var studentsData = {!! json_encode($studentsData) !!};
+
+            var years = [];
+            var totals = [];
+
+            studentsData.forEach(function(item) {
+                years.push(item.year);
+                totals.push(item.total);
+            });
+
+            var ctx = document.getElementById('studentsChart').getContext('2d');
+            var studentsChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: <?php echo json_encode($labels); ?>,
-                    datasets: <?php echo json_encode($datasets); ?>
+                    labels: years,
+                    datasets: [{
+                        label: 'Total Students per Year',
+                        data: totals,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
                 },
                 options: {
                     scales: {
-                        y: {
-                            beginAtZero: true // start the y-axis at zero
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Student Scores by Subject and Type'
-                        },
-                        legend: {
-                            position: 'bottom' // show the legend at the bottom
-                        }
+                        yAxes: [{
+                            ticks: {
+                               
+                            }
+                        }]
                     }
                 }
             });
+        </script>
+        
+        <script>
+              $(document).on('submit', '#rankingForm', function(e) {
+
+                    e.preventDefault();
+                    var existingRanking = Chart.getChart("ranking");
+
+                    toggleAble('#rankingBtn', true, 'Fetching...');
+
+                    var classId = $('#grade-select').val();
+                    var term = $('#term').val();
+                    var session = $('#session').val();
+
+                    $.ajax({
+                        url: '/student/class-ranking-student',
+                        method: 'GET',
+                        data: {classId: classId, term: term, session: session},
+                    }).done((response) => {
+                        if(response.status){
+                            toggleAble('#rankingBtn', false);
+
+                            var labels = [];
+                            var data = [];
+
+                            response.data.forEach(function(result) {
+                                labels.push(result.name);
+                                data.push(result.score);
+                            });
+
+                            if (existingRanking) {
+                                existingRanking.destroy();
+                            }
+
+                            var ctx = document.getElementById('ranking').getContext('2d');
+                            var myChart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Total Score',
+                                        data: data,
+                                        borderColor: 'rgb(75, 192, 192)',
+                                        fill: false
+                                    }]
+                                },
+                                options: {
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }]
+                                    }
+                                }
+                            });
+
+                        }
+                    }).fail((err) => {
+                        console.log(err);
+                        toggleAble('#rankingBtn', false);
+                        toastr.error(err.responseJSON.message, 'Failed!');
+                    });
+                });
         </script>
     @endsection
 </x-app-layout>

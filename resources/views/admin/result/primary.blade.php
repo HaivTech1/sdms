@@ -559,7 +559,7 @@
                 </div>
 
                 <div class="minorContainer">
-                    <div class="table-wrapper table-responsive">
+                    {{-- <div class="table-wrapper table-responsive">
                         <table class="table table-condensed">
                             <thead>
                                 <tr>
@@ -585,7 +585,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </div> --}}
 
                     <div class="table-wrapper table-responsive">
                         <table class="table table-condensed">

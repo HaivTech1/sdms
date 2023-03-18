@@ -223,23 +223,23 @@
                                                     </td>
                                                     <td>
                                                         <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='ca1[]' value="" autofocus />
+                                                            name='ca1[]' step="0.01" value="" autofocus />
                                                     </td>
                                                     <td>
                                                         <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='ca2[]' value="" autofocus />
+                                                            name='ca2[]' step="0.01" value="" autofocus />
                                                     </td>
                                                     <td>
                                                         <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='ca3[]' value="" autofocus />
+                                                            name='ca3[]' step="0.01" value="" autofocus />
                                                     </td>
                                                     <td>
                                                         <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='pr[]' value="" autofocus />
+                                                            name='pr[]' step="0.01" value="" autofocus />
                                                     </td>
                                                     <td>
                                                         <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='exam[]' value="" autofocus />
+                                                            name='exam[]' step="0.01" value="" autofocus />
                                                     </td>
                                                 </tr>
                                                 @endforeach

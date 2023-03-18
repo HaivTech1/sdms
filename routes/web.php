@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TermController;
@@ -167,6 +168,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/parent/publish', [GeneralController::class, 'parentPublish']);
         Route::get('/promotion', [PromotionController::class, 'index'])->name('batch.promotion');
         Route::get('/single/promotion', [PromotionController::class, 'single'])->name('single.promotion');
+        Route::get('/students-by-class', [StudentController::class, 'getStudentsByClass']);
+        Route::get('/performance-by-student', [StudentController::class, 'getPerformanceByStudent']);
+        Route::get('/class-ranking-student', [StudentController::class, 'getClassRanking']);
     });
 
     Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -230,6 +234,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [EventController::class, 'store'])->name('store');
         Route::patch('/{id}', [EventController::class, 'update'])->name('update');
         Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::group(['prefix' => 'news', 'as' => 'news.'], function () {
+        Route::get('/', [NewsController::class, 'index'])->name('index');
+        Route::post('/', [NewsController::class, 'store'])->name('store');
     });
 
     Route::group(['prefix' => 'schedule', 'as' => 'schedule.'], function () {

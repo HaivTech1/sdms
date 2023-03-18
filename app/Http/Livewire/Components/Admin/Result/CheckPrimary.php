@@ -74,9 +74,13 @@ class CheckPrimary extends Component
     
     public function render()
     {
+
+        $ids = Grade::getAllIdsExceptLast();
+        $grades = Grade::gradeIds($ids)->get();
+
         return view('livewire.components.admin.result.check-primary',[
             'students' => $this->students,
-            'grades' => Grade::get(),
+            'grades' => $grades,
             'periods' => Period::all(),
             'terms' => Term::all(),
             'psychomotors' => Psychomotor::where('term_id', $this->term_id)->where('period_id', $this->period_id)->get(),

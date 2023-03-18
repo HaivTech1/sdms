@@ -23,6 +23,7 @@
     <meta property="twitter:description" content="@yield('description')" />
     <meta property="twitter:title" content="@yield('title')" />
     <meta name="theme-color" content="#6777ef" />
+    <link rel="shortcut icon" href="{{ asset('storage/'.application('image')) }}" />
 
     {{-- Title --}}
     <title>@yield('title', ''.application('name'))</title>
