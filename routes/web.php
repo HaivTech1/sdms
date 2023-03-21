@@ -19,6 +19,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\HouseController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\ResultController;
@@ -171,6 +172,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/students-by-class', [StudentController::class, 'getStudentsByClass']);
         Route::get('/performance-by-student', [StudentController::class, 'getPerformanceByStudent']);
         Route::get('/class-ranking-student', [StudentController::class, 'getClassRanking']);
+        Route::get('/subjects/{id}', [StudentController::class, 'subjects'])->name('subjects');
     });
 
     Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -232,13 +234,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::group(['prefix' => 'event', 'as' => 'event.'], function () {
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
-        Route::patch('/{id}', [EventController::class, 'update'])->name('update');
+        Route::get('/edit/{id}', [EventController::class, 'edit'])->name('edit');
+        Route::post('/update', [EventController::class, 'update'])->name('update');
         Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
     });
 
     Route::group(['prefix' => 'news', 'as' => 'news.'], function () {
         Route::get('/', [NewsController::class, 'index'])->name('index');
         Route::post('/', [NewsController::class, 'store'])->name('store');
+    });
+
+    Route::group(['prefix' => 'staff', 'as' => 'staff.'], function () {
+        Route::get('/', [StaffController::class, 'index'])->name('index');
+        Route::post('/', [StaffController::class, 'store'])->name('store');
+        Route::get('/bank/list', [StaffController::class, 'bankList']);
+        Route::get('/bank/single/{code}', [StaffController::class, 'bankSingle']);
+        Route::get('/profile/edit/{id}', [StaffController::class, 'editProfile']);
+        Route::post('/update/profile', [StaffController::class, 'updateProfile'])->name('update');
+        Route::get('/calender', [StaffController::class, 'calender'])->name('calender');
     });
 
     Route::group(['prefix' => 'schedule', 'as' => 'schedule.'], function () {

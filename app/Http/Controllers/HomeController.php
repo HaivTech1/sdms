@@ -49,17 +49,16 @@ class HomeController extends Controller
                 'user' => $user,
                 'session' => $session,
                 'term' => $term,
-                'events' => $events
+                'events' => $news
             ]);
         }elseif($user->isStudent()){
             return view('dashboard/student',[
                 'user' => $user,
                 'session' => $session,
                 'term' => $term,
-                'events' => $events,
+                'events' => $news,
                 'session' => $session,
                 'term' => $term,
-                'events' => $events
             ]);
         }
     }

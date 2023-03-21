@@ -18,7 +18,7 @@ const toggleAble = (element, bool, text) => {
     $(element).prop('disabled', bool);
     let $this = $(element);
     if (bool) {
-        var loadingText = `<i class="bx bx-loader bx-spin font-size-16 align-middle me-2"></i> ${text || ' loading... '}`;
+        var loadingText = `<i class="bx bx-loader bx-spin font-size-16 align-middle me-2"></i> ${text || ''}`;
         $this.data('original-text', $($this).html());
         $this.html(loadingText);
     }else{
@@ -65,25 +65,28 @@ const divLoader = () =>
 const poster = ({ url, data, alert, type }, fn) => {
     alert = alert || true;
     type = type || "POST";
-    $.ajax({ url, data, type })
-        .done((res) => {
-            if (res.status == true) {
-                Swal.fire({
-                    title: "Success!",
-                    text: "Success! " + res.test + "",
-                    icon: "success",
-                    confirmButtonColor: "#556ee6",
-                });
-            } else {
-                Swal.fire({
-                    title: "Oops!",
-                    text: " Sorry! " + res.text + "",
-                    icon: "error",
-                    confirmButtonColor: "#556ee6",
-                });
-            }
-        })
-        .fail((e) => {
+    $.ajax({
+        url, 
+        data, 
+        type 
+    }).done((res) => {
+        if (res.status == true) {
+            Swal.fire({
+                title: "Success!",
+                text: "Success! " + res.message + "",
+                icon: "success",
+                confirmButtonColor: "#556ee6",
+            });
+        } else {
+            Swal.fire({
+                title: "Oops!",
+                text: " Sorry! " + res.message + "",
+                icon: "error",
+                confirmButtonColor: "#556ee6",
+            });
+        }
+    })
+    .fail((e) => {
             console.log(e);
             Swal.fire({
                 title: "Oops!",

@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Jobs\CreateUser;
+use App\Services\SaveCode;
 use Illuminate\Http\Request;
+use App\Mail\SendTeacherDetails;
 use App\Http\Requests\UserRequest;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\v1\UserResource;
+use Illuminate\Support\Facades\Storage;
 
 
 class UserController extends Controller
@@ -23,16 +29,52 @@ class UserController extends Controller
     
     public function store(UserRequest $request)
     {
-        $this->dispatchSync(CreateUser::fromRequest($request));
+        $user = new User([
+            'title' => $request->title,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'password' => Hash::make($request->password),
+            'type' => $request->type
+        ]);
 
-        $notification = array(
-            'messege' => 'User created successfully',
-            'alert-type' => 'success',
-            'title' => 'Successful!',
-            'button' => 'Thanks, operation successful!',
-        );
-        
-        return redirect()->route('user.index')->with($notification);
+        if($request->type == 2){
+            $initial = 'ADM/';
+        }elseif($request->type == 3){
+            $initial = 'TCH/';
+        }elseif($request->type == 4){
+            $initial = 'STD/';
+        }elseif($request->type == 5){
+            $initial = 'BUR/';
+        }elseif($request->type == 6){
+            $initial = 'WOR/';
+        }
+
+        $code = SaveCode::Generator($initial, 5, 'reg_no', $user);
+        $user->reg_no = $code;
+
+        $message = "<p>You are welcome to ".application('name')." portal. Please visit ".application('website')." to login with your credentials. Id: ".$code." and your password: password1234</p>";
+        $subject = 'Welcome to '.application('name'). ' Portal';
+
+        if($request->type === '3'){
+            Mail::to($request->email)->send(new SendTeacherDetails($message, $subject));
+        }
+
+        if($request->image){
+            $fileName = $request->image->getClientOriginalName();
+            $filePath = 'users/' . $fileName;
+            $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($request->image));
+    
+            if ($isFileUploaded) {
+                $user->profile_photo_path = $filePath;
+            }
+        }
+
+        if($user->save()){
+            return response()->json(['status' => true, 'messege' => 'User created successfully'], 200);
+        }else{
+            return response()->json(['status' => false, 'messege' => 'There was a problem creating the user!'], 500);
+        }
     }
 
     public function me()

@@ -177,7 +177,7 @@
                                     </td>
                                     <td>
                                         <div class="col-sm-4">
-                                            <button type="button" value="{{ $teacher->id() }}" id="assignClass">
+                                            <button type="button" value="{{ $teacher->id() }}" data-class="{{ $teacher->gradeClassTeacher[0]->id() }}" id="assignClass">
                                                 <i class="fas fa-compress-arrows-alt"></i>
                                             </button>
                                         </div>
@@ -207,9 +207,11 @@
         $(document).on('click', '#assignClass', function(e) {
             e.preventDefault();
             var id = $(this).val();
+            var class_id = $(this).attr('data-class');
 
             $('#user_id').val(id);
-            $('.addClass').modal('show');
+            $('#grade_id').val(class_id);
+            $('.addClass').modal('toggle');
         });
 
         $(document).on('submit', '#assignClasses', function (e) {
@@ -226,7 +228,7 @@
                 if (res.status) {
                     toggleAble('#submit_button', false);
                     toastr.success(res.message, 'Success!');
-                    $('.addClass').modal('show');
+                    $('.addClass').modal('toggle');
                 } else {
                     toggleAble('#submit_button', false);
                     toastr.error(res.message, 'Failed!');

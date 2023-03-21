@@ -278,7 +278,7 @@
 
             $(document).on('submit', '#createSubjects', function(e){
                 e.preventDefault();
-                toggleAble('#submit_button', true, 'Submitting...');
+                toggleAble($(this), true, 'Submitting...');
                 var data = $('#createSubjects').serializeArray();
                 var url = "{{ route('student.assignSubject') }}";
 

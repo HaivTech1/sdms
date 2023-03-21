@@ -287,14 +287,29 @@
             $(document).on('click', '#assingSubject', function(e) {
                 e.preventDefault();
                 var id = $(this).val();
+                var button = $(this);
+                toggleAble(button, true);
 
-                $('#student_id').val(id);
-                $('.addSubject').modal('show');
+                $.ajax({
+                    url: "/student/subjects/" + id,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(response) {
+                        toggleAble(button, false);
+
+                        $.each(response.data, function(index, subject) {
+                            $('#subjects option[value="' + subject.id + '"]').prop('selected', true);
+                        });
+
+                        $('#student_id').val(id);
+                        $('.addSubject').modal('show');
+                    }
+                });
             });
 
             $(document).on('submit', '#createSubjects', function(e){
                 e.preventDefault();
-                toggleAble('#submit_button', true, 'Submitting...');
+                toggleAble('#submit_Sub', true, 'Submitting...');
                 var data = $('#createSubjects').serializeArray();
                 var url = "{{ route('student.assignSubject') }}";
 
@@ -303,14 +318,16 @@
                     url,
                     data
                 }).done((res) => {
-                    if(res.status === 'success') {
-                        toggleAble('#submit_button', false);
+                    if(res.status === true) {
+                        toggleAble('#submit_Sub', false);
                         toastr.success(res.message, 'Success!');
                         resetForm('#createSubjects');
-                        setInterval(function () {window.location.reload()}, 2000);
-
+                        $('.addSubject').modal('toggle');
+                        setTimeout(function () {
+                            window.location.reload()
+                        }, 1000);
                     }else{
-                        toggleAble('#submit_button', false);
+                        toggleAble('#submit_Sub', false);
                         toastr.error(res.message, 'Failed!');
                     }
                 }).fail((res) => {

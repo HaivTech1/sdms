@@ -20,7 +20,7 @@ class StudentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'])->except(['assignSubject']);
+        $this->middleware(['auth', 'admin'])->except(['assignSubject', 'subject', 'getPerformanceByStudent']);
     }
     
     /**
@@ -138,9 +138,9 @@ class StudentController extends Controller
             $student = Student::findOrFail($request->student_id);
             $student->subjects()->detach();
             $student->subjects()->attach($request->subjects);
-            return response()->json(['status' => 'success', 'message' => 'Subjects synced successfully!'], 200);
+            return response()->json(['status' => true, 'message' => 'Subjects synced successfully!'], 200);
         } catch (\Throwable $th) {
-            return response()->json(['status' => 'success', 'message' => $th->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
         
 
@@ -217,5 +217,13 @@ class StudentController extends Controller
         }
 
         return response()->json(['status' => true, 'data' => $rankings]);
+    }
+
+    public function subjects($id)
+    {
+        $student = Student::findOrFail($id);
+        $subjects = $student->subjects;
+
+        return response()->json(['status' => true, 'data' => $subjects]);
     }
 }

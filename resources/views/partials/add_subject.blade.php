@@ -13,7 +13,7 @@
                             
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <select name="subjects[]" class="select2 form-control" multiple="multiple" style="height: 300px">
+                                    <select name="subjects[]" class="select2 form-control" multiple="multiple" style="height: 300px" id="subjects">
                                         @foreach ($subjects as $subject)
                                             <option value="{{ $subject->id() }}">
                                                 {{ $subject->title() }}
@@ -24,7 +24,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
-                                <button type="submit" id="submit_button" class="btn btn-primary btn-flat"><i class="fa fa-save"></i> Save</button>
+                                <button type="submit" id="submit_Sub" class="btn btn-primary btn-flat"><i class="fa fa-save"></i> Save</button>
                             </div>
                         </form>
                     </div>

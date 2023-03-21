@@ -57,7 +57,7 @@
                                                 <span class="onoffswitch3-active">
                                                     <marquee class="scroll-text">
                                                         @foreach($events as $event)
-                                                            <span>{{ $event->title()}}: {{ $event->start->format('d-M-y')}} to  {{ $event->end->format('d-M-y')}}</span> 
+                                                            <span>{{ $event->title()}}: {{ strip_tags($event->description())}}</span> 
                                                             <span class="bx bx-caret-right"></span> 
                                                         @endforeach
                                                     </marquee>

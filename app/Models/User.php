@@ -38,6 +38,7 @@ class User extends Authenticatable
     const TEACHER = 3;
     const STUDENT = 4;
     const BURSAL = 5;
+    const CASUAL = 6;
 
     public function routeNotificationForVonage($notification)
     {
@@ -164,6 +165,10 @@ class User extends Authenticatable
         return $this->type() === self::BURSAL;
     }
 
+    public function isCasual(): bool
+    {
+        return $this->type() === self::CASUAL;
+    }
 
 
     public function getAvailableBadgeAttribute()
@@ -194,11 +199,12 @@ class User extends Authenticatable
     {
 
         $state = [
-            '1' => 'Super Administrator Dashboard',
-            '2' => 'Administrator Dashboard',
-            '3' => 'Teacher Dashboard',
-            '4' => 'Student Dashboard',
-            '5' => 'Bursal Dashboard',
+            '1' => 'Super Administrator',
+            '2' => 'Administrator',
+            '3' => 'Teacher',
+            '4' => 'Student',
+            '5' => 'Bursal',
+            '6' => 'Worker',
         ];
 
         return $state[$this->type];
@@ -212,5 +218,10 @@ class User extends Authenticatable
     public function student(): HasOne
     {
         return $this->hasOne(Student::class, 'user_id');
+    }
+
+    public function profile(): HasOne
+    {
+    return $this->hasOne(Profile::class, 'author_id');
     }
 }

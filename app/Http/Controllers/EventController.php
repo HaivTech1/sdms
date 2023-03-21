@@ -8,6 +8,7 @@ use App\Models\Period;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
+use Illuminate\Support\Facades\Validator;
 
 class EventController extends Controller
 {
@@ -39,43 +40,67 @@ class EventController extends Controller
     
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string'
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'title' => 'required|string',
+                'start' => 'required',
+                'end' => 'required',
+                'category' => 'required|string',
+                'week_id' => 'required',
+            ]);
 
-        $event = Event::create([
-            'title' => $request->title,
-            'start' => $request->start_date,
-            'end' => $request->end_date,
-            'category' => $request->n,
-            'period_id' => $request->period ? $request->period : Period::whereStatus(1)->pluck('id')[0],
-            'term_id'=>  $request->term ? $request->term : Term::whereStatus(1)->pluck('id')[0],
-            'author_id' => auth()->user()->id()
-        ]);
+            if($validator->fails()){
+                return response()->json([
+                    "status" => false,
+                    "message" => $validate->messages()->first()
+                ], 500);
+            }else{
+                $event = Event::create([
+                    'title' => $request->title,
+                    'start' => $request->start,
+                    'end' => $request->end,
+                    'week_id'=>  $request->week_id,
+                    'category' => $request->category,
+                    'period_id' => period('id'),
+                    'term_id'=>  term('id'),
+                    'author_id' => auth()->user()->id()
+                ]);
+        
+                return response()->json([ 'status' => true, 'data' => [
+                                        'id' => $event->id,
+                                        'start' => $event->start,
+                                        'end' => $event->end,
+                                        'title' => $event->title,
+                                        'category' => $event->category,
+                                ],
+                    'message' => 'Event saved successfully!'
+                ], 200);
+            }
 
-        return response()->json([ 'status' => 'success', 'data' => [
-                                                        'id' => $event->id,
-                                                        'start' => $event->start,
-                                                        'end' => $event->end,
-                                                        'title' => $event->title,
-                                                        'category' => $event->category,
-                                                ],
-                                    'message' => 'Event saved successfully'
-                                ]);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
     }
-    public function update(Request $request ,$id)
+
+    public function edit($id)
     {
         $event = Event::findOrFail($id);
+        return response()->json($event);
+    }
+
+    public function update(Request $request)
+    {
+        $event = Event::findOrFail($request->event_id);
 
         $event->update([
             'title' => $request->title,
-            'start' => $request->start_date,
-            'end' => $request->end_date,
+            'start' => $request->start,
+            'end' => $request->end,
             'category' => $request->category,
         ]);
         return response()->json([
-            'status' => 'success',
-            'message' => 'Event deleted successfully!'
+            'status' => true,
+            'message' => 'Event updated successfully!'
         ], 200);
     }
 
@@ -84,7 +109,7 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
         $event->delete();
         return response()->json([
-            'status' => 'success',
+            'status' => true,
             'message' => 'Event deleted successfully!'
         ], 200);
     }

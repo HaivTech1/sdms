@@ -19,7 +19,8 @@ class Event extends Model
     protected $fillable = [
         'title', 
         'start', 
-        'end', 
+        'end',
+        'week_id', 
         'category',
         'period_id',
         'term_id',
@@ -65,6 +66,11 @@ class Event extends Model
     public function term()
     {
         return $this->belongsTo(Term::class, 'term_id');
+    }
+
+    public function week()
+    {
+        return $this->belongsTo(Week::class, 'week_id');
     }
     
 }

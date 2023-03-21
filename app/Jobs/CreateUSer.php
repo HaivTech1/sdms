@@ -11,6 +11,7 @@ use App\Services\SaveImageService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -84,6 +85,8 @@ class CreateUser implements ShouldQueue
             $initial = 'STD/';
         }elseif($this->type == 5){
             $initial = 'BUR/';
+        }elseif($this->type == 6){
+            $initial = 'WOR/';
         }
 
         $code = SaveCode::Generator($initial, 5, 'reg_no', $user);
@@ -96,7 +99,17 @@ class CreateUser implements ShouldQueue
             Mail::to($this->email)->send(new SendTeacherDetails($message, $subject));
         }
 
-        SaveImageService::UploadImage($this->image, $user, User::TABLE, 'profile_photo_path');
+        if($this->image){
+            $fileName = $this->image->getClientOriginalName();
+            $filePath = 'users/' . $fileName;
+            $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($this->image));
+    
+            if ($isFileUploaded) {
+                $user->profile_photo_path = $filePath;
+            }
+        }
+
+
         return $user;
     }
 }

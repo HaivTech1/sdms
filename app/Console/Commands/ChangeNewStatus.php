@@ -46,8 +46,8 @@ class ChangeNewStatus extends Command
             $now = Carbon::now();
             $count = $created->diffInDays($now);
             
-            if($count > 3){
-                $new->uppdate(['status' => false]);
+            if($count >= 3){
+                $new->update(['status' => false]);
             }
         }
     }

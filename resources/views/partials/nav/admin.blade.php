@@ -5,7 +5,6 @@
             <span key="t-ecommerce">Settings Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
-            <li><a href="{{ route('upload.uploadSignature') }}" key="t-products">Upload Signatures</a></li>
             <li><a href="{{ route('period.index') }}" key="t-products">Session</a></li>
             <li><a href="{{ route('term.index') }}" key="t-products">Term</a></li>
             <li><a href="{{ route('house.index') }}" key="t-products">House</a></li>
@@ -16,13 +15,18 @@
             <li><a href="{{ route('event.index') }}" key="t-products">Event</a></li>
             <li><a href="{{ route('schedule.index') }}" key="t-products">Schedule</a></li>
             <li><a href="{{ route('finger_device.index') }}" key="t-products">Biometric Device</a></li>
+            <li><a href="{{ route('staff.calender') }}" key="t-products">School Calender</a></li>
         </ul>
     </li>
     <li>
-        <a href="{{ route('teacher.index') }}" class="waves-effect">
-            <i class="bx bx-user"></i>
-            <span key="t-chat">Teachers</span>
+        <a href="javascript: void(0);" class="has-arrow waves-effect">
+            <i class="bx bx-command"></i>
+            <span key="t-ecommerce">Staff Management</span>
         </a>
+        <ul class="sub-menu" aria-expanded="false">
+            {{-- <li><a href="{{ route('teacher.index') }}" key="t-products">Teachers</a></li> --}}
+            <li><a href="{{ route('staff.index') }}" key="t-products">Staffs</a></li>
+        </ul>
     </li>
     <li>
         <a href="{{ url('index/registration') }}" class="waves-effect">

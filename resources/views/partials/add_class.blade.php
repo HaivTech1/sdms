@@ -1,5 +1,5 @@
 <div class="modal fade addClass bs-example-modal-xl" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore>
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Assign Class</h5>
@@ -12,7 +12,7 @@
                              <x-form.input type="hidden" value="" name="user_id" id="user_id" />
 
                             <div class="col-sm-12 mt-2">
-                                <select name="grade_id" class="form-control">
+                                <select name="grade_id" class="form-control" id="grade_id">
                                     @foreach ($grades as $id => $grade)
                                         <option value="{{ $id }}">
                                             {{ $grade }}
@@ -22,10 +22,8 @@
                                 <x-form.error for="grade_id" />
                             </div>
 
-                            <div class="col-sm-12 mt-2">
-                                <div class="float-right">
-                                    <button id="submit_button" type="submit" class="btn btn-primary">Add</button>
-                                </div>
+                            .<div class="row justify-content-center align-items-center g-2">
+                                <button id="submit_button" type="submit" class="btn btn-primary">Add</button>
                             </div>
                         </form>
                     </div>
