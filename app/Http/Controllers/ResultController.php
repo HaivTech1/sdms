@@ -182,15 +182,15 @@ class ResultController extends Controller
         }
 
         // dd($nextTerm);
-        if(!$nextTerm){
-            $notification = array (
-                'messege' => 'Please set next term resumption first before you can view result!',
-                'alert-type' => 'info',
-                'button' => 'Okay!',
-                'title' => 'Info'
-            );
-            return redirect()->route('event.index')->with($notification);
-        }
+        // if(!$nextTerm){
+        //     $notification = array (
+        //         'messege' => 'Please set next term resumption first before you can view result!',
+        //         'alert-type' => 'info',
+        //         'button' => 'Okay!',
+        //         'title' => 'Info'
+        //     );
+        //     return redirect()->route('event.index')->with($notification);
+        // }
 
         return view('admin.result.secondary',[
             'student' => $student,
@@ -629,10 +629,30 @@ class ResultController extends Controller
     public function primaryPublish(Request $request)
     {
         $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+        $student = Student::findOrfail($request->student_id);
+        $idNumber = $student->user->code();
+        $password = 'password123';
+        $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+        $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+        $subject = 'Evaluation Report Sheet';
+
+        foreach($results as $result){
+            $result->update(['published' => true]);
+        }
+
+        if(isset($student->mother)){
+            // MidTermResultJob::dispatch($student, $message, $subject);
+            Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+        }elseif(isset($student->father)){
+            Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+        }else{
+            Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+        }
+
         $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
 
         if(count($check) > 0){
-            return response()->json(['status' => 'success','message' => 'Cummulation already exist!' ], 500);
+            return response()->json(['status' => true ,'message' => 'Result published but Cummulation already exist!' ], 500);
         }else{
             $cum = array();
 
@@ -649,7 +669,7 @@ class ResultController extends Controller
                 $cummulative->save();
             }
     
-            return response()->json(['status' => 'success','message' => 'Result cummulated successfully!' ], 200);
+            return response()->json(['status' => true ,'message' => 'Result Published successfully!' ], 200);
         }
     }
 
@@ -704,14 +724,18 @@ class ResultController extends Controller
         if (!is_null($pin)) {
             if (Hash::check($code, $userCode))
             {
-                if ($pin->count >= 3) {
+                if ($pin->count >= 7) {
                     $pin->user->update(['pincode' => null]);
                     $pin->delete();
-                    return response()->json(['status' => 'error', 'message' => 'The pin code is not valid. It is already used.'], 401); 
+                    return response()->json(['status' => 'error', 'message' => 'This pin is not valid anymore. It has been already used.'], 401); 
                 }else{
-                    if($pin->count <= 3){
-                        $pin->update(['count' => $pin->count +1]);
-                        return response()->json(['status' => 'success', 'redirectTo' => '/result/show/'.$user->student->id().'?grade_id='.$grade.'&period_id='.$period.'&term_id='.$term, 'message' => 'The pin code is valid, you will be redirected soon.'], 200); 
+                    if($pin->count <= 7){
+                        if($pin->term_id == $term && $pin->period_id == $period){
+                            $pin->update(['count' => $pin->count +1]);
+                            return response()->json(['status' => 'success', 'redirectTo' => '/result/primary/show/'.$user->student->id().'?grade_id='.$grade.'&period_id='.$period.'&term_id='.$term, 'message' => 'Please wait while we cummulate your result. You will be redirected shortly!'], 200); 
+                        }else{
+                            return response()->json(['status' => 'error', 'message' => 'The pin you entered is not valid for this term or session. Please use a new one!'], 500); 
+                        }
                     }else{
                         return response()->json(['status' => 'error', 'message' => 'The pin code is not valid. It is already used.'], 401); 
                     }

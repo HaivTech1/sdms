@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Week;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProfileRequest;
@@ -178,5 +179,17 @@ class StaffController extends Controller
     public function calender()
     {
         return view('admin.staff.calendar');
+    }
+
+    public function generatePDF()
+    {
+        $weeks = Week::where([
+            'term_id' => term('id'),
+            'period_id' => period('id'),
+        ])->get();
+        $html = view('pdf')->with(compact('weeks'))->render();
+
+        // Return the generated HTML to the client
+        return response()->json(['html' => $html]);
     }
 }

@@ -197,15 +197,15 @@
                             @foreach ($results as $result)
                                 <tr>
                                     <td>{{ $result['subject'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca1'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca2'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca3'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['pr'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ct'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['exam'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['total'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ grade($result['total']) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ remark($result['total']) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ct']) }}">{{ $result['ct'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examGrade($result['total']) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examRemark($result['total']) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -263,19 +263,19 @@
 
                                 <tr>
                                     <td>{{ $result['subject'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca1'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca2'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca3'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['pr'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ct'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['exam'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color($result['total']) }}">{{ $result['total'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color( $result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color(sum($result['total'], $result['first_term_cummulative'])) }}">{{ sum($result['total'], $result['first_term_cummulative']) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ divnum(sum($result['total'], $result['first_term_cummulative']), 2) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ grade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ct']) }}">{{ $result['ct'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center;">{{ sum($result['total'], $result['first_term_cummulative']) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ divnum(sum($result['total'], $result['first_term_cummulative']), 2) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examGrade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">18</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; width: 20%; color: {{ color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ remark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; width: 20%; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examRemark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -334,20 +334,20 @@
 
                                 <tr>
                                     <td>{{ $result['subject'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca1'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca2'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ca3'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['pr'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['ct'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['exam'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['total'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['first_term_cummulative'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result['second_term_cummulative'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ct']) }}">{{ $result['ct'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['second_term_cummulative']) }}">{{ $result['second_term_cummulative'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3)) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ grade(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examGrade(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">18</td>
-                                    <td style="font-size: 8px; font-weight: 500; text-align: center; width: 20%">{{ remark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
+                                    <td style="font-size: 8px; font-weight: 500; text-align: center; width: 20%">{{ examRemark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -507,51 +507,72 @@
                         <table class="table table-condensed">
                             <thead style="text-align: center">
                                 <tr>
-                                    <th colspan="5" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">INTERPRETATION OF RESULT</th>
+                                    <th colspan="8" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">INTERPRETATION OF RESULT</th>
                                 </tr>
                                 <tr>
                                     <th style="padding: 0 25px">Color code</th>
+                                    <th style="padding: 0 25px">Over 10</th>
+                                    <th style="padding: 0 25px">Over 20</th>
+                                    <th style="padding: 0 25px">Over 40</th>
                                     <th style="padding: 0 25px">Over 60</th>
                                     <th style="padding: 0 25px">Over 100</th>
                                     <th style="padding: 0 25px">Grade</th>
-                                    <th style="padding: 0 25px">Remark</th>
                                 </tr>
                             </thead>
                             <tbody style="text-align: center">
                                 <tr>
-                                    <td>BLACK</td>
+                                    <td style="color: black">BLACK</td>
+                                    <td>8-10</td>
+                                    <td>16-20</td>
+                                    <td>32-40</td>
                                     <td>48-60</td>
                                     <td>80-100</td>
                                     <td>A</td>
-                                    <td>EXCELLENT</td>
                                 </tr>
                                 <tr>
-                                    <td>BLACK</td>
+                                    <td style="color: black">BLACK</td>
+                                    <td>7-7.9</td>
+                                    <td>14-15.9</td>
+                                    <td>28-31.9</td>
                                     <td>42-47.9</td>
                                     <td>70-79.9</td>
                                     <td>B</td>
-                                    <td>VERY GOOD</td>
                                 </tr>
                                 <tr>
-                                    <td>GREEN</td>
-                                    <td>42-47.9</td>
-                                    <td>70-79.9</td>
-                                    <td>B</td>
-                                    <td>GOOD</td>
+                                    <td style="color: green">GREEN</td>
+                                    <td>6-6.9</td>
+                                    <td>12-13.9</td>
+                                    <td>24-27.9</td>
+                                    <td>36-41.9</td>
+                                    <td>60-99.9</td>
+                                    <td>C</td>
                                 </tr>
                                 <tr>
-                                    <td>BLUE</td>
+                                    <td style="color: blue">BLUE</td>
+                                    <td>5.8-5.9</td>
+                                    <td>11.6-11.9</td>
+                                    <td>23.3-23.9</td>
                                     <td>34.8-35.9</td>
-                                    <td>70-79.9</td>
-                                    <td>B</td>
-                                    <td>PASS</td>
+                                    <td>58-59.9</td>
+                                    <td>D</td>
                                 </tr>
                                 <tr>
-                                    <td>BLUE</td>
+                                    <td style="color: blue">BLUE</td>
+                                    <td>5.6-5.79</td>
+                                    <td>11.2-11.5</td>
+                                    <td>22.4-23.1</td>
                                     <td>33.6-34.7</td>
-                                    <td>70-79.9</td>
-                                    <td>B</td>
-                                    <td>FAIR</td>
+                                    <td>56-57.9</td>
+                                    <td>E</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: red">RED</td>
+                                    <td>Below 5.6</td>
+                                    <td>Below 11.2</td>
+                                    <td>Below 22.4</td>
+                                    <td>Below 33.6</td>
+                                    <td>Below 56</td>
+                                    <td>F</td>
                                 </tr>
                             </tbody>
                         </table>

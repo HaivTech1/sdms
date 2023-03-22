@@ -16,6 +16,7 @@ use App\Models\Cognitive;
 use App\Models\Application;
 use App\Models\Cummulative;
 use App\Models\Psychomotor;
+use App\Models\PrimaryResult;
 
 function application($key)
 {
@@ -70,57 +71,192 @@ function divnum($numerator, $denominator)
     return $denominator == 0 ? 0 : ($numerator / $denominator);
 }
 
-function remark($remark)
+function examRemark($remark)
 {
-    if ($remark >= 80) {
+    if ($remark >= 80.0 && $remark <= 100) {
         return 'EXCELLENT';
     }
 
-    if ($remark >= 70) {
+    if ($remark >= 70.0 && $remark <= 79.9) {
         return 'VERY GOOD';
     }
 
-    if ($remark >= 60) {
+    if ($remark >= 60.0 && $remark <= 69.9) {
         return 'GOOD';
     }
 
-    if ($remark >= 55) {
+    if ($remark >= 58.0 && $remark <= 59.9) {
         return 'PASS';
     }
 
-    if ($remark >= 45) {
+    if ($remark >= 56.0 && $remark <= 57.9) {
         return 'FAIR';
     }
 
-    if ($remark >= 30) {
-        return 'FAIL';
+    if ($remark < 56) {
+        return 'FAILED';
     }
 }
 
-function grade($grade)
+function examGrade($grade)
 {
-    if ($grade >= 80) {
+    if ($grade >= 80.0 && $grade <= 100) {
         return 'A';
     }
 
-    if ($grade >= 70) {
+    if ($grade >= 70.0 && $grade <= 79.9) {
         return 'B';
     }
 
-    if ($grade >= 60) {
+    if ($grade >= 60.0 && $grade <= 69.9) {
         return 'C';
     }
 
-    if ($grade >= 55) {
+    if ($grade >= 58.0 && $grade <= 59.9) {
         return 'D';
     }
 
-    if ($grade >= 45) {
+    if ($grade >= 56.0 && $grade <= 57.9) {
         return 'E';
     }
 
-    if ($grade >= 30) {
+    if ($grade < 56) {
         return 'F';
+    }
+}
+
+function exam10Color($grade)
+{
+    if ($grade >= 8.0 && $grade <= 10) {
+        return '#000000';
+    }
+
+    if ($grade >= 7.0 && $grade <= 7.9) {
+        return '#000000';
+    }
+
+    if ($grade >= 6.0 && $grade <= 6.9) {
+        return '#00FF00';
+    }
+
+    if ($grade >= 5.8 && $grade <= 5.9) {
+        return '#0000ff';
+    }
+
+    if ($grade >= 5.6 && $grade <= 5.79) {
+        return '#0000ff';
+    }
+
+    if ($grade < 5.6) {
+        return '#ff0000';
+    }
+}
+
+function exam20Color($grade)
+{
+    if ($grade >= 16.0 && $grade <= 20) {
+        return '#000000';
+    }
+
+    if ($grade >= 14.0 && $grade <= 15.9) {
+        return '#000000';
+    }
+
+    if ($grade >= 12.0 && $grade <= 13.9) {
+        return '#00FF00';
+    }
+
+    if ($grade >= 11.6 && $grade <= 11.9) {
+        return '#0000ff';
+    }
+
+    if ($grade >= 11.2 && $grade <= 11.5) {
+        return '#0000ff';
+    }
+
+    if ($grade < 11.2) {
+        return '#ff0000';
+    }
+}
+
+function exam40Color($grade)
+{
+    if ($grade >= 32.0 && $grade <= 40) {
+        return '#000000';
+    }
+
+    if ($grade >= 28.0 && $grade <= 31.9) {
+        return '#000000';
+    }
+
+    if ($grade >= 24.0 && $grade <= 27.9) {
+        return '#00FF00';
+    }
+
+    if ($grade >= 23.2 && $grade <= 23.9) {
+        return '#0000ff';
+    }
+
+    if ($grade >=22.4 && $grade <= 23.1) {
+        return '#0000ff';
+    }
+
+    if ($grade < 22.4) {
+        return '#ff0000';
+    }
+}
+
+function exam60Color($grade)
+{
+    if ($grade >= 48.0 && $grade <= 60) {
+        return '#000000';
+    }
+
+    if ($grade >= 42.0 && $grade <= 47.9) {
+        return '#000000';
+    }
+
+    if ($grade >= 36.0 && $grade <= 41.9) {
+        return '#00FF00';
+    }
+
+    if ($grade >= 34.8 && $grade <= 35.9) {
+        return '#0000ff';
+    }
+
+    if ($grade >=33.6 && $grade <= 34.7) {
+        return '#0000ff';
+    }
+
+    if ($grade < 33.6) {
+        return '#ff0000';
+    }
+}
+
+function exam100Color($grade)
+{
+    if ($grade >= 80.0 && $grade <= 100) {
+        return '#000000';
+    }
+
+    if ($grade >= 70.0 && $grade <= 79.9) {
+        return '#000000';
+    }
+
+    if ($grade >= 60.0 && $grade <= 69.9) {
+        return '#00FF00';
+    }
+
+    if ($grade >= 58.0 && $grade <= 59.9) {
+        return '#0000ff';
+    }
+
+    if ($grade >= 56.0 && $grade <= 57.9) {
+        return '#0000ff';
+    }
+
+    if ($grade < 56) {
+        return '#ff0000';
     }
 }
 
@@ -147,34 +283,6 @@ function sum($first, $second)
     return $first + $second;
 }
 
-
-function color($grade)
-{
-    if ($grade >= 80) {
-        return '#000000';
-    }
-
-    if ($grade >= 70) {
-        return '#000000';
-    }
-
-    if ($grade >= 60) {
-        return '#ff00F1';
-    }
-
-    if ($grade >= 55) {
-        return '#0000ff';
-    }
-
-    if ($grade >= 45) {
-        return '#0000ff';
-    }
-
-    if ($grade >= 30) {
-        return '#ff0000';
-    }
-}
-
 function classAvg($grade)
 {
     
@@ -190,6 +298,19 @@ function paymentCheck($tran, $ref)
 function publishMidState($student, $period, $term)
 {
     $results = MidTerm::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
+
+    if ($results->every(function ($item) {
+        return $item->published;
+    })) {
+        return true;
+    }else{
+        return false;
+    }
+}
+
+function publishExamState($student, $period, $term)
+{
+    $results = PrimaryResult::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
 
     if ($results->every(function ($item) {
         return $item->published;

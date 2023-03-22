@@ -24,7 +24,9 @@
     </div>
 </div>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/vfs_fonts.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="{{ asset('libs/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('libs/metismenu/metisMenu.min.js') }}"></script>

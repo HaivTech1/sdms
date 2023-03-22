@@ -1,6 +1,7 @@
 <div>
-    <div class="row">
+    <x-loading />
 
+    <div class="row">
         <div class="card text-center">
           <div class="card-body">
                 <form wire:submit.prevent="generateWeeks">
@@ -12,7 +13,11 @@
                             <input type="date" class="form-control" id="endDate" wire:model.defer="endDate">
                         </div>
                         <div class="col-sm-2">
-                            <button type="submit" class="btn btn-primary">Generate Weeks</button>
+                            @if (count($weeks) > 0)
+                                <button type="button" wire:click="flushWeeks" class="btn btn-danger">Flush Weeks</button>
+                            @else
+                                <button type="submit" class="btn btn-primary">Generate Weeks</button>
+                            @endif
                         </div>
                     </div>
                 </form>
@@ -24,7 +29,7 @@
             <div class="card">
               <div class="card-body">
                     @if ($weeks)
-                        <div class="table-responsive">
+                        <div class="table-responsive" id="pdf-container">
                             <table class="table-fixed w-full table-bordered" style="border-collapse: collapse;">
                                 <thead>
                                     <tr style="text-align: center">
@@ -45,7 +50,13 @@
                                                     @php
                                                         $date = $week->start_date->copy()->addDays($i);
                                                     @endphp
+
+                                                    <div>
                                                         <span id="week_date" style="font-size: 10px; font-weight: bold; text-decoration: underline">{{ $date->format('d-m-Y') }}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="font-weight: bold; font-size: 10px; cursor: pointer" data-hair-id="{{ $week->hairstyle->id() }}">Hairstyle:</span><span> {{ $week->hairstyle->title() }}</span>
+                                                    </div>
                                                     <ul>
                                                         @foreach ($week->events->sortBy('created_at') as $event)
                                                            @if ($event->start->lte($week->end_date) && $event->end->gte($week->start_date))
@@ -54,7 +65,9 @@
                                                                         $eventDate = $event->start->copy()->addDays($j);
                                                                     @endphp
                                                                     @if ($eventDate->format('d-m-Y') === $date->format('d-m-Y'))
-                                                                        <li style="cursor: pointer" data-event-id="{{ $event->id() }}" class="badge {{ $event->category }}">{{ $event->title }}</li>
+                                                                        <li style="cursor: pointer" data-event-id="{{ $event->id() }}">
+                                                                            <span style="font-weight: bold; font-size: 10px;">Event: </span><span class="badge {{ $event->category }}">{{ $event->title }}</span>
+                                                                        </li>
                                                                     @endif
                                                                 @endfor
                                                             @endif
@@ -67,10 +80,18 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        
+                        @admin
+                            <div class="row mt-3 mb-3">
+                                <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
+                            </div>
+                        @endadmin
                     @endif
               </div>
             </div>
         </div>
+
     </div>
 
     <div class="modal fade addEvent" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -170,7 +191,74 @@
         </div>
     </div>
 
+    <div class="modal fade" id="showHair" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-md mx-auto mb-4">
+                            <div class="avatar-title bg-light rounded-circle text-primary h1">
+                                <i class="bx bx-female"></i>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <div class="col-xl-10">
+                                <h4 class="text-primary" id="hair_title"></h4>
+                                <p class="text-muted font-size-14 mb-4" id="hair_description"></p>
+
+                                <div class="bg-light rounded">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <img src="" style="width: 300px; height: 100px; border-radius: 10px" id="hair_front"/>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <img src=""  style="width: 300px; height: 100px; border-radius: 10px" id="hair_back"/>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <img src=""  style="width: 300px; height: 100px; border-radius: 10px" id="hair_side"/>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @section('scripts')
+        <script>
+            function generatePDF() {
+                const container = document.getElementById("pdf-container");
+
+                html2canvas(container).then(function(canvas) {
+                    const imgData = canvas.toDataURL("image/png");
+
+                    const pdfDocDefinition = {
+                        pageSize: 'A4',
+                        pageOrientation: 'landscape',
+                        content: [
+                            {
+                                image: imgData,
+                                width: 800,
+                                height: 500
+                            }
+                        ]
+                    };
+
+                    pdfMake.createPdf(pdfDocDefinition).open();
+                });
+            }
+
+
+        </script>
         <script>
             $(document).ready(function() {
 
@@ -264,6 +352,41 @@
                             $('#edit_end').val(formatDate(data.end));
                             $('#delete_event').val(data.id);
                             $('.editEvent').modal('toggle');
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log(textStatus + ': ' + errorThrown);
+                        }
+                    });
+                });
+
+                $('td span:nth-child(1)').on('click', function() {
+                    var hairId = $(this).data('hair-id');
+                    var button = $(this);
+                    toggleAble(button, true);
+
+                    $.ajax({
+                        url: '/hairstyle/show/' + hairId,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            toggleAble(button, false);
+                            var title = document.getElementById('hair_title');
+                            var description = document.getElementById('hair_description');
+                            var front = document.getElementById('hair_front');
+                            var back = document.getElementById('hair_back');
+                            var side = document.getElementById('hair_side');
+
+                            var baseUrl = '{{ url('/') }}';
+
+                            title.innerHTML = data.title,
+                            description.innerHTML = data.description,
+                            front.src = baseUrl  + '/storage/' + data.front_view;
+                            back.src = baseUrl + '/storage/' +data.back_view;
+                            side.src = baseUrl + '/storage/' +data.side_view;
+
+
+
+                            $('#showHair').modal('toggle');
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             console.log(textStatus + ': ' + errorThrown);

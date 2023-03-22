@@ -112,7 +112,7 @@
                                                 
                                                 <td class='d-flex justify-content-center align-items-center gap-2'>
                                                     @if (affectives($student, $term_id, $period_id) === true && psychomotors($student, $term_id, $period_id) === true)
-                                                        <a href="{{ route('result.primary.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
+                                                        <a class="btn btn-sm btn-success" href="{{ route('result.primary.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
                                                             type="button"
                                                             data-bs-toggle="tooltip" data-bs-placement="top"
                                                             title="Click to view result">
@@ -129,11 +129,20 @@
                                                         @endif
                                                     @endadmin
                                                     @admin
-                                                        @if (affectives($student, $term_id, $period_id) === true && psychomotors($student, $term_id, $period_id) === true && cummulatives($student, $term_id, $period_id, $grade_id) == false)
-                                                            <button type="button" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                <i class="mdi mdi-upload d-block font-size-16"></i> 
+                                                        @if (publishExamState($student->id(), $period_id, $term_id))
+                                                            <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                <span class="badge bg-success">Published</span>
+                                                            </button>
+                                                        @else
+                                                            <button class="btn btn-sm btn-primary" type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                Activate
                                                             </button>
                                                         @endif
+                                                        {{-- @if (affectives($student, $term_id, $period_id) === true && psychomotors($student, $term_id, $period_id) === true && cummulatives($student, $term_id, $period_id, $grade_id) == false)
+                                                            <button type="button" class="btn btn-sm btn-primary" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                Cummulate
+                                                            </button>
+                                                        @endif --}}
                                                     @endadmin
                                                     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions{{ $student->id() }}"
                                                                 aria-labelledby="offcanvasWithBothOptionsLabel" wire:ignore.self>
@@ -407,17 +416,19 @@
                 var period_id = data[1];
                 var term_id = data[2];
                 var grade_id = data[3];
+                
+                toggleAble('#cummulative'+ student_id, true);
 
                 $.ajax({
                     url: '{{ route('result.primary.publish') }}' ,
                     method: 'GET',
                     data: {student_id, period_id, term_id, grade_id }
                 }).done((res) => {
-                        if(res.status === 'success') {
-                            toggleAble('#cummulative', false);
+                        if(res.status === true) {
+                            toggleAble('#cummulative'+ student_id, false);
                             toastr.success(res.message, 'Success!');
                         }else{
-                            toggleAble('#cummulative', false);
+                            toggleAble('#cummulative'+ student_id, false);
                             toastr.error(res.message, 'Success!');
                         }
                         console.log(res)
@@ -425,7 +436,7 @@
                 }).fail((res) => {
                     console.log(res.responseJSON.message);
                     toastr.error(res.responseJSON.message, 'Failed!');
-                    toggleAble('#cummulative', false);
+                    toggleAble('#cummulative'+ student_id, false);
                 });
             }
         </script>

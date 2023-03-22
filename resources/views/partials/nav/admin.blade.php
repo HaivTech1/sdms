@@ -12,7 +12,7 @@
             <li><a href="{{ route('grade.index') }}" key="t-products">Class</a></li>
             <li><a href="{{ route('subgrade.index') }}" key="t-products">Sub Class</a></li>
             <li><a href="{{ route('subject.index') }}" key="t-products">Subjects</a></li>
-            <li><a href="{{ route('event.index') }}" key="t-products">Event</a></li>
+            {{-- <li><a href="{{ route('event.index') }}" key="t-products">Event</a></li> --}}
             <li><a href="{{ route('schedule.index') }}" key="t-products">Schedule</a></li>
             <li><a href="{{ route('finger_device.index') }}" key="t-products">Biometric Device</a></li>
             <li><a href="{{ route('staff.calender') }}" key="t-products">School Calender</a></li>

@@ -38,6 +38,7 @@ use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SubGradeController;
+use App\Http\Controllers\HairstyleController;
 use App\Http\Controllers\MessagingController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\TimetableController;
@@ -244,6 +245,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [NewsController::class, 'store'])->name('store');
     });
 
+    Route::group(['prefix' => 'hairstyle', 'as' => 'hairstyle.'], function () {
+        Route::get('/', [HairstyleController::class, 'index'])->name('index');
+        Route::post('/', [HairstyleController::class, 'store'])->name('store');
+        Route::get('/show/{id}', [HairstyleController::class, 'show'])->name('show');
+    });
+
     Route::group(['prefix' => 'staff', 'as' => 'staff.'], function () {
         Route::get('/', [StaffController::class, 'index'])->name('index');
         Route::post('/', [StaffController::class, 'store'])->name('store');
@@ -252,6 +259,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/profile/edit/{id}', [StaffController::class, 'editProfile']);
         Route::post('/update/profile', [StaffController::class, 'updateProfile'])->name('update');
         Route::get('/calender', [StaffController::class, 'calender'])->name('calender');
+        Route::get('/generate-pdf', [StaffController::class, 'generatePDF']);
     });
 
     Route::group(['prefix' => 'schedule', 'as' => 'schedule.'], function () {

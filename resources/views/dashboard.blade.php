@@ -86,8 +86,14 @@
                     </div>
                 </div>
                 <div class="col-lg-12">
+                    @php
+                        $news = \App\Models\News::all();
+                        $hairstyles = \App\Models\Hairstyle::all();
+                    @endphp
                     <button type="button" class="btn btn-primary waves-effect waves-light" 
-                    data-bs-toggle="modal" data-bs-target=".newsModal">Create school News</button>
+                    data-bs-toggle="modal" data-bs-target=".newsModal">Create school news ({{ $news->count() }})</button>
+                    <button type="button" class="btn btn-success waves-effect waves-light" 
+                    data-bs-toggle="modal" data-bs-target=".hairstyleModal">Create Hairstyle ({{ $hairstyles->count() }})</button>
                 </div>
             </div>
         </div>
@@ -306,6 +312,69 @@
                             </div>
                             <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
                                 <button id="newBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade hairstyleModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create new hairstyle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="hairstyleForm" action="{{ route('hairstyle.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="row">
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="title" value="{{ __('Title') }}" />
+                                <x-form.input id="title" class="block w-full mt-1" type="text" name="title"
+                                    :value="old('title')" id="title" />
+                                <x-form.error for="title" />
+                            </div>
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="description" value="{{ __('Note') }}" />
+                                <textarea class="form-control" name="description">{{ old('description') }}</textarea>
+                                <x-form.error for="description" />
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <label for="side_view_input" class="form-label">Side View:</label>
+                                    <input type="file" id="side_view_input" class="form-control" name="side_view" accept="image/*" onchange="previewImage('side_view_input', 'side_view_preview')">
+                                    <div style="display: flex; justify-content: center; margin-top: 5px">
+                                        <img id="side_view_preview" src="#" alt="Side view preview" style="display:none; max-width: 100px; max-height: 100px;">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="front_view_input" class="form-label">Front View:</label>
+                                    <input type="file" id="front_view_input" class="form-control" name="front_view" accept="image/*" onchange="previewImage('front_view_input', 'front_view_preview')">
+                                    <div style="display: flex; justify-content: center; margin-top: 5px">
+                                        <img id="front_view_preview" src="#" alt="Front view preview" style="display:none; max-width: 100px; max-height: 100px;">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="back_view_input" class="form-label">Back View:</label>
+                                    <input type="file" id="back_view_input" class="form-control" name="back_view" accept="image/*" onchange="previewImage('back_view_input', 'back_view_preview')">
+                                    <div style="display: flex; justify-content: center; margin-top: 5px">
+                                        <img id="back_view_preview" src="#" alt="Back view preview" style="display:none; max-width: 100px; max-height: 100px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 mb-3">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="status" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Activate</label>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
+                                <button id="createHair" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
                             </div>
                         </div>
                     </form>
@@ -564,5 +633,58 @@
                     });
                 });
         </script>
+
+        <script>
+            function previewImage(inputId, previewId) {
+                const input = document.getElementById(inputId);
+                const preview = document.getElementById(previewId);
+
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        preview.setAttribute('src', e.target.result);
+                        preview.style.display = 'block';
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                } else {
+                    preview.setAttribute('src', '#');
+                    preview.style.display = 'none';
+                }
+            }
+        </script>
+
+        {{-- <script>
+            $('#hairstyleForm').on('submit', function(e){
+                e.preventDefault();
+                toggleAble('#createHair', true, 'Creating...');
+
+                var url = $(this).attr('action');
+                let formData = new FormData($('#hairstyleForm')[0]);
+                var method = $(this).attr('method');
+
+                $.ajax({
+                    url,
+                    method,
+                    data: formData,
+                }).done((response) => {
+                    if(response.status){
+                        toggleAble('#createHair', false);
+                        toastr.success(response.message, 'Success!');
+                        resetForm('#hairstyleForm')
+                        $('.hairstyleModal').modal('toggle');
+
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 1000);
+                    }
+                }).fail((err) => {
+                    console.log(err);
+                    toggleAble('#createHair', false);
+                    toastr.error(err.responseJSON.message, 'Failed!');
+                });
+            })
+        </script> --}}
     @endsection
 </x-app-layout>

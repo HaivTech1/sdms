@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Traits\HasUuid;
 use App\Traits\HasAuthor;
+use App\Scopes\HasPublishScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -57,6 +58,11 @@ class PrimaryResult extends Model
         'pr' => 'float',
         'exam' => 'float',
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new HasPublishScope);
+    }
 
     public function id(): string
     {
