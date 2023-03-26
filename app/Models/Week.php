@@ -46,6 +46,21 @@ class Week extends Model
             $week->hairstyle_id = $week->getRandomHairstyleId();
             $week->save();
 
+            $teachers = User::where('type', User::TEACHER)->get();
+            $teachers = $teachers->shuffle();
+
+            $userIds = $teachers->pluck('id')->toArray();
+            $assignedUsers = [];
+            for ($i = 0; $i < 2; $i++) {
+                do {
+                    $userId = array_pop($userIds);
+                } while (in_array($userId, $assignedUsers) && !empty($userIds));
+                if (!in_array($userId, $assignedUsers)) {
+                    $week->users()->attach($userId);
+                    $assignedUsers[] = $userId;
+                }
+            }
+
             $weeks[] = $week;
 
             $startDate->addWeek();
@@ -59,5 +74,10 @@ class Week extends Model
         $hairstyles = Hairstyle::all();
         $randomHairstyle = $hairstyles->random();
         return $randomHairstyle->id;
+    }
+
+    public function teachers()
+    {
+        return $this->belongsToMany(User::class);
     }
 }

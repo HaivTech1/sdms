@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Components\Admin\Staff;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Week;
 use Livewire\Component;
 
@@ -16,7 +17,14 @@ class Calendar extends Component
     {
         $start = Carbon::parse($this->startDate);
         $end = Carbon::parse($this->endDate);
-        Week::generateWeeks($start, $end);
+        $weeks = Week::generateWeeks($start, $end);
+
+        if ($weeks) {
+            $this->dispatchBrowserEvent('success', [
+                'message' => 'School calendar created successfully!',
+            ]);
+        }
+    
         $this->reset(['startDate', 'endDate']);
         $this->mount();
     }
@@ -48,6 +56,8 @@ class Calendar extends Component
 
     public function render()
     {
-        return view('livewire.components.admin.staff.calendar');
+        return view('livewire.components.admin.staff.calendar',[
+            'teachers' => User::where('type', User::TEACHER)->get()
+        ]);
     }
 }

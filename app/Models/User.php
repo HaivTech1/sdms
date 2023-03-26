@@ -44,6 +44,11 @@ class User extends Authenticatable
     {
         return $this->phone_number;
     }
+
+    public function weeks()
+    {
+        return $this->belongsToMany(Week::class);
+    }
     
     /**
      * The attributes that are mass assignable.

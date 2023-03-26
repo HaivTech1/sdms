@@ -417,7 +417,7 @@
                     processData: false,
                     dataType: 'json',
                 }).done((res) => {
-                    if(res.status === 'success') {
+                    if(res.status === true) {
                         toggleAble('#submit', false);
                         toastr.success(res.message, 'Success!');
                         $('#img-show-container').hide();

@@ -63,8 +63,9 @@
                                 </div>
 
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                    <button id="submit_button2" type="submit" class="btn btn-primary">Submit</button>
+                                    <button type="button" id="affectiveBtn" class="btn btn-light">Affective</button>
+                                    <button type="button" id="commentBtn" class="btn btn-light">Comment</button>
+                                    <button id="submit_psychomotor" type="submit" class="btn btn-primary">Submit</button>
                                 </div>
                             </form>
                         </div>

@@ -12,6 +12,7 @@ use App\Jobs\CreateStudent;
 use App\Jobs\UpdateStudent;
 use Illuminate\Http\Request;
 use App\Models\PrimaryResult;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\RegistrationRequest;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
@@ -135,9 +136,11 @@ class StudentController extends Controller
     public function assignSubject (Request $request)
     {
         try {
-            $student = Student::findOrFail($request->student_id);
-            $student->subjects()->detach();
-            $student->subjects()->attach($request->subjects);
+            DB::transaction(function () use ($request) {
+                $student = Student::findOrFail($request->student_id);
+                $student->subjects()->detach();
+                $student->subjects()->attach($request->subjects);
+            });
             return response()->json(['status' => true, 'message' => 'Subjects synced successfully!'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'message' => $th->getMessage()], 500);

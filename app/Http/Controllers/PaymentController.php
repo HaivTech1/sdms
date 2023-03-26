@@ -44,50 +44,59 @@ class PaymentController extends Controller
 
     public function handleGatewayCallback()
     {
-        $paymentDetails = Paystack::getPaymentData();
+        try {
+            $paymentDetails = Paystack::getPaymentData();
 
-        // dd($paymentDetails);
-        $user = User::findOrFail($paymentDetails['data']['metadata']['author_id']);
-        $amount =  $paymentDetails['data']['amount'] / 100;
-        $balance = $paymentDetails['data']['metadata']['payable'] - $amount;
-        $paymentType = ($amount == $paymentDetails['data']['metadata']['payable']) ? 'full' : 'partial';
-        $paidBy = Student::findOrFail($paymentDetails['data']['metadata']['student_uuid']);
-
-        $check = paymentCheck($paymentDetails['data']['id'], $paymentDetails['data']['reference'] );
-
-        if(!$check){
-            if (!$paymentDetails['data']['metadata']['old_payment_id']) {
-                $payment = new Payment();
-                $payment->paid_by = $paidBy->first_name . ' ' . $paidBy->last_name. ' ' . $paidBy->other_name;
-                $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
-                $payment->amount = $amount;
-                $payment->payable = $paymentDetails['data']['metadata']['payable'];
-                $payment->balance = $balance;
-                $payment->type = $paymentType;
-                $payment->term_id = $paymentDetails['data']['metadata']['term_id'];
-                $payment->period_id = period('id');
-                $payment->method = $paymentDetails['data']['channel'];
-                $payment->trans_id = $paymentDetails['data']['id'];
-                $payment->ref_id= $paymentDetails['data']['reference'];
-                $payment->authoredBy($user);
-                $payment->save();
-                
-            }else{
-                $payment = Payment::findOrFail($paymentDetails['data']['metadata']['old_payment_id']);
-                $payment->update([
-                                  'amount' => $paymentDetails['data']['metadata']['old_payment'] + $amount, 
-                                  'type' => 'full', 
-                                  'balance' => $balance,
-                                  'trans_id' => $paymentDetails['data']['id'],
-                                  'ref_id' => $paymentDetails['data']['reference']
-                                ]);
+            // dd($paymentDetails);
+            $user = User::findOrFail($paymentDetails['data']['metadata']['author_id']);
+            $amount =  $paymentDetails['data']['amount'] / 100;
+            $balance = $paymentDetails['data']['metadata']['payable'] - $amount;
+            $paymentType = ($amount == $paymentDetails['data']['metadata']['payable']) ? 'full' : 'partial';
+            $paidBy = Student::findOrFail($paymentDetails['data']['metadata']['student_uuid']);
+    
+            $check = paymentCheck($paymentDetails['data']['id'], $paymentDetails['data']['reference'] );
+    
+            if(!$check){
+                if (!$paymentDetails['data']['metadata']['old_payment_id']) {
+                    $payment = new Payment();
+                    $payment->paid_by = $paidBy->first_name . ' ' . $paidBy->last_name. ' ' . $paidBy->other_name;
+                    $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
+                    $payment->amount = $amount;
+                    $payment->payable = $paymentDetails['data']['metadata']['payable'];
+                    $payment->balance = $balance;
+                    $payment->type = $paymentType;
+                    $payment->term_id = $paymentDetails['data']['metadata']['term_id'];
+                    $payment->period_id = period('id');
+                    $payment->method = $paymentDetails['data']['channel'];
+                    $payment->trans_id = $paymentDetails['data']['id'];
+                    $payment->ref_id= $paymentDetails['data']['reference'];
+                    $payment->authoredBy($user);
+                    $payment->save();
+                    
+                }else{
+                    $payment = Payment::findOrFail($paymentDetails['data']['metadata']['old_payment_id']);
+                    $payment->update([
+                                        'amount' => $paymentDetails['data']['metadata']['old_payment'] + $amount, 
+                                        'type' => 'full', 
+                                        'balance' => $balance,
+                                        'trans_id' => $paymentDetails['data']['id'],
+                                        'ref_id' => $paymentDetails['data']['reference']
+                                    ]);
+                }
+    
+                event(new PaymentEvent($payment));
+                return view('student.receipt', ['payment' => $payment]);
             }
-
-            event(new PaymentEvent($payment));
-            return view('student.receipt', ['payment' => $payment]);
+            return view('student.receipt',['payment' => $check]);
+        } catch (\Exception $th) {
+            $notification = array(
+                'message' => $th->getMessage(),
+                'alert-type' => 'error',
+                'button' => 'Okay!',
+                'title' => 'Failed'
+            );
+            return redirect()->back()->with($notification);
         }
-        return view('student.receipt',['payment' => $check]);
-       
     }
 
     public function receipt($payment)

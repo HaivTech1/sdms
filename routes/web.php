@@ -209,6 +209,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/check/midterm', [ResultController::class, 'midterm'])->name('midterm');
         Route::get('/psychomotor/get', [ResultController::class, 'psychomotor'])->name('psychomotor.get');
         Route::post('/psychomotor/upload', [ResultController::class, 'psychomotorUpload'])->name('psychomotor.upload');
+        Route::post('/cognitive/upload', [ResultController::class, 'cognitiveUpload'])->name('cognitive.upload');
 
         Route::get('/affective/get', [ResultController::class, 'affective'])->name('affective.get');
         Route::post('/affective/upload', [ResultController::class, 'affectiveUpload'])->name('affective.upload');
@@ -260,6 +261,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/update/profile', [StaffController::class, 'updateProfile'])->name('update');
         Route::get('/calender', [StaffController::class, 'calender'])->name('calender');
         Route::get('/generate-pdf', [StaffController::class, 'generatePDF']);
+        Route::post('/assign/duty', [StaffController::class, 'assign']);
+        Route::post('/reassign/duty', [StaffController::class, 'duty']);
     });
 
     Route::group(['prefix' => 'schedule', 'as' => 'schedule.'], function () {

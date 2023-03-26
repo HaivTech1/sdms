@@ -263,6 +263,7 @@
     </div>
     @include('partials.affectiveModal')
     @include('partials.psychomotorModal')
+    @include('partials.commentModal')
 </div>
 
 @section('scripts')
@@ -312,7 +313,7 @@
                 
                 $('#createAffective').submit(function (e){
                     e.preventDefault();
-                    toggleAble('#submit_button1', true, 'Submitting...');
+                    toggleAble('#submit_affective', true, 'Submitting...');
 
                     var data = $(this).serializeArray();
                     var url = $(this).attr('action');
@@ -325,27 +326,26 @@
                     }).done((res) => {
                         if(res.status === true) {
                             const { data } = res;
-                            console.log(data)
 
                             $('#student').val(data.student_uuid);
                             $('#period').val(data.period_id);
                             $('#term').val(data.term_id);
 
-                            toggleAble('#submit_button2', false);
+                            toggleAble('#submit_affective', false);
                             toastr.success(res.message, 'Success!');
                             $('#affective').modal('toggle');
                             resetForm('#createAffective');
                             $('#psychomotor').modal('toggle');
                         }
                     }).fail((res) => {
+                        toggleAble('#submit_affective', false);
                         toastr.error(res.responseJSON.message, 'Failed!');
-                        toggleAble('#submit_button2', false);
                     });
                 })
                 
                 $('#createPsychomotor').submit((e) => {
                     e.preventDefault();
-                    toggleAble('#submit_button2', true, 'Submitting...');
+                    toggleAble('#submit_psychomotor', true, 'Submitting...');
 
                     var data = $('#createPsychomotor').serializeArray();
                     var url = '/result/psychomotor/upload';
@@ -357,16 +357,93 @@
                         data
                     }).done((res) => {
                         if(res.status === true) {
-                            toggleAble('#submit_button2', false);
+                             const { data } = res;
+
+                            $('#comment_student').val(data.student_uuid);
+                            $('#comment_period').val(data.period_id);
+                            $('#comment_term').val(data.term_id);
+
+                            toggleAble('#submit_psychomotor', false);
                             toastr.success(res.message, 'Success!');
-                            resetForm('#createPsychomotor');
                             $('#psychomotor').modal('toggle');
+                            resetForm('#createPsychomotor');
+                            $('#comment').modal('toggle');
                         }
                     }).fail((res) => {
+                        toggleAble('#submit_psychomotor', false);
                         toastr.error(res.responseJSON.message, 'Failed!');
-                        toggleAble('#submit_button2', false);
                     });
                 });
+
+                $('#createComment').submit((e) => {
+                    e.preventDefault();
+                    toggleAble('#submit_comment', true, 'Submitting...');
+
+                    var data = $('#createComment').serializeArray();
+                    var url = '/result/cognitive/upload';
+                    var type = $(this).attr('method')
+
+                    $.ajax({
+                        type: 'POST',
+                        url,
+                        data
+                    }).done((res) => {
+                        if(res.status === true) {
+                            toggleAble('#submit_comment', false);
+                            toastr.success(res.message, 'Success!');
+                            resetForm('#createComment');
+                            $('#comment').modal('toggle');
+                        }
+                    }).fail((res) => {
+                        toggleAble('#submit_comment', false);
+                        toastr.error(res.responseJSON.message, 'Failed!');
+                    });
+                });
+            });
+        </script>
+        <script>
+            $('#psychomotorBtn').on('click', function(){
+                const currentUrl = window.location.href;
+                const searchParams = new URLSearchParams(currentUrl.split('?')[1]);
+                const periodId = searchParams.get('period_id');
+                const termId = searchParams.get('term_id');
+                const studentId = searchParams.get('student_id');
+
+                $('#student').val(studentId);
+                $('#period').val(periodId);
+                $('#term').val(termId);
+                $('#affective').modal('toggle');
+                $('#psychomotor').modal('toggle');
+            });
+
+            $('#affectiveBtn').on('click', function(){
+                const currentUrl = window.location.href;
+                const searchParams = new URLSearchParams(currentUrl.split('?')[1]);
+                const periodId = searchParams.get('period_id');
+                const termId = searchParams.get('term_id');
+                const studentId = searchParams.get('student_id');
+
+                $('#student').val(studentId);
+                $('#period').val(periodId);
+                $('#term').val(termId);
+                
+                $('#psychomotor').modal('toggle');
+                $('#affective').modal('toggle');
+            });
+
+            $('#commentBtn').on('click', function(){
+                const currentUrl = window.location.href;
+                const searchParams = new URLSearchParams(currentUrl.split('?')[1]);
+                const periodId = searchParams.get('period_id');
+                const termId = searchParams.get('term_id');
+                const studentId = searchParams.get('student_id');
+
+                $('#comment_student').val(studentId);
+                $('#comment_period').val(periodId);
+                $('#comment_term').val(termId);
+
+                $('#psychomotor').modal('toggle');
+                $('#comment').modal('toggle');
             });
         </script>
     @endsection

@@ -50,17 +50,17 @@
             <li><a href="{{ route('student.single.promotion') }}" key="t-add-product">Single Promotion</a></li>
         </ul>
     </li>
-    <li>
+    {{-- <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
             <i class="bx bx-command"></i>
             <span key="t-ecommerce">Check Result</span>
         </a>
-        {{-- <ul class="sub-menu" aria-expanded="false">
+        <ul class="sub-menu" aria-expanded="false">
             <li><a href="{{ route('result.midterm') }}" key="t-products">Mid Term Result</a></li>
             <li><a href="{{ route('result.primary') }}" key="t-products">Primary</a></li>
             <li><a href="{{ route('result.secondary') }}" key="t-products">Secondary</a></li>
-        </ul> --}}
-    </li>
+        </ul>
+    </li> --}}
         <li>
         <a href="{{ route('user.certificate') }}" class="waves-effect">
             <i class="bx bx-paperclip"></i>

@@ -21,6 +21,7 @@ use App\Models\PrimaryResult;
 use App\Jobs\MidTermResultJob;
 use App\Policies\ResultPolicy;
 use App\Jobs\CreateSingleResult;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StoreResultRequest;
@@ -437,52 +438,59 @@ class ResultController extends Controller
 
     public function singlePrimaryUpload(Request $request)
     {
-        $check = PrimaryResult::where('period_id', $request->period_id)
-                        ->where('term_id', $request->term_id)
-                        ->where('grade_id', $request->grade_id)
-                        ->where('student_id', $request->student_id)
-                        ->first();
+        try {
+            // Wrap the database queries in a transaction
+            DB::transaction(function () use ($request) {
+                $check = PrimaryResult::where('period_id', $request->period_id)
+                    ->where('term_id', $request->term_id)
+                    ->where('grade_id', $request->grade_id)
+                    ->where('student_id', $request->student_id)
+                    ->first();
 
-        if ($check) {
-            // $notification = array (
-            //     'messege' => 'Result for this student already exist!',
-            //     'alert-type' => 'error',
-            //     'button' => 'Okay!',
-            //     'title' => 'Sorry'
-            // );
-    
-            // return redirect()->back()->with($notification);
-            return response()->json(['status' => false, 'message' => 'Result for this student already exist!'], 500); 
-        }else {
+                if ($check) {
+                    // If the result already exists, throw an exception to roll back the transaction
+                    throw new \Exception('Result for this student already exists!');
+                } else {
+                    for ($i=0; $i < count($request->ca1); $i++) { 
+                        $result = new PrimaryResult([
+                            'period_id'     => $request->period_id,
+                            'term_id'       => $request->term_id,
+                            'grade_id'      => $request->grade_id,
+                            'student_id'        => $request->student_id,
+                            'subject_id'        => $request->subject_id[$i],
+                            'ca1'       => $request->ca1[$i],
+                            'ca2'       => $request->ca2[$i],
+                            'ca3'       => $request->ca3[$i],
+                            'pr'       => $request->pr[$i],
+                            'exam'      => $request->exam[$i],
+                        ]);
+            
+                        $result->authoredBy(auth()->user());
+                        $result->save();
+                    }
+                }
+            });
 
-            for ($i=0; $i < count($request->ca1); $i++) { 
-                $result = new PrimaryResult([
-                    'period_id'     => $request->period_id,
-                    'term_id'       => $request->term_id,
-                    'grade_id'      => $request->grade_id,
-                    'student_id'        => $request->student_id,
-                    'subject_id'        => $request->subject_id[$i],
-                    'ca1'       => $request->ca1[$i],
-                    'ca2'       => $request->ca2[$i],
-                    'ca3'       => $request->ca3[$i],
-                    'pr'       => $request->pr[$i],
-                    'exam'      => $request->exam[$i],
-                ]);
-    
-                $result->authoredBy(auth()->user());
-                $result->save();
-            }
-    
-            return response()->json(['status' => true, 'message' => 'Result uploaded successfully!', 'data' => [
-                'student_uuid' => $request->student_id, 
-                'period_id' => $request->period_id, 
-                'term_id' => $request->term_id
+            // Return a success response
+            return response()->json([
+                'status' => true,
+                'message' => 'Result uploaded successfully!',
+                'data' => [
+                    'student_uuid' => $request->student_id, 
+                    'period_id' => $request->period_id, 
+                    'term_id' => $request->term_id
                 ]
             ], 200);
-        }
-        
-    }
+        } catch (\Exception $e) {
+            // Roll back the transaction and return an error response
+            DB::rollBack();
 
+            return response()->json([
+                'status' => false,
+                'message' => 'Error creating result: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     
     public function secondary()
     {
@@ -516,22 +524,31 @@ class ResultController extends Controller
 
 
             try {
-                if (count($check) > 1) {
-                    return response()->json(['status' => false, 'message' => 'Psychomotor already exist'], 500); 
-                }else{
-                    for ($i = 0; $i < count($request->title); $i++) { 
-                        $psychomotor = new Psychomotor([
-                            'title' => $request->title[$i],
-                            'rate' => $request->rate[$i],
-                            'period_id'     => $request->period_id,
-                            'term_id'       => $request->term_id,
-                            'student_uuid'        => $request->student_uuid,
-                        ]);
-                        $psychomotor->save();
+                DB::transaction(function () use ($request, $check) {
+                    if (count($check) > 0) {
+                        throw new \Exception('Psychomotor already exist!');
+                    }else{
+                        for ($i = 0; $i < count($request->title); $i++) { 
+                            $psychomotor = new Psychomotor([
+                                'title' => $request->title[$i],
+                                'rate' => $request->rate[$i],
+                                'period_id'     => $request->period_id,
+                                'term_id'       => $request->term_id,
+                                'student_uuid'        => $request->student_uuid,
+                            ]);
+                            $psychomotor->save();
+                        }
                     }
-                    return response()->json(['status' => true, 'message' => 'Psychomotor saved successfully'], 200);
-                }
-            } catch (\Throwable $th) {
+                });
+
+                return response()->json(['status' => true, 'message' => 'Psychomotor saved successfully','data' => [
+                    'student_uuid' => $request->student_uuid, 
+                    'period_id' => $request->period_id, 
+                    'term_id' => $request->term_id
+                ]], 200);
+
+            } catch (\Exception $th) {
+                DB::rollback();
                 return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
             }
          
@@ -554,43 +571,61 @@ class ResultController extends Controller
             ->where('term_id', $request->term_id)->get();
 
             try {
-                if (count($check) > 1) {
-                    $notification = array (
-                        'messege' => 'Affective domain already exist',
-                        'alert-type' => 'error',
-                        'button' => 'Okay!',
-                        'title' => 'Failed'
-                    );
-            
-                    // return redirect()->back()->with($notification);
-                    return response()->json(['status' => false, 'message' => 'Affective domain already exist'], 500); 
-                }else{
-                    for ($i = 0; $i < count($request->title); $i++) { 
-                        $psychomotor = new Affective([
-                            'title' => $request->title[$i],
-                            'rate' => $request->rate[$i],
+                DB::transaction(function () use ($request, $check) {
+                    if (count($check) > 0) {
+                        throw new \Exception('Affective domain already exist');
+                    }else{
+                        for ($i = 0; $i < count($request->title); $i++) { 
+                            $psychomotor = new Affective([
+                                'title' => $request->title[$i],
+                                'rate' => $request->rate[$i],
+                                'period_id'     => $request->period_id,
+                                'term_id'       => $request->term_id,
+                                'student_uuid'        => $request->student_uuid,
+                            ]);
+                            $psychomotor->save();
+                        }
+                    }
+                });
+                return response()->json(['status' => true, 'message' => 'Affective domain saved successfully','data' => [
+                    'student_uuid' => $request->student_uuid, 
+                    'period_id' => $request->period_id, 
+                    'term_id' => $request->term_id
+                ]
+            ], 200);
+            } catch (\Exception $th) {
+                DB::rollback();
+                return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+            }
+         
+    }
+
+    public function cognitiveUpload(Request $request)
+    {
+
+        $check = Cognitive::where('student_uuid', $request->student_uuid)
+            ->where('period_id', $request->period_id)
+            ->where('term_id', $request->term_id)->get();
+
+            try {
+                DB::transaction(function () use ($request, $check) {
+                    if (count($check) > 0) {
+                        throw new \Exception('Comment and attendance already exist!');
+                    }else{
+                        $cognitive = new Cognitive([
+                            'attendance_duration' => $request->attendance_duration,
+                            'attendance_present' => $request->attendance_present,
+                            'comment' => $request->comment,
                             'period_id'     => $request->period_id,
                             'term_id'       => $request->term_id,
                             'student_uuid'        => $request->student_uuid,
                         ]);
-                        $psychomotor->save();
+                        $cognitive->save();
                     }
-                    // $notification = array (
-                    //     'messege' => 'Affective domain saved successfully',
-                    //     'alert-type' => 'success',
-                    //     'button' => 'Okay!',
-                    //     'title' => 'Success'
-                    // );
-            
-                    // return redirect()->back()->with($notification);
-                    return response()->json(['status' => true, 'message' => 'Affective domain saved successfully','data' => [
-                            'student_uuid' => $request->student_uuid, 
-                            'period_id' => $request->period_id, 
-                            'term_id' => $request->term_id
-                        ]
-                    ], 200);
-                }
-            } catch (\Throwable $th) {
+                });
+                return response()->json(['status' => true, 'message' => 'Comments and attendance saved successfully'], 200);
+            } catch (\Exception $th) {
+                DB::rollback();
                 return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
             }
          
@@ -598,68 +633,21 @@ class ResultController extends Controller
 
     public function publish(Request $request)
     {
-        $results = Result::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
-        
-        $cum = array();
-
-        foreach($results as $result){
-            // $events[] = [
-            //     'subject_id' => $result['subject_id'],
-            //     'score' =>  $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['exam'],
-            //     'student_uuid' => $request->student_id,
-            //     'term_id' => $request->term_id,
-            //     'period_id' => $request->period_id,
-            //     'grade_id' => $request->grade_id,
-            // ];
-            $cummulative = new Cummulative([
-                'subject_id' => $result['subject_id'],
-                'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['exam'], 
-                'student_uuid' => $result['student_id'], 
-                'period_id' => $result['period_id'],
-                'term_id' => $result['term_id'], 
-                'grade_id' => $result['grade_id'], 
-                'author_id' => auth()->id()
-            ]);
-            $cummulative->save();
-        }
-
-        return response()->json(['status' => 'success','message' => 'Result cummulated successfully!' ], 200);
-    }
-
-    public function primaryPublish(Request $request)
-    {
-        $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
-        $student = Student::findOrfail($request->student_id);
-        $idNumber = $student->user->code();
-        $password = 'password123';
-        $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
-        $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
-        $subject = 'Evaluation Report Sheet';
-
-        foreach($results as $result){
-            $result->update(['published' => true]);
-        }
-
-        if(isset($student->mother)){
-            // MidTermResultJob::dispatch($student, $message, $subject);
-            Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-        }elseif(isset($student->father)){
-            Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-        }else{
-            Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-        }
-
-        $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
-
-        if(count($check) > 0){
-            return response()->json(['status' => true ,'message' => 'Result published but Cummulation already exist!' ], 500);
-        }else{
+        try {
+            $results = Result::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
             $cum = array();
-
             foreach($results as $result){
+                // $events[] = [
+                //     'subject_id' => $result['subject_id'],
+                //     'score' =>  $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['exam'],
+                //     'student_uuid' => $request->student_id,
+                //     'term_id' => $request->term_id,
+                //     'period_id' => $request->period_id,
+                //     'grade_id' => $request->grade_id,
+                // ];
                 $cummulative = new Cummulative([
                     'subject_id' => $result['subject_id'],
-                    'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr'] + $result['exam'], 
+                    'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['exam'], 
                     'student_uuid' => $result['student_id'], 
                     'period_id' => $result['period_id'],
                     'term_id' => $result['term_id'], 
@@ -668,35 +656,98 @@ class ResultController extends Controller
                 ]);
                 $cummulative->save();
             }
-    
+            return response()->json(['status' => 'success','message' => 'Result cummulated successfully!' ], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage() ], 500);
+        }
+        
+    }
+
+    public function primaryPublish(Request $request)
+    {
+        try {
+            DB::transaction(function () use ($request) {
+                $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+                $student = Student::findOrfail($request->student_id);
+                $idNumber = $student->user->code();
+                $password = 'password123';
+                $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+                $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+                $subject = 'Evaluation Report Sheet';
+        
+                foreach($results as $result){
+                    $result->update(['published' => true]);
+                }
+        
+                if(isset($student->mother)){
+                    // MidTermResultJob::dispatch($student, $message, $subject);
+                    Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+                }elseif(isset($student->father)){
+                    Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+                }else{
+                    Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+                }
+        
+                $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+        
+                if(count($check) > 0){
+                    throw new \Exception('Result published but Cummulation already exist!');
+                }else{
+                    $cum = array();
+        
+                    foreach($results as $result){
+                        $cummulative = new Cummulative([
+                            'subject_id' => $result['subject_id'],
+                            'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr'] + $result['exam'], 
+                            'student_uuid' => $result['student_id'], 
+                            'period_id' => $result['period_id'],
+                            'term_id' => $result['term_id'], 
+                            'grade_id' => $result['grade_id'], 
+                            'author_id' => auth()->id()
+                        ]);
+                        $cummulative->save();
+                    }
+            
+                }
+            });
             return response()->json(['status' => true ,'message' => 'Result Published successfully!' ], 200);
+        } catch (\Exception $th) {
+            return response()->json(['status' => false ,'message' => $th->getMessage() ], 200);
         }
     }
 
     public function midtermPublish(Request $request)
     {
-        $results = MidTerm::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
-        $student = Student::findOrfail($request->student_id);
-        $idNumber = $student->user->code();
-        $password = 'password123';
-        $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
-        $message = "<p> $name's mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
-        $subject = 'Mid-term result';
+        try {
+            DB::transaction(function () use ($request) {
+                $results = MidTerm::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+                $student = Student::findOrfail($request->student_id);
+                $idNumber = $student->user->code();
+                $password = 'password123';
+                $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+                $message = "<p> $name's mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+                $subject = 'Mid-term result';
+        
+                foreach($results as $result){
+                    $result->update(['published' => true]);
+                }
+        
+                if(isset($student->mother)){
+                    // MidTermResultJob::dispatch($student, $message, $subject);
+                    Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+                }elseif(isset($student->father)){
+                    Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+                }else{
+                    Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+                }
+            });
 
-        foreach($results as $result){
-            $result->update(['published' => true]);
+            return response()->json(['status' => true, 'message' => 'Result made available successfully! And email sent to parent.' ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
-
-        if(isset($student->mother)){
-            // MidTermResultJob::dispatch($student, $message, $subject);
-            Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-        }elseif(isset($student->father)){
-            Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-        }else{
-            Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-        }
-
-        return response()->json(['status' => 'success','message' => 'Result made available successfully! And email sent to parent.' ], 200);
+       
 
     }
 
@@ -712,40 +763,45 @@ class ResultController extends Controller
 
     public function verify(Request $request)
     {
-        $code = $request->code;
-        $grade = $request->grade;
-        $period = $request->period;
-        $term = $request->term;
+        try {
+            $code = $request->code;
+            $grade = $request->grade;
+            $period = $request->period;
+            $term = $request->term;
 
-        $user = auth()->user();
-        $userCode  = $user->scratchCard->code;
-        $pin = Pincode::whereStudent_id(auth()->id())->first();
-        
-        if (!is_null($pin)) {
-            if (Hash::check($code, $userCode))
-            {
-                if ($pin->count >= 7) {
-                    $pin->user->update(['pincode' => null]);
-                    $pin->delete();
-                    return response()->json(['status' => 'error', 'message' => 'This pin is not valid anymore. It has been already used.'], 401); 
-                }else{
-                    if($pin->count <= 7){
-                        if($pin->term_id == $term && $pin->period_id == $period){
-                            $pin->update(['count' => $pin->count +1]);
-                            return response()->json(['status' => 'success', 'redirectTo' => '/result/primary/show/'.$user->student->id().'?grade_id='.$grade.'&period_id='.$period.'&term_id='.$term, 'message' => 'Please wait while we cummulate your result. You will be redirected shortly!'], 200); 
-                        }else{
-                            return response()->json(['status' => 'error', 'message' => 'The pin you entered is not valid for this term or session. Please use a new one!'], 500); 
-                        }
+            $user = auth()->user();
+            $userCode  = $user->scratchCard->code;
+            $pin = Pincode::whereStudent_id(auth()->id())->first();
+            
+            if (!is_null($pin)) {
+                if (Hash::check($code, $userCode))
+                {
+                    if ($pin->count >= 7) {
+                        $pin->user->update(['pincode' => null]);
+                        $pin->delete();
+                        return response()->json(['status' => 'error', 'message' => 'This pin is not valid anymore. It has been already used.'], 401); 
                     }else{
-                        return response()->json(['status' => 'error', 'message' => 'The pin code is not valid. It is already used.'], 401); 
+                        if($pin->count <= 7){
+                            if($pin->term_id == $term && $pin->period_id == $period){
+                                $pin->update(['count' => $pin->count +1]);
+                                return response()->json(['status' => 'success', 'redirectTo' => '/result/primary/show/'.$user->student->id().'?grade_id='.$grade.'&period_id='.$period.'&term_id='.$term, 'message' => 'Please wait while we cummulate your result. You will be redirected shortly!'], 200); 
+                            }else{
+                                return response()->json(['status' => 'error', 'message' => 'The pin you entered is not valid for this term or session. Please use a new one!'], 500); 
+                            }
+                        }else{
+                            return response()->json(['status' => 'error', 'message' => 'The pin code is not valid. It is already used.'], 401); 
+                        }
                     }
+                }else{
+                    return response()->json(['status' => 'error', 'message' => 'The pin code is not correct! Please try again.'], 401); 
                 }
             }else{
-                return response()->json(['status' => 'error', 'message' => 'The pin code is not correct! Please try again.'], 401); 
+                return response()->json(['status' => 'error', 'message' => 'You need to purchase a pin code to check result.'], 401); 
             }
-        }else{
-            return response()->json(['status' => 'error', 'message' => 'You need to purchase a pin code to check result.'], 401); 
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'error', 'message' => $th->getMessage()], 500); 
         }
+        
     }
 
     public function midTermUpload()
@@ -772,43 +828,47 @@ class ResultController extends Controller
         {
             return response()->json([
                 'success' => 'false',
-                'errors'  => $validator->errors()->all(),
+                'message'  => $validator->message()->all(),
             ], 400);
         }else{
             try{
-                $check = MidTerm::where('period_id', $request->period_id)
-                ->where('term_id', $request->term_id)
-                ->where('grade_id', $request->grade_id)
-                ->where('student_id', $request->student_id)
-                ->first();
+                DB::transaction(function () use ($request) {
+                    $check = MidTerm::where('period_id', $request->period_id)
+                    ->where('term_id', $request->term_id)
+                    ->where('grade_id', $request->grade_id)
+                    ->where('student_id', $request->student_id)
+                    ->first();
+                    
+                    if ($check) {
+                        throw new \Exception('Result for this student already exists!');
+                    }else {
+                        for ($i=0; $i < count($request->subject_id); $i++) { 
+                            $midterm = new MidTerm([
+                                'period_id'     => $request->period_id,
+                                'term_id'       => $request->term_id,
+                                'grade_id'      => $request->grade_id,
+                                'student_id'        => $request->student_id,
+                                'subject_id'        => $request->subject_id[$i],
+                                'entry_1'       => $request->entry_1[$i],
+                                'first_test'       => $request->first_test[$i],
+                                'entry_2'      => $request->entry_2[$i],
+                                'ca'      => $request->ca[$i],
+                                'project'      => $request->project[$i],
+                            ]);
                 
-                if ($check) {
-                    return response()->json(['success' => 'false', 'message' => 'Result for this student already exists!'], 400);
-                }else {
-                    for ($i=0; $i < count($request->subject_id); $i++) { 
-                        $midterm = new MidTerm([
-                            'period_id'     => $request->period_id,
-                            'term_id'       => $request->term_id,
-                            'grade_id'      => $request->grade_id,
-                            'student_id'        => $request->student_id,
-                            'subject_id'        => $request->subject_id[$i],
-                            'entry_1'       => $request->entry_1[$i],
-                            'first_test'       => $request->first_test[$i],
-                            'entry_2'      => $request->entry_2[$i],
-                            'ca'      => $request->ca[$i],
-                            'project'      => $request->project[$i],
-                        ]);
-            
-                        $midterm->authoredBy(auth()->user());
-                        $midterm->save();
+                            $midterm->authoredBy(auth()->user());
+                            $midterm->save();
+                        }
                     }
-                    return response()->json(['status' => 'success', 'errors' => ['Result uploaded successfully!']], 200);
-                }
+                });
+
+                return response()->json(['status' => 'success', 'message' => ['Result uploaded successfully!']], 200);
             }catch(\Exception $e){
+                DB::rollBack();
                 return response()->json([
-                    'success' => 'false',
-                    'errors'  => $e->getMessage(),
-                ], 400);
+                    'status' => false,
+                    'message' => 'Error creating result: ' . $e->getMessage(),
+                ], 500);
             }
         }
 

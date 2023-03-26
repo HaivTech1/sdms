@@ -105,14 +105,14 @@
                                     </div>
                                     <div class="col-sm-2">
                                         <div class="btn-group btn-group-example" role="group">
-                                            <button wire:click.prevent="promoteAll" type="button"
+                                            <button wire:click.prevent="sendAllDetails" type="button"
                                                 class="btn btn-outline-success w-sm">
                                                 <i class="bx bx-caret-right"></i>
-                                                Promote All
+                                                Send Credentials
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="col-sm-2">
+                                    {{-- <div class="col-sm-2">
                                         <div class="btn-group btn-group-example" role="group">
                                             <button wire:click.prevent="repeatAll" type="button"
                                                 class="btn btn-outline-danger w-sm">
@@ -120,7 +120,7 @@
                                                 Repeat All
                                             </button>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             @endif
                         </diV>
@@ -181,7 +181,7 @@
                                             </td>
                                             <td>
                                                 @if ($student->status == true)
-                                                    <div class="row">
+                                                    <div class="d-flex align-items-center justify-content-center">
                                                         <div class="col-sm-4">
                                                             <a class="dropdown-item"
                                                                 href="{{ route('student.show', $student) }}"><i
@@ -193,6 +193,10 @@
                                                                 href="{{ route('student.edit', $student) }}"><i
                                                                     class="fa fa-edit"></i>
                                                             </a>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <button class="btn btn-sm btn-primary" wire:click.prevent="sendDetails('{{ $student ->id()}}')"><i class="fa fa-envelope"></i>
+                                                            </button>
                                                         </div>
                                                         <div class="col-sm-4">
                                                             <button type="button" id="assingSubject" value="{{ $student->id() }}">

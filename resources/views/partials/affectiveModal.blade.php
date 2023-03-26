@@ -97,8 +97,8 @@
                                 </div>
 
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                    <button id="submit_button1" type="submit" class="btn btn-primary">Submit</button>
+                                    <button type="button" id="psychomotorBtn" class="btn btn-light">Psychomotor</button>
+                                    <button id="submit_affective" type="submit" class="btn btn-primary">Submit</button>
                                 </div>
                             </form>
                         </div>

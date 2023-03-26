@@ -90,9 +90,9 @@ class MessagingController extends Controller
                     // } 
             }
             return response()->json(['status' => true, 'text' => 'The message was sent successfully Your balance is ' . $data->getRemainingBalance()]);
-          } else {
+        } else {
             return response()->json(['status' => false, 'text' => 'Sms Api Not Set From Admin Options']);
-          }
+        }
   
       }
 }

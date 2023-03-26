@@ -6,7 +6,9 @@ use App\Models\Grade;
 use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Mail\SendMidtermMail;
 use App\Scopes\HasActiveScope;
+use Illuminate\Support\Facades\Mail;
 use App\Models\Student as ClientStudent;
 
 class Student extends Component
@@ -125,6 +127,55 @@ class Student extends Component
     {
         $this->student_details = $student;
         $this->dispatchBrowserEvent('show-details');
+    }
+
+    public function sendDetails($student)
+    {
+        try {
+            $student = ClientStudent::withoutGlobalScope(new HasActiveScope)->where('uuid', $student)->first();
+            $idNumber = $student->user->code();
+            $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+            $message = "<p>Your child: $name login credentials are: Id Number: ".$idNumber." and password: password123 or password1234</p>";
+            $subject = 'Portal Login Credentials';
+
+            if(isset($student->mother)) {
+                Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+            }elseif(isset($student->father)) {
+                Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+            }elseif(isset($student->guardian)) {
+                Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+            }
+            
+            $this->dispatchBrowserEvent('success', ['message' => 'Credentials have been sent successfully!']);
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('error', ['message' => $th->getMessage()]);
+        }
+    }
+
+    public function sendAllDetails()
+    {
+        try {
+            $students = ClientStudent::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $this->selectedRows)->get();
+            foreach ($students as $student) {
+                $idNumber = $student->user->code();
+                $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+                $message = "<p>Your child: $name login credentials are: Id Number: ".$idNumber." and password: password123 or password1234</p>";
+                $subject = 'Portal Login Credentials';
+    
+                if(isset($student->mother)) {
+                    Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+                }elseif(isset($student->father)) {
+                    Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+                }elseif(isset($student->guardian)) {
+                    Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+                }
+            }
+            $this->dispatchBrowserEvent('success', ['message' => 'Credentials have been sent successfully!']);
+            $this->reset(['selectedRows', 'selectPageRows']);
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('error', ['message' => $th->getMessage()]);
+            $this->reset(['selectedRows', 'selectPageRows']);
+        }
     }
     
     public function render()

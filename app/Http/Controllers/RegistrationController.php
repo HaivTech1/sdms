@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Scopes\HasActiveScope;
 use App\Mail\SendAdmissionMail;
 use App\Services\SaveImageService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendNewRegistrationMail;
@@ -41,68 +42,71 @@ class RegistrationController extends Controller
 
     public function store(RegistrationRequest $request)
     {
-        $student = new Registration([
-            'first_name'  => $request->first_name,
-            'last_name'  => $request->last_name,
-            'other_name'  => $request->other_name,
-            'gender'  => $request->gender,
-            'dob'  => $request->dob,
-            'nationality'  => $request->nationality,
-            'state_of_origin'  => $request->state_of_origin,
-            'local_government'  => $request->local_government,
-            'address'  => $request->address,
-            'prev_school'  => $request->prev_school,
-            'prev_class'  => $request->prev_class,
-            'medical_history'  => $request->medical_history,
-            'religion'  => $request->religion,
-            'denomination'  => $request->denomination,
-            'blood_group'  => $request->blood_group,
-            'genotype'  => $request->genotype,
-            'speech_development'  => $request->speech_development,
-            'sight'  => $request->sight,
-            'allergics'  => $request->allergics,
-            'grade_id'  => $request->grade_id,
-            'father_name' => $request->father_name,
-            'father_email' => $request->father_email,
-            'father_phone' => $request->father_phone,
-            'father_occupation' => $request->father_occupation,
-            'father_office_address' => $request->father_office_address,
-            'mother_name' => $request->mother_name,
-            'mother_email' => $request->mother_email,
-            'mother_phone' => $request->mother_phone,
-            'mother_office_address' => $request->mother_office_address,
-            'mother_occupation' => $request->mother_occupation,
-            'guardian_full_name'  => $request->guardian_full_name,
-            'guardian_email'  => $request->guardian_email,
-            'guardian_phone_number'  => $request->guardian_phone_number,
-            'guardian_occupation'  => $request->guardian_occupation,
-            'guardian_office_address'  => $request->guardian_office_address,
-            'guardian_home_address'  => $request->guardian_home_address,
-            'guardian_relationship'  => $request->guardian_relationship,
-        ]);
+        try {
+            DB::transaction(function () use ($request) {
+                $student = new Registration([
+                    'first_name'  => $request->first_name,
+                    'last_name'  => $request->last_name,
+                    'other_name'  => $request->other_name,
+                    'gender'  => $request->gender,
+                    'dob'  => $request->dob,
+                    'nationality'  => $request->nationality,
+                    'state_of_origin'  => $request->state_of_origin,
+                    'local_government'  => $request->local_government,
+                    'address'  => $request->address,
+                    'prev_school'  => $request->prev_school,
+                    'prev_class'  => $request->prev_class,
+                    'medical_history'  => $request->medical_history,
+                    'religion'  => $request->religion,
+                    'denomination'  => $request->denomination,
+                    'blood_group'  => $request->blood_group,
+                    'genotype'  => $request->genotype,
+                    'speech_development'  => $request->speech_development,
+                    'sight'  => $request->sight,
+                    'allergics'  => $request->allergics,
+                    'grade_id'  => $request->grade_id,
+                    'father_name' => $request->father_name,
+                    'father_email' => $request->father_email,
+                    'father_phone' => $request->father_phone,
+                    'father_occupation' => $request->father_occupation,
+                    'father_office_address' => $request->father_office_address,
+                    'mother_name' => $request->mother_name,
+                    'mother_email' => $request->mother_email,
+                    'mother_phone' => $request->mother_phone,
+                    'mother_office_address' => $request->mother_office_address,
+                    'mother_occupation' => $request->mother_occupation,
+                    'guardian_full_name'  => $request->guardian_full_name,
+                    'guardian_email'  => $request->guardian_email,
+                    'guardian_phone_number'  => $request->guardian_phone_number,
+                    'guardian_occupation'  => $request->guardian_occupation,
+                    'guardian_office_address'  => $request->guardian_office_address,
+                    'guardian_home_address'  => $request->guardian_home_address,
+                    'guardian_relationship'  => $request->guardian_relationship,
+                ]);
+        
+                $fileName = $request->image->getClientOriginalName();
+                $filePath = 'registrations/' . $fileName;
+                $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($request->image));
+          
+                if ($isFileUploaded) {
+                    $student->image = $filePath;
+                }
+                $student->save();
+                $message = "<p>A new student registration form has just been completed! Please visit the school's portal for review.</p>";
+                $subject = 'New Student Registration';
+    
+                $admins = User::whereType(2)->get();
+    
+                foreach($admins as $admin){
+                    Mail::to($admin->email())->send(new SendNewRegistrationMail($message, $subject));
+                }
+            });
+            return response()->json(['status' => true, 'message' => 'Registration completed successfully!'], 200);
 
-        $fileName = $request->image->getClientOriginalName();
-        $filePath = 'registrations/' . $fileName;
-        $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($request->image));
-  
-        if ($isFileUploaded) {
-            $student->image = $filePath;
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
-
-        if($student->save()){
-
-            $message = "<p>A new student registration form has just been completed! Please visit the school's portal for review.</p>";
-            $subject = 'New Student Registration';
-
-            $admins = User::whereType(2)->get();
-
-            foreach($admins as $admin){
-                Mail::to($admin->email())->send(new SendNewRegistrationMail($message, $subject));
-            }
-            return response()->json(['status' => 'success', 'message' => 'Registration completed successfully!'], 200);
-        }else{
-            return response()->json(['status' => 'error', 'message' => 'There was an error submiting the form! Please try again later'], 400);
-        }
+        
         
     }
 
@@ -148,7 +152,7 @@ class RegistrationController extends Controller
         }catch(\Throwable $th){
             return response()->json([
                 'status' => false,
-                'message' => $th->getMessage()
+                'errors' => $th->getMessage()
             ],);
         }
     }
@@ -499,57 +503,59 @@ class RegistrationController extends Controller
     public function syncAll(Request $request)
     {
         try {
-            $selected = $request->input('selected');
-            $array = explode(",", $selected);
-            $students = Student::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $array)->get();
+            DB::transaction(function () use ($request) {
+                $selected = $request->input('selected');
+                $array = explode(",", $selected);
+                $students = Student::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $array)->get();
 
 
-            foreach ($students as $key => $value) {
-                $registration = Registration::withoutGlobalScope(new HasActiveScope)->where('first_name', $value->first_name)->where('last_name', $value->last_name)->where('other_name', $value->other_name)->first();
+                foreach ($students as $key => $value) {
+                    $registration = Registration::withoutGlobalScope(new HasActiveScope)->where('first_name', $value->first_name)->where('last_name', $value->last_name)->where('other_name', $value->other_name)->first();
 
-                if($registration->father_name !== null){
-                    $father = new Father([
-                        'student_uuid'  => $value->id(),
-                        'name'  => $registration->father_name,
-                        'email' =>  $registration->father_email,
-                        'phone' =>  $registration->father_phone,
-                        'occupation'  => $registration->father_occupation,
-                        'office_address' =>  $registration->father_office_address,
-                    ]);
-                    $father->save();
+                    if($registration->father_name !== null){
+                        $father = new Father([
+                            'student_uuid'  => $value->id(),
+                            'name'  => $registration->father_name,
+                            'email' =>  $registration->father_email,
+                            'phone' =>  $registration->father_phone,
+                            'occupation'  => $registration->father_occupation,
+                            'office_address' =>  $registration->father_office_address,
+                        ]);
+                        $father->save();
+                    }
+
+                    if($registration->mother_name !== null){
+                        $mother = new Mother([
+                            'student_uuid'  => $value->id(),
+                            'fname'  => $registration->mother_name,
+                            'email' =>  $registration->mother_email,
+                            'phone' =>  $registration->mother_phone,
+                            'occupation'  => $registration->mother_occupation,
+                            'office_address' =>  $registration->mother_office_address,
+                        ]);
+                        $mother->save();
+                    }
+
+                    if($registration->guardian_full_name !== null){
+                        $guardian = new Guardian([
+                            'student_id'  => $value->id(),
+                            'full_name'  => $registration->guardian_full_name,
+                            'email' =>  $registration->guardian_email,
+                            'phone_number' =>  $registration->guardian_phone_number,
+                            'occupation'  => $registration->guardian_occupation,
+                            'office_address' =>  $registration->guardian_office_address,
+                            'home_address' =>  $registration->guardian_home_address,
+                            'relationship' =>  $registration->guardian_relationship,
+                        ]);
+                        $guardian->save();
+                    }
+                        
                 }
-
-                if($registration->mother_name !== null){
-                    $mother = new Mother([
-                        'student_uuid'  => $value->id(),
-                        'fname'  => $registration->mother_name,
-                        'email' =>  $registration->mother_email,
-                        'phone' =>  $registration->mother_phone,
-                        'occupation'  => $registration->mother_occupation,
-                        'office_address' =>  $registration->mother_office_address,
-                    ]);
-                    $mother->save();
-                }
-
-                if($registration->guardian_full_name !== null){
-                    $guardian = new Guardian([
-                        'student_id'  => $value->id(),
-                        'full_name'  => $registration->guardian_full_name,
-                        'email' =>  $registration->guardian_email,
-                        'phone_number' =>  $registration->guardian_phone_number,
-                        'occupation'  => $registration->guardian_occupation,
-                        'office_address' =>  $registration->guardian_office_address,
-                        'home_address' =>  $registration->guardian_home_address,
-                        'relationship' =>  $registration->guardian_relationship,
-                    ]);
-                    $guardian->save();
-                }
-                    
-            }
-            return response()->json([
-                'status' => true,
-                'message' => "Process successful!",
-            ], 200);
+                return response()->json([
+                    'status' => true,
+                    'message' => "Process successful!",
+                ], 200);
+            });
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
@@ -561,7 +567,6 @@ class RegistrationController extends Controller
     public function pending()
     {
         $new_registration = Registration::withoutGlobalScope(new HasActiveScope)->where('status', false)->count();
-
         return response()->json([
             'status' => true,
             'data' => ['new_registration' => $new_registration],

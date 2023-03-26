@@ -1,47 +1,45 @@
 <x-app-layout>
     @section('title', application('name')." | Primary Result Page")
-
-    @section('styles')
-        <style>
-            .mainContainer {
-                width: 60%;
-            }
-            .minorContainer{
-                width: 35%
-            }
-            .majorContainer{
-                display: flex; 
-                flex-wrap: wrap;
-                justify-content: space-between; 
-                margin-top: 1px
-            }
-            .appName{
-                font-size: 35px; 
-                font-weight: bold; 
-                text-transform : uppercase
-            }
-
-            
-            @media screen and (max-width: 480px) {
-                .mainContainer{
-                    width: 100%;
+        @section('styles')
+            <style>
+                .mainContainer {
+                    width: 60%;
                 }
                 .minorContainer{
-                    width: 100%;
+                    width: 35%
                 }
                 .majorContainer{
-                    margin-top: 5px;
-                    flex-direction: column;
+                    display: flex; 
+                    flex-wrap: wrap;
+                    justify-content: space-between; 
+                    margin-top: 1px
                 }
                 .appName{
-                    font-size: 15px;
-                    margin: 10px;
+                    font-size: 35px; 
+                    font-weight: bold; 
+                    text-transform : uppercase
                 }
-            }
-        </style>
-    @endsection
+                
+                @media screen and (max-width: 480px) {
+                    .mainContainer{
+                        width: 100%;
+                    }
+                    .minorContainer{
+                        width: 100%;
+                    }
+                    .majorContainer{
+                        margin-top: 5px;
+                        flex-direction: column;
+                    }
+                    .appName{
+                        font-size: 15px;
+                        margin: 10px;
+                    }
+                }
+            </style>
+        @endsection
 
-    <div class="row">
+    <div class="row" id="resultPrintMargin">
         <div class="col-lg-12">
             <div class='parent'>
                 <div class='col-xs-2 col-sm-2 col-md-2 text-center'>
@@ -657,18 +655,67 @@
                 <div style="border-bottom: 1px solid #000000; width: 300px;"></div>
                 <img class='' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' style="position: absolute; width: 100px; right: 250px;  bottom: 0;" />
             </div> --}}
-            
-            <div class="row">
-                <div class="d-print-none">
-                    <div class="float-end">
-                        <a href="javascript:window.print()"
-                            class="btn btn-success waves-effect waves-light me-1"><i
-                                class="fa fa-print"></i>
-                        </a>
-                    </div>
-                </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="d-print-none">
+            <div class="float-end">
+                <button type="button" id="downloadPdf" class="btn btn-primary" onclick="generatePDF()">Download</button>
+                <a href="javascript:window.print()"
+                    class="btn btn-success waves-effect waves-light me-1"><i
+                        class="fa fa-print"></i>
+                </a>
             </div>
         </div>
     </div>
 
+    @section('scripts')
+
+         <script>
+            function generatePDF() {
+                toggleAble('#downloadPdf', true);
+
+                const style = document.createElement('style');
+                style.innerHTML = 'td, th { line-height: 2; padding: 5px}';
+                document.head.appendChild(style);
+                const container = document.getElementById("resultPrintMargin");
+
+                html2canvas(container, {
+                    scale: 2,
+                    allowTaint: false,
+                    }).then(function(canvas) {
+                    const imgData = canvas.toDataURL("image/png");
+
+                    const pdfDocDefinition = {
+                        pageSize: 'A4',
+                        watermark: {text: ''+@json(application('name')), color: 'gray', opacity: 0.1, bold: true, fontSize: 30,},
+                        pageOrientation: 'portrait',
+                        content: [
+                            {
+                                image: imgData,
+                                width: 520,
+                                height: 800
+                            }
+                        ],
+                        styles: {
+                            header: {
+                                fontSize: 18,
+                                bold: false,
+                                margin: [0, 0, 0, 0]
+                            },
+                            body: {
+                                fontSize: 12,
+                                margin: [0, 0, 0, 0]
+                            }
+                        }
+                    };
+
+                    pdfMake.createPdf(pdfDocDefinition).open();
+                });
+                document.head.removeChild(style);
+                toggleAble('#downloadPdf', false);
+            }
+        </script>
+    @endsection
 </x-app-layout>

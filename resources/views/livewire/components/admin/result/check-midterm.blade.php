@@ -184,7 +184,7 @@
                     method: 'GET',
                     data: {student_id, period_id, term_id, grade_id }
                 }).done((res) => {
-                        if(res.status === 'success') {
+                        if(res.status === true) {
                             toggleAble('#cummulative'+student_id, false);
                             toastr.success(res.message, 'Success!');
                         }else{
