@@ -119,16 +119,17 @@
                                                             <i class="fa fa-eye"></i>
                                                         </a>
                                                     @endif
-                                                    @admin
-                                                        @if (affectives($student, $term_id, $period_id) === false || psychomotors($student, $term_id, $period_id) === false)
+                                                    {{-- @admin --}}
+                                                        @if (affectives($student, $term_id, $period_id) === false || psychomotors($student, $term_id, $period_id) === false || cognitives($student, $term_id, $period_id) === false )
                                                             <button type="button" data-bs-toggle="offcanvas"
                                                                 data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
                                                                 aria-controls="offcanvasWithBothOptions">
                                                                 <i class="fas fa-compress-arrows-alt"></i>
                                                             </button>
                                                         @endif
-                                                    @endadmin
+                                                    {{-- @endadmin --}}
                                                     @admin
+                                                        @admin
                                                         @if (publishExamState($student->id(), $period_id, $term_id))
                                                             <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
                                                                 <span class="badge bg-success">Published</span>
@@ -138,6 +139,7 @@
                                                                 Activate
                                                             </button>
                                                         @endif
+                                                        @endadmin
                                                         {{-- @if (affectives($student, $term_id, $period_id) === true && psychomotors($student, $term_id, $period_id) === true && cummulatives($student, $term_id, $period_id, $grade_id) == false)
                                                             <button type="button" class="btn btn-sm btn-primary" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
                                                                 Cummulate
@@ -157,7 +159,7 @@
                                                                     <div class="col-sm-6" id="affecting">
                                                                         <h1 class="font-size-5 text-center mb-1">Student's Affective</h1> 
                                                                         
-                                                                        <form id="CreateAffective" action="{{ route('result.affective.upload') }}" method="POST">
+                                                                        <form id="createAffective" action="{{ route('result.affective.upload') }}" method="POST">
                                                                             @csrf
                                                                             <input type="hidden" name="student_uuid" value="{{ $student->id() }}" />
                                                                             <input type="hidden" name="period_id" value="{{ $period_id }}" />
@@ -189,13 +191,6 @@
                                                                                     <input type="hidden" name="title[]" value="Organization" />
                                                                                     <div class="input-group">
                                                                                         <div class="input-group-text">Organization</div>
-                                                                                        <input style='width: 50px' type="number" class="form-control" maxlength="1" name="rate[]" />
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="col-sm-12">
-                                                                                    <input type="hidden" name="title[]" value="Perseverance" />
-                                                                                    <div class="input-group">
-                                                                                        <div class="input-group-text">Perseverance</div>
                                                                                         <input style='width: 50px' type="number" class="form-control" maxlength="1" name="rate[]" />
                                                                                     </div>
                                                                                 </div>
@@ -243,7 +238,7 @@
                                                                     <div class="col-sm-6" id="psychomoting">
                                                                         <h1 class="font-size-5 text-center mb-1">Student's Psychomotor</h1>
 
-                                                                        <form id="CreatePsychomotor" action="{{ route('result.psychomotor.upload') }}" method="POST">
+                                                                        <form id="createPsychomotor" action="{{ route('result.psychomotor.upload') }}" method="POST">
                                                                             @csrf
 
                                                                             <input type="hidden" name="student_uuid" value="{{ $student->id() }}" />
@@ -291,6 +286,43 @@
                                                                         </form>
                                                                     </div>
                                                                 @endif
+                                                                @if (cognitives($student, $term_id, $period_id) == false)
+                                                                    <div class="col-xl-12 mt-4">
+                                                                        <h4 class="text-primary">Comment and Attendance</h4>
+                                                                        <p class="text-muted font-size-14 mb-4">Add comment to result and attendance</p>
+
+                                                                        <form id="createComment" method="POST">
+                                                                            @csrf
+                                                                            <input type="hidden" name="student_uuid" value="{{ $student->id() }}" />
+                                                                            <input type="hidden" name="period_id" value="{{ $period_id }}" />
+                                                                            <input type="hidden" name="term_id" value="{{ $term_id }}" />
+                                                                                    
+                                                                            <div class="row mt-2">
+                                                                                <div class="col-sm-6 mb-3">
+                                                                                    <x-form.label for="attendance_duration" value="{{ __('Total times school openned') }}" />
+                                                                                    <x-form.input id="attendance_duration" class="block w-full mt-1" type="text" name="attendance_duration"
+                                                                                        :value="old('attendance_duration')" id="attendance_duration" autofocus />
+                                                                                    <x-form.error for="attendance_duration" />
+                                                                                </div>
+                                                                                <div class="col-sm-6 mb-3">
+                                                                                    <x-form.label for="attendance_present" value="{{ __('Total times present') }}" />
+                                                                                    <x-form.input id="attendance_present" class="block w-full mt-1" type="text" name="attendance_present"
+                                                                                        :value="old('attendance_present')" id="attendance_present" autofocus />
+                                                                                    <x-form.error for="attendance_present" />
+                                                                                </div>
+                                                                                <div class="col-sm-12 mb-3">
+                                                                                    <x-form.label for="comment" value="{{ __('Comment on result') }}" />
+                                                                                            <textarea class="form-control" name="comment">{{ old('comment') }}</textarea>
+                                                                                    <x-form.error for="comment" />
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="modal-footer">
+                                                                                <button id="submit_comment" type="submit" class="btn btn-primary">Submit</button>
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>                                
@@ -316,11 +348,11 @@
                 var period_id = $("input[name=period_id]").val();
                 var term_id = $("input[name=term_id]").val();
                 
-                $('#CreateAffective').submit((e) => {
+                $('#createAffective').submit((e) => {
                     e.preventDefault();
                     toggleAble('#submit_button1', true, 'Submitting...');
 
-                    var data = $('#CreateAffective').serializeArray();
+                    var data = $('#createAffective').serializeArray();
                     var url = "{{ route('result.affective.upload') }}";
 
                     $.ajax({
@@ -328,27 +360,45 @@
                         url,
                         data,
                     }).done((res) => {
-                        if(res.status === 'success') {
-                            toggleAble('#submit_button2', false);
-                            toastr.success(res.message, 'Success!');
-                        }else{
-                            toggleAble('#submit_button2', false);
-                            toastr.error(res.message, 'Success!');
-                        }
-                       
-                        resetForm('#CreateAffective')
-                        window.location.reload()
+                        toggleAble('#submit_button1', false);
+                        toastr.success(res.message, 'Success!');
+                        resetForm('#createAffective')
                     }).fail((res) => {
                         toastr.error(res.responseJSON.message, 'Failed!');
-                        toggleAble('#submit_button2', false);
+                        toggleAble('#submit_button1', false);
                     });
-                })
-                
-                $('#CreatePsychomotor').submit((e) => {
-                    e.preventDefault();
-                    toggleAble('#submit_button1', true, 'Submitting...');
+                });
 
-                    var data = $('#CreatePsychomotor').serializeArray();
+                $('#createComment').submit((e) => {
+                    e.preventDefault();
+                    toggleAble('#submit_comment', true, 'Submitting...');
+
+                    var data = $('#createComment').serializeArray();
+                    var url = '/result/cognitive/upload';
+                    var type = $(this).attr('method')
+
+                    $.ajax({
+                        type: 'POST',
+                        url,
+                        data
+                    }).done((res) => {
+                        if(res.status === true) {
+                            toggleAble('#submit_comment', false);
+                            toastr.success(res.message, 'Success!');
+                            resetForm('#createComment');
+                            $('#comment').modal('toggle');
+                        }
+                    }).fail((res) => {
+                        toggleAble('#submit_comment', false);
+                        toastr.error(res.responseJSON.message, 'Failed!');
+                    });
+                });
+
+                $('#createPsychomotor').submit((e) => {
+                    e.preventDefault();
+                    toggleAble('#submit_button2', true, 'Submitting...');
+
+                    var data = $('#createPsychomotor').serializeArray();
                     var url = "{{ route('result.psychomotor.upload') }}";
 
                     $.ajax({
@@ -356,20 +406,15 @@
                         url,
                         data
                     }).done((res) => {
-                        if(res.status === 'success') {
-                            toggleAble('#submit_button1', false);
-                            toastr.success(res.message, 'Success!');
-                        }else{
-                            toggleAble('#submit_button1', false);
-                            toastr.error(res.message, 'Failed!');
-                        }
-                       
-                        resetForm('#CreatePsychomotor');
-                        window.location.reload();
+                        toggleAble('#submit_button2', false);
+                        toastr.success(res.message, 'Success!');
+                        resetForm('#createPsychomotor');
                     }).fail((res) => {
                         toastr.error(res.responseJSON.message, 'Failed!');
-                        toggleAble('#submit_button1', false);
+                        toggleAble('#submit_button2', false);
                     });
+
+                    
                 });
 
                 $.ajax({

@@ -260,7 +260,10 @@ class ResultController extends Controller
         $attendance = $student->attendance->where('period_id', $request->period_id)
         ->where('term_id', $request->term_id)->count();
 
-        $studentAttendanceAve = count($date) > 0 ? $attendance / $termDuration * 100 : 0;
+        // $studentAttendanceAve = count($date) > 0 ? $attendance / $termDuration * 100 : 0;
+        $studentAttendance = Cognitive::where('period_id', $request->period_id)
+                                        ->where('term_id', $request->term_id)
+                                        ->where('student_uuid', $student->id())->first();
 
         $first_term = 1;
         $second_term = 2;
@@ -342,7 +345,7 @@ class ResultController extends Controller
             'affectives' => $affectives,
             'attendance' => $attendance,
             'termDuration' => $termDuration,
-            'studentAttendanceAve' => $studentAttendanceAve,
+            'studentAttendance' => $studentAttendance,
             'endOfTerm' => count($date) > 0 ? $current_date->format('d-m-Y') : date('d-m-y'),
             'endOfNextTerm' => !$date->count() == 0 ? $nextTerm->start->format('d-m-Y') : date('d-m-y'),
             'first_term_cumm' => $first_term_cumm,

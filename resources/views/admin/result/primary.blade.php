@@ -89,9 +89,9 @@
                             </tr>
                             <tr>
                                 <th>No. of Times Present</th>
-                                <td>{{ $attendance }}</td>
+                                <td>{{ $studentAttendance->attendance_present ?? '' }}</td>
                                 <th>Out of:</th>
-                                <td>{{ $termDuration }}</td>
+                                <td>{{ $studentAttendance->attendance_duration ?? '' }}</td>
                             </tr>
                         </thead>
                     </table>
@@ -173,6 +173,7 @@
                                 <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
                                 <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
                                 <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg</th>
                             </tr>
                             <tr>
                                 <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">GRADE</th>
@@ -188,6 +189,7 @@
                                 <th>40</th>
                                 <th>100</th>
                                 <th></th>
+                                <th></th>
                                 <th colspan="2"></th>
                             </tr>
                         </thead>
@@ -202,6 +204,7 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ct']) }}">{{ $result['ct'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student->grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examGrade($result['total']) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examRemark($result['total']) }}</td>
                                 </tr>
@@ -272,7 +275,7 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center;">{{ sum($result['total'], $result['first_term_cummulative']) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ divnum(sum($result['total'], $result['first_term_cummulative']), 2) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examGrade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">18</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student->grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; width: 20%; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examRemark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
                                 </tr>
                             @endforeach
@@ -344,7 +347,7 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3)) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examGrade(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">18</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student->grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
                                     <td style="font-size: 8px; font-weight: 500; text-align: center; width: 20%">{{ examRemark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
                                 </tr>
                             @endforeach
@@ -636,14 +639,14 @@
                                 <th>Class Teacher's Comment</th>
                             </tr>
                             <tr>
-                                <th colspan="5" style="height: 20px; padding: 0 10px">{{ $comment }}</th>
+                                <th colspan="5" style="height: 20px; padding: 0 10px">{{ $studentAttendance->comment ?? '' }}</th>
                             </tr>
-                            {{-- <tr>
+                            <tr>
                                 <th>Headmistress' Comment</th>
                             </tr>
                             <tr>
-                                <th colspan="5" style="height: 20px; padding: 0 10px"></th>
-                            </tr> --}}
+                                <th colspan="5" style="height: 20px; padding: 0 10px">{{ $comment }}</th>
+                            </tr>
                         </thead>
                     </table>
             </div>
@@ -661,10 +664,9 @@
     <div class="row">
         <div class="d-print-none">
             <div class="float-end">
-                <button type="button" id="downloadPdf" class="btn btn-primary" onclick="generatePDF()">Download</button>
+                <button type="button" id="downloadPdf" class="btn btn-primary" onclick="generatePDF()">Download </button>
                 <a href="javascript:window.print()"
-                    class="btn btn-success waves-effect waves-light me-1"><i
-                        class="fa fa-print"></i>
+                    class="btn btn-success waves-effect waves-light me-1">PDF
                 </a>
             </div>
         </div>

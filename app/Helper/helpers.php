@@ -9,6 +9,7 @@ use App\Models\Banner;
 use App\Models\Period;
 use App\Models\MidTerm;
 use App\Models\Payment;
+use App\Models\Student;
 use App\Models\Subject;
 use App\NullApplication;
 use App\Models\Affective;
@@ -17,6 +18,8 @@ use App\Models\Application;
 use App\Models\Cummulative;
 use App\Models\Psychomotor;
 use App\Models\PrimaryResult;
+use App\Scopes\HasActiveScope;
+use Illuminate\Support\Facades\DB;
 
 function application($key)
 {
@@ -278,14 +281,15 @@ function psychomotors($student, $term, $period)
     return $psychomotor;
 }
 
+function cognitives($student, $term, $period)
+{
+    $cognitive = Cognitive::where('student_uuid', $student->id())->where('term_id', $term)->where('period_id', $period)->exists();
+    return $cognitive;
+}
+
 function sum($first, $second)
 {
     return $first + $second;
-}
-
-function classAvg($grade)
-{
-    
 }
 
 function paymentCheck($tran, $ref)
@@ -345,7 +349,7 @@ function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100, $type =
 
     // If there are no weak subjects, return a "Congratulations" message
     if (empty($weak_subjects)) {
-        return "Congratulations! You did well in all subjects in this term's $type. We are so pleased with you. Please keep it up";
+        return "Congratulations! You did well in all subjects in this term's $type. I am so pleased with you. Please keep it up";
     }
 
     // Generate comments only for the weak subject(s)
@@ -362,10 +366,36 @@ function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100, $type =
 
      // If there are weak subjects, concatenate the info string to the beginning of the comment
      if (!empty($weak_subjects)) {
-        $comment = $info . ' ' . $comment. ' We look forward to a more excellent result from you!';
+        $comment = $info . ' ' . $comment. ' I look forward to a more excellent result from you!';
     }
 
     return $comment;
+}
+
+function class_average($grade, $subject, $term, $period)
+{
+    $subject = Subject::where('title', $subject)->first();
+    $students = Student::withoutGlobalScope(new HasActiveScope)->where('grade_id', $grade)->get();
+
+    $results = PrimaryResult::where('grade_id', $grade)
+                 ->where('term_id', $term)
+                 ->where('period_id', $period)
+                 ->where('subject_id', $subject->id())
+                 ->groupBy('student_id')
+                 ->get([
+                    'student_id',
+                    DB::raw('SUM(ca1 + ca2 + ca3 + pr + exam) as total_score')
+                 ]);
+
+    $total_score = 0;
+    foreach ($results as $result) {
+        $total_score += $result->total_score;
+    }
+    // dd($total_score);
+    
+    $average = $total_score / count($students);
+
+    return ceil($average);
 }
 
 
