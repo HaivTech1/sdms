@@ -236,7 +236,6 @@
 
                                 </table> 
                             </div>
-
                             <div class="float-right">
                                 <button class="btn btn-success upload-form"
                                     type="submit">Create</button>

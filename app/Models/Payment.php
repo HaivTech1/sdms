@@ -22,6 +22,7 @@ class Payment extends Model
         'student_uuid',
         'paid_by',
         'amount',
+        'initial',
         'balance',
         'payable',
         'type',
@@ -55,6 +56,11 @@ class Payment extends Model
         return (int) $this->amount;
     }
 
+    public function initial(): ?int
+    {
+        return (int) $this->initial;
+    }
+
     public function balance(): ?int
     {
         return (int) $this->balance;
@@ -68,6 +74,11 @@ class Payment extends Model
     public function type(): string
     {
         return (string) $this->type;
+    }
+
+    public function method(): string
+    {
+        return (string) $this->method;
     }
 
     public function transactionId(): string
@@ -136,5 +147,16 @@ class Payment extends Model
         ];
 
         return $status[$this->type];
+    }
+
+    public function getPaymentMethodAttribute()
+    {
+
+        $method = [
+            'card' => 'Paystack Payment',
+            'cash' => 'Cash Payment',
+        ];
+
+        return $method[$this->method];
     }
 }

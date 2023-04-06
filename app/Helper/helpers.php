@@ -71,7 +71,7 @@ function period($key)
 
 function divnum($numerator, $denominator)
 {
-    return $denominator == 0 ? 0 : ($numerator / $denominator);
+    return round($denominator == 0 ? 0 : ($numerator / $denominator), 1);
 }
 
 function examRemark($remark)
@@ -396,6 +396,22 @@ function class_average($grade, $subject, $term, $period)
     $average = $total_score / count($students);
 
     return ceil($average);
+}
+
+function payslipList()
+{
+    $array = [
+        '1' => ['key' => 'basic', 'value' => 'basic', 'title' => 'Basic'],
+        '2' => ['key' => 'rent', 'value' => 'rent' , 'title' => 'Rent'],
+        '3' => ['key' => 'transport', 'value' => 'transport' , 'title' => 'Transport'],
+        '4' => ['key' => 'utility', 'value' => 'utility' , 'title' => 'Utility'],
+        '5' => ['key' => 'meal', 'value' => 'meal' , 'title' => 'Meal'],
+        '6' => ['key' => 'medical', 'value' => 'medical' , 'title' => 'Medical'],
+        '7' => ['key' => 'dressing', 'value' => 'dressing' , 'title' => 'Dressing'],
+        '8' => ['key' => 'allowance', 'value' => 'allowance' , 'title' => 'Allowance'],
+    ];
+
+    return $array;
 }
 
 

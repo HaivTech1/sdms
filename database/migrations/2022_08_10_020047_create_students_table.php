@@ -34,6 +34,7 @@ class CreateStudentsTable extends Migration
             $table->text('speech_development')->nullable();
             $table->text('sight')->nullable();
             $table->text('allergics')->nullable();
+            $table->enum('type', ['n', 's', 'scholarship'])->default('n');
             $table->foreignId('grade_id')->nullable()->constrained('grades')->onDelete('set null');
             $table->foreignId('sub_grade_id')->nullable()->constrained('sub_grades')->onDelete('set null');
             $table->foreignId('house_id')->nullable()->constrained('houses')->onDelete('set null');

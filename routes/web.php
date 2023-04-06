@@ -29,6 +29,7 @@ use App\Http\Controllers\ContestController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
@@ -230,6 +231,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('edit/{student}', [FeeController::class, 'edit'])->name('edit');
         Route::get('create', [FeeController::class, 'create'])->name('create');
         Route::put('/{student}', [FeeController::class, 'update'])->name('update');
+        Route::post('/update', [FeeController::class, 'update'])->name('updateFee');
         Route::post('assignSubject', [FeeController::class, 'assignSubject'])->name('assignSubject');
     });
 
@@ -360,6 +362,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::group(['prefix' => 'upload', 'as' => 'upload.'], function () {
         Route::get('/', [FrontendController::class, 'uploadSignature'])->name('uploadSignature');
         Route::post('/', [FrontendController::class, 'uploadSignaturePost'])->name('uploadSignature');
+    });
+
+    Route::group(['prefix' => 'payslip', 'as' => 'payslip.'], function () {
+        Route::get('/', [PayslipController::class, 'index'])->name('index');
+        Route::post('/', [PayslipController::class, 'store'])->name('store');
+        Route::get('/review', [PayslipController::class, 'review']);
+        Route::get('/{user}', [PayslipController::class, 'single']);
     });
 
 });

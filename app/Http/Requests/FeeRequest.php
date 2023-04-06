@@ -29,6 +29,7 @@ class FeeRequest extends FormRequest
             'price' => ['required'],
             'term_id' => ['required'],
             'grade_id' => ['required'],
+            'type' => ['required'],
         ];
     }
 
@@ -55,6 +56,11 @@ class FeeRequest extends FormRequest
     public function grade(): int
     {
         return $this->get('grade_id');
+    }
+
+    public function type(): string
+    {
+        return $this->get('type');
     }
 
 }

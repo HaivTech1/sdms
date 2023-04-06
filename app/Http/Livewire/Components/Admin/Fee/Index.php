@@ -19,10 +19,7 @@ class Index extends Component
     public $per_page = 5;
     public $state = []; 
 
-    public $search = '';
-
     protected $queryString = [
-        'search' => ['except' => ''],
     ];
 
     public function updatedSelectPageRows($value)
@@ -39,7 +36,7 @@ class Index extends Component
 
     public function getFeesProperty()
     {
-        return Fee::withoutGlobalScope(new HasActiveScope)->search(trim($this->search))->loadLatest($this->per_page);
+        return Fee::withoutGlobalScope(new HasActiveScope)->loadLatest($this->per_page);
     }
 
     public function resetState()
@@ -49,10 +46,9 @@ class Index extends Component
 
     public function deleteAll()
     {
-        Fee::whereIn('id', $this->selectedRows)->delete();
+        Fee::withoutGlobalScope(new HasActiveScope)->whereIn('id', $this->selectedRows)->delete();
 
-        $this->dispatchBrowserEvent('alert', ['message' => 'All selected fees
-            were deleted']);
+        $this->dispatchBrowserEvent('alert', ['message' => 'All selected fees were deleted']);
 
         $this->reset(['selectedRows', 'selectPageRows']);
     }

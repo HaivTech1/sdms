@@ -21,18 +21,21 @@ class Create extends Component
     public $students = []; 
     public $period;
     public $term;
-    public $showBalance = false;
 
     public $grade;
     public $payable;
     public $amount;
+    public $description;
     public $balance;
     public $student;
     public $type;
     public $paid_by;
     public $period_id;
+    public $grade_id;
     public $term_id;
-
+    public $student_id;
+    public $outstanding;
+    public $check;
     
     public $fields_validation = [
         'paid_by' => 'required',
@@ -41,6 +44,15 @@ class Create extends Component
         'amount' => 'required',
         'period_id' => 'required',
         'term_id' => 'required',
+        'description' => 'required',
+    ];
+
+    public $outstanding_validation = [
+        'grade_id' => 'required',
+        'student_id' => 'required',
+        'term_id' => 'required',
+        'period_id' => 'required',
+        'outstanding' => 'required',
     ];
 
     public $search = '';
@@ -80,20 +92,22 @@ class Create extends Component
         }
     }
 
-    public function updatedAmount($value)
+    public function updatedGradeId($grade_id)
     {
-        $check = Payment::where('student_uuid', $this->student)->where('period_id', period('id'))->where('term_id', term('id'))->first();
+        $class = Grade::where('id', $grade_id)->first();
+        $this->students = $class->students->where('status', true)->sortBy('last_name');
+        $this->grade_id = $grade_id;
+    }
 
-        if ($check) {
-            $this->balance = $check->balance - $value;
-        }else{
-            $this->balance = $this->payable - $value;
-        }
-
-        if ($this->amount != $this->payable) {
-            $this->showBalance = true;
-        }else{
-            $this->showBalance = false;
+    public function updatedStudentId($student_id)
+    {
+        $student = Student::where('uuid', $student_id)->first();
+        $this->check = $student;
+        $out = $student->outstanding;
+        if ($out !== null) {
+            $this->term_id = $out['term_id'];
+            $this->period_id = $out['period_id'];
+            $this->outstanding = $out['outstanding'];
         }
     }
 
@@ -102,10 +116,7 @@ class Create extends Component
         $this->validate($this->fields_validation);
 
         $hasPaid = Student::where('uuid', $this->student)->first();
-        // dd($check->hasPaid());
         $check = Payment::where('student_uuid', $this->student)->where('period_id', period('id'))->where('term_id', term('id'))->first();
-
-        // dd($check);
 
         if ($check && $check->type === 'full') {
             $this->reset();
@@ -120,12 +131,12 @@ class Create extends Component
                 'message'     => 'Payment updated successfully',
             ]);
         }else{
-        
             $payment = new Payment([
              'paid_by'  => $this->paid_by,
              'amount'   => $this->amount,
              'balance'   => $this->balance,
-             'payable'   => $this->payable,
+             'description'   => $this->description,
+             'method' => 'cash',
              'period_id'   => $this->period_id,
              'term_id'   => $this->term_id,
              'author_id'   => auth()->id(),
@@ -134,7 +145,7 @@ class Create extends Component
             ]);
 
             $payment->trans_id = SaveCodeService::IDGenerator(new Payment(), $payment, 'trans_id', 5, 'TRX');
-            $payment->ref_id = SaveCodeService::IDGenerator(new Payment(), $payment, 'ref_id', 7, 'REF');
+            // $payment->ref_id = SaveCodeService::IDGenerator(new Payment(), $payment, 'ref_id', 7, 'REF');
             $payment->save();
      
             $this->reset();
@@ -143,7 +154,41 @@ class Create extends Component
             ]);
         }
     }
+
+    public function addOutstanding()
+    {
+        $this->validate($this->outstanding_validation);
+
+        $student = Student::where('uuid', $this->student_id)->first();
+        $array = [ 
+            'grade_id' => $this->grade_id, 
+            'student_id' => $this->student_id, 
+            'term_id' => $this->term_id, 
+            'period_id' => $this->period_id, 
+            'outstanding' => $this->outstanding
+        ];
+
+        $student->update([
+            'outstanding' => $array,
+        ]);
+
+        $this->reset();
+        $this->dispatchBrowserEvent('success', [
+            'message'     => 'Outstanding submitted successfully!',
+        ]);
+    }
     
+
+    public function deleteOutstanding()
+    {
+        $student = Student::findOrFail($this->student_id);
+        $student->update([
+            'outstanding' => null,
+        ]);
+        $this->reset();
+        $this->dispatchBrowserEvent('success', ['message' => 'Outstanding deleted successfully!']);
+    }
+
     public function getPaymentsProperty()
     {
         return Payment::when($this->period, function($query, $period) {

@@ -60,6 +60,8 @@ class Student extends Authenticatable
         'speech_development',
         'sight',
         'registration_id',
+        'outstanding',
+        'type'
     ];
 
     protected $casts = [
@@ -68,6 +70,7 @@ class Student extends Authenticatable
         'first_name' => TitleCast::class,
         'last_name' => TitleCast::class,
         'other_name' => TitleCast::class,
+        'outstanding' => 'array'
     ];
 
     protected $hidden = [
@@ -179,6 +182,11 @@ class Student extends Authenticatable
         return (string) $this->image;
     }
 
+    public function type(): ?string
+    {
+        return (string) $this->type;
+    }
+
     public function grade(): BelongsTo
     {
         return $this->belongsTo(Grade::class);
@@ -260,7 +268,7 @@ class Student extends Authenticatable
         });
     }
 
-    public function scopeLoadLatest(Builder $query, $count = 4, $orderBy, $sortBy, $status, $gender)
+    public function scopeLoadLatest(Builder $query, $count = 4, $orderBy, $sortBy, $status = '', $gender = '')
     {
         return $query->when($status, function($query, $status) {
                     return $query->whereStatus($status);

@@ -17,6 +17,7 @@ class CreateFee implements ShouldQueue
     private $price;
     private $grade;
     private $term;
+    private $type;
 
     /**
      * Create a new job instance.
@@ -29,6 +30,7 @@ class CreateFee implements ShouldQueue
         int $price,
         int $grade,
         int $term,
+        string $type,
     )
     {
         $this->author = $author;
@@ -36,6 +38,7 @@ class CreateFee implements ShouldQueue
         $this->price = $price;
         $this->grade = $grade;
         $this->term = $term;
+        $this->type = $type;
     }
 
     public static function fromRequest(FeeRequest $request): self
@@ -46,6 +49,7 @@ class CreateFee implements ShouldQueue
             $request->price(),
             $request->grade(),
             $request->term(),
+            $request->type(),
 
         );
     }
@@ -57,6 +61,7 @@ class CreateFee implements ShouldQueue
             'price' => $this->price,
             'grade_id' => $this->grade,
             'term_id' => $this->term,
+            'type' => $this->type,
         ]);
         $fee->authoredBy($this->author);
         $fee->save();

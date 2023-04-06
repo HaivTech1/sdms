@@ -127,7 +127,7 @@
             </div>
             @bursal
             <div class="row p-4">
-                <x-card.slot title="Paystack Balance" amount="$balance" iconClass="bx bx-money"></x-card.slot>
+                {{-- <x-card.slot title="Paystack Balance" amount="$balance" iconClass="bx bx-money"></x-card.slot> --}}
             </div>
             @endbursal
             

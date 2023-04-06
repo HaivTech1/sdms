@@ -19,10 +19,12 @@ class Payments extends Migration
             $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
             $table->foreignUuid('student_uuid')->references('uuid')->on('students')->onDelete('cascade');
             $table->string('paid_by');
+            $table->double('initial')->nullable();
             $table->double('payable')->nullable();
             $table->double('amount');
             $table->double('balance')->nullable();
             $table->enum('type', ['partial', 'full'])->default('full');
+            $table->enum('method', ['card', 'cash'])->default('card');
             $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

@@ -608,24 +608,29 @@ class ResultController extends Controller
 
         $check = Cognitive::where('student_uuid', $request->student_uuid)
             ->where('period_id', $request->period_id)
-            ->where('term_id', $request->term_id)->get();
+            ->where('term_id', $request->term_id)->first();
 
             try {
-                DB::transaction(function () use ($request, $check) {
-                    if (count($check) > 0) {
-                        throw new \Exception('Comment and attendance already exist!');
-                    }else{
-                        $cognitive = new Cognitive([
-                            'attendance_duration' => $request->attendance_duration,
-                            'attendance_present' => $request->attendance_present,
-                            'comment' => $request->comment,
-                            'period_id'     => $request->period_id,
-                            'term_id'       => $request->term_id,
-                            'student_uuid'        => $request->student_uuid,
-                        ]);
-                        $cognitive->save();
-                    }
-                });
+                if($check){
+                    $check->update([
+                        'attendance_duration' => $request->attendance_duration,
+                        'attendance_present' => $request->attendance_present,
+                        'comment' => $request->comment,
+                        'period_id'     => $request->period_id,
+                        'term_id'       => $request->term_id,
+                        'student_uuid'        => $request->student_uuid,
+                    ]);
+                }else{
+                    $cognitive = new Cognitive([
+                        'attendance_duration' => $request->attendance_duration,
+                        'attendance_present' => $request->attendance_present,
+                        'comment' => $request->comment,
+                        'period_id'     => $request->period_id,
+                        'term_id'       => $request->term_id,
+                        'student_uuid'        => $request->student_uuid,
+                    ]);
+                    $cognitive->save();
+                }
                 return response()->json(['status' => true, 'message' => 'Comments and attendance saved successfully'], 200);
             } catch (\Exception $th) {
                 DB::rollback();
@@ -674,7 +679,7 @@ class ResultController extends Controller
                 $student = Student::findOrfail($request->student_id);
                 $idNumber = $student->user->code();
                 $password = 'password123';
-                $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+                $name = $student->last_name." ".$student->first_name. " ".$student->other_name;
                 $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
                 $subject = 'Evaluation Report Sheet';
         
@@ -682,19 +687,35 @@ class ResultController extends Controller
                     $result->update(['published' => true]);
                 }
         
-                if(isset($student->mother)){
-                    // MidTermResultJob::dispatch($student, $message, $subject);
-                    Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-                }elseif(isset($student->father)){
-                    Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-                }else{
-                    Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-                }
+                // if(isset($student->mother)){
+                //     // MidTermResultJob::dispatch($student, $message, $subject);
+                //     Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+                // }elseif(isset($student->father)){
+                //     Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+                // }else{
+                //     Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+                // }
         
                 $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
         
                 if(count($check) > 0){
-                    throw new \Exception('Result published but Cummulation already exist!');
+                    foreach($check as $value){
+                        $value->delete();
+                    }
+
+                    $cum = array();
+                    foreach($results as $result){
+                        $cummulative = new Cummulative([
+                            'subject_id' => $result['subject_id'],
+                            'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr'] + $result['exam'], 
+                            'student_uuid' => $result['student_id'], 
+                            'period_id' => $result['period_id'],
+                            'term_id' => $result['term_id'], 
+                            'grade_id' => $result['grade_id'], 
+                            'author_id' => auth()->id()
+                        ]);
+                        $cummulative->save();
+                    }
                 }else{
                     $cum = array();
         

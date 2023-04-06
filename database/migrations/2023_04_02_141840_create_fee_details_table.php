@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class FeeGrade extends Migration
+class CreateFeeDetailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,12 @@ class FeeGrade extends Migration
      */
     public function up()
     {
-        Schema::create('fee_grade', function(Blueprint $table){
+        Schema::create('fee_details', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('fee_id')->constrained('fees')->onDelete('cascade');
-            $table->foreignId('grade_id')->constrained('grades')->onDelete('cascade');
+            $table->string('title');
+            $table->double('price');
+            $table->timestamps();
         });
     }
 
@@ -26,6 +29,6 @@ class FeeGrade extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fee_grade');
+        Schema::dropIfExists('fee_details');
     }
 }

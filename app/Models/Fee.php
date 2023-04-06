@@ -6,6 +6,7 @@ use App\Traits\HasAuthor;
 use App\Scopes\HasActiveScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -19,11 +20,10 @@ class Fee extends Model
     protected $table = self::TABLE;
 
     protected $fillable = [
-        'title', 
-        'price', 
-        'status',
         'grade_id',
         'term_id',
+        'status',
+        'type',
         'author_id'
     ];
 
@@ -41,14 +41,9 @@ class Fee extends Model
         return  (string) $this->id;
     }
 
-    public function title(): string
+    public function type(): ?string
     {
-        return (string) $this->title;
-    }
-
-    public function price(): int
-    {
-        return (int) $this->price;
+        return (string) $this->type;
     }
 
     public function grade(): BelongsTo
@@ -61,16 +56,24 @@ class Fee extends Model
         return $this->belongsTo(Term::class);
     }
 
-    public function scopeSearch($query, $term)
+    public function getTypeFeeAttribute()
     {
-        $term = "%$term%";
-        return $query->where(function($query) use ($term) {
-            $query->where('title', 'like', $term);
-        });
+
+        $state = [
+            'n' => 'Normal',
+            's' => 'Staff Ward',
+        ];
+
+        return $state[$this->type];
     }
 
     public function scopeLoadLatest(Builder $query, $count = 4)
     {
         return $query->paginate($count);
+    }
+
+    public function details(): HasMany
+    {
+        return $this->hasMany(FeeDetail::class);
     }
 }

@@ -29,6 +29,7 @@ class StoreStudentRequest extends FormRequest
             'house_id'       => 'nullable',
             'schedule_id'       => 'nullable',
             'club_id'       => 'nullable',
+            'type'       => 'nullable',
         ];
     }
 
@@ -160,5 +161,10 @@ class StoreStudentRequest extends FormRequest
     public function relationship(): ?string
     {
         return $this->get('relationship');
+    }
+
+    public function type(): ?string
+    {
+        return $this->get('type');
     }
 }

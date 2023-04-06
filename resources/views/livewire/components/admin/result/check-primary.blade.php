@@ -2,6 +2,13 @@
     <x-loading />
 
     <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-lg-6">
+                    <x-search />
+                </div>
+            </div>
+        </div>
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
@@ -109,8 +116,25 @@
                                                         </div>
                                                     </div>
                                                 </td>
+                                                @php
+                                                    $comments = \App\Models\Cognitive::where([
+                                                        'student_uuid' => $student->id(),
+                                                        'term_id' => $term_id,
+                                                        'period_id' => $period_id
+                                                    ])->first()
+                                                @endphp
                                                 
                                                 <td class='d-flex justify-content-center align-items-center gap-2'>
+                                                    <button wire:ignore class="btn btn-sm btn-info editCom" type="button"
+                                                            data-id="{{$student->id()}}" 
+                                                            data-term="{{$term_id}}"
+                                                            data-period="{{$period_id}}"
+                                                            data-total="{{$comments->attendance_duration ?? ''}}"
+                                                            data-present="{{$comments->attendance_present ?? ''}}"
+                                                            data-comment="{{$comments->comment ?? ''}}"
+                                                    >
+                                                            Comment
+                                                    </button>
                                                     @if (affectives($student, $term_id, $period_id) === true && psychomotors($student, $term_id, $period_id) === true)
                                                         <a class="btn btn-sm btn-success" href="{{ route('result.primary.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
                                                             type="button"
@@ -120,7 +144,7 @@
                                                         </a>
                                                     @endif
                                                     {{-- @admin --}}
-                                                        @if (affectives($student, $term_id, $period_id) === false || psychomotors($student, $term_id, $period_id) === false || cognitives($student, $term_id, $period_id) === false )
+                                                        @if (affectives($student, $term_id, $period_id) === false || psychomotors($student, $term_id, $period_id) === false)
                                                             <button type="button" data-bs-toggle="offcanvas"
                                                                 data-bs-target="#offcanvasWithBothOptions{{ $student->id() }}"
                                                                 aria-controls="offcanvasWithBothOptions">
@@ -130,15 +154,15 @@
                                                     {{-- @endadmin --}}
                                                     @admin
                                                         @admin
-                                                        @if (publishExamState($student->id(), $period_id, $term_id))
-                                                            <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                <span class="badge bg-success">Published</span>
-                                                            </button>
-                                                        @else
-                                                            <button class="btn btn-sm btn-primary" type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                Activate
-                                                            </button>
-                                                        @endif
+                                                            @if (publishExamState($student->id(), $period_id, $term_id))
+                                                                <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                    <span class="badge bg-success">Published</span>
+                                                                </button>
+                                                            @else
+                                                                <button class="btn btn-sm btn-primary" type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                    Activate
+                                                                </button>
+                                                            @endif
                                                         @endadmin
                                                         {{-- @if (affectives($student, $term_id, $period_id) === true && psychomotors($student, $term_id, $period_id) === true && cummulatives($student, $term_id, $period_id, $grade_id) == false)
                                                             <button type="button" class="btn btn-sm btn-primary" id='cummulative' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
@@ -153,6 +177,13 @@
                                                         </div>
 
                                                         <div class="offcanvas-body">
+                                                                @php
+                                                                    $comment = \App\Models\Cognitive::where([
+                                                                        'student_uuid' => $student->id(),
+                                                                        'period_id' => $period_id,
+                                                                        'term_id' => $term_id
+                                                                    ])->first();
+                                                                @endphp
                                                             <div class="row">
                                                                 @if (affectives($student, $term_id, $period_id) == false)
                                                                     <p class="mb-2 text-center">Please rate on a scale of 1 - 5</p>
@@ -286,43 +317,6 @@
                                                                         </form>
                                                                     </div>
                                                                 @endif
-                                                                @if (cognitives($student, $term_id, $period_id) == false)
-                                                                    <div class="col-xl-12 mt-4">
-                                                                        <h4 class="text-primary">Comment and Attendance</h4>
-                                                                        <p class="text-muted font-size-14 mb-4">Add comment to result and attendance</p>
-
-                                                                        <form id="createComment" method="POST">
-                                                                            @csrf
-                                                                            <input type="hidden" name="student_uuid" value="{{ $student->id() }}" />
-                                                                            <input type="hidden" name="period_id" value="{{ $period_id }}" />
-                                                                            <input type="hidden" name="term_id" value="{{ $term_id }}" />
-                                                                                    
-                                                                            <div class="row mt-2">
-                                                                                <div class="col-sm-6 mb-3">
-                                                                                    <x-form.label for="attendance_duration" value="{{ __('Total times school openned') }}" />
-                                                                                    <x-form.input id="attendance_duration" class="block w-full mt-1" type="text" name="attendance_duration"
-                                                                                        :value="old('attendance_duration')" id="attendance_duration" autofocus />
-                                                                                    <x-form.error for="attendance_duration" />
-                                                                                </div>
-                                                                                <div class="col-sm-6 mb-3">
-                                                                                    <x-form.label for="attendance_present" value="{{ __('Total times present') }}" />
-                                                                                    <x-form.input id="attendance_present" class="block w-full mt-1" type="text" name="attendance_present"
-                                                                                        :value="old('attendance_present')" id="attendance_present" autofocus />
-                                                                                    <x-form.error for="attendance_present" />
-                                                                                </div>
-                                                                                <div class="col-sm-12 mb-3">
-                                                                                    <x-form.label for="comment" value="{{ __('Comment on result') }}" />
-                                                                                            <textarea class="form-control" name="comment">{{ old('comment') }}</textarea>
-                                                                                    <x-form.error for="comment" />
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <div class="modal-footer">
-                                                                                <button id="submit_comment" type="submit" class="btn btn-primary">Submit</button>
-                                                                            </div>
-                                                                        </form>
-                                                                    </div>
-                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>                                
@@ -341,150 +335,228 @@
         </div>
     </div>
 
+    <div id="createCommentModal" class="modal fade bs-example-modal-xl" tabindex="-1" role="dialog" aria-hidden="true"
+        wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Comment and Attendance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="col-xl-12 mt-4">
+
+                                <form id="createComment" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="student_uuid" id="student" />
+                                    <input type="hidden" name="period_id" id="periodC" />
+                                    <input type="hidden" name="term_id" id="termC" />
+
+                                    <div class="row mt-2">
+                                        <div class="col-sm-6 mb-3">
+                                            <x-form.label for="attendance_duration" value="{{ __('Total times school openned') }}" />
+                                            <x-form.input id="attendance_duration" class="block w-full mt-1" type="text" name="attendance_duration"
+                                                :value="old('attendance_duration')" id="attendance_duration" autofocus />
+                                            <x-form.error for="attendance_duration" />
+                                        </div>
+                                        <div class="col-sm-6 mb-3">
+                                            <x-form.label for="attendance_present" value="{{ __('Total times present') }}" />
+                                            <x-form.input id="attendance_present" class="block w-full mt-1" type="text" name="attendance_present"
+                                                :value="old('attendance_present')" id="attendance_present" autofocus />
+                                            <x-form.error for="attendance_present" />
+                                        </div>
+                                        <div class="col-sm-12 mb-3">
+                                            <x-form.label for="comment" value="{{ __('Comment on result') }}" />
+                                                    <textarea class="form-control" name="comment" id="attendance_comment"></textarea>
+                                            <x-form.error for="comment" />
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button id="submit_comment" type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @section('scripts')
-        <script>
-            $(document).ready(function() {
-                var student_uuid = $("input[name=student_uuid]").val();
-                var period_id = $("input[name=period_id]").val();
-                var term_id = $("input[name=term_id]").val();
-                
-                $('#createAffective').submit((e) => {
-                    e.preventDefault();
-                    toggleAble('#submit_button1', true, 'Submitting...');
 
-                    var data = $('#createAffective').serializeArray();
-                    var url = "{{ route('result.affective.upload') }}";
+    <script>
+        $(".editCom").click(function(e) {
+            e.preventDefault();
 
-                    $.ajax({
-                        type: "POST",
-                        url,
-                        data,
-                    }).done((res) => {
-                        toggleAble('#submit_button1', false);
-                        toastr.success(res.message, 'Success!');
-                        resetForm('#createAffective')
-                    }).fail((res) => {
-                        toastr.error(res.responseJSON.message, 'Failed!');
-                        toggleAble('#submit_button1', false);
-                    });
+            var id = $(this).data('id');
+            var period = $(this).data('period');
+            var term = $(this).data('term');
+            var total = $(this).data('total');
+            var present = $(this).data('present');
+            var comment = $(this).data('comment');
+
+            $("#createCommentModal").modal('toggle');
+
+            document.getElementById("student").value=id;
+            document.getElementById('periodC').value=period;
+            document.getElementById('termC').value=term;
+            document.getElementById('attendance_duration').value=total;
+            document.getElementById('attendance_present').value=present;
+            document.getElementById('attendance_comment').value=comment;
+        });
+        
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            var student_uuid = $("input[name=student_uuid]").val();
+            var period_id = $("input[name=period_id]").val();
+            var term_id = $("input[name=term_id]").val();
+            
+            $('#createAffective').submit((e) => {
+                e.preventDefault();
+                toggleAble('#submit_button1', true, 'Submitting...');
+
+                var data = $('#createAffective').serializeArray();
+                var url = "{{ route('result.affective.upload') }}";
+
+                $.ajax({
+                    type: "POST",
+                    url,
+                    data,
+                }).done((res) => {
+                    toggleAble('#submit_button1', false);
+                    toastr.success(res.message, 'Success!');
+                    resetForm('#createAffective')
+                }).fail((res) => {
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                    toggleAble('#submit_button1', false);
                 });
+            });
 
-                $('#createComment').submit((e) => {
-                    e.preventDefault();
-                    toggleAble('#submit_comment', true, 'Submitting...');
+            $('#createComment').submit((e) => {
+                e.preventDefault();
+                toggleAble('#submit_comment', true, 'Submitting...');
 
-                    var data = $('#createComment').serializeArray();
-                    var url = '/result/cognitive/upload';
-                    var type = $(this).attr('method')
+                var data = $('#createComment').serializeArray();
+                var url = '/result/cognitive/upload';
+                var type = $(this).attr('method')
 
-                    $.ajax({
-                        type: 'POST',
-                        url,
-                        data
-                    }).done((res) => {
-                        if(res.status === true) {
-                            toggleAble('#submit_comment', false);
-                            toastr.success(res.message, 'Success!');
-                            resetForm('#createComment');
-                            $('#comment').modal('toggle');
-                        }
-                    }).fail((res) => {
+                $.ajax({
+                    type: 'POST',
+                    url,
+                    data
+                }).done((res) => {
+                    if(res.status === true) {
                         toggleAble('#submit_comment', false);
-                        toastr.error(res.responseJSON.message, 'Failed!');
-                    });
-                });
-
-                $('#createPsychomotor').submit((e) => {
-                    e.preventDefault();
-                    toggleAble('#submit_button2', true, 'Submitting...');
-
-                    var data = $('#createPsychomotor').serializeArray();
-                    var url = "{{ route('result.psychomotor.upload') }}";
-
-                    $.ajax({
-                        type: "POST",
-                        url,
-                        data
-                    }).done((res) => {
-                        toggleAble('#submit_button2', false);
                         toastr.success(res.message, 'Success!');
-                        resetForm('#createPsychomotor');
-                    }).fail((res) => {
-                        toastr.error(res.responseJSON.message, 'Failed!');
-                        toggleAble('#submit_button2', false);
-                    });
+                        resetForm('#createComment');
+                        $("#createCommentModal").modal('toggle');
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 1000);
+                    }
+                }).fail((res) => {
+                    toggleAble('#submit_comment', false);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                });
+            });
 
-                    
+            $('#createPsychomotor').submit((e) => {
+                e.preventDefault();
+                toggleAble('#submit_button2', true, 'Submitting...');
+
+                var data = $('#createPsychomotor').serializeArray();
+                var url = "{{ route('result.psychomotor.upload') }}";
+
+                $.ajax({
+                    type: "POST",
+                    url,
+                    data
+                }).done((res) => {
+                    toggleAble('#submit_button2', false);
+                    toastr.success(res.message, 'Success!');
+                    resetForm('#createPsychomotor');
+                }).fail((res) => {
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                    toggleAble('#submit_button2', false);
                 });
 
-                $.ajax({
-                    type: "GET",
-                    url: "{{ route('result.psychomotor.get') }}",
-                    data: {student_uuid, period_id, term_id }
-                }).done((res) => {
-                    var data = res.data
-                    psy = data
-                    if(data.length > 0){
-                        $("#psychomoting").css("display", "none");
-                    }
-                });
-
-                $.ajax({
-                    type: "GET",
-                    url: "{{ route('result.affective.get') }}",
-                    data: {student_uuid, period_id, term_id }
-                }).done((res) => {
-                    var data = res.data
-                    if(data.length > 0){
-                        $("#affecting").css("display", "none");
-                    }
-                })
-
-                $.ajax({
-                    type: "GET",
-                    url: "{{ route('result.cummulative.get') }}",
-                    data: {student_uuid, period_id, term_id }
-                }).done((res) => {
-                    var data = res.data
-                    if(data.length > 0){
-                        $("#cummulative").css("display", "none");
-                    }
-                })
                 
             });
-        </script>
 
-        <script>
-            function publish(student){
-                var data = student.split(",");
-                var student_id = data[0];
-                var period_id = data[1];
-                var term_id = data[2];
-                var grade_id = data[3];
-                
-                toggleAble('#cummulative'+ student_id, true);
+            $.ajax({
+                type: "GET",
+                url: "{{ route('result.psychomotor.get') }}",
+                data: {student_uuid, period_id, term_id }
+            }).done((res) => {
+                var data = res.data
+                psy = data
+                if(data.length > 0){
+                    $("#psychomoting").css("display", "none");
+                }
+            });
 
-                $.ajax({
-                    url: '{{ route('result.primary.publish') }}' ,
-                    method: 'GET',
-                    data: {student_id, period_id, term_id, grade_id }
-                }).done((res) => {
-                        if(res.status === true) {
-                            toggleAble('#cummulative'+ student_id, false);
-                            toastr.success(res.message, 'Success!');
-                        }else{
-                            toggleAble('#cummulative'+ student_id, false);
-                            toastr.error(res.message, 'Success!');
-                        }
-                        console.log(res)
-                        location.reload()
-                }).fail((res) => {
-                    console.log(res.responseJSON.message);
-                    toastr.error(res.responseJSON.message, 'Failed!');
-                    toggleAble('#cummulative'+ student_id, false);
-                });
-            }
-        </script>
+            $.ajax({
+                type: "GET",
+                url: "{{ route('result.affective.get') }}",
+                data: {student_uuid, period_id, term_id }
+            }).done((res) => {
+                var data = res.data
+                if(data.length > 0){
+                    $("#affecting").css("display", "none");
+                }
+            })
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('result.cummulative.get') }}",
+                data: {student_uuid, period_id, term_id }
+            }).done((res) => {
+                var data = res.data
+                if(data.length > 0){
+                    $("#cummulative").css("display", "none");
+                }
+            })
+            
+        });
+    </script>
+
+    <script>
+        function publish(student){
+            var data = student.split(",");
+            var student_id = data[0];
+            var period_id = data[1];
+            var term_id = data[2];
+            var grade_id = data[3];
+            
+            toggleAble('#cummulative'+ student_id, true);
+
+            $.ajax({
+                url: '{{ route('result.primary.publish') }}' ,
+                method: 'GET',
+                data: {student_id, period_id, term_id, grade_id }
+            }).done((res) => {
+                    if(res.status === true) {
+                        toggleAble('#cummulative'+ student_id, false);
+                        toastr.success(res.message, 'Success!');
+                    }else{
+                        toggleAble('#cummulative'+ student_id, false);
+                        toastr.error(res.message, 'Success!');
+                    }
+                    console.log(res)
+                    location.reload()
+            }).fail((res) => {
+                console.log(res.responseJSON.message);
+                toastr.error(res.responseJSON.message, 'Failed!');
+                toggleAble('#cummulative'+ student_id, false);
+            });
+        }
+    </script>
     @endsection
 
 </div>

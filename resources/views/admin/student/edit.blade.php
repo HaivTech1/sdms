@@ -91,6 +91,20 @@
                                         </div>
 
                                         <div class="col-sm-6 mb-3">
+                                            <x-form.label for="type" value="{{ __('Type') }}" />
+                                            <select class="form-control select2" name="type" :value="old('type')">
+                                                <option>Select</option>
+                                                <option value="n" @if($student->type() === 'n') selected
+                                                    @endif>Normal</option>
+                                                <option value="s" @if($student->type() === 's') selected
+                                                    @endif>Staff Ward</option>
+                                                <option value="scholarship" @if($student->type() === 'scholarship') selected
+                                                    @endif>On Scholarship</option>
+                                            </select>
+                                        </div>
+
+
+                                        <div class="col-sm-6 mb-3">
                                             <x-form.label for="grade_id" value="{{ __('Class') }}" />
                                             <select class="form-control" name="grade_id">
                                                 <option>Select</option>

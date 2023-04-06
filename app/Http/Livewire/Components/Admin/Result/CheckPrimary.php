@@ -24,6 +24,8 @@ class CheckPrimary extends Component
     public $subjects = [];
     public $search = '';
     public $psych = [];
+    public $sortBy = 'asc';
+    public $orderBy = 'last_name';
 
     protected $queryString = [
         'period_id' => ['except' => ''],
@@ -69,7 +71,7 @@ class CheckPrimary extends Component
                     });
                 });
             });
-        })->search(trim($this->search))->paginate($this->count);        
+        })->search(trim($this->search))->loadLatest($this->count, $this->orderBy, $this->sortBy);        
     }
     
     public function render()

@@ -87,9 +87,12 @@
                                                 </td>
                                                 
                                                 <td class='d-flex justify-content-center align-items-center'>
-                                                    <button title="Click to view result" id="scratchCard" type="button" class="btn btn-sm btn-primary waves-effect waves-light" id="ajax-alert">
+                                                    {{-- <button title="Click to view result" id="scratchCard" type="button" class="btn btn-sm btn-primary waves-effect waves-light" id="ajax-alert">
                                                         <i class="fa fa-eye"></i>
-                                                    </button>
+                                                    </button> --}}
+                                                    <a href="{{ route('result.primary.show', $user->student->id()) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}" title="Click to view result" class="btn btn-sm btn-primary waves-effect waves-light">
+                                                        <i class="fa fa-eye"></i>
+                                                    </a>
                                                 </td>
                                             </tr>
                                         </tbody>

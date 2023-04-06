@@ -22,17 +22,40 @@ class GeneralController extends Controller
     {
         $user = auth()->user();
         $grade = $user->student->grade;
-        $fees = Fee::where('grade_id', $grade->id)->select([
-            'term_id',
-            \DB::raw('COUNT(id) as types'),
-            \DB::raw('SUM(price) as price'),
-        ])
-        ->groupBy('term_id')
-        ->orderBy('term_id')
-        ->get();
+        // $fees = Fee::where([
+        //     'grade_id' => $grade->id,
+        //     'type' => $user->student->type,
+        //     'term_id' => term('id')
+        // ])->select([
+        //     'term_id',
+        //     \DB::raw('COUNT(id) as types'),
+        //     \DB::raw('SUM(price) as price'),
+        // ])
+        // ->groupBy('term_id')
+        // ->orderBy('term_id')
+        // ->get();
+
+        $getFee = Fee::where([
+            'grade_id' => $grade->id,
+            'type' => $user->student->type,
+            'term_id' => term('id')
+        ])->first();
+
+        if ($getFee) {
+            $sum = 0;
+            $sum += $getFee->details->sum('price');
+
+            $feesArray = [
+                'price' => $sum,
+                'term_id' => $getFee->term_id,
+            ];
+        }else{
+            $feesArray = [];
+        }
+
         return view('admin.student.fees',[
             'user' => $user,
-            'fees' => $fees
+            'fee' => $feesArray
         ]);
     }
 

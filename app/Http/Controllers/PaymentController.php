@@ -6,7 +6,10 @@ use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use App\Mail\SendMidtermMail;
 use App\Events\Student\PaymentEvent;
+use App\Mail\Student\NewPaymentMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Unicodeveloper\Paystack\Facades\Paystack;
 
@@ -59,9 +62,10 @@ class PaymentController extends Controller
             if(!$check){
                 if (!$paymentDetails['data']['metadata']['old_payment_id']) {
                     $payment = new Payment();
-                    $payment->paid_by = $paidBy->first_name . ' ' . $paidBy->last_name. ' ' . $paidBy->other_name;
+                    $payment->paid_by = $paidBy->last_name . ' ' . $paidBy->first_name. ' ' . $paidBy->other_name;
                     $payment->student_uuid = $paymentDetails['data']['metadata']['student_uuid'];
                     $payment->amount = $amount;
+                    $payment->initial = $paymentDetails['data']['metadata']['initial'];
                     $payment->payable = $paymentDetails['data']['metadata']['payable'];
                     $payment->balance = $balance;
                     $payment->type = $paymentType;
@@ -72,19 +76,59 @@ class PaymentController extends Controller
                     $payment->ref_id= $paymentDetails['data']['reference'];
                     $payment->authoredBy($user);
                     $payment->save();
-                    
+
+                    if($payment->type === 'partial'){
+                        $array = [ 
+                            'grade_id' => $paidBy->grade->id(), 
+                            'student_id' => $paymentDetails['data']['metadata']['student_uuid'], 
+                            'term_id' => $paymentDetails['data']['metadata']['term_id'], 
+                            'period_id' => period('id'), 
+                            'outstanding' => $balance
+                        ];
+                        $paidBy->update([
+                            'outstanding' => $array,
+                        ]);
+                    }else{
+                        $paidBy->update([
+                            'outstanding' => Null,
+                        ]);
+                    }
                 }else{
                     $payment = Payment::findOrFail($paymentDetails['data']['metadata']['old_payment_id']);
+                    $bal = $paymentDetails['data']['metadata']['old_payment'] + $amount;
                     $payment->update([
-                                        'amount' => $paymentDetails['data']['metadata']['old_payment'] + $amount, 
-                                        'type' => 'full', 
-                                        'balance' => $balance,
-                                        'trans_id' => $paymentDetails['data']['id'],
-                                        'ref_id' => $paymentDetails['data']['reference']
-                                    ]);
+                        'amount' => $paymentDetails['data']['metadata']['old_payment'] + $amount, 
+                        'type' => 'full', 
+                        'balance' => $paymentDetails['data']['metadata']['payable'] - $bal,
+                        'trans_id' => $paymentDetails['data']['id'],
+                        'ref_id' => $paymentDetails['data']['reference']
+                    ]);
+                    $paidBy->update([
+                        'outstanding' => Null,
+                    ]);
                 }
-    
-                event(new PaymentEvent($payment));
+
+                $bursars = User::where('type', User::BURSAL)->get();
+
+                foreach ($bursars as $bursar) {
+                    Mail::to($bursar->email())->send(new NewPaymentMail($payment));
+                }
+
+                $name = $paidBy->last_name." ".$paidBy->first_name. " ".$paidBy->other_name;
+                $paid = 'NGN' .number_format($payment->amount(), 2);
+                $bal = 'NGN' .number_format($payment->balance(), 2);
+
+                $message = "<p>You just made a payment of $paid for $name. Your balance is $bal. Thank you.</p>";
+                $subject = 'Payment Confirmation';
+
+                if(isset($paidBy->mother)){
+                    Mail::to($paidBy->mother->email())->send(new SendMidtermMail($message, $subject));
+                }elseif(isset($paidBy->father)){
+                    Mail::to($paidBy->father->email())->send(new SendMidtermMail($message, $subject));
+                }else{
+                    Mail::to($paidBy->guardian->email())->send(new SendMidtermMail($message, $subject));
+                }
+
                 return view('student.receipt', ['payment' => $payment]);
             }
             return view('student.receipt',['payment' => $check]);
