@@ -143,6 +143,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/', [PaymentController::class, 'index'])->name('index');
     });
 
+    Route::group(['prefix' => 'appSetting', 'as' => 'appSetting.'], function () {
+        Route::post('/mail-config', [ApplicationController::class, 'mail_config'])->name('mail_config');
+        Route::get('send-mail', [ApplicationController::class, 'send_mail'])->name('mail.send');
+        Route::post('payment-method-update/{payment_method}', [ApplicationController::class, 'payment_update'])->name('payment-method-update');
+    });
+
     Route::resource('task',TaskController::class);
     Route::resource('contest',ContestController::class);
 

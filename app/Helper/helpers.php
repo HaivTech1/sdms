@@ -9,6 +9,7 @@ use App\Models\Banner;
 use App\Models\Period;
 use App\Models\MidTerm;
 use App\Models\Payment;
+use App\Models\Setting;
 use App\Models\Student;
 use App\Models\Subject;
 use App\NullApplication;
@@ -20,6 +21,7 @@ use App\Models\Psychomotor;
 use App\Models\PrimaryResult;
 use App\Scopes\HasActiveScope;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 
 function application($key)
 {
@@ -414,5 +416,153 @@ function payslipList()
     return $array;
 }
 
+function error_processor($validator)
+{
+    $err_keeper = [];
+    foreach ($validator->errors()->getMessages() as $index => $error) {
+        array_push($err_keeper, ['code' => $index, 'message' => $error[0]]);
+    }
+    return $err_keeper;
+}
+
+function get_application_settings($name)
+{
+    $config = null;
+
+    $paymentmethod = Setting::where('key', $name)->first();
+
+    if ($paymentmethod) {
+        $config = json_decode($paymentmethod->value, true);
+    }
+
+    return $config;
+}
 
 
+function env_update($key, $value)
+{
+    $path = base_path('.env');
+    if (file_exists($path)) {
+        file_put_contents($path, str_replace(
+            $key . '=' . env($key),
+            $key . '=' . $value,
+            file_get_contents($path)
+        ));
+    }
+}
+
+function env_key_replace($key_from, $key_to, $value)
+{
+    $path = base_path('.env');
+    if (file_exists($path)) {
+        file_put_contents($path, str_replace(
+            $key_from . '=' . env($key_from),
+            $key_to . '=' . $value,
+            file_get_contents($path)
+        ));
+    }
+}
+
+function remove_dir($dir)
+{
+if (is_dir($dir)) {
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+        if ($object != "." && $object != "..") {
+            if (filetype($dir . "/" . $object) == "dir") Helpers::remove_dir($dir . "/" . $object);
+            else unlink($dir . "/" . $object);
+        }
+    }
+    reset($objects);
+    rmdir($dir);
+}
+}
+
+function get_settings($name)
+{
+    $config = null;
+    $data = Setting::where(['key' => $name])->first();
+    if (isset($data)) {
+        $config = json_decode($data['value'], true);
+        if (is_null($config)) {
+            $config = $data['value'];
+        }
+    }
+    return $config;
+}
+
+function setEnvironmentValue($envKey, $envValue)
+{
+    $envFile = app()->environmentFilePath();
+    $str = file_get_contents($envFile);
+    $oldValue = env($envKey);
+    if (strpos($str, $envKey) !== false) {
+        $str = str_replace("{$envKey}={$oldValue}", "{$envKey}={$envValue}", $str);
+    } else {
+        $str .= "{$envKey}={$envValue}\n";
+    }
+    $fp = fopen($envFile, 'w');
+    fwrite($fp, $str);
+    fclose($fp);
+    return $envValue;
+}
+
+function insert_business_settings_key($key, $value = null)
+{
+    $data =  Setting::where('key', $key)->first();
+    if (!$data) {
+        DB::table('business_settings')->updateOrInsert(['key' => $key], [
+            'value' => $value,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+    return true;
+}
+
+function remove_invalid_charcaters($str)
+{
+    return str_ireplace(['\'', '"', ',', ';', '<', '>', '?'], ' ', $str);
+}
+
+function default_lang()
+{
+    return 'en';
+}
+
+if (! function_exists('translate')) {
+    function translate($key, $replace = [])
+    {
+        if(strpos($key, 'validation.') === 0 || strpos($key, 'passwords.') === 0 || strpos($key, 'pagination.') === 0 || strpos($key, 'order_texts.') === 0) {
+            return trans($key, $replace);
+        }
+        
+        $key = strpos($key, 'messages.') === 0?substr($key,9):$key;
+        $local = default_lang();
+        App::setLocale($local);
+        try {
+            $lang_array = include(base_path('resources/lang/' . $local . '/messages.php'));
+            $processed_key = ucfirst(str_replace('_', ' ', remove_invalid_charcaters($key)));
+
+            if (!array_key_exists($key, $lang_array)) {
+                $lang_array[$key] = $processed_key;
+                $str = "<?php return " . var_export($lang_array, true) . ";";
+                file_put_contents(base_path('resources/lang/' . $local . '/messages.php'), $str);
+                $result = $processed_key;
+            } else {
+                $result = trans('messages.' . $key, $replace);
+            }
+        } catch (\Exception $exception) {
+            info($exception);
+            $result = trans('messages.' . $key, $replace);
+        }
+
+        return $result;
+    }
+}
+
+function payment_percent($percent, $amount)
+{
+    $result = $percent * $amount; // 1.5% of 1000
+    return $result;
+}

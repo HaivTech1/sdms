@@ -133,6 +133,8 @@ class Create extends Component
         }else{
             $payment = new Payment([
              'paid_by'  => $this->paid_by,
+             'initial'  => $this->amount,
+             'payable'  => $this->amount,
              'amount'   => $this->amount,
              'balance'   => $this->balance,
              'description'   => $this->description,
@@ -144,8 +146,8 @@ class Create extends Component
              'student_uuid' => $this->student
             ]);
 
-            $payment->trans_id = SaveCodeService::IDGenerator(new Payment(), $payment, 'trans_id', 5, 'TRX');
-            // $payment->ref_id = SaveCodeService::IDGenerator(new Payment(), $payment, 'ref_id', 7, 'REF');
+            $payment->trans_id = 'TRX'.rand(0000,9999);
+            $payment->ref_id = 'REF'.rand(0000,9999);
             $payment->save();
      
             $this->reset();

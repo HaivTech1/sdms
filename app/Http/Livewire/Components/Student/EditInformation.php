@@ -8,13 +8,16 @@ use App\Models\User;
 use App\Models\House;
 use App\Models\Student;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class EditInformation extends Component
 {
+    use WithFileUploads;
 
     public Student $student;
     public User $user;
     public $state = [];
+    public $photo;
 
     public function mount()
     {
@@ -39,6 +42,10 @@ class EditInformation extends Component
         $this->user->update([
             'name' => $this->student->last_name . ' ' . $this->student->first_name . ' ' . $this->student->other_name
         ]);
+
+        if (isset($this->photo)) {
+            $this->user->updateProfilePhoto($this->photo);
+        }
 
         $this->emit('saved');
     }

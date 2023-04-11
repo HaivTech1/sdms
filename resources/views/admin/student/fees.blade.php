@@ -60,10 +60,15 @@
                                     <td>
                                         @if($verification && $verification->amount() == $verification->payable() && $verification->type === 'full')
                                             <span class="badge badge-soft-success">Paid</span>
+                                            <div class="ml-2">
+                                                <a class="btn btn-primary btn-sm"
+                                                    href="{{ route('receipt', $verification) }}">Print Receipt</a>
+                                            </div>
                                         @elseif($verification && $verification->term_id == $fee['term_id'] && $verification->type === 'partial')
 
                                             @php
                                                 $leftOver = $verification->payable() - $verification->amount();
+                                                $per = payment_percent(0.015, $leftOver);
                                             @endphp
                                             <span class="badge badge-soft-danger">You have a balance of <b> {{ trans('global.naira') }}{{ $leftOver }}</b> to pay!</span>
                                             <form method="POST" action="{{ route('pay') }}">
@@ -78,14 +83,14 @@
                                                                                                                         'old_payment_id' => $verification->id()
                                                                                                                     ])
                                                                                             }}">
-                                                @if(isset($student->mother))
+                                                @if(isset($user->student->mother))
                                                     <input type="hidden" name="email" value="{{ $user->student->mother->email()}}">
                                                 @elseif(isset($user->student->father))
                                                     <input type="hidden" name="email" value="{{ $user->student->father->email()}}">
                                                 @else
                                                     <input type="hidden" name="email" value="{{ application('email')}}">
                                                 @endif
-                                                <input type="hidden" name="amount" value="{{($leftOver) * 100 }}">
+                                                <input type="hidden" name="amount" value="{{($leftOver + $per) * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
                                                 <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"/>
                                                 <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="bx bx-credit-card label-icon"></i> Pay Now</button>
@@ -93,6 +98,9 @@
                                         @else
                                             <form method="POST" action="{{ route('pay') }}">
                                                 @csrf
+                                                @php
+                                                    $per = payment_percent(0.015, $toPay);
+                                                @endphp
                                                 <input type="hidden" name="metadata" value="{{ json_encode($array = ['student_uuid' => $user->student->id(),
                                                                                                                         'term_id' => $fee['term_id'],
                                                                                                                         'author_id' => $user->id(),
@@ -101,7 +109,7 @@
                                                                                                                         'old_payment' => false,
                                                                                                                         'old_payment_id' => false
                                                                                                                     ]) }}">
-                                                @if(isset($student->mother))
+                                                @if(isset($user->student->mother))
                                                     <input type="hidden" name="email" value="{{ $user->student->mother->email()}}">
                                                 @elseif(isset($user->student->father))
                                                     <input type="hidden" name="email" value="{{ $user->student->father->email()}}">
@@ -109,7 +117,7 @@
                                                     <input type="hidden" name="email" value="{{ application('email')}}">
                                                 @endif
                                                 
-                                                <input id="amount" type="hidden" name="amount" value="{{ $toPay * 100 }}">
+                                                <input id="amount" type="hidden" name="amount" value="{{ ($toPay + $per) * 100 }}">
                                                 <input type="hidden" name="currency" value="NGN">
                                                 <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"/> 
 

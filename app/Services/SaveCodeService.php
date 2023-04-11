@@ -14,6 +14,7 @@ class SaveCodeService
           }
           else{
                $code = substr($data->$trow, strlen($prefix)+1);
+               dd($code);
                $actial_last_number = ($code/1)*1;
                $increment_last_number = $actial_last_number+1;
                $last_number_length = strlen($increment_last_number);
