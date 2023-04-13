@@ -12,39 +12,37 @@
 
     <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card" x-data="{ currentTab: $persist('general')}">
                 <div class="card-body">
-
                     <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#home" role="tab">
+                        <li @click.prevent="currentTab = 'student'" class="nav-item">
+                            <a class="nav-link" :class="currentTab === 'student' ? 'active' : ''" data-bs-toggle="tab" href="#home" role="tab">
                                 <span class="d-block d-sm-none"><i class="fas fa-home"></i></span>
                                 <span class="d-none d-sm-block">Student Details</span>    
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#profile" role="tab">
+                        <li @click.prevent="currentTab = 'mother'" class="nav-item">
+                            <a class="nav-link" :class="currentTab === 'mother' ? 'active' : ''" data-bs-toggle="tab" href="#profile" role="tab">
                                 <span class="d-block d-sm-none"><i class="far fa-user"></i></span>
                                 <span class="d-none d-sm-block">Mother Details</span>    
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#messages" role="tab">
+                        <li @click.prevent="currentTab = 'father'" class="nav-item">
+                            <a class="nav-link" :class="currentTab === 'father' ? 'active' : ''" data-bs-toggle="tab" href="#messages" role="tab">
                                 <span class="d-block d-sm-none"><i class="far fa-envelope"></i></span>
                                 <span class="d-none d-sm-block">Father Details</span>    
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#settings" role="tab">
+                        <li @click.prevent="currentTab = 'guardian'" class="nav-item">
+                            <a class="nav-link" :class="currentTab === 'guardian' ? 'active' : ''" data-bs-toggle="tab" href="#settings" role="tab">
                                 <span class="d-block d-sm-none"><i class="fas fa-cog"></i></span>
                                 <span class="d-none d-sm-block">Guardian Details</span>    
                             </a>
                         </li>
                     </ul>
 
-                <!-- Tab panes -->
                     <div class="tab-content p-3 text-muted">
-                        <div class="tab-pane active" id="home" role="tabpanel">
+                        <div class="tab-pane" :class="currentTab === 'student' ? 'active' : ''" id="student" role="tabpanel">
                             <h4 class="card-title">Basic Information</h4>
                             <p class="card-title-desc">Update {{ $student->firstName()}} Information</p>
 
@@ -201,7 +199,7 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="tab-pane" id="profile" role="tabpanel">
+                        <div class="tab-pane" :class="currentTab === 'mother' ? 'active' : ''" id="mother" role="tabpanel">
                             <h4 class="card-title">Mother's Information</h4>
 
                             @if(isset($student->mother))
@@ -250,7 +248,7 @@
                                     </div>
 
                                     <div class="d-flex flex-wrap gap-2">
-                                        <button id="mother" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Update</button>
+                                        <button id="motherBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Update</button>
                                     </div>
                                 </form>
                             @else
@@ -298,12 +296,12 @@
                                     </div>
 
                                     <div class="d-flex flex-wrap gap-2">
-                                        <button id="father" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Create</button>
+                                        <button id="motherBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Create</button>
                                     </div>
                                 </form>
                             @endif
                         </div>
-                        <div class="tab-pane" id="messages" role="tabpanel">
+                        <div class="tab-pane" :class="currentTab === 'father' ? 'active' : ''" id="father" role="tabpanel">
                             <h4 class="card-title">Father's Information</h4>
 
                             @if(isset($student->father))
@@ -352,7 +350,7 @@
                                     </div>
 
                                     <div class="d-flex flex-wrap gap-2">
-                                        <button id="father" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Update</button>
+                                        <button id="fatherBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Update</button>
                                     </div>
                                 </form>
                             @else
@@ -400,12 +398,12 @@
                                     </div>
 
                                     <div class="d-flex flex-wrap gap-2">
-                                        <button id="father" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Create</button>
+                                        <button id="fatherBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Create</button>
                                     </div>
                                 </form>
                             @endif
                         </div>
-                        <div class="tab-pane" id="settings" role="tabpanel">
+                        <div class="tab-pane" :class="currentTab === 'guardian' ? 'active' : ''" id="guardian" role="tabpanel">
                             <h4 class="card-title">Guardian's Information</h4>
 
                             @if(isset($student->guardian))
@@ -454,7 +452,7 @@
                                     </div>
 
                                     <div class="d-flex flex-wrap gap-2">
-                                        <button id="guardian" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Update</button>
+                                        <button id="guardianBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Update</button>
                                     </div>
                                 </form>
                             @else
@@ -502,7 +500,7 @@
                                     </div>
 
                                     <div class="d-flex flex-wrap gap-2">
-                                        <button id="guardian" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Create</button>
+                                        <button id="guardianBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Create</button>
                                     </div>
                                 </form>
                             @endif
@@ -514,7 +512,11 @@
         </div>
     </div>
 
-     @section('scripts')
+    @push('alpine-plugins')
+        <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    @endpush
+
+    @section('scripts')
         <script>
 
             $.ajaxSetup({
@@ -523,9 +525,9 @@
                 },
             });
             
-            $('#mother').on('click', function (e) {
+            $('#motherUpdate').on('submit', function (e) {
                 e.preventDefault();
-               toggleAble('#mother', true, 'Submitting...')
+               toggleAble('#motherBtn', true, 'Submitting...')
                var data = $('#motherUpdate').serializeArray();
                var url = '/student/update/mother';
 
@@ -535,24 +537,24 @@
                     data
                 }).done((res) => {
                     if(res.status) {
-                        toggleAble('#mother', false);
+                        toggleAble('#motherBtn', false);
                         toastr.success(res.message, 'Success!');
                         resetForm('#motherUpdate');
                         window.location.reload();
                     }else{
-                        toggleAble('#mother', false);
+                        toggleAble('#motherBtn', false);
                         toastr.error(res.responseJSON.message, 'Failed!');
                     }
                 }).fail((res) => {
                     console.log(res.responseJSON.message);
                     toastr.error(res.responseJSON.message, 'Failed!');
-                    toggleAble('#mother', false);
+                    toggleAble('#motherBtn', false);
                 });
             });
 
-            $('#father').on('click', function (e) {
+            $('#fatherUpdate').on('submit', function (e) {
                 e.preventDefault();
-               toggleAble('#father', true, 'Submitting...')
+               toggleAble('#fatherBtn', true, 'Submitting...')
                var data = $('#fatherUpdate').serializeArray();
                var url = '/student/update/father';
 
@@ -562,24 +564,24 @@
                     data
                 }).done((res) => {
                     if(res.status) {
-                        toggleAble('#father', false);
+                        toggleAble('#fatherBtn', false);
                         toastr.success(res.message, 'Success!');
                         resetForm('#fatherUpdate');
                         window.location.reload();
                     }else{
-                        toggleAble('#father', false);
+                        toggleAble('#fatherBtn', false);
                         toastr.error(res.responseJSON.message, 'Failed!');
                     }
                 }).fail((res) => {
                     console.log(res.responseJSON.message);
                     toastr.error(res.responseJSON.message, 'Failed!');
-                    toggleAble('#father', false);
+                    toggleAble('#fatherBtn', false);
                 });
             });
 
-            $('#guardian').on('click', function (e) {
+            $('#guardianUpdate').on('submit', function (e) {
                 e.preventDefault();
-               toggleAble('#guardian', true, 'Submitting...')
+               toggleAble('#guardianBtn', true, 'Submitting...')
                var data = $('#guardianUpdate').serializeArray();
                var url = '/student/update/guardian';
 
@@ -589,18 +591,18 @@
                     data
                 }).done((res) => {
                     if(res.status) {
-                        toggleAble('#guardian', false);
+                        toggleAble('#guardianBtn', false);
                         toastr.success(res.message, 'Success!');
                         resetForm('#guardianUpdate');
                         window.location.reload();
                     }else{
-                        toggleAble('#guardian', false);
+                        toggleAble('#guardianBtn', false);
                         toastr.error(res.responseJSON.message, 'Failed!');
                     }
                 }).fail((res) => {
                     console.log(res.responseJSON.message);
                     toastr.error(res.responseJSON.message, 'Failed!');
-                    toggleAble('#guardian', false);
+                    toggleAble('#guardianBtn', false);
                 });
             });
         </script>

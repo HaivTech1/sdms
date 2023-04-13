@@ -18,6 +18,7 @@ use App\Mail\SendAdmissionMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\NotifiableParentsTrait;
 
 class Index extends Component
 {
@@ -183,13 +184,15 @@ class Index extends Component
                                 </p>";
                             $subject = 'Admission Status from ' . application('name');
 
-                            if($value->mother_email !== null){
-                                Mail::to($value->mother_email)->send(new SendAdmissionMail($message, $subject));
-                            }elseif($value->father_email !== null ){
-                                Mail::to($value->father_email)->send(new SendAdmissionMail($message, $subject));
-                            }else{
-                                Mail::to($value->guardian_email)->send(new SendAdmissionMail($message, $subject));
-                            }
+                            NotifiableParentsTrait::notifyParents($student, $message, $subject);
+
+                            // if($value->mother_email !== null){
+                            //     Mail::to($value->mother_email)->send(new SendAdmissionMail($message, $subject));
+                            // }elseif($value->father_email !== null ){
+                            //     Mail::to($value->father_email)->send(new SendAdmissionMail($message, $subject));
+                            // }else{
+                            //     Mail::to($value->guardian_email)->send(new SendAdmissionMail($message, $subject));
+                            // }
             
                     }
                 }

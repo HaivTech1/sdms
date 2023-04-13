@@ -292,6 +292,7 @@
 
 @yield('scripts')
 @stack('modals')
+@stack('alpine-plugins')
 @livewire('livewire-ui-spotlight')
 @livewireScripts
 <script src="{{ asset('js/alpine.js') }}" defer></script>

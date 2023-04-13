@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Models\Application;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\TestEmailSender;
 use Illuminate\Support\Facades\DB;
@@ -44,11 +45,11 @@ class ApplicationController extends Controller
 
     public function payment_update(Request $request, $name)
     {
-        if ($name == 'cash_on_delivery') {
-            $payment = Setting::where('key', 'cash_on_delivery')->first();
+        if ($name == 'cash') {
+            $payment = Setting::where('key', 'cash')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'cash_on_delivery',
+                    'key'        => 'cash',
                     'value'      => json_encode([
                         'status' => $request['status'],
                     ]),
@@ -56,8 +57,8 @@ class ApplicationController extends Controller
                     'updated_at' => now(),
                 ]);
             } else {
-                DB::table('settings')->where(['key' => 'cash_on_delivery'])->update([
-                    'key'        => 'cash_on_delivery',
+                DB::table('settings')->where(['key' => 'cash'])->update([
+                    'key'        => 'cash',
                     'value'      => json_encode([
                         'status' => $request['status'],
                     ]),
@@ -350,6 +351,58 @@ class ApplicationController extends Controller
          }
  
          return response()->json(['status' => true, 'message' => 'Mail sent successfully!'], 200);
+     }
+
+     public function maintenance_mode()
+     {
+         $maintenance_mode = Setting::where('key', 'maintenance_mode')->first();
+         if (isset($maintenance_mode) == false) {
+             DB::table('settings')->insert([
+                 'key' => 'maintenance_mode',
+                 'value' => 1,
+                 'created_at' => now(),
+                 'updated_at' => now(),
+             ]);
+         } else {
+             DB::table('settings')->where(['key' => 'maintenance_mode'])->update([
+                 'key' => 'maintenance_mode',
+                 'value' => $maintenance_mode->value == 1 ? 0 : 1,
+                 'updated_at' => now(),
+             ]);
+         }
+ 
+         if (isset($maintenance_mode) && $maintenance_mode->value) {
+             return response()->json(['message' => 'Maintenance is off.'], 200);
+         }
+         return response()->json(['message' => 'Maintenance is on.'], 200);
+     }
+
+     public function update_notification(Request $request)
+     {
+        $field = key($request->all());
+        $value = $request->input($field);
+
+        $notification = Setting::where('key', ''.$field)->first();
+        if (isset($notification) == false) {
+             DB::table('settings')->insert([
+                 'key' => ''.$field,
+                 'value' => $value,
+             ]);
+        } else {
+             DB::table('settings')->where(['key' => ''.$field])->update([
+                 'key' => ''.$field,
+                 'value' => $value,
+             ]);
+        }
+
+        // Separate the field name and capitalize the first word
+        $fieldParts = explode('_', $field);
+        $fieldName = Str::ucfirst($fieldParts[0]) . ' ' . Str::ucfirst($fieldParts[1]);
+ 
+        if (isset($notification) && $notification->value) {
+            return response()->json(['message' => $fieldName.' is off.'], 200);
+        }
+        return response()->json(['message' => $fieldName.' is on.'], 200);
      }
     
 }

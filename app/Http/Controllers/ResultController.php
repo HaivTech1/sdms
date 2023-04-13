@@ -24,6 +24,7 @@ use App\Jobs\CreateSingleResult;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\NotifiableParentsTrait;
 use App\Http\Requests\StoreResultRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
@@ -686,6 +687,8 @@ class ResultController extends Controller
                 foreach($results as $result){
                     $result->update(['published' => true]);
                 }
+                
+                NotifiableParentsTrait::notifyParents($student, $message, $subject);
         
                 // if(isset($student->mother)){
                 //     // MidTermResultJob::dispatch($student, $message, $subject);
@@ -755,15 +758,16 @@ class ResultController extends Controller
                 foreach($results as $result){
                     $result->update(['published' => true]);
                 }
+
+                NotifiableParentsTrait::notifyParents($student, $message, $subject);
         
-                if(isset($student->mother)){
-                    // MidTermResultJob::dispatch($student, $message, $subject);
-                    Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-                }elseif(isset($student->father)){
-                    Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-                }else{
-                    Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-                }
+                // if(isset($student->mother)){
+                //     Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+                // }elseif(isset($student->father)){
+                //     Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+                // }else{
+                //     Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+                // }
             });
 
             return response()->json(['status' => true, 'message' => 'Result made available successfully! And email sent to parent.' ], 200);

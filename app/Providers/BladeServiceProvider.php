@@ -49,5 +49,8 @@ class BladeServiceProvider extends ServiceProvider
             return ($user->isStudent());
         });
 
+        Blade::if('registrationLinkEnabled', function () {
+            return get_settings('registration_link') === 1;
+        });
     }
 }

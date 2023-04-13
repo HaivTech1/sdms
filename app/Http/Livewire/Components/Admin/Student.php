@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 use App\Mail\SendMidtermMail;
 use App\Scopes\HasActiveScope;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\NotifiableParentsTrait;
 use App\Models\Student as ClientStudent;
 
 class Student extends Component
@@ -138,13 +139,15 @@ class Student extends Component
             $message = "<p>Your child: $name login credentials are: Id Number: ".$idNumber." and password: password123 or password1234</p>";
             $subject = 'Portal Login Credentials';
 
-            if(isset($student->mother)) {
-                Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-            }elseif(isset($student->father)) {
-                Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-            }elseif(isset($student->guardian)) {
-                Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-            }
+            NotifiableParentsTrait::notifyParents($student, $message, $subject);
+
+            // if(isset($student->mother)) {
+            //     Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+            // }elseif(isset($student->father)) {
+            //     Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+            // }elseif(isset($student->guardian)) {
+            //     Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+            // }
             
             $this->dispatchBrowserEvent('success', ['message' => 'Credentials have been sent successfully!']);
         } catch (\Throwable $th) {
@@ -161,14 +164,16 @@ class Student extends Component
                 $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
                 $message = "<p>Your child: $name login credentials are: Id Number: ".$idNumber." and password: password123 or password1234</p>";
                 $subject = 'Portal Login Credentials';
+
+                NotifiableParentsTrait::notifyParents($student, $message, $subject);
     
-                if(isset($student->mother)) {
-                    Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-                }elseif(isset($student->father)) {
-                    Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-                }elseif(isset($student->guardian)) {
-                    Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-                }
+                // if(isset($student->mother)) {
+                //     Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
+                // }elseif(isset($student->father)) {
+                //     Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
+                // }elseif(isset($student->guardian)) {
+                //     Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
+                // }
             }
             $this->dispatchBrowserEvent('success', ['message' => 'Credentials have been sent successfully!']);
             $this->reset(['selectedRows', 'selectPageRows']);

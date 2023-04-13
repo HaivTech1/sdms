@@ -103,7 +103,7 @@ class GeneralController extends Controller
     public function guardianUpdate(Request $request)
     {
         $student = Student::findOrfail($request->student_id);
-        $exists = Guardian::where('student_uuid', $student->id())->first();
+        $exists = Guardian::where('student_id', $student->id())->first();
 
         if (!$exists){
             $guardian = new Guardian([

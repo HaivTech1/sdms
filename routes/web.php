@@ -58,10 +58,9 @@ Route::get('/', function () {
 });
 
 Route::get('/registration', function () {
-    // return view('registration',[
-    //     'grades' => Grade::all(),
-    // ]);
-    return abort(500, 'Something went wrong!');
+    return view('registration',[
+        'grades' => Grade::all(),
+    ]);
 });
 
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
@@ -147,6 +146,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/mail-config', [ApplicationController::class, 'mail_config'])->name('mail_config');
         Route::get('send-mail', [ApplicationController::class, 'send_mail'])->name('mail.send');
         Route::post('payment-method-update/{payment_method}', [ApplicationController::class, 'payment_update'])->name('payment-method-update');
+        Route::get('maintenance-mode', [ApplicationController::class, 'maintenance_mode'])->name('maintenance-mode');
+        Route::post('/update-notification', [ApplicationController::class, 'update_notification']);
     });
 
     Route::resource('task',TaskController::class);

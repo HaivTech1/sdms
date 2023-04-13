@@ -668,6 +668,7 @@
   'gst_can_not_be_empty' => 'GST can not be empty!',
   'gst_status_warning' => 'If GST is enable, GST number will be shown in invoice',
   'cash_on_delivery' => 'Cash on delivery',
+  'cash' => 'Cash Payment',
   'digital' => 'digital',
   'inactive' => 'Inactive',
   'inactive_vendor_warning' => 'Inactive vendor! Please contact to admin.',

@@ -566,3 +566,14 @@ function payment_percent($percent, $amount)
     $result = $percent * $amount; // 1.5% of 1000
     return $result;
 }
+
+function mode()
+{
+    $result = get_settings('maintenance_mode');
+
+    if($result === 1){
+        return true;
+    }else{
+        return false;
+    }
+}
