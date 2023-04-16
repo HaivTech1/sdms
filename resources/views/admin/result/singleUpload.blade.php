@@ -9,6 +9,5 @@
                 </ol>
             </div>
         </x-slot>
-    
         <livewire:components.admin.result.single-upload />
     </x-app-layout>

@@ -71,5 +71,7 @@ class Kernel extends HttpKernel
         'teacher' => \App\Http\Middleware\IsTeacher::class,
         'bursal' => \App\Http\Middleware\IsBursal::class,
         'student' => \App\Http\Middleware\IsStudent::class,
+        'hasPaid' => \App\Http\Middleware\SchoolFeesMiddleware::class,
+        'maintenance' => \App\Http\Middleware\CheckCustomMaintenanceMode::class,
     ];
 }

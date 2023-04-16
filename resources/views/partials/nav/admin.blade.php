@@ -5,6 +5,7 @@
             <span key="t-ecommerce">Settings Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
+            <li><a href="{{ route('setting.index') }}" key="t-products">Setting</a></li>
             <li><a href="{{ route('period.index') }}" key="t-products">Session</a></li>
             <li><a href="{{ route('term.index') }}" key="t-products">Term</a></li>
             <li><a href="{{ route('house.index') }}" key="t-products">House</a></li>

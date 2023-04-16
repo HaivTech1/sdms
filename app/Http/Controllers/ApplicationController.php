@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Mail\TestEmailSender;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Artisan;
 
 class ApplicationController extends Controller
 {
@@ -372,8 +373,11 @@ class ApplicationController extends Controller
          }
  
          if (isset($maintenance_mode) && $maintenance_mode->value) {
+            Artisan::call('up');
              return response()->json(['message' => 'Maintenance is off.'], 200);
          }
+
+         Artisan::call('down');
          return response()->json(['message' => 'Maintenance is on.'], 200);
      }
 
@@ -403,6 +407,20 @@ class ApplicationController extends Controller
             return response()->json(['message' => $fieldName.' is off.'], 200);
         }
         return response()->json(['message' => $fieldName.' is on.'], 200);
-     }
-    
+    }
+
+    public function format(Request $request)
+    {
+        $addmore = $request->input('addmore');
+
+        try {
+            foreach ($addmore as $key => $value) {
+                $setting = Setting::updateOrCreate(['key' => $value['key']], ['value' => $value['value']]);
+            }
+            return response()->json(['status' => true, 'message' => 'Setting saved successfully!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
 }

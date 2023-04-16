@@ -5,7 +5,6 @@
             <span key="t-ecommerce">Site Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
-            <li><a href="{{ route('setting.index') }}" key="t-products">Setting</a></li>
             <li><a href="{{ route('user.index') }}" key="t-products">Users</a></li>
             <li><a href="{{ route('teams.index') }}" key="t-products">Team</a></li>
             {{-- <li><a href="{{ route('task.index') }}" key="t-products">Task</a></li> --}}

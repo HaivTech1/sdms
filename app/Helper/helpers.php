@@ -1,6 +1,7 @@
 <?php
 
 use App\NullAbout;
+use App\Models\Fee;
 use App\NullBanner;
 use App\Models\Term;
 use App\Models\User;
@@ -575,5 +576,28 @@ function mode()
         return true;
     }else{
         return false;
+    }
+}
+
+if (!function_exists('hasPaidFullFee')) {
+    function hasPaidFullFee($user, $gradeId) {
+        $getFee = Fee::where([
+            'grade_id' => $gradeId,
+            'type' => $user->student->type,
+            'term_id' => term('id'),
+        ])->first();
+
+        $sum = $getFee->details->sum('price');
+
+        $totalPaid = DB::table('payments')->where([
+            'student_uuid' => $user->student->id(),
+            'term_id' => term('id'),
+            'period_id' => period('id')
+        ])->sum('amount');
+
+        return [
+            'status' => $totalPaid >= $sum,
+            'owing' => $sum
+        ];
     }
 }

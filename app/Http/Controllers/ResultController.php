@@ -455,22 +455,36 @@ class ResultController extends Controller
                     // If the result already exists, throw an exception to roll back the transaction
                     throw new \Exception('Result for this student already exists!');
                 } else {
-                    for ($i=0; $i < count($request->ca1); $i++) { 
-                        $result = new PrimaryResult([
-                            'period_id'     => $request->period_id,
-                            'term_id'       => $request->term_id,
-                            'grade_id'      => $request->grade_id,
-                            'student_id'        => $request->student_id,
-                            'subject_id'        => $request->subject_id[$i],
-                            'ca1'       => $request->ca1[$i],
-                            'ca2'       => $request->ca2[$i],
-                            'ca3'       => $request->ca3[$i],
-                            'pr'       => $request->pr[$i],
-                            'exam'      => $request->exam[$i],
-                        ]);
-            
-                        $result->authoredBy(auth()->user());
-                        $result->save();
+
+                    $midterm = Midterm::where([
+                        'period_id' => $request->period_id,
+                        'term_id' => $request->term_id,
+                        'grade_id' => $request->grade_id,
+                        'student_id' => $request->student_id,
+                    ])->get();
+
+                    if ($midterm->count() < 1) {
+                        throw new \Exception('Please upload midterm result for this student first!');
+                    }else{
+                        foreach ($request->subject_id as $i => $subject_id) {
+                            $midterm_entry = $midterm->where('subject_id', $subject_id)->first();
+                            $result = new PrimaryResult([
+                                'period_id'     => $request->period_id,
+                                'term_id'       => $request->term_id,
+                                'grade_id'      => $request->grade_id,
+                                'student_id'    => $request->student_id,
+                                'subject_id'    => $subject_id,
+                                'ca1'           => $midterm_entry->first_test,
+                                'ca2'           => $midterm_entry->entry_1,
+                                'ca3'           => $midterm_entry->entry_2,
+                                'pr'            => $midterm_entry->project,
+                                'exam'          => $request->exam[$i],
+                            ]);
+                        
+                            // Save the new primary result
+                            $result->authoredBy(auth()->user());
+                            $result->save();
+                        }
                     }
                 }
             });

@@ -37,7 +37,7 @@
                         <li @click.prevent="currentTab = 'notification'" class="nav-item">
                             <a class="nav-link" :class="currentTab === 'notification' ? 'active' : ''" data-bs-toggle="tab" href="#notification" role="tab">
                                 <span class="d-block d-sm-none"><i class="fas fa-cog"></i></span>
-                                <span class="d-none d-sm-block">Notification</span>    
+                                <span class="d-none d-sm-block">Actions</span>    
                             </a>
                         </li>
                     </ul>
@@ -461,7 +461,7 @@
                         <div class="tab-pane" :class="currentTab === 'notification' ? 'active' : ''" id="notification" role="tabpanel">
                             <div class="card">
                                 <div class="card-body">
-                                    <h4 class="card-title">Toggle notification settings</h4>
+                                    <h4 class="card-title mt-2 mb-2">Toggle notification settings</h4>
 
                                     <div class="row mt-2">
                                         <div class="col-sm-4">
@@ -487,7 +487,10 @@
                                                 <label for="guardian_notification" data-on-label="Yes" data-off-label="No"></label>
                                             </div>
                                         </div>
+                                    </div>
 
+                                    <h4 class="card-title mt-2 mb-2">Application settings</h4>
+                                    <div class="row mt-2">
                                         <div class="col-sm-4">
                                             <h5 class="font-size-14 mb-3">Registration Link</h5>
                                             <div>
@@ -495,9 +498,110 @@
                                                 <label for="registration_link" data-on-label="Yes" data-off-label="No"></label>
                                             </div>
                                         </div>
+
+                                        <div class="col-sm-4">
+                                            <h5 class="font-size-14 mb-3">Check students payment</h5>
+                                            <div>
+                                                <input type="checkbox" id="check_payment" switch="success" data-field="check_payment" @if (get_settings('check_payment') === 1) checked @endif />
+                                                <label for="check_payment" data-on-label="Yes" data-off-label="No"></label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-4">
+                                            <h5 class="font-size-14 mb-3">Activate mid term upload</h5>
+                                            <div>
+                                                <input type="checkbox" id="mid_upload" switch="success" data-field="mid_upload" @if (get_settings('mid_upload') === 1) checked @endif />
+                                                <label for="mid_upload" data-on-label="Yes" data-off-label="No"></label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-4">
+                                            <h5 class="font-size-14 mb-3">Activate Exam upload</h5>
+                                            <div>
+                                                <input type="checkbox" id="exam_upload" switch="success" data-field="exam_upload" @if (get_settings('exam_upload') === 1) checked @endif />
+                                                <label for="exam_upload" data-on-label="Yes" data-off-label="No"></label>
+                                            </div>
+                                        </div>
+
+                                        @superadmin
+                                            <div class="col-sm-4">
+                                                <h5 class="font-size-14 mb-3">App Debug</h5>
+                                                <div>
+                                                    <input type="checkbox" id="app_debug" switch="success" data-field="app_debug" @if (get_settings('app_debug') === 1) checked @endif />
+                                                    <label for="app_debug" data-on-label="True" data-off-label="False"></label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <h5 class="font-size-14 mb-3">App ENV</h5>
+                                                <div>
+                                                    <input type="checkbox" id="app_env" switch="success" data-field="app_env" @if (get_settings('app_env') === 1) checked @endif />
+                                                    <label for="app_env" data-on-label="Live" data-off-label="Local"></label>
+                                                </div>
+                                            </div>
+                                        @endsuperadmin
                                     </div>
                                 </div>
                             </div>
+
+                             <div class="card">
+                                <div class="card-body">
+                                    <form id="settingForm" enctype="multipart/form-data" method="POST">
+                                        @csrf
+                                        <div class="row">
+                                            <table class="table table-bordered" id="settingTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Value</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach(\App\Models\Setting::all() as $setting)
+                                                        @if (!in_array($setting->key, ['mail_config', 'digital_payment', 'paystack', 'cash']) && $setting->value != 1 && $setting->value != 0)
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][key]"
+                                                                        value="{{ $setting->key }}" class="form-control" />
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][value]"
+                                                                        value="{{ $setting->value }}" class="form-control" />
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" name="add" id="add" class="btn btn-success"><i
+                                                                            class="bx bx-plus"></i></button>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
+                                                    @endforeach
+
+                                                    @if (\App\Models\Setting::count() == 0 || \App\Models\Setting::whereNotIn('key', ['mail_config', 'digital_payment', 'paystack', 'cash'])->where('value', '<>', 1)->where('value', '<>', 0)->count() == 0)
+                                                        <tr>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][key]"
+                                                                    placeholder="Enter your name" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][value]"
+                                                                    placeholder="Enter your value" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" name="add" id="add" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="float-right">
+                                            <button id="settingBtn" class="btn btn-success" type="submit">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+                             </div>
                         </div>
                     </div>
                 </div>
@@ -594,6 +698,7 @@
                 })
             });
         </script>
+
         <script>
             @if(!isset($digital_payment) || $digital_payment['status']==0)
                 $('.digital_payment_methods').hide();
@@ -621,6 +726,7 @@
             }
 
         </script>
+
         <script>
             function maintenance_mode() {
                 Swal.fire({
@@ -673,6 +779,7 @@
                 readURL(this, 'iconViewer');
             });
         </script>
+
         <script>
             const inputFields = document.querySelectorAll('[data-field]');
 
@@ -699,9 +806,56 @@
                         contentType: false
                     }).then(response => {
                         toastr.success(response.message);
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 1000)
                     }).catch(error => {
                         toastr.error('There was a problem with the fetch operation:', error);
                     });
+                });
+            });
+        </script>
+
+        <script type="text/javascript">
+            var i = 0;
+            $("#add").click(function(){
+                ++i;
+                $("#settingTable").append('<tr><td><input type="text" name="addmore['+i+'][key]" placeholder="Enter your name" class="form-control" /></td><td><input type="text" name="addmore['+i+'][value]" placeholder="Enter your value" class="form-control" /></td><td><button type="button" class="btn btn-danger remove-tr"><i class="bx bx-trash"></i></button></td></tr>');
+            });
+        
+            $(document).on('click', '.remove-tr', function(){  
+                $(this).parents('tr').remove();
+            });
+
+            $('#settingForm').on('submit' , function(e){
+                e.preventDefault();
+                let formData = new FormData($('#settingForm')[0]);
+                toggleAble('#settingBtn', true, 'Saving...');
+                    $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    url: "/appSetting/mark/format",
+                    method: 'post',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                    }
+                }).then((response) => {
+                    toggleAble('#settingBtn', false);
+                    toastr.success(response.message);
+                    setTimeout(() =>{
+                        window.location.reload();
+                    }, 1000)
+                }).catch((error) => {
+                    toggleAble('#settingBtn', false);
+                    toastr.error(error.message);
                 });
             });
         </script>

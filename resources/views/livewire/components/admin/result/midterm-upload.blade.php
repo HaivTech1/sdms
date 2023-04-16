@@ -1,225 +1,127 @@
 <div>
     <x-loading />
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card-body">            
-                    <form wire:submit.prevent='selectStudent'>
-                        <div class="row">
-                            @admin
+    @midUploadEnabled
+        <div class="row">
+            <div class="col-12">
+                <div class="card-body">            
+                        <form wire:submit.prevent='selectStudent'>
+                            <div class="row">
+                                @admin
+                                    <div class="col-lg-2 mt-2">
+                                        <select class="form-control select2" wire:model="grade_id">
+                                            <option value=''>Class</option>
+                                            @foreach ($grades as $grade)
+                                            <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @else 
+
                                 <div class="col-lg-2 mt-2">
                                     <select class="form-control select2" wire:model="grade_id">
                                         <option value=''>Class</option>
-                                        @foreach ($grades as $grade)
+                                        @foreach (auth()->user()->gradeClassTeacher as $grade)
                                         <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                            @else 
+                                @endadmin
 
-                            <div class="col-lg-2 mt-2">
-                                <select class="form-control select2" wire:model="grade_id">
-                                    <option value=''>Class</option>
-                                    @foreach (auth()->user()->gradeClassTeacher as $grade)
-                                    <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @endadmin
+                                <div class="col-lg-3 mt-2">
+                                    <select class="form-control select2" wire:model.defer="student_id">
+                                        <option value=''>Select Student</option>
+                                        @foreach ($students as $student)
+                                        <option value="{{  $student->id() }}">{{ $student->firstName() }} {{
+                                            $student->lastName() }}
+                                        </option>
+                                        @endforeach
+                                        <x-form.error for="student_id" />
+                                    </select>
+                                </div>
 
-                            <div class="col-lg-3 mt-2">
-                                <select class="form-control select2" wire:model.defer="student_id">
-                                    <option value=''>Select Student</option>
-                                    @foreach ($students as $student)
-                                    <option value="{{  $student->id() }}">{{ $student->firstName() }} {{
-                                        $student->lastName() }}
-                                    </option>
-                                    @endforeach
-                                    <x-form.error for="student_id" />
-                                </select>
-                            </div>
+                                <div class="col-lg-2 mt-2">
+                                    <select class="form-control " wire:model.defer="period_id">
+                                        <option value=''>Select Session</option>
+                                        @foreach ($periods as $period)
+                                        <option value="{{  $period->id() }}">{{ $period->title() }}</option>
+                                        @endforeach
+                                        <x-form.error for="period_id" />
+                                    </select>
 
-                            <div class="col-lg-2 mt-2">
-                                <select class="form-control " wire:model.defer="period_id">
-                                    <option value=''>Select Session</option>
-                                    @foreach ($periods as $period)
-                                    <option value="{{  $period->id() }}">{{ $period->title() }}</option>
-                                    @endforeach
-                                    <x-form.error for="period_id" />
-                                </select>
+                                </div>
 
-                            </div>
+                                <div class="col-lg-2 mt-2">
+                                    <select class="form-control select2" wire:model.defer="term_id">
+                                        <option value=''>Select Term</option>
+                                        @foreach ($terms as $term)
+                                        <option value="{{  $term->id() }}">{{ $term->title() }}</option>
+                                        @endforeach
+                                        <x-form.error for="term_id" />
+                                    </select>
 
-                            <div class="col-lg-2 mt-2">
-                                <select class="form-control select2" wire:model.defer="term_id">
-                                    <option value=''>Select Term</option>
-                                    @foreach ($terms as $term)
-                                    <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                    @endforeach
-                                    <x-form.error for="term_id" />
-                                </select>
+                                </div>
 
-                            </div>
-
-                            <div class="col-lg-3">
-                                <div class="d-flex justify-content-center align-self-center">
-                                    <button type="submit" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
-                                        <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
-                                    </button>
+                                <div class="col-lg-3">
+                                    <div class="d-flex justify-content-center align-self-center">
+                                        <button type="submit" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
+                                            <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
 
-                    <div class='row mt-4'>
-                        <div class='col-xs-12 col-sm-12 col-md-12 text-center mb-4'>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <span>Session:
-                                                @if ($selectedPeriod)
-                                                {{ $selectedPeriod->title() }}
-                                                @else
-                                                Nil
-                                                @endif
-                                            </span>
-                                        </div>
+                        <div class='row mt-4'>
+                            <div class='col-xs-12 col-sm-12 col-md-12 text-center mb-4'>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <span>Session:
+                                                    @if ($selectedPeriod)
+                                                    {{ $selectedPeriod->title() }}
+                                                    @else
+                                                    Nil
+                                                    @endif
+                                                </span>
+                                            </div>
 
-                                        <div class="col-sm-3">
-                                            <span>Term:
-                                                @if ($selectedTerm)
-                                                {{ $selectedTerm->title() }}
-                                                @else
-                                                Nil
-                                                @endif
-                                            </span>
-                                        </div>
+                                            <div class="col-sm-3">
+                                                <span>Term:
+                                                    @if ($selectedTerm)
+                                                    {{ $selectedTerm->title() }}
+                                                    @else
+                                                    Nil
+                                                    @endif
+                                                </span>
+                                            </div>
 
-                                        <div class="col-sm-3">
-                                            <span>Class:
-                                                @if ($selectedGrade)
-                                                {{ $selectedGrade->title() }}
-                                                @else
-                                                Nil
-                                                @endif
-                                            </span>
-                                        </div>
+                                            <div class="col-sm-3">
+                                                <span>Class:
+                                                    @if ($selectedGrade)
+                                                    {{ $selectedGrade->title() }}
+                                                    @else
+                                                    Nil
+                                                    @endif
+                                                </span>
+                                            </div>
 
-                                        <div class="col-sm-3">
-                                            <span>Student:
-                                                @if ($selectedStudent)
-                                                {{ $selectedStudent->firstName() }} {{ $selectedStudent->lastName() }}
-                                                @else
-                                                Nil
-                                                @endif
-                                            </span>
+                                            <div class="col-sm-3">
+                                                <span>Student:
+                                                    @if ($selectedStudent)
+                                                    {{ $selectedStudent->firstName() }} {{ $selectedStudent->lastName() }}
+                                                    @else
+                                                    Nil
+                                                    @endif
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        @if ($selectedTerm)
-                            @if (count($results) > 0)
-                                <div class='col-sm-12'>
-                            
-                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
-                                        value="{{ $selectedPeriod->id() }}" autofocus />
-                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
-                                        value="{{ $selectedTerm->id() }}" autofocus />
-                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
-                                        value="{{ $grade_id }}" autofocus />
-                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
-                                        value="{{  $selectedStudent->id() }}" autofocus />
-
-                                    <div class='table-responsive'>
-                                        <table class="table align-middle table-nowrap table-check">
-                                            <thead class="table-light">
-                                                <tr class="">
-                                                    <th>Subject</th>
-                                                    <th>Re-Entry 1</th>
-                                                    <th>1st Organized Test</th>
-                                                    <th>Re-Entry 2</th>
-                                                    <th>Cont. Assessment</th>
-                                                    <th>Project</th>
-                                                    <th>Created Date</th>
-                                                </tr>
-                                                <tr>
-                                                    <th></th>
-                                                    <th>10</th>
-                                                    <th>10</th>
-                                                    <th>10</th>
-                                                    <th>20</th>
-                                                    <th>10</th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody wire:ignore>
-                                                @foreach ($results as $result)
-                                                    <tr id='{{ $result->id() }}'>
-                                                        <td>
-                                                            {{ $result->subject->title() }}
-                                                        </td>
-                                                        <td>
-                                                            <livewire:components.edit-title :model='$result' field='entry_1' :key='$result->id()' />
-                                                        </td>
-                                                        <td>
-                                                            <livewire:components.edit-title :model='$result' field='first_test' :key='$result->id()' />
-                                                        </td>
-                                                        <td>
-                                                            <livewire:components.edit-title :model='$result' field='entry_2' :key='$result->id()' />
-                                                        </td>
-                                                        <td>
-                                                            <livewire:components.edit-title :model='$result' field='ca' :key='$result->id()' />
-                                                        </td>
-                                                            <td>
-                                                            <livewire:components.edit-title :model='$result' field='project' :key='$result->id()' />
-                                                        </td>
-                                                        <td>{{ $result->createdAt() }}</td>
-                                                        {{-- <td>
-                                                            <a href="{{ route('result.show', $result) }}" class="dropdown-item">
-                                                                <i class="fa fa-eye"></i>
-                                                            </a>
-                                                        </td> --}}
-                                                    </tr>
-                                                {{-- <tr>
-                                                    <td>
-                                                        {{ $subject->title() }}
-                                                        <x-form.input style='width: 50px' class="text-center" type='hidden'
-                                                            name='subject_id[]' value="{{ $subject->id() }}" autofocus />
-                                                    </td>
-                                                    <td>
-                                                        <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='entry_1[]' value="" autofocus />
-                                                    </td>
-                                                    <td>
-                                                        <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='first_test[]' value="" autofocus />
-                                                    </td>
-                                                    <td>
-                                                        <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='entry_2[]' value="" autofocus />
-                                                    </td>
-                                                    <td>
-                                                        <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='ca[]' value="" autofocus />
-                                                    </td>
-                                                    <td>
-                                                        <x-form.input style='width: 50px' class="text-center" type='number'
-                                                            name='project[]' value="" autofocus />
-                                                    </td>
-                                                </tr> --}}
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            @else
-                                <form id="midFormSubmit" method="POST">
-                                    @csrf
-
-                                    <div class="modalErrorr"></div>
-
+                            @if ($selectedTerm)
+                                @if (count($results) > 0)
                                     <div class='col-sm-12'>
                                 
                                         <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
@@ -235,12 +137,13 @@
                                             <table class="table align-middle table-nowrap table-check">
                                                 <thead class="table-light">
                                                     <tr class="">
-                                                        <th></th>
+                                                        <th>Subject</th>
                                                         <th>Re-Entry 1</th>
                                                         <th>1st Organized Test</th>
                                                         <th>Re-Entry 2</th>
                                                         <th>Cont. Assessment</th>
                                                         <th>Project</th>
+                                                        <th>Created Date</th>
                                                     </tr>
                                                     <tr>
                                                         <th></th>
@@ -249,11 +152,38 @@
                                                         <th>10</th>
                                                         <th>20</th>
                                                         <th>10</th>
+                                                        <th></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
-                                                    @foreach ($selectedStudent->subjects as $subject)
-                                                    <tr>
+                                                <tbody wire:ignore>
+                                                    @foreach ($results as $result)
+                                                        <tr id='{{ $result->id() }}'>
+                                                            <td>
+                                                                {{ $result->subject->title() }}
+                                                            </td>
+                                                            <td>
+                                                                <livewire:components.edit-title :model='$result' field='entry_1' :key='$result->id()' />
+                                                            </td>
+                                                            <td>
+                                                                <livewire:components.edit-title :model='$result' field='first_test' :key='$result->id()' />
+                                                            </td>
+                                                            <td>
+                                                                <livewire:components.edit-title :model='$result' field='entry_2' :key='$result->id()' />
+                                                            </td>
+                                                            <td>
+                                                                <livewire:components.edit-title :model='$result' field='ca' :key='$result->id()' />
+                                                            </td>
+                                                                <td>
+                                                                <livewire:components.edit-title :model='$result' field='project' :key='$result->id()' />
+                                                            </td>
+                                                            <td>{{ $result->createdAt() }}</td>
+                                                            {{-- <td>
+                                                                <a href="{{ route('result.show', $result) }}" class="dropdown-item">
+                                                                    <i class="fa fa-eye"></i>
+                                                                </a>
+                                                            </td> --}}
+                                                        </tr>
+                                                    {{-- <tr>
                                                         <td>
                                                             {{ $subject->title() }}
                                                             <x-form.input style='width: 50px' class="text-center" type='hidden'
@@ -261,45 +191,133 @@
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='entry_1[]' value="" step="0.01" autofocus />
+                                                                name='entry_1[]' value="" autofocus />
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='first_test[]' value="" step="0.01" autofocus />
+                                                                name='first_test[]' value="" autofocus />
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='entry_2[]' value="" step="0.01" autofocus />
+                                                                name='entry_2[]' value="" autofocus />
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='ca[]' value="" step="0.01" autofocus />
+                                                                name='ca[]' value="" autofocus />
                                                         </td>
                                                         <td>
                                                             <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='project[]' value="" step="0.01" autofocus />
+                                                                name='project[]' value="" autofocus />
                                                         </td>
-                                                    </tr>
+                                                    </tr> --}}
                                                     @endforeach
                                                 </tbody>
                                             </table>
                                         </div>
-
-                                        <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
-                                            <button id="submit_button" type="submit"
-                                                class="btn btn-primary block waves-effect waves-light pull-right">
-                                                Upload Result
-                                            </button>
-                                        </div>
                                     </div>
-                                </form>
+                                @else
+                                    <form id="midFormSubmit" method="POST">
+                                        @csrf
+
+                                        <div class="modalErrorr"></div>
+
+                                        <div class='col-sm-12'>
+                                    
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
+                                                value="{{ $selectedPeriod->id() }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
+                                                value="{{ $selectedTerm->id() }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
+                                                value="{{ $grade_id }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
+                                                value="{{  $selectedStudent->id() }}" autofocus />
+
+                                            <div class='table-responsive'>
+                                                <table class="table align-middle table-nowrap table-check">
+                                                    <thead class="table-light">
+                                                        <tr class="">
+                                                            <th></th>
+                                                            <th>Re-Entry 1</th>
+                                                            <th>1st Organized Test</th>
+                                                            <th>Re-Entry 2</th>
+                                                            <th>Cont. Assessment</th>
+                                                            <th>Project</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th></th>
+                                                            <th>10</th>
+                                                            <th>10</th>
+                                                            <th>10</th>
+                                                            <th>20</th>
+                                                            <th>10</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($selectedStudent->subjects as $subject)
+                                                        <tr>
+                                                            <td>
+                                                                {{ $subject->title() }}
+                                                                <x-form.input style='width: 50px' class="text-center" type='hidden'
+                                                                    name='subject_id[]' value="{{ $subject->id() }}" autofocus />
+                                                            </td>
+                                                            <td>
+                                                                <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                    name='entry_1[]' value="" step="0.01" autofocus />
+                                                            </td>
+                                                            <td>
+                                                                <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                    name='first_test[]' value="" step="0.01" autofocus />
+                                                            </td>
+                                                            <td>
+                                                                <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                    name='entry_2[]' value="" step="0.01" autofocus />
+                                                            </td>
+                                                            <td>
+                                                                <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                    name='ca[]' value="" step="0.01" autofocus />
+                                                            </td>
+                                                            <td>
+                                                                <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                    name='project[]' value="" step="0.01" autofocus />
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
+                                                <button id="submit_button" type="submit"
+                                                    class="btn btn-primary block waves-effect waves-light pull-right">
+                                                    Upload Result
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                @endif
                             @endif
-                        @endif
-                        
-                    </div>
+                            
+                        </div>
+                </div>
             </div>
         </div>
-    </div>
+    @else
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <div class="row justify-content-center mt-5">
+                        <div class="col-sm-4">
+                            <div class="maintenance-img">
+                                <img src="{{ asset('images/coming-soon.svg') }}" alt="" class="img-fluid mx-auto d-block">
+                            </div>
+                        </div>
+                    </div>
+                    <h4 class="mt-5">Uploadng disabled</h4>
+                    <p class="text-muted">Please contact the administrator to gain access to this.</p>
+                </div>
+            </div>
+        </div>
+    @endmidUploadEnabled
 
     @section('scripts')
         <script>

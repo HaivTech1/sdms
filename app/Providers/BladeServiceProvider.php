@@ -52,5 +52,24 @@ class BladeServiceProvider extends ServiceProvider
         Blade::if('registrationLinkEnabled', function () {
             return get_settings('registration_link') === 1;
         });
+
+        Blade::if('midUploadEnabled', function () {
+            return get_settings('mid_upload') === 1;
+        });
+
+        Blade::if('examUploadEnabled', function () {
+            return get_settings('exam_upload') === 1;
+        });
+
+        Blade::if('hasPaid', function () {
+            if (get_settings('check_payment') === 1) {
+                $user = auth()->user();
+                $gradeId = $user->student->grade_id;
+                $result = hasPaidFullFee($user, $gradeId)['status'];
+                return $result;
+            }
+
+            return true;
+        });
     }
 }
