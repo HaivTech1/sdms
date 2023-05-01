@@ -53,6 +53,7 @@
                                 <button type="button" class="btn btn-primary w-xs" data-bs-toggle="modal" data-bs-target=".addPayment">
                                 <i class="mdi mdi-plus me-1"></i>Add Payment</button>
                                 <button type="button" class="btn btn-danger w-xs" data-bs-toggle="modal" data-bs-target=".outstanding"><i class="mdi mdi-minus me-1"></i>Outstanding</button>
+                                <button type="button" class="btn btn-info w-xs" data-bs-toggle="modal" data-bs-target=".verify"><i class="mdi mdi-plus me-1"></i>Verify Payment</button>
                             </div>
                         </div>
                     </div>
@@ -318,4 +319,97 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade verify" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Verify payment manually</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modalErrorr"></div>
+
+                    <div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="mb-3 ajax-select mt-3 mt-lg-0">
+                                    <label class="form-label">Verify Payment via email</label>
+                                        <x-form.input id="first_name" class="block w-full mt-1" type="text" name="email"
+                                        :value="old('email')" id="email" placeholder="Enter email" autofocus />
+                                </div>
+                                <div class="templating-select">
+                                    <select class="form-control select2-templating" hidden>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 mt-2">
+                                <div class="pull-right">
+                                    <button type="submit" id="verify-payment" class="btn btn-secondary">Verify</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section('scripts')
+        <script>
+            $('#email').on('change', function () {
+                var email = $(this).val();
+                var select = $('.templating-select select');
+                select.empty();
+                $.ajax({
+                    url: '/payment/get-students',
+                    type: 'GET',
+                    data: {email: email},
+                    success: function (response) {
+                        select.empty();
+                        select.removeAttr('hidden');
+                        $.each(response, function (index, student) {
+                            var fullName = student.first_name + ' ' + student.last_name;
+                            if (student.other_name) {
+                                fullName += ' ' + student.other_name;
+                            }
+                            
+                            var option = $('<option>');
+                            option.attr('value', student.uuid);
+                            option.text(fullName);
+                            select.append(option);
+                        });
+                        
+                        // Show the select element once the AJAX request is complete
+                        select.removeClass('hidden');
+                    }
+                });
+            });
+
+            $('#verify-payment').on('click', function () {
+                var button = $(this);
+                toggleAble(button, true);
+                var studentId = $('.templating-select select').val();
+                $.ajax({
+                    url: '/payment/verify-payment',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {student_id: studentId},
+                    success: function (response) {
+                        toggleAble(button, false);
+                        toastr.success(response.message);
+                    },
+                    error: function (xhr, status, error) {
+                        toggleAble(button, false);
+                        console.log(xhr.responseText);
+                        toastr.error(xhr.responseText);
+                    }
+                });
+            });
+
+        </script>
+    @endsection
 </div>

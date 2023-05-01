@@ -884,20 +884,26 @@ class ResultController extends Controller
                     if ($check) {
                         throw new \Exception('Result for this student already exists!');
                     }else {
-                        for ($i=0; $i < count($request->subject_id); $i++) { 
-                            $midterm = new MidTerm([
-                                'period_id'     => $request->period_id,
-                                'term_id'       => $request->term_id,
-                                'grade_id'      => $request->grade_id,
-                                'student_id'        => $request->student_id,
-                                'subject_id'        => $request->subject_id[$i],
-                                'entry_1'       => $request->entry_1[$i],
-                                'first_test'       => $request->first_test[$i],
-                                'entry_2'      => $request->entry_2[$i],
-                                'ca'      => $request->ca[$i],
-                                'project'      => $request->project[$i],
-                            ]);
-                
+                        $midtermFormat = get_settings('midterm_format');
+
+                        foreach ($request->subject_id as $i => $subjectId) {
+                            $midtermData = [
+                                'period_id' => $request->period_id,
+                                'term_id' => $request->term_id,
+                                'grade_id' => $request->grade_id,
+                                'student_id' => $request->student_id,
+                                'subject_id' => $subjectId
+                            ];
+
+                            // Loop through midterm format keys and add them to the midterm data
+                            foreach (array_keys($midtermFormat) as $key) {
+                                if (isset($request->$key[$i])) {
+                                    $midtermData[$key] = $request->$key[$i];
+                                }
+                            }
+
+                            // Create midterm model
+                            $midterm = new MidTerm($midtermData);
                             $midterm->authoredBy(auth()->user());
                             $midterm->save();
                         }

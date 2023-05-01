@@ -72,232 +72,213 @@
                             </div>
                         </form>
 
-                        <div class='row mt-4'>
-                            <div class='col-xs-12 col-sm-12 col-md-12 text-center mb-4'>
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="row">
-                                            <div class="col-sm-3">
-                                                <span>Session:
-                                                    @if ($selectedPeriod)
-                                                    {{ $selectedPeriod->title() }}
-                                                    @else
-                                                    Nil
-                                                    @endif
-                                                </span>
-                                            </div>
+                       <div class="card mt-4">
+                             <div class='row mt-4'>
+                                <div class='col-xs-12 col-sm-12 col-md-12 text-center mb-4'>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="row">
+                                                <div class="col-sm-3">
+                                                    <span>Session:
+                                                        @if ($selectedPeriod)
+                                                        {{ $selectedPeriod->title() }}
+                                                        @else
+                                                        Nil
+                                                        @endif
+                                                    </span>
+                                                </div>
 
-                                            <div class="col-sm-3">
-                                                <span>Term:
-                                                    @if ($selectedTerm)
-                                                    {{ $selectedTerm->title() }}
-                                                    @else
-                                                    Nil
-                                                    @endif
-                                                </span>
-                                            </div>
+                                                <div class="col-sm-3">
+                                                    <span>Term:
+                                                        @if ($selectedTerm)
+                                                        {{ $selectedTerm->title() }}
+                                                        @else
+                                                        Nil
+                                                        @endif
+                                                    </span>
+                                                </div>
 
-                                            <div class="col-sm-3">
-                                                <span>Class:
-                                                    @if ($selectedGrade)
-                                                    {{ $selectedGrade->title() }}
-                                                    @else
-                                                    Nil
-                                                    @endif
-                                                </span>
-                                            </div>
+                                                <div class="col-sm-3">
+                                                    <span>Class:
+                                                        @if ($selectedGrade)
+                                                        {{ $selectedGrade->title() }}
+                                                        @else
+                                                        Nil
+                                                        @endif
+                                                    </span>
+                                                </div>
 
-                                            <div class="col-sm-3">
-                                                <span>Student:
-                                                    @if ($selectedStudent)
-                                                    {{ $selectedStudent->firstName() }} {{ $selectedStudent->lastName() }}
-                                                    @else
-                                                    Nil
-                                                    @endif
-                                                </span>
+                                                <div class="col-sm-3">
+                                                    <span>Student:
+                                                        @if ($selectedStudent)
+                                                        {{ $selectedStudent->firstName() }} {{ $selectedStudent->lastName() }}
+                                                        @else
+                                                        Nil
+                                                        @endif
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            @if ($selectedTerm)
-                                @if (count($results) > 0)
-                                    <div class='col-sm-12'>
-                                
-                                        <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
-                                            value="{{ $selectedPeriod->id() }}" autofocus />
-                                        <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
-                                            value="{{ $selectedTerm->id() }}" autofocus />
-                                        <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
-                                            value="{{ $grade_id }}" autofocus />
-                                        <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
-                                            value="{{  $selectedStudent->id() }}" autofocus />
+                                @if ($selectedTerm)
+                                    @php
+                                        $midterm = get_settings('midterm_format');
+                                    @endphp
+                                    @if ($midterm !== null)
+                                        @if (count($results) > 0)
+                                            <div class='col-sm-12'>
+                                        
+                                                <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
+                                                    value="{{ $selectedPeriod->id() }}" autofocus />
+                                                <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
+                                                    value="{{ $selectedTerm->id() }}" autofocus />
+                                                <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
+                                                    value="{{ $grade_id }}" autofocus />
+                                                <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
+                                                    value="{{  $selectedStudent->id() }}" autofocus />
 
-                                        <div class='table-responsive'>
-                                            <table class="table align-middle table-nowrap table-check">
-                                                <thead class="table-light">
-                                                    <tr class="">
-                                                        <th>Subject</th>
-                                                        <th>Re-Entry 1</th>
-                                                        <th>1st Organized Test</th>
-                                                        <th>Re-Entry 2</th>
-                                                        <th>Cont. Assessment</th>
-                                                        <th>Project</th>
-                                                        <th>Created Date</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th></th>
-                                                        <th>10</th>
-                                                        <th>10</th>
-                                                        <th>10</th>
-                                                        <th>20</th>
-                                                        <th>10</th>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody wire:ignore>
-                                                    @foreach ($results as $result)
-                                                        <tr id='{{ $result->id() }}'>
-                                                            <td>
-                                                                {{ $result->subject->title() }}
-                                                            </td>
-                                                            <td>
-                                                                <livewire:components.edit-title :model='$result' field='entry_1' :key='$result->id()' />
-                                                            </td>
-                                                            <td>
-                                                                <livewire:components.edit-title :model='$result' field='first_test' :key='$result->id()' />
-                                                            </td>
-                                                            <td>
-                                                                <livewire:components.edit-title :model='$result' field='entry_2' :key='$result->id()' />
-                                                            </td>
-                                                            <td>
-                                                                <livewire:components.edit-title :model='$result' field='ca' :key='$result->id()' />
-                                                            </td>
+                                                <div class='table-responsive'>
+                                                    <table class="table align-middle table-nowrap table-check">
+                                                        <thead class="table-light">
+                                                            <tr class="">
+                                                                <th>Subject</th>
+                                                                @foreach ($midterm as $key => $value)
+                                                                    <th>{{ $value['full_name'] }}</th>
+                                                                @endforeach
+                                                                <th>Created</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th></th>
+                                                                @foreach ($midterm as $key => $value)
+                                                                    <th>{{ $value['mark'] }}</th>
+                                                                @endforeach
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody wire:ignore>
+                                                            @foreach ($results as $result)
+                                                                <tr id='{{ $result->id() }}'>
+                                                                    <td>
+                                                                        {{ $result->subject->title() }}
+                                                                    </td>
+                                                                    @foreach ($midterm as $key => $value)
+                                                                        <td>
+                                                                            <livewire:components.edit-title :model='$result' field='{{ $key }}' :key='$result->id()' />
+                                                                        </td>
+                                                                    @endforeach
+                                                                    <td>{{ $result->createdAt() }}</td>
+                                                                    {{-- <td>
+                                                                        <a href="{{ route('result.show', $result) }}" class="dropdown-item">
+                                                                            <i class="fa fa-eye"></i>
+                                                                        </a>
+                                                                    </td> --}}
+                                                                </tr>
+                                                            {{-- <tr>
                                                                 <td>
-                                                                <livewire:components.edit-title :model='$result' field='project' :key='$result->id()' />
-                                                            </td>
-                                                            <td>{{ $result->createdAt() }}</td>
-                                                            {{-- <td>
-                                                                <a href="{{ route('result.show', $result) }}" class="dropdown-item">
-                                                                    <i class="fa fa-eye"></i>
-                                                                </a>
-                                                            </td> --}}
-                                                        </tr>
-                                                    {{-- <tr>
-                                                        <td>
-                                                            {{ $subject->title() }}
-                                                            <x-form.input style='width: 50px' class="text-center" type='hidden'
-                                                                name='subject_id[]' value="{{ $subject->id() }}" autofocus />
-                                                        </td>
-                                                        <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='entry_1[]' value="" autofocus />
-                                                        </td>
-                                                        <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='first_test[]' value="" autofocus />
-                                                        </td>
-                                                        <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='entry_2[]' value="" autofocus />
-                                                        </td>
-                                                        <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='ca[]' value="" autofocus />
-                                                        </td>
-                                                        <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='project[]' value="" autofocus />
-                                                        </td>
-                                                    </tr> --}}
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                @else
-                                    <form id="midFormSubmit" method="POST">
-                                        @csrf
+                                                                    {{ $subject->title() }}
+                                                                    <x-form.input style='width: 50px' class="text-center" type='hidden'
+                                                                        name='subject_id[]' value="{{ $subject->id() }}" autofocus />
+                                                                </td>
+                                                                <td>
+                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                        name='entry_1[]' value="" autofocus />
+                                                                </td>
+                                                                <td>
+                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                        name='first_test[]' value="" autofocus />
+                                                                </td>
+                                                                <td>
+                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                        name='entry_2[]' value="" autofocus />
+                                                                </td>
+                                                                <td>
+                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                        name='ca[]' value="" autofocus />
+                                                                </td>
+                                                                <td>
+                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
+                                                                        name='project[]' value="" autofocus />
+                                                                </td>
+                                                            </tr> --}}
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <form id="midFormSubmit" method="POST">
+                                                @csrf
 
-                                        <div class="modalErrorr"></div>
+                                                <div class="modalErrorr"></div>
 
-                                        <div class='col-sm-12'>
+                                                <div class='col-sm-12'>
+                                            
+                                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
+                                                        value="{{ $selectedPeriod->id() }}" autofocus />
+                                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
+                                                        value="{{ $selectedTerm->id() }}" autofocus />
+                                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
+                                                        value="{{ $grade_id }}" autofocus />
+                                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
+                                                        value="{{  $selectedStudent->id() }}" autofocus />
+
+                                                    <div class='table-responsive'>
+                                                        <table class="table align-middle table-nowrap table-check">
                                     
-                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
-                                                value="{{ $selectedPeriod->id() }}" autofocus />
-                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
-                                                value="{{ $selectedTerm->id() }}" autofocus />
-                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
-                                                value="{{ $grade_id }}" autofocus />
-                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
-                                                value="{{  $selectedStudent->id() }}" autofocus />
+                                                            <thead class="table-light">
+                                                                <tr class="">
+                                                                    <th></th>
+                                                                    @foreach ($midterm as $key => $value)
+                                                                        <th>{{ $value['full_name'] }}</th>
+                                                                    @endforeach
+                                                                    <th>Total</th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th></th>
+                                                                    @foreach ($midterm as $key => $value)
+                                                                        <th>{{ $value['mark'] }}</th>
+                                                                    @endforeach
+                                                                    <th></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ($selectedStudent->subjects as $subject)
+                                                                <tr>
+                                                                    <td>
+                                                                        {{ $subject->title() }}
+                                                                        <x-form.input style='width: 50px' class="text-center" type='hidden'
+                                                                            name='subject_id[]' value="{{ $subject->id() }}" />
+                                                                    </td>
+                                                                    <?php $total = 0; ?>
+                                                                    @foreach ($midterm as $key => $mark)
+                                                                        <td>
+                                                                            <x-form.input style='width: 70px' class="text-center required" type='number' name='{{ $key }}[]' value="" step="0.01"
+                                                                                onblur="validateInput(this, {{ $mark['mark'] }})" />
+                                                                            <div class="invalid-feedback"></div>
+                                                                            <?php $total += $mark['mark']; ?>
+                                                                        </td>
+                                                                    @endforeach
+                                                                    <td>{{ $total }}</td>
+                                                                </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
 
-                                            <div class='table-responsive'>
-                                                <table class="table align-middle table-nowrap table-check">
-                                                    <thead class="table-light">
-                                                        <tr class="">
-                                                            <th></th>
-                                                            <th>Re-Entry 1</th>
-                                                            <th>1st Organized Test</th>
-                                                            <th>Re-Entry 2</th>
-                                                            <th>Cont. Assessment</th>
-                                                            <th>Project</th>
-                                                        </tr>
-                                                        <tr>
-                                                            <th></th>
-                                                            <th>10</th>
-                                                            <th>10</th>
-                                                            <th>10</th>
-                                                            <th>20</th>
-                                                            <th>10</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($selectedStudent->subjects as $subject)
-                                                        <tr>
-                                                            <td>
-                                                                {{ $subject->title() }}
-                                                                <x-form.input style='width: 50px' class="text-center" type='hidden'
-                                                                    name='subject_id[]' value="{{ $subject->id() }}" autofocus />
-                                                            </td>
-                                                            <td>
-                                                                <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                    name='entry_1[]' value="" step="0.01" autofocus />
-                                                            </td>
-                                                            <td>
-                                                                <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                    name='first_test[]' value="" step="0.01" autofocus />
-                                                            </td>
-                                                            <td>
-                                                                <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                    name='entry_2[]' value="" step="0.01" autofocus />
-                                                            </td>
-                                                            <td>
-                                                                <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                    name='ca[]' value="" step="0.01" autofocus />
-                                                            </td>
-                                                            <td>
-                                                                <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                    name='project[]' value="" step="0.01" autofocus />
-                                                            </td>
-                                                        </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
-                                                <button id="submit_button" type="submit"
-                                                    class="btn btn-primary block waves-effect waves-light pull-right">
-                                                    Upload Result
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
+                                                    <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
+                                                        <button id="submit_button" type="submit"
+                                                            class="btn btn-primary block waves-effect waves-light pull-right">
+                                                            Upload Result
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        @endif
+                                    @endif
                                 @endif
-                            @endif
-                            
-                        </div>
+                            </div>
+                       </div>
                 </div>
             </div>
         </div>
@@ -324,9 +305,27 @@
             $(document).on('submit', '#midFormSubmit', function (e) {
                 e.preventDefault();
                 toggleAble('#submit_button', true, 'Submitting...');
+
+                let inputs = $('#midFormSubmit .required');
+                let invalid = false;
+
+                inputs.each(function() {
+                    if (!$(this).val()) {
+                        $(this).addClass('is-invalid');
+                        $(this).siblings('.invalid-feedback').html('This field is required.');
+                        invalid = true;
+                    }
+                });
+
+                if (invalid) {
+                    toggleAble('#submit_button', false);
+                    toastr.error('Please fill in all required fields.', 'Validation Error!');
+                    return;
+                }
+
                 var url = "{{ route('result.upload.midterm.score') }}";
                 var data = $('#midFormSubmit').serializeArray();
-                
+
                 $.ajax({
                     type: "POST",
                     url,
@@ -341,21 +340,34 @@
                     }
                     resetForm('#midFormSubmit');
                 }).fail((err) => {
-                     let allErrors = Object.values(err.responseJSON).map(el => (
+                    let allErrors = Object.values(err.responseJSON).map(el => (
                             el = `<li>${el}</li>`
                         )).reduce((next, prev) => ( next = prev + next ));
 
                     const setErrors = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                            <ul>${allErrors}</ul>
-                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                        </div>
-                                        `;
+                                                <ul>${allErrors}</ul>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>
+                                            `;
 
                     $('.modalErrorr').html(setErrors);
                     console.log(err.responseJSON.message);
                     toggleAble('#submit_button', false);
                 });
             });
+
+        </script>
+        
+        <script>
+            function validateInput(input, mark) {
+                if (input.value > mark) {
+                    input.classList.add('is-invalid');
+                    input.nextElementSibling.textContent = 'Value cannot be greater than ' + mark;
+                } else {
+                    input.nextElementSibling.textContent = '';
+                    input.classList.remove('is-invalid');
+                }
+            }
         </script>
     @endsection
 </div>

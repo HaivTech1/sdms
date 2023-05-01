@@ -120,68 +120,13 @@
                             </div>
                         </div>
                         @if ($selectedTerm)
-                            @if (count($results) > 0)
-                                <div class='col-sm-12'>
-                            
-                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
-                                        value="{{ $selectedPeriod->id() }}" autofocus />
-                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
-                                        value="{{ $selectedTerm->id() }}" autofocus />
-                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
-                                        value="{{ $grade_id }}" autofocus />
-                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
-                                        value="{{  $selectedStudent->id() }}" autofocus />
+                            @php
+                                $exam_format = get_settings('exam_format');
+                            @endphp
 
-                                    <div class='table-responsive'>
-                                        <table class="table align-middle table-nowrap table-check">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th></th>
-                                                    <th>CA1</th>
-                                                    <th>CA2</th>
-                                                    <th>CA3</th>
-                                                    <th>Project</th>
-                                                    <th>Examination</th>
-                                                </tr>
-                                                <tr>
-                                                    <th></th>
-                                                    <th>20</th>
-                                                    <th>20</th>
-                                                    <th>10</th>
-                                                    <th>10</th>
-                                                    <th>40</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody wire:ignore>
-                                                @foreach ($results as $result)
-                                                <tr>
-                                                    <td>
-                                                        {{ $result->subject->title() }}
-                                                    </td>
-                                                    <td>
-                                                        <livewire:components.edit-title :model='$result' field='ca1' :key='$result->id()' />
-                                                    </td>
-                                                    <td>
-                                                        <livewire:components.edit-title :model='$result' field='ca2' :key='$result->id()' />
-                                                    </td>
-                                                    <td>
-                                                        <livewire:components.edit-title :model='$result' field='ca3' :key='$result->id()' />
-                                                    </td>
-                                                    <td>
-                                                        <livewire:components.edit-title :model='$result' field='pr' :key='$result->id()' />
-                                                    </td>
-                                                    <td>
-                                                        <livewire:components.edit-title :model='$result' field='exam' :key='$result->id()' />
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            @else
-                                <form id="uploadPrimary" action="{{ route('result.storeSinglePrimaryUpload') }}" method="POST">
-                                    @csrf
+                            @if ($exam_format !== null)
+                                @if (count($results) > 0)
+                                    <div class='col-sm-12'>
                                 
                                         <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
                                             value="{{ $selectedPeriod->id() }}" autofocus />
@@ -193,67 +138,96 @@
                                             value="{{  $selectedStudent->id() }}" autofocus />
 
                                         <div class='table-responsive'>
-                                            <table class="table align-middle table-nowrap ">
+                                            <table class="table table-nowrap table-check">
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>Subjects</th>
-                                                        {{-- <th>CA1</th>
-                                                        <th>CA2</th>
-                                                        <th>CA3</th>
-                                                        <th>Project</th> --}}
-                                                        <th>Examination</th>
+                                                        @foreach ($exam_format as $key => $value)
+                                                            <th>{{ $value['full_name'] }}</th>
+                                                        @endforeach
                                                     </tr>
-                                                    {{-- <tr>
+                                                    <tr>
                                                         <th></th>
-                                                        <th>20</th>
-                                                        <th>20</th>
-                                                        <th>10</th>
-                                                        <th>10</th>
-                                                        <th>40</th>
-                                                    </tr> --}}
+                                                        @foreach ($exam_format as $key => $value)
+                                                            <th>{{ $value['mark'] }}</th>
+                                                        @endforeach
+                                                    </tr>
                                                 </thead>
-                                                <tbody>
-                                                    @foreach ($selectedStudent->subjects as $subject)
+                                                <tbody wire:ignore>
+                                                    @foreach ($results as $result)
                                                     <tr>
                                                         <td>
-                                                            {{ $subject->title() }}
-                                                            <x-form.input style='width: 50px' class="text-center" type='hidden'
-                                                                name='subject_id[]' value="{{ $subject->id() }}" autofocus />
+                                                            {{ $result->subject->title() }}
                                                         </td>
-                                                        {{-- <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='ca1[]' step="0.01" value="" autofocus />
-                                                        </td>
-                                                        <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='ca2[]' step="0.01" value="" autofocus />
-                                                        </td>
-                                                        <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='ca3[]' step="0.01" value="" autofocus />
-                                                        </td>
-                                                        <td>
-                                                            <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                name='pr[]' step="0.01" value="" autofocus />
-                                                        </td> --}}
-                                                        <td>
-                                                            <x-form.input style='width: 70px' class="text-center" type='number'
-                                                                name='exam[]' step="0.01" value="" autofocus onchange="checkExamValue(this)" />
-                                                            <span id="exam-error" style="color: red;"></span>
-                                                        </td>
+                                                        @foreach ($exam_format as $key => $value)
+                                                            <td>
+                                                                <livewire:components.edit-title :model='$result' field='{{ $key }}' :key='$result->id()' />
+                                                            </td>
+                                                        @endforeach
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
                                             </table>
                                         </div>
+                                    </div>
+                                @else
+                                    <form id="uploadPrimary" action="{{ route('result.storeSinglePrimaryUpload') }}" method="POST">
+                                        @csrf
+                                    
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
+                                                value="{{ $selectedPeriod->id() }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
+                                                value="{{ $selectedTerm->id() }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
+                                                value="{{ $grade_id }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
+                                                value="{{  $selectedStudent->id() }}" autofocus />
 
-                                        <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
-                                            <button type="submit" id="uploadResult"
-                                                class="btn btn-primary block waves-effect waves-light pull-right">
-                                                Upload Result
-                                            </button>
-                                        </div>
-                                </form>
+                                            <div class='table-responsive'>
+                                                <table class="table align-middle table-nowrap ">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Subjects</th>
+                                                            @foreach ($exam_format as $key => $value)
+                                                                <th>{{ $value['full_name'] }}</th>
+                                                            @endforeach
+                                                        </tr>
+                                                        <tr>
+                                                            <th></th>
+                                                            @foreach ($exam_format as $key => $value)
+                                                                <th>{{ $value['mark'] }}</th>
+                                                            @endforeach
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($selectedStudent->subjects as $subject)
+                                                        <tr>
+                                                            <td>
+                                                                {{ $subject->title() }}
+                                                                <x-form.input style='width: 50px' class="text-center" type='hidden'
+                                                                    name='subject_id[]' value="{{ $subject->id() }}" autofocus />
+                                                            </td>
+                                                             @foreach ($exam_format as $key => $mark)
+                                                                <td>
+                                                                    <x-form.input style='width: 80px' class="text-center required" type='number' name='{{ $key }}[]' value="" step="0.01"
+                                                                        onblur="validateInput(this, {{ $mark['mark'] }})" />
+                                                                    <div class="invalid-feedback"></div>
+                                                                </td>
+                                                            @endforeach
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
+                                                <button type="submit" id="uploadResult"
+                                                    class="btn btn-primary block waves-effect waves-light pull-right">
+                                                    Upload Result
+                                                </button>
+                                            </div>
+                                    </form>
+                                @endif
                             @endif
                         @endif
                     </div>
@@ -284,44 +258,37 @@
 </div>
 
 @section('scripts')
-        {{-- <script>
-            function checkExamValue(input) {
-                var errorSpan = input.parentElement.querySelector("#exam-error");
-                if (input.value > 40) {
-                    errorSpan.innerText = "score is greater than 40";
+        <script>
+            function validateInput(input, mark) {
+                if (input.value > mark) {
+                    input.classList.add('is-invalid');
+                    input.nextElementSibling.textContent = 'Value cannot be greater than ' + mark;
                 } else {
-                    errorSpan.innerText = "";
+                    input.nextElementSibling.textContent = '';
+                    input.classList.remove('is-invalid');
                 }
             }
-        </script> --}}
+        </script>
 
         <script>
             $(document).on('submit', '#uploadPrimary', function (e) {
                 e.preventDefault();
                 toggleAble('#uploadResult', true, 'Submitting...')
-                
-                // Validate exam scores before submitting the form
-                var examScores = $('input[name="exam[]"]');
-                var isValid = true;
-                examScores.each(function() {
-                    var score = $(this);
-                    if (score.val() > 40) {
-                        score.addClass('is-invalid');
-                        score.next('.invalid-feedback').text('Exam score must be less than or equal to 40.');
-                        isValid = false;
-                        
-                        // Add event listener to remove error when value changes
-                        score.on('change', function() {
-                            if (score.val() <= 40) {
-                                score.removeClass('is-invalid');
-                                score.next('.invalid-feedback').text('');
-                                score.off('change');
-                            }
-                        });
+
+                let inputs = $('#uploadPrimary .required');
+                let invalid = false;
+
+                inputs.each(function() {
+                    if (!$(this).val()) {
+                        $(this).addClass('is-invalid');
+                        $(this).siblings('.invalid-feedback').html('This field is required.');
+                        invalid = true;
                     }
                 });
-                if (!isValid) {
-                    toggleAble('#uploadResult', false)
+
+                if (invalid) {
+                    toggleAble('#uploadResult', false);
+                    toastr.error('Please fill in all required fields.', 'Validation Error!');
                     return;
                 }
                 

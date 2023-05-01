@@ -47,21 +47,6 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
         });
-
-        Route::bind('property', function($value) {
-            return \App\Models\Property::where('uuid', $value)
-            ->orWhere('slug', $value)->firstOrFail();
-        });
-
-        Route::bind('product', function($value) {
-            return \App\Models\Product::where('uuid', $value)
-            ->orWhere('slug', $value)->firstOrFail();
-        });
-
-        Route::bind('post', function($value) {
-            return \App\Models\Post::where('uuid', $value)
-            ->orWhere('slug', $value)->firstOrFail();
-        });
     }
 
     /**

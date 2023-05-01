@@ -411,16 +411,98 @@ class ApplicationController extends Controller
 
     public function format(Request $request)
     {
-        $addmore = $request->input('addmore');
-
         try {
-            foreach ($addmore as $key => $value) {
-                $setting = Setting::updateOrCreate(['key' => $value['key']], ['value' => $value['value']]);
+            foreach ($request->addmore as $data) {
+                $setting = Setting::where('key', $data['key'])->first();
+                if ($setting) {
+                    $setting->value = json_encode($this->parseData($data['value']));
+                    $setting->save();
+                } else {
+                    Setting::create([
+                        'key' => $data['key'],
+                        'value' => json_encode($this->parseData($data['value']))
+                    ]);
+                }
             }
             return response()->json(['status' => true, 'message' => 'Setting saved successfully!'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function color(Request $request)
+    {
+        try {
+            foreach ($request->addmore as $data) {
+                $setting = Setting::where('key', $data['key'])->first();
+                if ($setting) {
+                    $setting->value = json_encode($this->parseColor($data['value']));
+                    $setting->save();
+                } else {
+                    Setting::create([
+                        'key' => $data['key'],
+                        'value' => json_encode($this->parseColor($data['value']))
+                    ]);
+                }
+            }
+            return response()->json(['status' => true, 'message' => 'Setting saved successfully!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function grade(Request $request)
+    {
+        try {
+            foreach ($request->addmore as $data) {
+                $setting = Setting::where('key', $data['key'])->first();
+                if ($setting) {
+                    $setting->value = json_encode($this->parseGrade($data['value']));
+                    $setting->save();
+                } else {
+                    Setting::create([
+                        'key' => $data['key'],
+                        'value' => json_encode($this->parseGrade($data['value']))
+                    ]);
+                }
+            }
+            return response()->json(['status' => true, 'message' => 'Setting saved successfully!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    private function parseData($data)
+    {
+        $parsed = [];
+        $items = explode(',', $data);
+        foreach ($items as $item) {
+            $values = explode(':', $item);
+            $parsed[$values[0]] = ['full_name' => $values[1], 'mark' => $values[2]];
+        }
+        return $parsed;
+    }
+
+    private function parseColor($data)
+    {
+        $parsed = [];
+        $items = explode(',', $data);
+        foreach ($items as $item) {
+            $values = explode(':', $item);
+            $parsed[$values[0]] = ['from' => $values[1], 'color' => $values[2]];
+        }
+        return $parsed;
+    }
+
+    private function parseGrade($data)
+    {
+        $parsed = [];
+        $items = explode(',', $data);
+        foreach ($items as $item) {
+            $values = explode(':', $item);
+            $parsed[$values[0]] = ['from' => $values[1], 'text' => $values[2]];
+        }
+        return $parsed;
     }
 
 }

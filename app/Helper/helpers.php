@@ -79,191 +79,116 @@ function divnum($numerator, $denominator)
 
 function examRemark($remark)
 {
-    if ($remark >= 80.0 && $remark <= 100) {
-        return 'EXCELLENT';
+    $data = get_settings('exam_remark');
+
+    if ($data) {
+        foreach ($data as $key => $value) {
+            $from = (float)$value['from'];
+            $text = $value['text'];
+
+            if ($remark >= $key && $remark <= $from) {
+                return $text;
+            }
+        }
     }
 
-    if ($remark >= 70.0 && $remark <= 79.9) {
-        return 'VERY GOOD';
-    }
-
-    if ($remark >= 60.0 && $remark <= 69.9) {
-        return 'GOOD';
-    }
-
-    if ($remark >= 58.0 && $remark <= 59.9) {
-        return 'PASS';
-    }
-
-    if ($remark >= 56.0 && $remark <= 57.9) {
-        return 'FAIR';
-    }
-
-    if ($remark < 56) {
-        return 'FAILED';
-    }
+    return 'FAILED';
 }
 
 function examGrade($grade)
 {
-    if ($grade >= 80.0 && $grade <= 100) {
-        return 'A';
+    $data = get_settings('exam_grade');
+
+    foreach ($data as $key => $value) {
+        $from = (float)$value['from'];
+        $text = $value['text'];
+
+        if ($grade >= $key && $grade <= $from) {
+            return $text;
+        }
     }
 
-    if ($grade >= 70.0 && $grade <= 79.9) {
-        return 'B';
-    }
-
-    if ($grade >= 60.0 && $grade <= 69.9) {
-        return 'C';
-    }
-
-    if ($grade >= 58.0 && $grade <= 59.9) {
-        return 'D';
-    }
-
-    if ($grade >= 56.0 && $grade <= 57.9) {
-        return 'E';
-    }
-
-    if ($grade < 56) {
-        return 'F';
-    }
+    return 'F';
 }
 
 function exam10Color($grade)
 {
-    if ($grade >= 8.0 && $grade <= 10) {
-        return '#000000';
+    $data = get_settings('over_ten');
+
+    foreach ($data as $key => $value) {
+        $from = (float)$value['from'];
+        $color = $value['color'];
+
+        if ($grade >= $key && $grade <= $from) {
+            return $color;
+        }
     }
 
-    if ($grade >= 7.0 && $grade <= 7.9) {
-        return '#000000';
-    }
-
-    if ($grade >= 6.0 && $grade <= 6.9) {
-        return '#00FF00';
-    }
-
-    if ($grade >= 5.8 && $grade <= 5.9) {
-        return '#0000ff';
-    }
-
-    if ($grade >= 5.6 && $grade <= 5.79) {
-        return '#0000ff';
-    }
-
-    if ($grade < 5.6) {
-        return '#ff0000';
-    }
+    return '#ff0000';
 }
 
 function exam20Color($grade)
 {
-    if ($grade >= 16.0 && $grade <= 20) {
-        return '#000000';
+    $data = get_settings('over_twenty');
+
+    foreach ($data as $key => $value) {
+        $from = (float)$value['from'];
+        $color = $value['color'];
+
+        if ($grade >= $key && $grade <= $from) {
+            return $color;
+        }
     }
 
-    if ($grade >= 14.0 && $grade <= 15.9) {
-        return '#000000';
-    }
-
-    if ($grade >= 12.0 && $grade <= 13.9) {
-        return '#00FF00';
-    }
-
-    if ($grade >= 11.6 && $grade <= 11.9) {
-        return '#0000ff';
-    }
-
-    if ($grade >= 11.2 && $grade <= 11.5) {
-        return '#0000ff';
-    }
-
-    if ($grade < 11.2) {
-        return '#ff0000';
-    }
+    return '#ff0000';
 }
 
 function exam40Color($grade)
 {
-    if ($grade >= 32.0 && $grade <= 40) {
-        return '#000000';
+    $data = get_settings('over_fourty');
+
+    foreach ($data as $key => $value) {
+        $from = (float)$value['from'];
+        $color = $value['color'];
+
+        if ($grade >= $key && $grade <= $from) {
+            return $color;
+        }
     }
 
-    if ($grade >= 28.0 && $grade <= 31.9) {
-        return '#000000';
-    }
-
-    if ($grade >= 24.0 && $grade <= 27.9) {
-        return '#00FF00';
-    }
-
-    if ($grade >= 23.2 && $grade <= 23.9) {
-        return '#0000ff';
-    }
-
-    if ($grade >=22.4 && $grade <= 23.1) {
-        return '#0000ff';
-    }
-
-    if ($grade < 22.4) {
-        return '#ff0000';
-    }
+    return '#ff0000';
 }
 
 function exam60Color($grade)
 {
-    if ($grade >= 48.0 && $grade <= 60) {
-        return '#000000';
+    $data = get_settings('over_sixty');
+
+    foreach ($data as $key => $value) {
+        $from = (float)$value['from'];
+        $color = $value['color'];
+
+        if ($grade >= $key && $grade <= $from) {
+            return $color;
+        }
     }
 
-    if ($grade >= 42.0 && $grade <= 47.9) {
-        return '#000000';
-    }
-
-    if ($grade >= 36.0 && $grade <= 41.9) {
-        return '#00FF00';
-    }
-
-    if ($grade >= 34.8 && $grade <= 35.9) {
-        return '#0000ff';
-    }
-
-    if ($grade >=33.6 && $grade <= 34.7) {
-        return '#0000ff';
-    }
-
-    if ($grade < 33.6) {
-        return '#ff0000';
-    }
+    return '#ff0000';
 }
 
 function exam100Color($grade)
 {
-    if ($grade >= 80.0 && $grade <= 100) {
-        return '#000000';
+    $data = get_settings('over_hundred');
+
+    foreach ($data as $key => $value) {
+        $from = (float)$value['from'];
+        $color = $value['color'];
+
+        if ($grade >= $key && $grade <= $from) {
+            return $color;
+        }
     }
 
-    if ($grade >= 70.0 && $grade <= 79.9) {
-        return '#000000';
-    }
-
-    if ($grade >= 60.0 && $grade <= 69.9) {
-        return '#00FF00';
-    }
-
-    if ($grade >= 58.0 && $grade <= 59.9) {
-        return '#0000ff';
-    }
-
-    if ($grade >= 56.0 && $grade <= 57.9) {
-        return '#0000ff';
-    }
-
-    if ($grade < 56) {
-        return '#ff0000';
-    }
+    return '#ff0000';
 }
 
 function cummulatives($student, $term, $period, $grade)
@@ -600,4 +525,21 @@ if (!function_exists('hasPaidFullFee')) {
             'owing' => $sum
         ];
     }
+}
+
+function getFormat($string) {
+    $values = explode(',', $string);
+    return $values;
+}
+
+function colorArray()
+{
+    $data = [
+        'black' => '#000000',
+        'red' => '#ff0000',
+        'blue' => '#0000ff',
+        'green' => '#00FF00',
+    ];
+    
+    return $data;
 }

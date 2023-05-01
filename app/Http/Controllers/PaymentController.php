@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fee;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
@@ -10,6 +11,7 @@ use App\Mail\SendMidtermMail;
 use App\Events\Student\PaymentEvent;
 use App\Mail\Student\NewPaymentMail;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\NotifiableParentsTrait;
 use Illuminate\Support\Facades\Redirect;
 use Unicodeveloper\Paystack\Facades\Paystack;
 
@@ -121,13 +123,7 @@ class PaymentController extends Controller
                 $message = "<p>You just made a payment of $paid for $name. Your balance is $bal. Thank you.</p>";
                 $subject = 'Payment Confirmation';
 
-                if(isset($paidBy->mother)){
-                    Mail::to($paidBy->mother->email())->send(new SendMidtermMail($message, $subject));
-                }elseif(isset($paidBy->father)){
-                    Mail::to($paidBy->father->email())->send(new SendMidtermMail($message, $subject));
-                }else{
-                    Mail::to($paidBy->guardian->email())->send(new SendMidtermMail($message, $subject));
-                }
+                NotifiableParentsTrait::notifyParents($paidBy, $message, $subject);
 
                 return view('student.receipt', ['payment' => $payment]);
             }
@@ -149,5 +145,67 @@ class PaymentController extends Controller
         return view('student.receipt',[
             'payment' => $check
         ]);
+    }
+
+    public function getStudents(Request $request)
+    {
+        $email = $request->input('email');
+
+        $students = Student::whereHas('mother', function ($query) use ($email) {
+            $query->where('email', $email);
+        })->orWhereHas('father', function ($query) use ($email) {
+            $query->where('email', $email);
+        })->get();
+
+        return response()->json($students);
+    }
+
+    public function verifyPayment(Request $request)
+    {
+        try {
+            $student = Student::findOrFail($request->student_id);
+            $getFee = Fee::where([
+                'grade_id' => $student->grade_id,
+                'type' => $student->type,
+                'term_id' => term('id')
+            ])->first();    
+            $sum = 0;
+            $sum += $getFee->details->sum('price');
+
+            $payment = new Payment([
+                'paid_by'  => $student->last_name . ' ' . $student->first_name . ' ' . $student->other_name,
+                'initial'  => $sum,
+                'payable'  => $sum,
+                'amount'   => $sum,
+                'balance'   => 0,
+                'description'   => '',
+                'method' => 'online',
+                'period_id'   => period('id'),
+                'term_id'   => term('id'),
+                'author_id'   => auth()->id(),
+                'type'   => 'full',
+                'student_uuid' => $student->id()
+               ]);
+   
+            $payment->trans_id = 'TRX'.rand(0000,9999);
+            $payment->ref_id = 'REF'.rand(0000,9999);
+            $payment->save();
+
+            $name = $student->last_name. ' '. $student->first_name. ' ' . $student->other_name;
+
+            $message = "<p>This is a confirmation that $name has successfully paid $sum for tuition. Please visit your dashboard to print your receipt Thank you.</p>";
+            $subject = 'Payment Confirmation';
+            NotifiableParentsTrait::notifyParents($student, $message, $subject);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Verified successfully!',
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }        
     }
 }

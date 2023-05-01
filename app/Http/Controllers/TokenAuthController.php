@@ -18,7 +18,6 @@ class TokenAuthController extends Controller
             [
                 'email'       => 'required|email',
                 'password'    => 'required',
-                'device_name' => 'required',
             ]
         );
 
@@ -33,7 +32,7 @@ class TokenAuthController extends Controller
         }
 
         return response()->json(
-            ['user' => new UserResource($user), 'token' => $user->createToken($request->device_name)->plainTextToken]
+            ['user' => new UserResource($user), 'token' => $user->createToken(application('name'))->plainTextToken]
         );
     }
 

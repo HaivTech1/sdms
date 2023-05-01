@@ -141,6 +141,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
             Route::get('/', [PaymentController::class, 'index'])->name('index');
+            Route::get('/get-students', [PaymentController::class, 'getStudents']);
+            Route::post('/verify-payment', [PaymentController::class, 'verifyPayment']);
         });
 
         Route::resource('task',TaskController::class);
@@ -379,6 +381,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('maintenance-mode', [ApplicationController::class, 'maintenance_mode'])->name('maintenance-mode');
         Route::post('/update-notification', [ApplicationController::class, 'update_notification']);
         Route::post('/mark/format', [ApplicationController::class, 'format']);
+        Route::post('/color/format', [ApplicationController::class, 'color']);
+        Route::post('/grade/format', [ApplicationController::class, 'grade']);
     });
 });
 

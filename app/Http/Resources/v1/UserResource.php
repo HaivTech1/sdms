@@ -11,17 +11,11 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'type'          => 'user',
             'id'            => $this->id(),
             'name'          => $this->name(),
-            'type'          => $this->type(),
+            'type'          => $this->user_type,
             'image'          => $this->image(),
             'has2FA'        => $this->two_factor_secret ? true : false,
-            'rank'          => $this->rank(),
-            'point'          => $this->currentPoints(),
-            // 'relationships'         => [
-            //     'followship'           =>  FollowResource::collection($this->follows()),
-            // ],
         ];
     }
 }
