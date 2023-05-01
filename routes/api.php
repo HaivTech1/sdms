@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Resources\v1\UserResource;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TokenAuthController;
 use App\Http\Controllers\API\v1\AgentController;
@@ -22,7 +23,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 
     //users
     Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-        return $request->user();
+        return new UserResource($request->user());
     });
 
     Route::delete('/auth/token', [TokenAuthController::class, 'destroy']);
@@ -38,7 +39,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     });
 
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'student', 'namespace' => 'Student'], function () {
-      Route::get('/all', [StudentController::class, 'index']);
+        Route::get('/all', [StudentController::class, 'index']);
+        Route::get('/assign/grade/student', [StudentController::class, 'assignStudent']);
     });
 
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'attendance', 'namespace' => 'Attendance'], function () {

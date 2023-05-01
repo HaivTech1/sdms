@@ -31,8 +31,12 @@ class TokenAuthController extends Controller
             );
         }
 
-        return response()->json(
-            ['user' => new UserResource($user), 'token' => $user->createToken(application('name'))->plainTextToken]
+        return response()->json([
+                'status' => true,
+                'user' => new UserResource($user), 
+                'token' => $user->createToken(application('name'))->plainTextToken,
+                'message' => 'Authorization successful!'
+            ]
         );
     }
 
