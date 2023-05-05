@@ -21,22 +21,35 @@ class StudentController extends Controller
 
     }
 
-    public function assignStudent()
+    public function assignStudent(Request $request)
     {
         try {
-
+            $level = $request->level;
+            $gender = $request->gender;
             $user = auth()->user();
-
-            if($user->isSuperAdmin() || $user->isAdmin()) {
-                $newArray = Student::with(['grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'])->get();
-                $students = StudentResource::collection($newArray);
-            }else{
-                $grade  = auth()->user()->gradeClassTeacher;
-                $students = $grade->students->with(['grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments']);
+        
+            if ($user->isSuperAdmin() || $user->isAdmin()) {
+                $studentsQuery = Student::with([
+                    'grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'
+                ]);
+            } else {
+                $grade = auth()->user()->gradeClassTeacher;
+                $studentsQuery = $grade->students()->with([
+                    'grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'
+                ]);
             }
+        
+            $studentsQuery->when($level, function ($query, $level) {
+                return $query->where('grade_id', $level);
+            })->when($gender, function ($query, $gender) {
+                return $query->where('gender', $gender);
+            });
+        
+            $students = StudentResource::collection($studentsQuery->get());
             return response()->json(['status' => true, 'students' => $students], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
+        
     }
 }

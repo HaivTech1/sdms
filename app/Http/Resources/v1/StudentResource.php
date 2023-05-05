@@ -24,6 +24,7 @@ class StudentResource extends JsonResource
             'reg_no'                => $this->user->code(),
             'gender'                => $this->gender(),
             'dob'                => $this->dob(),
+            'image'                 => $this->image(),
             'nationality'                => $this->nationality(),
             'stateOfOrigin'                => $this->stateOfOrigin(),
             'localGovernment'                => $this->localGovernment(),

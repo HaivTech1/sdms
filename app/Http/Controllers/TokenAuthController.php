@@ -12,32 +12,38 @@ class TokenAuthController extends Controller
 {
     public function store(Request $request)
     {
-        $request = request();
+        try {
+            $request = request();
 
-        $request->validate(
-            [
-                'email'       => 'required|email',
-                'password'    => 'required',
-            ]
-        );
-
-        $user = User::where('email', $request->email)->first();
-
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages(
+            $request->validate(
                 [
-                    'email' => ['The provided credentials are incorrect.'],
+                    'email'       => 'required|email',
+                    'password'    => 'required',
                 ]
             );
-        }
 
-        return response()->json([
-                'status' => true,
-                'user' => new UserResource($user), 
-                'token' => $user->createToken(application('name'))->plainTextToken,
-                'message' => 'Authorization successful!'
-            ]
-        );
+            $user = User::where('email', $request->email)->first();
+
+            if (! $user || ! Hash::check($request->password, $user->password)) {
+                throw ValidationException::withMessages(
+                    [
+                        'email' => ['The provided credentials are incorrect.'],
+                    ]
+                );
+            }
+
+            return response()->json([
+                    'status' => true,
+                    'user' => new UserResource($user), 
+                    'token' => $user->createToken(application('name'))->plainTextToken,
+                    'message' => 'Authorization successful!'
+            ], 200);
+        } catch (ValidationException $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     public function destroy(Request $request)

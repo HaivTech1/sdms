@@ -33,7 +33,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'settings', 'namespace' => 'Settings'], function () {
       Route::get('/', [SettingController::class, 'index']);
-      Route::get('/grades/all', [SettingController::class, 'grade']);
+      Route::get('/levels/all', [SettingController::class, 'grade']);
       Route::get('/sessions/all', [SettingController::class, 'session']);
       Route::get('/terms/all', [SettingController::class, 'term']);
     });
