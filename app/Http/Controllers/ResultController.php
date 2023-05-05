@@ -9,6 +9,7 @@ use App\Models\Result;
 use App\Models\MidTerm;
 use App\Models\Pincode;
 use App\Models\Student;
+use App\Models\Subject;
 use App\Models\Affective;
 use App\Models\Cognitive;
 use App\Jobs\CreateResult;
@@ -959,5 +960,37 @@ class ResultController extends Controller
         
 
         return response()->json($responseData);
+    }
+
+    public function midtermDeleteSubject($sessionId, $termId, $studentId, $subjectId)
+    {
+        $session = Session::findOrFail($sessionId);
+        $term = Term::findOrFail($termId);
+        $student = Student::findOrFail($studentId);
+        $subject = Subject::findOrFail($subjectId);
+
+        $midtermResult = MidtermResult::where('term_id', $term)->where('subject_id', $subject)->where('student_id', $student)->where('period_id', $session)->first();
+        $midtermResult->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Result deleted successfully'
+        ], 200);
+    }
+
+    public function examDeleteSubject($sessionId, $termId, $studentId, $subjectId)
+    {
+        $session = Session::findOrFail($sessionId);
+        $term = Term::findOrFail($termId);
+        $student = Student::findOrFail($studentId);
+        $subject = Subject::findOrFail($subjectId);
+
+        $midtermResult = Result::where('term_id', $term)->where('subject_id', $subject)->where('student_id', $student)->where('period_id', $session)->first();
+        $midtermResult->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Result deleted successfully'
+        ], 200);
     }
 }

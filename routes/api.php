@@ -40,7 +40,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'student', 'namespace' => 'Student'], function () {
         Route::get('/all', [StudentController::class, 'index']);
-        Route::get('/assign/grade/student', [StudentController::class, 'assignStudent']);
+        Route::get('/assign/grade', [StudentController::class, 'assignStudent']);
     });
 
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'attendance', 'namespace' => 'Attendance'], function () {

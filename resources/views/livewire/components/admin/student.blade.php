@@ -173,7 +173,30 @@
                                                 <livewire:components.edit-title :model='$student->user' field='reg_no' :key='$student->user->id()'/>
                                             </td>
                                             <td>
-                                                {{ $student->subjects->count() }}
+                                                <div class="accordion" id="accordionExample">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading{{ $student->id() }}">
+                                                            <button class="accordion-button fw-medium" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $student->id() }}" aria-expanded="true" aria-controls="collapse{{ $student->id() }}">
+                                                                Click to expand
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse{{ $student->id() }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $student->id() }}" data-bs-parent="#accordionExample">
+                                                            <div class="accordion-body">
+                                                                <ul class="list-group">
+                                                                    @foreach ($student->subjects as $subject)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            {{ $subject->title() }}
+                                                                            <button type="button" class="btn btn-sm btn-danger delete-subject"  data-student-id="{{ $student->id() }}" data-subject-id="{{ $subject->id }}">
+                                                                                <i class="bx bx-x"></i>
+                                                                            </button>
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </td>
                                             <td>
                                                 <livewire:components.toggle-button :model='$student' field='status'
@@ -181,26 +204,18 @@
                                             </td>
                                             <td>
                                                 @if ($student->status == true)
-                                                    <div class="d-flex align-items-center justify-content-center">
-                                                        <div class="col-sm-4">
-                                                            <a class="dropdown-item"
-                                                                href="{{ route('student.show', $student) }}"><i
-                                                                    class="fa fa-eye"></i>
-                                                            </a>
-                                                        </div>
-                                                        <div class="col-sm-4">
-                                                            <a class="dropdown-item"
-                                                                href="{{ route('student.edit', $student) }}"><i
-                                                                    class="fa fa-edit"></i>
-                                                            </a>
-                                                        </div>
-                                                        <div class="col-sm-4">
-                                                            <button class="btn btn-sm btn-primary" wire:click.prevent="sendDetails('{{ $student ->id()}}')"><i class="fa fa-envelope"></i>
+                                                    <div class="dropdown">
+                                                        <button class="btn nav-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="bx bx-dots-horizontal-rounded"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a class="dropdown-item" href="{{ route('student.show', $student) }}"><i class="fa fa-eye"></i> Show</a>
+                                                            <a class="dropdown-item" href="{{ route('student.edit', $student) }}"><i class="fa fa-edit"></i> Edit</a>
+                                                            <button class="dropdown-item btn btn-sm btn-primary" wire:click.prevent="sendDetails('{{ $student ->id()}}')">
+                                                                <i class="fa fa-envelope"></i> Credentals
                                                             </button>
-                                                        </div>
-                                                        <div class="col-sm-4">
-                                                            <button type="button" id="assingSubject" value="{{ $student->id() }}">
-                                                                <i class="fas fa-compress-arrows-alt"></i>
+                                                            <button class="dropdown-item" type="button" id="assingSubject" value="{{ $student->id() }}">
+                                                                <i class="fas fa-compress-arrows-alt"></i> Assign Subject
                                                             </button>
 
                                                             <div class="offcanvas offcanvas-start" data-bs-scroll="true"
@@ -340,6 +355,32 @@
                     toggleAble('#submit_button', false);
                 });
                 
+            });
+
+             $(document).on('click', '.delete-subject', function() {
+                var studentId = $(this).data('student-id');
+                var subjectId = $(this).data('subject-id');
+
+                toggleAble($(this), true);
+
+                $.ajax({
+                    url: '/student/' + studentId + '/subject/' + subjectId,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Handle success response here
+                        toggleAble($(this), false);
+                        toastr.success(response.message, 'Success!');
+                        setTimeout(function () {window.location.reload()}, 1500);
+                    },
+                    error: function(xhr, status, error) {
+                        toggleAble($(this), false);
+                        toastr.error(xhr.responseText, 'Failed!');
+                    }
+                });
             });
         </script>
         

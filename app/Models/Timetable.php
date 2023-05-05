@@ -14,13 +14,11 @@ class Timetable extends Model
     protected $table = self::TABLE;
 
     const WEEK_DAYS = [
-        '1' => 'Monday',
-        '2' => 'Tuesday',
-        '3' => 'Wednesday',
-        '4' => 'Thursday',
-        '5' => 'Friday',
-        '6' => 'Saturday',
-        '7' => 'Sunday',
+        1 => 'Monday',
+        2 => 'Tuesday',
+        3 => 'Wednesday',
+        4 => 'Thursday',
+        5 => 'Friday',
     ];
 
     protected $fillable = [
@@ -28,8 +26,14 @@ class Timetable extends Model
         'end_time',
         'grade_id',
         'teacher_id',
+        'subject_id',
         'start_time',
     ];
+
+    public function id()
+    {
+        return $this->id;
+    }
 
     public function getDifferenceAttribute()
     {
@@ -61,6 +65,11 @@ class Timetable extends Model
     function grade()
     {
         return $this->belongsTo(Grade::class, 'grade_id');
+    }
+
+    function subject()
+    {
+        return $this->belongsTo(Subject::class);
     }
 
     public function teacher()

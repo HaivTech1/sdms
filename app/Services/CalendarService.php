@@ -14,9 +14,6 @@ class CalendarService
         $schedule = Schedule::whereSlug('Student')->first();
         $calendarData = [];
         $timeRange = (new TimeService)->generateTimeRange($schedule->time_in->format('H:i'), $schedule->time_out->format('H:i'));
-        $lessons   = Timetable::with('grade', 'teacher')
-            ->calendarByRoleOrGradeId()
-            ->get();
 
         foreach ($timeRange as $time)
         {
@@ -25,22 +22,26 @@ class CalendarService
 
             foreach ($weekDays as $index => $day)
             {
-                $lesson = $lessons->where('weekday', $index)->where('start_time', $time['start'])->first();
+                $lessons = Timetable::with('grade', 'teacher', 'subject')
+                    ->calendarByRoleOrGradeId()
+                    ->where('weekday', $index)
+                    ->where('start_time', '<=', $time['start'])
+                    ->where('end_time', '>=', $time['end'])
+                    ->get();
 
-                if ($lesson)
-                {
-                    array_push($calendarData[$timeText], [
-                        'class_name'   => $lesson->grade->title(),
-                        'teacher_name' => $lesson->teacher->name(),
-                        'rowspan'      => $lesson->difference/30 ?? ''
-                    ]);
+                if ($lessons->count()) {
+                    foreach ($lessons as $lesson) {
+                        array_push($calendarData[$timeText], [
+                            'id' => $lesson->id(),
+                            'week'          => $lesson->weekday,
+                            'class_name'   => $lesson->grade->title(),
+                            'teacher_name' => $lesson->teacher->name(),
+                            'subject_name' => $lesson->subject->title(),
+                            'rowspan'      => 1
+                        ]);
+                    }
                 }
-                else if (!$lessons->where('weekday', $index)->where('start_time', '<', $time['start'])->where('end_time', '>=', $time['end'])->count())
-                {
-                    array_push($calendarData[$timeText], 1);
-                }
-                else
-                {
+                else if (!$lessons->count()) {
                     array_push($calendarData[$timeText], 0);
                 }
             }
@@ -48,4 +49,5 @@ class CalendarService
 
         return $calendarData;
     }
+
 }

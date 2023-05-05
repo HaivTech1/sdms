@@ -56,7 +56,7 @@ class Week extends Model
                     $userId = array_pop($userIds);
                 } while (in_array($userId, $assignedUsers) && !empty($userIds));
                 if (!in_array($userId, $assignedUsers)) {
-                    $week->users()->attach($userId);
+                    $week->teachers()->attach($userId);
                     $assignedUsers[] = $userId;
                 }
             }

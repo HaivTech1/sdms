@@ -147,12 +147,14 @@
                                                                     <th>{{ $value['full_name'] }}</th>
                                                                 @endforeach
                                                                 <th>Created</th>
+                                                                <th></th>
                                                             </tr>
                                                             <tr>
                                                                 <th></th>
                                                                 @foreach ($midterm as $key => $value)
                                                                     <th>{{ $value['mark'] }}</th>
                                                                 @endforeach
+                                                                <th></th>
                                                                 <th></th>
                                                             </tr>
                                                         </thead>
@@ -161,6 +163,7 @@
                                                                 <tr id='{{ $result->id() }}'>
                                                                     <td>
                                                                         {{ $result->subject->title() }}
+                                                                        <livewire:components.edit-title :model='$result' field='subject_id' :key='$result->subject->id()' />
                                                                     </td>
                                                                     @foreach ($midterm as $key => $value)
                                                                         <td>
@@ -168,39 +171,12 @@
                                                                         </td>
                                                                     @endforeach
                                                                     <td>{{ $result->createdAt() }}</td>
-                                                                    {{-- <td>
-                                                                        <a href="{{ route('result.show', $result) }}" class="dropdown-item">
-                                                                            <i class="fa fa-eye"></i>
-                                                                        </a>
-                                                                    </td> --}}
+                                                                    <td>
+                                                                        <button wire:ignore.self type="button" class="btn btn-danger delete-score" data-session="{{ $result->period->id() }}" data-term="{{ $result->term->id() }}" data-student="{{ $selectedStudent->id() }}" data-subject="{{ $result->subject->id() }}">
+                                                                            <i class="bx bx-trash"></i>
+                                                                        </button>
+                                                                    </td>
                                                                 </tr>
-                                                            {{-- <tr>
-                                                                <td>
-                                                                    {{ $subject->title() }}
-                                                                    <x-form.input style='width: 50px' class="text-center" type='hidden'
-                                                                        name='subject_id[]' value="{{ $subject->id() }}" autofocus />
-                                                                </td>
-                                                                <td>
-                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                        name='entry_1[]' value="" autofocus />
-                                                                </td>
-                                                                <td>
-                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                        name='first_test[]' value="" autofocus />
-                                                                </td>
-                                                                <td>
-                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                        name='entry_2[]' value="" autofocus />
-                                                                </td>
-                                                                <td>
-                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                        name='ca[]' value="" autofocus />
-                                                                </td>
-                                                                <td>
-                                                                    <x-form.input style='width: 50px' class="text-center" type='number'
-                                                                        name='project[]' value="" autofocus />
-                                                                </td>
-                                                            </tr> --}}
                                                             @endforeach
                                                         </tbody>
                                                     </table>
@@ -239,6 +215,7 @@
                                                                     @foreach ($midterm as $key => $value)
                                                                         <th>{{ $value['mark'] }}</th>
                                                                     @endforeach
+                                                                    <th></th>
                                                                     <th></th>
                                                                 </tr>
                                                             </thead>
@@ -301,6 +278,46 @@
     @endmidUploadEnabled
 
     @section('scripts')
+         <script>
+            {{-- document.querySelectorAll('.delete-score').forEach(button => {
+                button.addEventListener('click', () => {
+                    var button  = $(this);
+                    toggleAble(button, true);
+                    const sessionId = button.getAttribute('data-session');
+                    const termId = button.getAttribute('data-term');
+                    const studentId = button.getAttribute('data-student');
+                    const subjectId = button.getAttribute('data-subject');
+
+                    fetch(`/result/midterm/delete/${sessionId}/${termId}/${studentId}/${subjectId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => {
+                        if (response.status) {
+                            toggleAble(button, false);
+                            const row = button.closest('tr');
+                            row.parentNode.removeChild(row);
+                            toastr.success(response.message, 'Success!');
+                        } else {
+                            toggleAble(button, false);
+                            toastr.error('Unable to delete score', 'Failed');
+                        }
+                    })
+                    .catch(error => {
+                        toggleAble(button, false);
+                        console.error(error);
+                        toastr.error('An error occurred while deleting the score', 'Failed');
+                    });
+                });
+            }); --}}
+
+            $('.delete-score').on('click', function(){
+                alert();
+            })
+        </script>
+
         <script>
             $(document).on('submit', '#midFormSubmit', function (e) {
                 e.preventDefault();

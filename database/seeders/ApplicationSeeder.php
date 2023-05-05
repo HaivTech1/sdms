@@ -32,7 +32,8 @@ class ApplicationSeeder extends Seeder
             'instagram'        =>  'Haivtech',
             'twitter'        =>  'Haivtech',
             'linkedin'        =>  'Haivtech',
-            'website'        =>  'https://www.st.louisNPSO.com.ng'
+            'website'        =>  'https://www.st.louisNPSO.com.ng',
+            'period_time' => 30
             ],
         ];
         

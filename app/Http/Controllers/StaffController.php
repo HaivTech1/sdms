@@ -175,23 +175,6 @@ class StaffController extends Controller
             }
         }
     }
-
-    public function calender()
-    {
-        return view('admin.staff.calendar');
-    }
-
-    public function generatePDF()
-    {
-        $weeks = Week::where([
-            'term_id' => term('id'),
-            'period_id' => period('id'),
-        ])->get();
-        $html = view('pdf')->with(compact('weeks'))->render();
-
-        // Return the generated HTML to the client
-        return response()->json(['html' => $html]);
-    }
     
     public function duty(Request $request)
     {
@@ -203,19 +186,5 @@ class StaffController extends Controller
         $week->teachers()->attach($teacher);
 
         return response()->json(['status' => true, 'message' => 'Teacher has been re-assigned']);
-    }
-
-    public function assign(Request $request)
-    {
-        $teacher = User::findOrFail($request->teacher_id);
-        $week = Week::findOrFail($request->week_id);
-
-        if ($week->teachers()->where('user_id', $teacher->id())->exists()) {
-            return response()->json(['status' => false, 'message' => 'Teacher is currently assigned to this week!'], 500);
-        }else{
-            $week->teachers()->attach($teacher);
-            return response()->json(['status' => true, 'message' => 'Teacher has assigned successfully!'], 200);
-        }
-
     }
 }

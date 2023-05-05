@@ -25,6 +25,9 @@ class StoreTimetableRequest extends FormRequest
     public function rules()
     {
         return [
+            'subject_id'   => [
+                'required',
+                'integer'],
             'grade_id'   => [
                 'required',
                 'integer'],

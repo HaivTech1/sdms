@@ -16,8 +16,13 @@
             {{-- <li><a href="{{ route('event.index') }}" key="t-products">Event</a></li> --}}
             <li><a href="{{ route('schedule.index') }}" key="t-products">Schedule</a></li>
             <li><a href="{{ route('finger_device.index') }}" key="t-products">Biometric Device</a></li>
-            <li><a href="{{ route('staff.calender') }}" key="t-products">School Calender</a></li>
         </ul>
+    </li>
+    <li>
+        <a href="{{ route('design.index') }}" class="waves-effect">
+            <i class="bx bx-cog"></i>
+            <span key="t-chat">Frontend Management</span>
+        </a>
     </li>
     <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -66,11 +71,5 @@
             <li><a href="{{ route('messaging.email') }}" key="t-add-product">Email</a></li>
             <li><a href="{{ route('messaging.sms') }}" key="t-add-product">Bulk SMS</a></li>
         </ul>
-    </li>
-    <li>
-        <a href="{{ route('design.index') }}" class="waves-effect">
-            <i class="bx bx-cog"></i>
-            <span key="t-chat">Frontend Management</span>
-        </a>
     </li>
 @endadmin

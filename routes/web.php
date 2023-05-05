@@ -177,6 +177,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/performance-by-student', [StudentController::class, 'getPerformanceByStudent']);
             Route::get('/class-ranking-student', [StudentController::class, 'getClassRanking']);
             Route::get('/subjects/{id}', [StudentController::class, 'subjects'])->name('subjects');
+            Route::delete('/{student}/subject/{subject}', [StudentController::class, 'deleteAssignedSubject'])->name('assignedSubject.delete');
         });
 
         Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -224,6 +225,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/verify/pin', [ResultController::class, 'verify']);
 
             Route::get('/data/midterm', [ResultController::class, 'getMidTermData']);
+            Route::delete('/midterm/delete/{session}/{term}/{student}/{subject}', [ResultController::class, 'midtermDeleteSubject']);
+            Route::delete('/exam/delete/{session}/{term}/{student}/{subject}', [ResultController::class, 'examDeleteSubject']);
         });
         
         Route::group(['prefix' => 'fee', 'as' => 'fee.'], function () {
@@ -263,10 +266,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/bank/single/{code}', [StaffController::class, 'bankSingle']);
             Route::get('/profile/edit/{id}', [StaffController::class, 'editProfile']);
             Route::post('/update/profile', [StaffController::class, 'updateProfile'])->name('update');
-            Route::get('/calender', [StaffController::class, 'calender'])->name('calender');
-            Route::get('/generate-pdf', [StaffController::class, 'generatePDF']);
-            Route::post('/assign/duty', [StaffController::class, 'assign']);
-            Route::post('/reassign/duty', [StaffController::class, 'duty']);
         });
 
         Route::group(['prefix' => 'schedule', 'as' => 'schedule.'], function () {
@@ -347,6 +346,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::group(['prefix' => 'timetable', 'as' => 'timetable.'], function () {
             Route::get('/', [TimetableController::class, 'index'])->name('index');
             Route::post('/', [TimetableController::class, 'store'])->name('store');
+            Route::delete('/{id}', [TimetableController::class, 'delete'])->name('delete');
+        });
+
+        Route::group(['prefix' => 'calendar', 'as' => 'calendar.'], function () {
+            Route::get('/', [TimetableController::class, 'calender'])->name('index');
+            Route::get('/generate-pdf', [TimetableController::class, 'generatePDF']);
+            Route::post('/assign/duty', [TimetableController::class, 'assign']);
+            Route::post('/reassign/duty', [TimetableController::class, 'duty']);
         });
 
         Route::get('/index/registration', [RegistrationController::class, 'index']);

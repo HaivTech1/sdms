@@ -105,6 +105,15 @@
                     <x-form.error for="motto" class="mt-2" />
                 </div>
 
+                <!-- period_time -->
+                <div class="col-md-6 mb-3">
+                    <x-form.label for="period_time" value="{{ __('Period Duration') }}" />
+                    <x-form.input id="period_time" type="text" class="block w-full mt-1" wire:model.defer="app.period_time"
+                        autocomplete="period_time" />
+                    <x-form.error for="period_time" class="mt-2" />
+                </div>
+                
+
                 <!-- Site address -->
                 <div class="col-md-6 mb-3">
                     <x-form.label for="address" value="{{ __('Address') }}" />

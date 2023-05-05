@@ -40,31 +40,20 @@ class Application extends Component
             'twitter'         => $this->app['twitter'],
             'linkedin'         => $this->app['linkedin'],
             'website'         => $this->app['website'],
+            'period_time'       => $this->app['period_time'],
         ]);
 
         if (isset($this->photo)) {
-            File::delete(storage_path('app/' .$this->application->image));
+            File::delete(storage_path('applications/' .$this->application->image));
             $this->application->update(['image' => $this->photo->store('applications', 'public')]);
             return redirect()->route('setting.index');
         }
 
-        // if (isset($this->fav)) {
-        //     File::delete(storage_path('app/' .$this->application->fav));
-        //     $this->application->update(['fav' => $this->fav->store('applications', 'public')]);
-        //     return redirect()->route('setting.index');
-        // }
-
-        // if (isset($this->signature)) {
-        //     File::delete(storage_path('app/' .$this->application->signature));
-        //     $this->application->update(['signature' => $this->signature->store('applications', 'public')]);
-        //     return redirect()->route('setting.index');
-        // }
-
-        // if (isset($this->stamp)) {
-        //     // File::delete(storage_path('app/' .$this->application->stamp));
-        //     $this->application->update(['stamp' => $this->stamp->store('applications', 'public')]);
-        //     return redirect()->route('setting.index');
-        // }
+        if (isset($this->fav)) {
+            File::delete(storage_path('applications/' .$this->application->fav));
+            $this->application->update(['fav' => $this->fav->store('applications', 'public')]);
+            return redirect()->route('setting.index');
+        }
 
         $this->emit('saved');
     }

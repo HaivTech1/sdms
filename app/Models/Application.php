@@ -36,6 +36,7 @@ class Application extends Model
         'website',
         'signature',
         'stamp',
+        'period_time',
     ];
 
     public function id(): int

@@ -122,16 +122,6 @@ class StudentController extends Controller
         return redirect()->route('student.index')->with($notification);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Student  $student
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Student $student)
-    {
-        //
-    }
 
     public function assignSubject (Request $request)
     {
@@ -228,5 +218,12 @@ class StudentController extends Controller
         $subjects = $student->subjects;
 
         return response()->json(['status' => true, 'data' => $subjects]);
+    }
+
+    public function destroy(Student $student, Subject $subject)
+    {
+        $student->scores()->where('subject_id', $subject->id())->delete();
+        $subject->delete();
+        return response()->json(['success' => true]);
     }
 }

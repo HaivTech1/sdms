@@ -23,13 +23,19 @@
                 @endif 
                 @include('partials.nav.bursal')
                 @include('partials.nav.teacher')
+                @include('partials.nav.student')
                 <li>
                     <a href="{{ route('timetable.index') }}" class="waves-effect">
-                        <i class="bx bx-calendar"></i>
+                        <i class="mdi mdi-clock-outline"></i>
                         <span key="t-chat">Timetable</span>
                     </a>
                 </li>
-                @include('partials.nav.student')
+                <li>
+                    <a class="waves-effect" href="{{ route('calendar.index') }}">
+                        <i class="bx bx-calendar"></i> 
+                        <span key="t-chat">School Calender</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

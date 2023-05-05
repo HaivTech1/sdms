@@ -32,7 +32,7 @@ class StudentController extends Controller
                 $students = StudentResource::collection($newArray);
             }else{
                 $grade  = auth()->user()->gradeClassTeacher;
-                $students = $grade->students;
+                $students = $grade->students->with(['grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments']);
             }
             return response()->json(['status' => true, 'students' => $students], 200);
         } catch (\Throwable $th) {

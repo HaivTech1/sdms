@@ -21,6 +21,7 @@ class CreateTimetablesTable extends Migration
             $table->boolean('status')->default(0);
             $table->foreignId('grade_id')->constrained('grades')->onDelete('cascade');
             $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
             $table->timestamps();
         });
     }

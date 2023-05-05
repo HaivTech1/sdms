@@ -36,12 +36,12 @@ class BladeServiceProvider extends ServiceProvider
 
         Blade::if('teacher', function () {
             $user = auth()->user();
-            return ($user->isTeacher() || $user->isSuperAdmin());
+            return ($user->isTeacher());
         });
 
         Blade::if('bursal', function () {
             $user = auth()->user();
-            return ($user->isBursal() || $user->isSuperAdmin());
+            return ($user->isBursal());
         });
 
         Blade::if('student', function () {

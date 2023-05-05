@@ -16,6 +16,7 @@ class AddToApplication extends Migration
         Schema::table('applications', function (Blueprint $table) {
             $table->text('signature')->nullable();
             $table->text('stamp')->nullable();
+            $table->integer('period_time')->default(30);
         });
     }
 
@@ -27,7 +28,7 @@ class AddToApplication extends Migration
     public function down()
     {
         Schema::table('applications', function (Blueprint $table) {
-            $table->dropColumn(array_merge(['signature','stamp']));
+            $table->dropColumn(array_merge(['signature','stamp', 'period_time']));
         });
     }
 }

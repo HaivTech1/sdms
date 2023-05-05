@@ -2,27 +2,29 @@
     <x-loading />
 
     <div class="row">
-        <div class="card text-center">
-          <div class="card-body">
-                <form wire:submit.prevent="generateWeeks">
-                    <div class="row">
-                        <div class="col-sm-5 form-group">
-                            <input type="date" class="form-control" id="startDate" wire:model.defer="startDate">
+        @admin
+            <div class="card text-center">
+            <div class="card-body">
+                    <form wire:submit.prevent="generateWeeks">
+                        <div class="row">
+                            <div class="col-sm-5 form-group">
+                                <input type="date" class="form-control" id="startDate" wire:model.defer="startDate">
+                            </div>
+                            <div class="col-sm-5 form-group">
+                                <input type="date" class="form-control" id="endDate" wire:model.defer="endDate">
+                            </div>
+                            <div class="col-sm-2">
+                                @if (count($weeks) > 0)
+                                    <button type="button" wire:click="flushWeeks" class="btn btn-danger">Flush Weeks</button>
+                                @else
+                                    <button type="submit" class="btn btn-primary">Generate Weeks</button>
+                                @endif
+                            </div>
                         </div>
-                        <div class="col-sm-5 form-group">
-                            <input type="date" class="form-control" id="endDate" wire:model.defer="endDate">
-                        </div>
-                        <div class="col-sm-2">
-                            @if (count($weeks) > 0)
-                                <button type="button" wire:click="flushWeeks" class="btn btn-danger">Flush Weeks</button>
-                            @else
-                                <button type="submit" class="btn btn-primary">Generate Weeks</button>
-                            @endif
-                        </div>
-                    </div>
-                </form>
-          </div>
-        </div>
+                    </form>
+            </div>
+            </div>
+        @endadmin
 
 
         <div class="row">
@@ -312,7 +314,8 @@
             </div>
         </div>
     </div>
-     @if(auth()->check() && auth()->user()->isStudent())
+
+    @admin
         @section('scripts')
             <script>
                 function generatePDF() {
@@ -356,6 +359,7 @@
                     });
                 }
             </script>
+
             <script>
                 $(document).ready(function() {
 
@@ -366,32 +370,24 @@
                     });
 
                     $('table td:first-child').on('click', function() {
-                        // Get the week start date and ID from the data attributes of the cell
                         var startDate = $(this).data('date');
                         var weekId = $(this).data('week');
-
-                        // Set the week ID in the hidden input field of the modal form
                         $('#week-id').val(weekId);
                         $('#assign_week_id').val(weekId);
                         $('#start').val(startDate);
-
-                        // Show the modal form
                         $('.addEvent').modal('toggle');
                     });
 
-                    // Add submit event listener to the modal form
                     $('#event-form').on('submit', function(event) {
                         event.preventDefault();
                         toggleAble('#submit', true, 'Creating...');
 
-                        // Get the event details from the form fields
                         var title = $('#title').val();
                         var category = $('#category').val();
                         var start = $('#start').val();
                         var end = $('#end').val();
                         var weekId = $('#week-id').val();
 
-                        // Send a POST request to create a new event
                         $.ajax({
                             url: '/event',
                             method: 'POST',
@@ -567,7 +563,7 @@
                         toggleAble('#assign_button', true, 'Re-assigning...');
 
                         $.ajax({
-                            url: '/staff/reassign/duty',
+                            url: '/calendar/reassign/duty',
                             method: 'POST',
                             data,
                             success: function(response) {
@@ -596,7 +592,7 @@
                         toggleAble('#assign_btn', true, 'Assigning...');
 
                         $.ajax({
-                            url: '/staff/assign/duty',
+                            url: '/calendar/assign/duty',
                             method: 'POST',
                             data,
                             success: function(response) {
@@ -620,19 +616,15 @@
                     })
 
                     function formatDate(date) {
-                        // Create a new Date object from the string
                         var d = new Date(date);
-                        // Get the year, month, and day components of the date
                         var year = d.getFullYear();
                         var month = ('0' + (d.getMonth() + 1)).slice(-2);
                         var day = ('0' + d.getDate()).slice(-2);
-                        // Assemble the formatted date string
                         var formattedDate = year + '-' + month + '-' + day;
-                        // Return the formatted date string
                         return formattedDate;
                     }
                 });
             </script>
         @endsection
-    @endif
+    @endadmin
 </div>
