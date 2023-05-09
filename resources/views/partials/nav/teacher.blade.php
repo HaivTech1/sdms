@@ -11,16 +11,16 @@
             <span key="t-ecommerce">Attendance Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="true">
-            <li><a href="{{ route('attendance.index') }}" key="t-products">Attendance Log</a>
-            </li>
-            <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li>
+            {{-- <li><a href="{{ route('attendance.create') }}" key="t-products">Mark Attendance</a></li> --}}
+            <li><a href="{{ route('attendance.index') }}" key="t-products">Mark Attendance</a></li>
+            <li><a href="{{ route('attendance.stat') }}" key="t-products">Attendance Stat</a></li>
+            {{-- <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li> --}}
+            {{-- <li>
+                <a href="{{ route('check.index') }}" key="t-products">
+                    Attendance Sheet
+                </a>
+            </li> --}}
         </ul>
-    </li>
-    <li>
-        <a href="{{ route('check.index') }}" class="waves-effect">
-            <i class="bx bx-list-check"></i>
-            <span key="t-chat">Attendance Sheet</span>
-        </a>
     </li>
     <li>
         <a href="{{ route('lesson.teacher') }}" class="waves-effect">

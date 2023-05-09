@@ -8,6 +8,8 @@ use App\Http\Controllers\TokenAuthController;
 use App\Http\Controllers\API\v1\AgentController;
 use App\Http\Controllers\API\v1\SettingController;
 use App\Http\Controllers\API\v1\StudentController;
+use App\Http\Controllers\API\v1\AttendanceController;
+use App\Http\Controllers\API\v1\RegistrationController;
 use App\Http\Controllers\OtherBrowserSessionsController;
 
 Route::middleware('guest')->group(function () {
@@ -28,22 +30,30 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 
     Route::delete('/auth/token', [TokenAuthController::class, 'destroy']);
     Route::get('/me', [UserController::class, 'me']);
+    Route::get('/assigned/grades', [UserController::class, 'assignedGrade']);
     Route::get('/user/sessions', [OtherBrowserSessionsController::class, 'index']);
     Route::post('/user/sessions/purge', [OtherBrowserSessionsController::class, 'destroy']);
 
-    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'settings', 'namespace' => 'Settings'], function () {
+    Route::group(['prefix' => 'settings', 'namespace' => 'Settings'], function () {
       Route::get('/', [SettingController::class, 'index']);
       Route::get('/levels/all', [SettingController::class, 'grade']);
       Route::get('/sessions/all', [SettingController::class, 'session']);
       Route::get('/terms/all', [SettingController::class, 'term']);
     });
 
-    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'student', 'namespace' => 'Student'], function () {
+    Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {
         Route::get('/all', [StudentController::class, 'index']);
+        Route::get('/single/{id}', [StudentController::class, 'single']);
         Route::get('/assign/grade', [StudentController::class, 'assignStudent']);
+        Route::post('/toggle/status', [StudentController::class, 'toggleStudent']);
     });
 
-    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'attendance', 'namespace' => 'Attendance'], function () {
+    Route::group(['prefix' => 'registration', 'namespace' => 'Registration'], function () {
+        Route::get('/all', [RegistrationController::class, 'index']);
+        Route::get('/single/{id}', [RegistrationController::class, 'single']);
+    });
+
+    Route::group(['prefix' => 'attendance', 'namespace' => 'Attendance'], function () {
         Route::get('/all', [AttendanceController::class, 'index']);
         Route::get('/active', [AttendanceController::class, 'active']);
         Route::get('/inactive', [AttendanceController::class, 'inactive']);
@@ -54,5 +64,4 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::post('/mark', [AttendanceController::class, 'mark_attendance']);
         Route::get('/stat', [AttendanceController::class, 'stat_search']);
     }); 
-
 }); 

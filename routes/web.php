@@ -10,7 +10,6 @@ use App\Http\Controllers\FeeController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
-use App\Http\Controllers\PostController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TermController;
 use App\Http\Controllers\UserController;
@@ -23,20 +22,16 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\ResultController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\ContestController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayslipController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SubGradeController;
 use App\Http\Controllers\HairstyleController;
@@ -50,8 +45,23 @@ use App\Http\Controllers\ContestantController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\BiometricDeviceController;
+use Laravel\Fortify\Http\Controllers\PasswordController;
+use Laravel\Fortify\Http\Controllers\NewPasswordController;
+use Laravel\Fortify\Http\Controllers\VerifyEmailController;
+use Laravel\Fortify\Http\Controllers\RecoveryCodeController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
+use Laravel\Fortify\Http\Controllers\TwoFactorQrCodeController;
+use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
+use Laravel\Fortify\Http\Controllers\ProfileInformationController;
+use Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController;
+use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use Laravel\Fortify\Http\Controllers\ConfirmedPasswordStatusController;
+use Laravel\Fortify\Http\Controllers\EmailVerificationPromptController;
+use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController;
+use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController;
+use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
+use Laravel\Fortify\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -79,42 +89,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
-        Route::group(['prefix' => 'property', 'as' => 'property.'], function () {
-            Route::get('/', [PropertyController::class, 'index'])->name('index');
-            Route::post('/', [PropertyController::class, 'store'])->name('store');
-            Route::get('show/{property}', [PropertyController::class, 'show'])->name('show');
-            Route::get('edit/{property}', [PropertyController::class, 'edit'])->name('edit');
-            Route::get('create', [PropertyController::class, 'create'])->name('create');
-            Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
-        });
-
-        Route::group(['prefix' => 'booking', 'as' => 'booking.'], function () {
-            Route::get('/', [BookingController::class, 'index'])->name('index');
-            Route::post('/', [BookingController::class, 'store'])->name('store');
-            Route::get('show/{booking}', [BookingController::class, 'show'])->name('show');
-            Route::get('edit/{booking}', [BookingController::class, 'edit'])->name('edit');
-            Route::get('create', [BookingController::class, 'create'])->name('create');
-            Route::put('/{booking}', [BookingController::class, 'update'])->name('update');
-        });
-
-        Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
-            Route::get('/', [ProductController::class, 'index'])->name('index');
-            Route::post('/', [ProductController::class, 'store'])->name('store');
-            Route::get('show/{product}', [ProductController::class, 'show'])->name('show');
-            Route::get('edit/{product}', [ProductController::class, 'edit'])->name('edit');
-            Route::get('create', [ProductController::class, 'create'])->name('create');
-            Route::put('/{product}', [ProductController::class, 'update'])->name('update');
-        });
-
-        Route::group(['prefix' => 'post', 'as' => 'post.'], function () {
-            Route::get('/', [PostController::class, 'index'])->name('index');
-            Route::post('/', [PostController::class, 'store'])->name('store');
-            Route::get('show/{post}', [PostController::class, 'show'])->name('show');
-            Route::get('edit/{post}', [PostController::class, 'edit'])->name('edit');
-            Route::get('create', [PostController::class, 'create'])->name('create');
-            Route::put('/{post}', [PostController::class, 'update'])->name('update');
-        });
-
         Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
             Route::post('/', [UserController::class, 'store'])->name('store');
@@ -134,19 +108,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/student/edit/{id}', [TeacherController::class, 'edit']);
             Route::post('/student/update', [TeacherController::class, 'update'])->name('student.update');
         });
-        
-        Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
-            Route::get('/', [OrderController::class, 'index'])->name('index');
-        });
 
         Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
             Route::get('/', [PaymentController::class, 'index'])->name('index');
             Route::get('/get-students', [PaymentController::class, 'getStudents']);
             Route::post('/verify-payment', [PaymentController::class, 'verifyPayment']);
         });
-
-        Route::resource('task',TaskController::class);
-        Route::resource('contest',ContestController::class);
 
         Route::resource('setting',ApplicationController::class);
 
@@ -280,6 +247,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::group(['prefix' => 'attendance', 'as' => 'attendance.'], function () {
             Route::get('/', [AttendanceController::class, 'index'])->name('index');
             Route::post('/', [AttendanceController::class, 'store'])->name('store');
+            Route::post('/mark', [AttendanceController::class, 'store_attendance'])->name('mark');
+            Route::get('/{attendanceId}/student/{studentId}', [AttendanceController::class, 'removeStudent']); 
+            Route::get('/stat', [AttendanceController::class, 'stat'])->name('stat');
+            Route::get('/{id}', [AttendanceController::class, 'showAttendance']);
+            Route::get('/students/fetch', [AttendanceController::class, 'fetch']);
         });
 
         Route::group(['prefix' => 'check', 'as' => 'check.'], function () {
@@ -370,7 +342,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::group(['prefix' => 'upload', 'as' => 'upload.'], function () {
             Route::get('/', [FrontendController::class, 'uploadSignature'])->name('uploadSignature');
-            Route::post('/', [FrontendController::class, 'uploadSignaturePost'])->name('uploadSignature');
+            Route::post('/', [FrontendController::class, 'uploadSignaturePost']);
         });
 
         Route::group(['prefix' => 'payslip', 'as' => 'payslip.'], function () {

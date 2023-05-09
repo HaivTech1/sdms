@@ -21,6 +21,12 @@ class StudentController extends Controller
 
     }
 
+    public function single($id)
+    {
+        $student = Student::findOrFail($id);
+        return response()->json(['status' => true, 'student' => new StudentResource($student)], 200);
+    }
+
     public function assignStudent(Request $request)
     {
         try {
@@ -51,5 +57,19 @@ class StudentController extends Controller
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
         
+    }
+
+    public function toggleStudent(Request $request)
+    {
+        try {
+            $studentId = $request->student_id;
+            $status = $request->status;
+
+            $student = Student::findOrFail($studentId);
+            $student->update(['status' => $status]);
+            return response()->json(['status' => true, 'message' => 'Status updated successfully!']);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
+        }
     }
 }

@@ -8,6 +8,7 @@ use App\Traits\ModelHelpers;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
+use App\Http\Resources\v1\GradeResource;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Mpociot\Teamwork\Traits\UserHasTeams;
@@ -105,14 +106,15 @@ class User extends Authenticatable
         return $this->hasOne(Pincode::class, 'student_id');
     }
 
-    public function id(): string
-    {
-        return (string) $this->id;
-    }
 
     public function title(): string
     {
-        return $this->title;
+        return (string) $this->title;
+    }
+
+    public function id(): string
+    {
+        return (string) $this->id;
     }
 
     public function phone(): string
@@ -213,6 +215,15 @@ class User extends Authenticatable
         ];
 
         return $state[$this->type];
+    }
+
+    public function scopeAssignedGrades()
+    {
+        if (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()) {
+            return GradeResource::collection(Grade::all());
+        }
+
+        return $this->gradeClassTeacher();
     }
 
     public function gradeClassTeacher(): BelongsToMany

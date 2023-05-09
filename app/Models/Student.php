@@ -42,10 +42,8 @@ class Student extends Authenticatable
         'address',
         'prev_school',
         'prev_class',
-        'image',
         'medical_history',
         'allergics',
-        'image',
         'grade_id',
         'sub_grade_id',
         'house_id',
@@ -90,6 +88,11 @@ class Student extends Authenticatable
     protected static function booted()
     {
         static::addGlobalScope(new HasActiveScope);
+    }
+
+    public function attendances()
+    {
+        return $this->belongsToMany(Attendance::class, 'attendance_student', 'student_id', 'attendance_id');
     }
 
     public function id(): string
@@ -179,7 +182,7 @@ class Student extends Authenticatable
 
     public function image(): ?string
     {
-        return (string) $this->image;
+        return (string) $this->user->image();
     }
 
     public function type(): ?string

@@ -1,7 +1,7 @@
 <x-app-layout>
-    @section('title', application('name')." | Schedule Page")
+    @section('title', application('name')." | Attendance Page")
     <x-slot name="header">
-        <h4 class="mb-sm-0 font-size-18">Attendance Sheet</h4>
+        <h4 class="mb-sm-0 font-size-18">Attendance</h4>
 
         <div class="page-title-right">
             <ol class="breadcrumb m-0">
@@ -10,8 +10,8 @@
         </div>
     </x-slot>
 
-
-    <div class="card">
+    <livewire:components.admin.attendance.index />
+    {{-- <div class="card">
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -60,5 +60,5 @@
                 </div>
             </div> <!-- end col -->
         </div>
-    </div>
+    </div> --}}
 </x-app-layout>

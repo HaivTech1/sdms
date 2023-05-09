@@ -2,86 +2,129 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Student;
 use App\Models\Attendance;
-use App\Http\Requests\StoreAttendanceRequest;
-use App\Http\Requests\UpdateAttendanceRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $class = auth()->user()->gradeClassTeacher[0]->id();
-        return view('admin.attendance.index')->with(['attendances' => Attendance::where('grade_id', $class)->get()]);
+        return view('admin.attendance.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function stat()
     {
-        //
+        return view('admin.attendance.stat');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreAttendanceRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreAttendanceRequest $request)
+
+    public function fetch(Request $request)
     {
-        //
+        $gradeId = $request->input('gradeId');
+
+        $users = Student::where('grade_id', $gradeId)
+                    ->whereNotIn('uuid', function ($query) use ($request) {
+                        $query->select('student_id')
+                            ->from('attendance_student')
+                            ->where('attendance_id', $request->input('attendanceId'));
+                    })->get();
+
+        $students = [];
+        foreach ($users as $user) {
+            $students[] = [
+                'id' => $user->id(),
+                'name' => $user->lastName() . ' ' . $user->firstName() . ' '. $user->otherName(),
+                'reg_no' => $user->user->code()
+            ];
+        }
+
+        return response()->json([
+            'students' => $students,
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Attendance  $attendance
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Attendance $attendance)
+    public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'grade_id' => ['required'],
+                'session_id' => ['required'],
+                'term_id' => ['required'],
+                'date' => ['required'],
+            ]);
+    
+            DB::transaction(function() use ($request) {
+                $attendance = new Attendance([
+                    'grade_id' => $request->grade_id,
+                    'term_id' => $request->term_id,
+                    'period_id' => $request->session_id,
+                    'date' => $request->date,
+                    'status' => $request->status  === 'on' ? 1 : 0,
+                ]);
+                $attendance->authoredBy(auth()->user());
+                $attendance->save();
+            });
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Attendance successfully created!',
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'errors' => $th->getMessage(),
+            ], 500);
+        }
+
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Attendance  $attendance
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Attendance $attendance)
+    public function store_attendance(Request $request)
     {
-        //
+        
+        try {
+            DB::transaction(function () use ($request){
+                $attendance = Attendance::findOrFail($request->attendance_id);
+                $studentIds = $request->input('students', []);
+                $attendance->students()->attach($studentIds);
+            });
+            return response()->json(['status' => true, 'message' => 'Attendance recorded successfully.'], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'errors' => $th->getMessage(),
+            ], 500);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateAttendanceRequest  $request
-     * @param  \App\Models\Attendance  $attendance
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateAttendanceRequest $request, Attendance $attendance)
+    public function showAttendance($id)
     {
-        //
+        $attendance = Attendance::findOrFail($id);
+        $users = $attendance->students()->get();
+
+        $students = [];
+        foreach ($users as $user) {
+            $students[] = [
+                'id' => $user->id(),
+                'name' => $user->lastName() . ' ' . $user->firstName() . ' '. $user->otherName(),
+                'reg_no' => $user->user->code()
+            ];
+        }
+
+        return response()->json([
+            'students' => $students,
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Attendance  $attendance
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Attendance $attendance)
+    public function removeStudent($attendanceId, $studentId)
     {
-        //
+        $attendance = Attendance::findOrFail($attendanceId);
+        $attendance->students()->detach($studentId);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Student removed successfully',
+        ], 200);
     }
 }

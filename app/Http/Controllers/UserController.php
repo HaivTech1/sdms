@@ -84,6 +84,14 @@ class UserController extends Controller
         return new UserResource(auth()->user());
     }
 
+    public function assignedGrade()
+    {
+        $user = auth()->user();
+        $grades = $user->AssignedGrades();
+
+        return response()->json($grades);
+    }
+
     public function generatePin()
     {
         return view('manager.user.generate');

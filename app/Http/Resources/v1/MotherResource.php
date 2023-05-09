@@ -6,14 +6,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class MotherResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id'            => $this->id(),
+            'name'          => $this->fullName(),
+            'email'          => $this->email(),
+            'phone_number'   => $this->phoneNumber(),
+            'occupation'          => $this->occupation(),
+            'office'   => $this->officeAddress(),
+        ];
     }
 }

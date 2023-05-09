@@ -33,11 +33,12 @@ class TokenAuthController extends Controller
             }
 
             return response()->json([
-                    'status' => true,
-                    'user' => new UserResource($user), 
-                    'token' => $user->createToken(application('name'))->plainTextToken,
-                    'message' => 'Authorization successful!'
+                'status'  => true,
+                'user'    => new UserResource($user),
+                'token'   => $user->createToken(application('name'))->plainTextToken,
+                'message' => 'Authorization successful!',
             ], 200);
+            
         } catch (ValidationException $th) {
             return response()->json([
                 'status' => false,

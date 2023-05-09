@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Resources\Api\V1;
+namespace App\Http\Resources\v1;
 
-use App\Http\Resources\Api\V1\UserResource;
+use App\Http\Resources\v1\StudentResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AttendanceResource extends JsonResource
@@ -13,13 +13,12 @@ class AttendanceResource extends JsonResource
     {
         return [
             'id'                => $this->id(),
-            'title'         => $this->title(),
             'date'         => $this->date(),
             'status'         => $this->status(),
-            'level'        => $this->level->title(),
+            'grade'        => $this->grade->title(),
             'session'        => $this->session->title(),
-            'semester'        => $this->semester->title(),
-            'marked' => UserResource::collection($this->students),
+            'term'        => $this->term->title(),
+            'marked' => StudentResource::collection($this->students),
         ];
     }
 
