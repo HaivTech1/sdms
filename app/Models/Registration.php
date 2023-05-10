@@ -152,6 +152,11 @@ class Registration extends Model
         return (string) $this->image;
     }
 
+    public function status(): ?bool
+    {
+        return (bool) $this->status;
+    }
+
     public function grade(): BelongsTo
     {
         return $this->belongsTo(Grade::class);

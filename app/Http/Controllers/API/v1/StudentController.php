@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Models\Student;
 use Illuminate\Http\Request;
+use App\Scopes\HasActiveScope;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\v1\StudentResource;
 
@@ -12,7 +13,7 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         try {
-            $newArray = Student::with(['grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'])->get();
+            $newArray = Student::withoutGlobalScope(new HasActiveScope)->with(['grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'])->get();
             $students = StudentResource::collection($newArray);
             return response()->json(['status' => true, 'students' => $students], 200);
         } catch (\Throwable $th) {
@@ -23,7 +24,7 @@ class StudentController extends Controller
 
     public function single($id)
     {
-        $student = Student::findOrFail($id);
+        $student = Student::withoutGlobalScope(new HasActiveScope)->findOrFail($id);
         return response()->json(['status' => true, 'student' => new StudentResource($student)], 200);
     }
 
@@ -35,7 +36,7 @@ class StudentController extends Controller
             $user = auth()->user();
         
             if ($user->isSuperAdmin() || $user->isAdmin()) {
-                $studentsQuery = Student::with([
+                $studentsQuery = Student::withoutGlobalScope(new HasActiveScope)->with([
                     'grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'
                 ]);
             } else {
@@ -65,11 +66,11 @@ class StudentController extends Controller
             $studentId = $request->student_id;
             $status = $request->status;
 
-            $student = Student::findOrFail($studentId);
-            $student->update(['status' => $status]);
+            $student = Student::withoutGlobalScope(new HasActiveScope)->findOrFail($studentId);
+            $student->update(['status' => $status === true ? 1 : 0]);
             return response()->json(['status' => true, 'message' => 'Status updated successfully!']);
         } catch (\Throwable $th) {
-            return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
+            return response()->json(['status' => false, 'error' => $th->getMessage()], 500);
         }
     }
 }

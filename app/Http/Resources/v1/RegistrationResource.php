@@ -11,6 +11,7 @@ class RegistrationResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'status'                => $this->status(),
             'id'                    => $this->id(),
             'name'                  => $this->lastName() . ' ' . $this->firstName() . ' ' . $this->otherName(),
             'gender'                => $this->gender(),
