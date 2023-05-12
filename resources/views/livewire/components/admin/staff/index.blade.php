@@ -358,7 +358,7 @@
                     toggleAble('#submit_button', false);
                     toastr.success(res.message, 'Success!');
                     $('.addClass').modal('toggle');
-                    setInterval(function () {window.location.reload()}, 1000);
+                    setTimeout(function () {window.location.reload()}, 1000);
                 } else {
                     toggleAble('#submit_button', false);
                     toastr.error(res.message, 'Failed!');

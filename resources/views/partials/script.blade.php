@@ -295,4 +295,5 @@
 @stack('alpine-plugins')
 @livewire('livewire-ui-spotlight')
 @livewireScripts
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
 <script src="{{ asset('js/alpine.js') }}" defer></script>

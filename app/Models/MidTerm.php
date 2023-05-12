@@ -29,6 +29,7 @@ class MidTerm extends Model
         'entry_2',
         'first_test',
         'ca',
+        'class_activity',
         'project',
         'author_id',
         'published'
@@ -50,6 +51,7 @@ class MidTerm extends Model
         'entry_2' => 'float',
         'first_test' => 'float',
         'ca' => 'float',
+        'class_activity' => 'float',
         'project' => 'float',
     ];
 
@@ -76,6 +78,11 @@ class MidTerm extends Model
     public function ca()
     {
         return  $this->ca;
+    }
+
+    public function classActivity()
+    {
+        return  $this->class_activity;
     }
 
     public function project()

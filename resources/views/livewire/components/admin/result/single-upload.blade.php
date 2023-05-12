@@ -195,7 +195,7 @@
                                                         <tr>
                                                             <th></th>
                                                             @foreach ($exam_format as $key => $value)
-                                                                <th>{{ $value['mark'] }}</th>
+                                                                <th style="text-align: center; width: 70px">{{ $value['mark'] }}</th>
                                                             @endforeach
                                                         </tr>
                                                     </thead>
@@ -209,7 +209,7 @@
                                                             </td>
                                                              @foreach ($exam_format as $key => $mark)
                                                                 <td>
-                                                                    <x-form.input style='width: 80px' class="text-center required" type='number' name='{{ $key }}[]' value="" step="0.01"
+                                                                    <x-form.input style='width: 70px' class="text-center required" type='number' name='{{ $key }}[]' value="" step="0.01"
                                                                         onblur="validateInput(this, {{ $mark['mark'] }})" />
                                                                     <div class="invalid-feedback"></div>
                                                                 </td>

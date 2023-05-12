@@ -1061,8 +1061,9 @@
                         window.location.reload();
                     }, 1000)
                 }).catch((error) => {
+                    console.log(error);
                     toggleAble('#settingBtn', false);
-                    toastr.error(error.message);
+                    toastr.error(error.responseJSON.message);
                 });
             });
 
@@ -1094,7 +1095,7 @@
                     }, 1000)
                 }).catch((error) => {
                     toggleAble('#colorBtn', false);
-                    toastr.error(error.message);
+                    toastr.error(error.responseJSON.message);
                 });
             });
 
@@ -1126,7 +1127,7 @@
                     }, 1000)
                 }).catch((error) => {
                     toggleAble('#gradeBtn', false);
-                    toastr.error(error.message);
+                    toastr.error(error.responseJSON.message);
                 });
             });
         </script>

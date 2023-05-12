@@ -6,6 +6,7 @@ use App\Http\Resources\v1\UserResource;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TokenAuthController;
 use App\Http\Controllers\API\v1\AgentController;
+use App\Http\Controllers\API\v1\StaffController;
 use App\Http\Controllers\API\v1\SettingController;
 use App\Http\Controllers\API\v1\StudentController;
 use App\Http\Controllers\API\v1\AttendanceController;
@@ -39,6 +40,13 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
       Route::get('/levels/all', [SettingController::class, 'grade']);
       Route::get('/sessions/all', [SettingController::class, 'session']);
       Route::get('/terms/all', [SettingController::class, 'term']);
+    });
+
+    Route::group(['prefix' => 'staffs', 'namespace' => 'Staffs'], function () {
+        Route::get('/', [StaffController::class, 'index']);
+        Route::post('/', [StaffController::class, 'store']);
+        Route::post('/assign/grade', [StaffController::class, 'assignClass']);
+        Route::get('/staff/{id}/delete/{grade}', [StaffController::class, 'deleteGrade']);
     });
 
     Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {

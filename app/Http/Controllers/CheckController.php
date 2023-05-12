@@ -31,7 +31,7 @@ class CheckController extends Controller
         if (isset($request->attd)) {
             foreach ($request->attd as $keys => $values) {
                 foreach ($values as $key => $value) {
-                    if ($student = Student::whereUuid(request('student_uuid'))->first()) {
+                    if ($student = Student::whereUuid($request->request('student_uuid'))->first()) {
                         if (
                             !Attendance::whereAttendance_date($keys)
                                 ->whereStudent_uuid($key)
@@ -41,6 +41,8 @@ class CheckController extends Controller
                             $data = new Attendance();
                             $data->student_uuid = $key;
                             $emp_req = Student::whereUuid($data->student_uuid)->first();
+                            $emp_req->schedules()->sync(1);
+
                             $data->attendance_time = date('H:i:s', strtotime($emp_req->schedules->first()->time_in));
                             $data->attendance_date = $keys;
                             $data->grade_id = $request->grade_id;

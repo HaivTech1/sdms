@@ -17,25 +17,32 @@ class Create extends Component
     
     public $count = 7;
     
-    public $period_id = null;
+    public $period_id = '';
     public $selectedPeriod = null;
 
-    public $term_id = null;
+    public $term_id = '';
     public $selectedTerm = null;
 
-    public $subject_id = null;
+    public $subject_id = '';
     public $selectedSubject = null;
 
-    public $grade_id = null;
+    public $grade_id = '';
     public $selectedGrade = null;
 
     public $students = [];
 
     public $state = [];
 
+    protected $queryString = [
+        'period_id' => ['except' => ''],
+        'term_id' => ['except' => ''],
+        'grade_id' => ['except' => ''],
+        'subject_id' => ['except' => ''],
+    ];
+
     public function fetchData()
     {
-        $this->grade_id = $this->state ? $this->state['grade_id'] : '';
+        $this->grade_id = $this->grade_id ? $this->grade_id : '';
         $class = Grade::where('id', $this->grade_id)->first();
         $this->students = $class->students->where('status', true)->sortBy('first_name');
         $this->selectedGrade = $class;

@@ -15,11 +15,11 @@
             <li><a href="{{ route('attendance.index') }}" key="t-products">Mark Attendance</a></li>
             <li><a href="{{ route('attendance.stat') }}" key="t-products">Attendance Stat</a></li>
             {{-- <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li> --}}
-            {{-- <li>
+            <li>
                 <a href="{{ route('check.index') }}" key="t-products">
                     Attendance Sheet
                 </a>
-            </li> --}}
+            </li>
         </ul>
     </li>
     <li>

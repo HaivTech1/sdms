@@ -36,6 +36,18 @@
                         margin: 10px;
                     }
                 }
+
+                .rotate-header {
+                    transform: rotate(-180deg);
+                    writing-mode: vertical-lr;
+                    white-space: nowrap;
+                    font-size: 10px;
+                    font-weight: bold;
+                    text-align: left;
+                    vertical-align: middle;
+                    width: 5%; 
+                    font-weight: 900;
+                }
             </style>
         @endsection
 
@@ -91,7 +103,7 @@
                                 <th>No. of Times Present</th>
                                 <td>{{ $studentAttendance->attendance_present ?? '' }}</td>
                                 <th>Out of:</th>
-                                <td>{{ $studentAttendance->attendance_duration ?? '' }}</td>
+                                <td>{{ $totalSchoolOpen ?? ''}} days</td>
                             </tr>
                         </thead>
                     </table>
@@ -166,18 +178,18 @@
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Activities</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg</th>
+                                <th rowspan="2" class="rotate-header">First Test</th>
+                                <th rowspan="2" class="rotate-header">Continuous Assessment</th>
+                                <th rowspan="2" class="rotate-header">Class Activities</th>
+                                <th rowspan="2" class="rotate-header">PROJECT</th>
+                                <th rowspan="2" class="rotate-header">TOTAL</th>
+                                <th rowspan="2" class="rotate-header">EXAM</th>
+                                <th rowspan="2" class="rotate-header">TOTAL</th>
+                                <th rowspan="2" class="rotate-header">Class Avg</th>
                             </tr>
                             <tr>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">GRADE</th>
-                                <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center" colspan="2">Remarks</th>
+                                <th class="rotate-header">GRADE</th>
+                                <th class="rotate-header" colspan="2">Remarks</th>
                             </tr>
                             </tr>
                             <tr style="text-align: center">
@@ -209,6 +221,13 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examRemark($result['total']) }}</td>
                                 </tr>
                             @endforeach
+                            <tr>
+                                <th colspan="5"></th>
+                                <th colspan="2" style="text-align: right">Grand Total:</th>
+                                <th colspan="2" class="grand_total" style="text-align: center"></th>
+                                <th>Aggregrate:</th>
+                                <th colspan="1" class="aggregate" style="text-align: right"></th>
+                            </tr>
                         </tbody>
                     </table>
                 @elseif($term->id() === '2')
@@ -219,21 +238,21 @@
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Activities</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" class="rotate-header">First Test</th>
+                                <th rowspan="2" class="rotate-header">Continuous Assessment </th>
+                                <th rowspan="2" class="rotate-header">Class Activities</th>
+                                <th rowspan="2" class="rotate-header">PROJECT</th>
+                                <th rowspan="2" class="rotate-header">TOTAL</th>
+                                <th rowspan="2" class="rotate-header">EXAM</th>
+                                <th rowspan="2" class="rotate-header">TOTAL</th>
                             </tr>
                             <tr>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">1st Term Score</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grand TOTAL</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Avg.</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">GRADE</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg.</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center" colspan="2">Remarks</th>
+                                <th class="rotate-header">1st Term Score</th>
+                                <th class="rotate-header">Grand TOTAL</th>
+                                <th class="rotate-header">Average</th>
+                                <th class="rotate-header">GRADE</th>
+                                <th class="rotate-header">Class Average</th>
+                                <th class="rotate-header" colspan="2">Remarks</th>
                             </tr>
                             </tr>
                             <tr style="text-align: center">
@@ -279,6 +298,13 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; width: 20%; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examRemark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
                                 </tr>
                             @endforeach
+                            <tr>
+                                <th colspan="5"></th>
+                                <th colspan="2" style="text-align: right">Grand Total:</th>
+                                <th colspan="2" class="grand_total" style="text-align: center"></th>
+                                <th>Aggregrate:</th>
+                                <th colspan="1" class="aggregate" style="text-align: right"></th>
+                            </tr>
                         </tbody>
                     </table>
                 @else
@@ -289,22 +315,22 @@
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Re-Entry Test Class Activities</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
-                                <th rowspan="2" style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
+                                <th rowspan="2" class="rotate-header">First Test</th>
+                                <th rowspan="2" class="rotate-header">Continuous Assessment </th>
+                                <th rowspan="2" class="rotate-header">Class Activities</th>
+                                <th rowspan="2" class="rotate-header">PROJECT</th>
+                                <th rowspan="2" class="rotate-header">TOTAL</th>
+                                <th rowspan="2" class="rotate-header">EXAM</th>
+                                <th rowspan="2" class="rotate-header">TOTAL</th>
                             </tr>
                             <tr>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">1st TS</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">2nd TS</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grand TOTAL</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Avg.</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">GRADE</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg.</th>
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center" colspan="2">Remarks</th>
+                                <th class="rotate-header">First Term Score</th>
+                                <th class="rotate-header">Second Term Score</th>
+                                <th class="rotate-header">Grand TOTAL</th>
+                                <th class="rotate-header">Average</th>
+                                <th class="rotate-header">GRADE</th>
+                                <th class="rotate-header">Class Average</th>
+                                <th class="rotate-header" colspan="2">Remarks</th>
                             </tr>
                             </tr>
                             <tr style="text-align: center">
@@ -351,6 +377,13 @@
                                     <td style="font-size: 8px; font-weight: 500; text-align: center; width: 20%">{{ examRemark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
                                 </tr>
                             @endforeach
+                            <tr>
+                                <th colspan="5"></th>
+                                <th colspan="2" style="text-align: right">Grand Total:</th>
+                                <th colspan="2" class="grand_total" style="text-align: center"></th>
+                                <th>Aggregrate:</th>
+                                <th colspan="1" class="aggregate" style="text-align: right"></th>
+                            </tr>
                         </tbody>
                     </table>
                 @endif
@@ -511,13 +544,13 @@
                                     <th colspan="8" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">INTERPRETATION OF RESULT</th>
                                 </tr>
                                 <tr>
-                                    <th style="padding: 0 25px">Color code</th>
-                                    <th style="padding: 0 25px">Over 10</th>
-                                    <th style="padding: 0 25px">Over 20</th>
-                                    <th style="padding: 0 25px">Over 40</th>
-                                    <th style="padding: 0 25px">Over 60</th>
-                                    <th style="padding: 0 25px">Over 100</th>
-                                    <th style="padding: 0 25px">Grade</th>
+                                    <th style="padding: 6px 5px" class="rotate-header">Color code</th>
+                                    <th style="padding: 6px 5px" class="rotate-header">Over 10</th>
+                                    <th style="padding: 6px 5px" class="rotate-header">Over 20</th>
+                                    <th style="padding: 6px 5px" class="rotate-header">Over 40</th>
+                                    <th style="padding: 6px 5px" class="rotate-header">Over 60</th>
+                                    <th style="padding: 6px 5px" class="rotate-header">Over 100</th>
+                                    <th style="padding: 6px 5px" class="rotate-header">Grade</th>
                                 </tr>
                             </thead>
                             <tbody style="text-align: center">
@@ -664,9 +697,9 @@
     <div class="row">
         <div class="d-print-none">
             <div class="float-end">
-                <button type="button" id="downloadPdf" class="btn btn-primary" onclick="generatePDF()">Download </button>
+                {{-- <button type="button" id="downloadPdf" class="btn btn-primary" onclick="generatePDF()">Download </button> --}}
                 <a href="javascript:window.print()"
-                    class="btn btn-success waves-effect waves-light me-1">PDF
+                    class="btn btn-success waves-effect waves-light me-1">Download PDF
                 </a>
             </div>
         </div>
@@ -718,6 +751,24 @@
                 document.head.removeChild(style);
                 toggleAble('#downloadPdf', false);
             }
+        </script>
+
+        <script>
+            $(document).ready(function() {
+                var grandTotal = 0;
+                var numSubjects = {{ count($results) }};
+                var grand = numSubjects * 100
+                @foreach ($results as $result)
+                    var total = {{ $result['total'] }};
+                    grandTotal += total;
+                @endforeach
+                var aggregate = grandTotal / numSubjects;
+                aggregate = aggregate.toFixed(2);
+
+                var tot = grandTotal + ' of ' + grand
+                $('.grand_total').text(tot);
+                $('.aggregate').text(aggregate);
+            });
         </script>
     @endsection
 </x-app-layout>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Term;
+use App\Models\Week;
 use App\Models\Event;
 use App\Models\Period;
 use App\Models\Result;
@@ -55,26 +56,108 @@ class ResultController extends Controller
         ]);
     }
     
-    
+    public function singleUpload()
+    {
+        return view('admin.result.singleUpload');
+    }
+
+    public function secondaryUpload()
+    {
+        return view('admin.result.secondary_upload');
+    }
 
     public function create()
     {
         return view('admin.result.create');
     }
 
-    public function store(StoreResultRequest $request)
+    public function secondary()
     {
-        // dd($request);
-        $this->dispatchSync(CreateResult::fromRequest($request));
+        return view('admin.result.check_secondary');
+    }
 
-        $notification = array (
-            'messege' => 'Result uploaded successfully',
-            'alert-type' => 'success',
-            'button' => 'Okay!',
-            'title' => 'Success'
-        );
+    public function primary()
+    {
+        return view('admin.result.check_primary');
+    }
 
-        return redirect()->back()->with($notification);
+    public function midterm()
+    {
+        return view('admin.result.check_midterm');
+    }
+
+    public function midTermUpload()
+    {
+        return view('admin.result.midterm');
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            DB::transaction(function () use ($request) {
+                $missingResults = [];
+
+                foreach ($request->student_id as $i => $student_id) {
+
+                    $check = PrimaryResult::where('period_id', $request->period_id)
+                    ->where('term_id', $request->term_id)
+                    ->where('grade_id', $request->grade_id)
+                    ->where('subject_id', $request->subject_id)
+                    ->where('student_id', $student_id)
+                    ->first();
+
+                    if ($check) {
+                        continue;
+                    }
+
+                    $midterm = Midterm::where([
+                        'period_id' => $request->period_id,
+                        'term_id' => $request->term_id,
+                        'grade_id' => $request->grade_id,
+                        'subject_id' => $request->subject_id,
+                        'student_id' => $student_id
+                    ])->first();
+
+                    if ($midterm === null) {
+                        $student = Student::findOrFail($student_id);
+                        $missingResults[] = $student->lastName() . ' ' . $student->firstName() . ' ' . $student->otherName();
+                    } else {
+                        $result = new PrimaryResult([
+                            'period_id'     => $request->period_id,
+                            'term_id'       => $request->term_id,
+                            'grade_id'      => $request->grade_id,
+                            'student_id'    => $student_id,
+                            'subject_id'    => $request->subject_id,
+                            'ca1'           => $midterm->firstTest() + $midterm->entry1() + $midterm->entry2(),
+                            'ca2'           => $midterm->ca(),
+                            'ca3'           => $midterm->classActivity(),
+                            'pr'            => $midterm->project(),
+                            'exam'          => $request->exam[$i],
+                        ]);
+                
+                        $result->authoredBy(auth()->user());
+                        $result->save();
+                    }
+                }
+
+                if (!empty($missingResults)) {
+                    $missingStudents = implode(', ', $missingResults);
+                    throw new \Exception("Results for the following students are missing: $missingStudents");
+                }
+                
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Result uploaded successfully!',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error creating result: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function show(Student $student, Request $request)
@@ -225,22 +308,6 @@ class ResultController extends Controller
             $know = 1;
         }
 
-        $nextTermKnow = Term::whereId($know)->first();
-        $nextTerm = Event::whereTerm_id($nextTermKnow->id())->wherePeriod_id($request->period_id)->first();
-        // dd($nextTerm);
-        $date = Event::where('period_id', $request->period_id)
-        ->where('term_id', $request->term_id)->where('category', 'bg-success')->get();
-
-        $last_date = count($date) > 0 ? $date[0]->start : date('d-m-y H:i:s');
-        $current_date = count($date) > 0 ? $date[0]->end : date('d-m-y H:i:s');
-        // dd($current_date);
-    
-         //NUMBER DAYS BETWEEN TWO DATES CALCULATOR
-        $start_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $last_date);
-        $end_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $current_date);
-        $termDuration = $start_date->diffInDays($end_date);
-        // dd($termDuration);
-
         $result = $student->primaryResults->where('period_id', $request->period_id)
                                     ->where('term_id', $request->term_id)
                                     ->where('grade_id', $request->grade_id)
@@ -259,9 +326,6 @@ class ResultController extends Controller
         $affectives = $student->affectives->where('period_id', $request->period_id)
         ->where('term_id', $request->term_id);
 
-        $attendance = $student->attendance->where('period_id', $request->period_id)
-        ->where('term_id', $request->term_id)->count();
-
         // $studentAttendanceAve = count($date) > 0 ? $attendance / $termDuration * 100 : 0;
         $studentAttendance = Cognitive::where('period_id', $request->period_id)
                                         ->where('term_id', $request->term_id)
@@ -273,7 +337,6 @@ class ResultController extends Controller
         $first_term_cumm = Cummulative::where('term_id', $first_term)->where('student_uuid', $student->id())->where('period_id', $request->period_id)->get();
         $second_term_cumm = Cummulative::where('term_id', $second_term)->where('student_uuid', $student->id())->where('period_id', $request->period_id)->get();
         $studentResults = $student->primaryResults->where('term_id', $term->id())->where('period_id', $period->id);
-
 
         $newFirst = array();
         foreach ($first_term_cumm as $key => $value) {
@@ -336,6 +399,22 @@ class ResultController extends Controller
         $weakness_info = "Dear $student->first_name, you need to improve in the following subject(s):";
         $comment = generate_comment($scores, $weakness_info, 0.4, 100, 'examination');
 
+        $totalDays = 0;
+        $weeks = Week::where('term_id', $request->term_id)->where('period_id', $request->period_id)->get();
+        foreach ($weeks as $item) {
+            $startDate = new \DateTime($item['start_date']);
+            $endDate = new \DateTime($item['end_date']);
+            $interval = new \DateInterval('P1D'); // 1 day interval
+
+            $duration = new \DatePeriod($startDate, $interval, $endDate);
+
+            foreach ($duration as $date) {
+                if ($date->format('N') <= 5) {
+                    $totalDays++;
+                }
+            }
+        }
+
         return view('admin.result.primary',[
             'student' => $student,
             'period' => $period,
@@ -345,11 +424,7 @@ class ResultController extends Controller
             'average' => $average,
             'psychomotors' => $psychomotors,
             'affectives' => $affectives,
-            'attendance' => $attendance,
-            'termDuration' => $termDuration,
-            'studentAttendance' => $studentAttendance,
-            'endOfTerm' => count($date) > 0 ? $current_date->format('d-m-Y') : date('d-m-y'),
-            'endOfNextTerm' => !$date->count() == 0 ? $nextTerm->start->format('d-m-Y') : date('d-m-y'),
+            'totalSchoolOpen' => $totalDays,
             'first_term_cumm' => $first_term_cumm,
             'second_term_cumm' => $second_term_cumm,
             'results' => $results,
@@ -369,12 +444,12 @@ class ResultController extends Controller
         $scores = [];
 
         foreach ($result as $item) {
-            $total_score = $item->entry_1 + $item->entry_2 + $item->first_test + $item->ca + $item->project;
+            $total_score = $item->entry_1 + $item->entry_2 + $item->first_test + $item->ca + $item->class_activity + $item->project;
             $subject_id = $item->subject_id;
-            $scores[$subject_id] = $total_score; // calculate percentage score
+            $scores[$subject_id] = $total_score;
         }
-        $weakness_info = "Dear $student->first_name, based on your current term score,, you need to improve in the following subject(s):";
-        $comment = generate_comment($scores, $weakness_info, 0.4, 60);
+        $weakness_info = "Dear $student->first_name, based on your current term score, you need to improve in the following subject(s):";
+        $comment = generate_comment($scores, $weakness_info, 0.5, 60);
 
         return view('admin.result.midterm_show',[
             'student' => $student,
@@ -398,14 +473,75 @@ class ResultController extends Controller
         return $result;
     }
 
-    public function singleUpload()
+    public function storeMidTerm(Request $request)
     {
-        return view('admin.result.singleUpload');
-    }
 
-    public function secondaryUpload()
-    {
-        return view('admin.result.secondary_upload');
+        $validator = Validator::make($request->all(), [
+            'period_id'          => ['required'],
+            'term_id'              => ['required'],
+            'grade_id'              => ['required'],
+            'student_id'              => ['required'],
+        ],[
+            "period_id.required" => "Session is required",
+            "term_id.required" => "Session is required",
+            "grade_id.required" => "Please select a class",
+            "student_id.required" => "Please select a student!",
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json([
+                'success' => 'false',
+                'message'  => $validator->message()->all(),
+            ], 400);
+        }else{
+            try{
+                DB::transaction(function () use ($request) {
+                    $check = MidTerm::where('period_id', $request->period_id)
+                    ->where('term_id', $request->term_id)
+                    ->where('grade_id', $request->grade_id)
+                    ->where('student_id', $request->student_id)
+                    ->first();
+                    
+                    if ($check) {
+                        throw new \Exception('Result for this student already exists!');
+                    }else {
+                        $midtermFormat = get_settings('midterm_format');
+
+                        foreach ($request->subject_id as $i => $subjectId) {
+                            $midtermData = [
+                                'period_id' => $request->period_id,
+                                'term_id' => $request->term_id,
+                                'grade_id' => $request->grade_id,
+                                'student_id' => $request->student_id,
+                                'subject_id' => $subjectId
+                            ];
+
+                            // Loop through midterm format keys and add them to the midterm data
+                            foreach (array_keys($midtermFormat) as $key) {
+                                if (isset($request->$key[$i])) {
+                                    $midtermData[$key] = $request->$key[$i];
+                                }
+                            }
+
+                            // Create midterm model
+                            $midterm = new MidTerm($midtermData);
+                            $midterm->authoredBy(auth()->user());
+                            $midterm->save();
+                        }
+                    }
+                });
+
+                return response()->json(['status' => 'success', 'message' => ['Result uploaded successfully!']], 200);
+            }catch(\Exception $e){
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error creating result: ' . $e->getMessage(),
+                ], 500);
+            }
+        }
+
     }
 
     public function storeSecondaryUpload(SingleResultRequest $request)
@@ -475,10 +611,10 @@ class ResultController extends Controller
                                 'grade_id'      => $request->grade_id,
                                 'student_id'    => $request->student_id,
                                 'subject_id'    => $subject_id,
-                                'ca1'           => $midterm_entry->first_test,
-                                'ca2'           => $midterm_entry->entry_1,
-                                'ca3'           => $midterm_entry->entry_2,
-                                'pr'            => $midterm_entry->project,
+                                'ca1'           => $midterm_entry->firstTest() + $midterm_entry->entry1() + $midterm_entry->entry2(),
+                                'ca2'           => $midterm_entry->ca(),
+                                'ca3'           => $midterm_entry->classActivity(),
+                                'pr'            => $midterm_entry->project(),
                                 'exam'          => $request->exam[$i],
                             ]);
                         
@@ -509,21 +645,6 @@ class ResultController extends Controller
                 'message' => 'Error creating result: ' . $e->getMessage(),
             ], 500);
         }
-    }
-    
-    public function secondary()
-    {
-        return view('admin.result.check_secondary');
-    }
-
-    public function primary()
-    {
-        return view('admin.result.check_primary');
-    }
-
-    public function midterm()
-    {
-        return view('admin.result.check_midterm');
     }
     
     public function psychomotor(Request $request)
@@ -705,15 +826,6 @@ class ResultController extends Controller
                 
                 NotifiableParentsTrait::notifyParents($student, $message, $subject);
         
-                // if(isset($student->mother)){
-                //     // MidTermResultJob::dispatch($student, $message, $subject);
-                //     Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-                // }elseif(isset($student->father)){
-                //     Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-                // }else{
-                //     Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-                // }
-        
                 $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
         
                 if(count($check) > 0){
@@ -775,14 +887,6 @@ class ResultController extends Controller
                 }
 
                 NotifiableParentsTrait::notifyParents($student, $message, $subject);
-        
-                // if(isset($student->mother)){
-                //     Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-                // }elseif(isset($student->father)){
-                //     Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-                // }else{
-                //     Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-                // }
             });
 
             return response()->json(['status' => true, 'message' => 'Result made available successfully! And email sent to parent.' ], 200);
@@ -845,82 +949,6 @@ class ResultController extends Controller
             return response()->json(['status' => 'error', 'message' => $th->getMessage()], 500); 
         }
         
-    }
-
-    public function midTermUpload()
-    {
-        return view('admin.result.midterm');
-    }
-
-    public function storeMidTerm(Request $request)
-    {
-
-        $validator = Validator::make($request->all(), [
-            'period_id'          => ['required'],
-            'term_id'              => ['required'],
-            'grade_id'              => ['required'],
-            'student_id'              => ['required'],
-        ],[
-            "period_id.required" => "Session is required",
-            "term_id.required" => "Session is required",
-            "grade_id.required" => "Please select a class",
-            "student_id.required" => "Please select a student!",
-        ]);
-
-        if ($validator->fails())
-        {
-            return response()->json([
-                'success' => 'false',
-                'message'  => $validator->message()->all(),
-            ], 400);
-        }else{
-            try{
-                DB::transaction(function () use ($request) {
-                    $check = MidTerm::where('period_id', $request->period_id)
-                    ->where('term_id', $request->term_id)
-                    ->where('grade_id', $request->grade_id)
-                    ->where('student_id', $request->student_id)
-                    ->first();
-                    
-                    if ($check) {
-                        throw new \Exception('Result for this student already exists!');
-                    }else {
-                        $midtermFormat = get_settings('midterm_format');
-
-                        foreach ($request->subject_id as $i => $subjectId) {
-                            $midtermData = [
-                                'period_id' => $request->period_id,
-                                'term_id' => $request->term_id,
-                                'grade_id' => $request->grade_id,
-                                'student_id' => $request->student_id,
-                                'subject_id' => $subjectId
-                            ];
-
-                            // Loop through midterm format keys and add them to the midterm data
-                            foreach (array_keys($midtermFormat) as $key) {
-                                if (isset($request->$key[$i])) {
-                                    $midtermData[$key] = $request->$key[$i];
-                                }
-                            }
-
-                            // Create midterm model
-                            $midterm = new MidTerm($midtermData);
-                            $midterm->authoredBy(auth()->user());
-                            $midterm->save();
-                        }
-                    }
-                });
-
-                return response()->json(['status' => 'success', 'message' => ['Result uploaded successfully!']], 200);
-            }catch(\Exception $e){
-                DB::rollBack();
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Error creating result: ' . $e->getMessage(),
-                ], 500);
-            }
-        }
-
     }
 
     public function getMidTermData(Request $request)

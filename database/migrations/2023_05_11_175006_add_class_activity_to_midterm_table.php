@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSettingsTable extends Migration
+class AddClassActivityToMidtermTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateSettingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->id();
-            $table->string('key')->nullable();
-            $table->text('value')->nullable();
-            $table->timestamps();
+        Schema::table('mid_terms', function (Blueprint $table) {
+            $table->double('class_activity')->nullable();
         });
     }
 
@@ -28,6 +25,8 @@ class CreateSettingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('settings');
+        Schema::table('mid_terms', function (Blueprint $table) {
+            $table->dropColumn(array_merge(['class_activity']));
+        });
     }
 }

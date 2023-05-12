@@ -79,12 +79,8 @@
                                                 <x-form.label for="gender" value="{{ __('Gender') }}" />
                                                 <select class="form-control select2" name="gender" :value="old('purpose')">
                                                     <option>Select</option>
-                                                    <option value="male"  @if($student->gender() === 'male') selected
-                                                        @endif>Male</option>
-                                                    <option value="female" @if($student->gender() === 'female') selected
-                                                        @endif>Female</option>
-                                                    <option value="other" @if($student->gender() === 'other') selected
-                                                        @endif>Other</option>
+                                                    <option value="male"  @if($student->gender === 'male') selected @endif>Male</option>
+                                                    <option value="female" @if($student->gender === 'female') selected @endif>Female</option>
                                                 </select>
                                             </div>
 
@@ -101,6 +97,15 @@
                                                 </select>
                                             </div>
 
+                                            <div class="col-sm-6 mb-3">
+                                                <x-form.label for="schedule_id" value="{{ __('Schedule') }}" />
+                                                <select class="form-control select2" name="schedule_id" :value="old('schedule_id')">
+                                                    <option value="">Select</option>
+                                                     @foreach ($schedules as $schedule)
+                                                        <option value="{{ $schedule->id() }}" @if($schedule->id() === $student->schedules[0]->id()) selected @endif>{{ $schedule->slug() }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
 
                                             <div class="col-sm-6 mb-3">
                                                 <x-form.label for="grade_id" value="{{ __('Class') }}" />

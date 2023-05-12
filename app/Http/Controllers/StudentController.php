@@ -97,7 +97,8 @@ class StudentController extends Controller
         return view('admin.student.edit',[
             'student' => $student,
             'grades' => Grade::all(),
-            'houses' => House::all()
+            'houses' => House::all(),
+            'schedules' => Schedule::all(),
         ]);
     }
 
@@ -225,5 +226,23 @@ class StudentController extends Controller
         $student->scores()->where('subject_id', $subject->id())->delete();
         $subject->delete();
         return response()->json(['success' => true]);
+    }
+
+    public function deleteAssignedSubject(Student $student, Subject $subject)
+    {
+       try {
+         DB::transaction(function () use ($student, $subject) {
+            $student->subjects()->detach($subject);
+         });
+         return response()->json([
+            'status' => true,
+            'message' => 'Subject removed successfully!'
+         ], 200);
+       } catch (\Throwable $th) {
+        return response()->json([
+            'status' => false,
+            'message' => $th->getMessage(),
+        ], 500);
+       }
     }
 }

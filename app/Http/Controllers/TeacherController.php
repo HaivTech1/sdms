@@ -23,8 +23,7 @@ class TeacherController extends Controller
     {
         try{
             $teacher = User::findOrFail($request->user_id);
-            $teacher->gradeClassTeacher()->detach();
-            $teacher->gradeClassTeacher()->attach($request->grade_id);
+            $teacher->gradeClassTeacher()->syncWithoutDetaching($request->grade_id);
             return response()->json(['status' => true, 'message' => 'Classes synced successfully!'], 200);
         }catch(\Throwable $th){
             return response()->json(['status' => false, 'message' => $th->getMessage()], 500);

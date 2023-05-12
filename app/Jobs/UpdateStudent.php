@@ -33,7 +33,7 @@ class UpdateStudent implements ShouldQueue
     private $grade;
     private $house;
     private $type;
-    // private $email;
+    private $schedule;
     // private $phoneNumber;
     // private $occupation;
     // private $officeAddress;
@@ -63,8 +63,8 @@ class UpdateStudent implements ShouldQueue
         ?string $image,
         string $grade,
         string $house,
-        ?string $type
-        // string $email,
+        ?string $type,
+        ?int $schedule
         // string $phoneNumber,
         // string $occupation,
         // string $officeAddress,
@@ -90,7 +90,7 @@ class UpdateStudent implements ShouldQueue
         $this->grade     = $grade;
         $this->house     = $house;
         $this->type     = $type;
-        // $this->email     = $email;
+        $this->schedule     = $schedule;
         // $this->phoneNumber     = $phoneNumber;
         // $this->occupation     = $occupation;
         // $this->officeAddress     = $officeAddress;
@@ -118,8 +118,8 @@ class UpdateStudent implements ShouldQueue
             $request->image(),
             $request->grade(),
             $request->house(),
-            $request->type()
-            // $request->email(),
+            $request->type(),
+            $request->schedule(),
             // $request->phoneNumber(),
             // $request->occupation(),
             // $request->officeAddress(),
@@ -153,6 +153,10 @@ class UpdateStudent implements ShouldQueue
             'house_id'  => $this->house,
             'type'  => $this->type,
         ]);
+
+        if($this->schedule){
+            $this->student->schedules()->attach($this->schedule);
+        }
 
         if (!is_null($this->image)) {
             File::delete(storage_path('app/' . $this->student->user->profile_photo_path));
