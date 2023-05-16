@@ -86,32 +86,32 @@ class Profile extends Model
     }
 
 
-    public function id(): string
+    public function id(): ?string
     {
         return (string) $this->id;
     }
 
-    public function salary(): float
+    public function salary(): ?float
     {
         return (float) $this->salary;
     }
 
-    public function ACCTNO(): string
+    public function ACCTNO(): ?string
     {
         return (string) $this->account_number;
     }
 
-    public function ACCTN(): string
+    public function ACCTN(): ?string
     {
         return (string) $this->bank_name;
     }
 
-    public function BCODE(): string
+    public function BCODE(): ?string
     {
         return (string) $this->bank_code;
     }
 
-    public function type(): string
+    public function type(): ?string
     {
         return (string) $this->type;
     }

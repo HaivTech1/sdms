@@ -7,14 +7,17 @@ use App\Models\Grade;
 use App\Models\Profile;
 use App\Services\SaveCode;
 use Illuminate\Http\Request;
+use App\Scopes\HasActiveScope;
 use App\Mail\SendTeacherDetails;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\NotifiableParentsTrait;
 use App\Http\Resources\v1\UserResource;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\v1\StaffResource;
 
 class StaffController extends Controller
 {
@@ -26,7 +29,7 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         try {
-            $newArray = User::whereNotIn('type', [ User::SUPERADMIN, User::STUDENT])->where('type', $request->type)->get();
+            $newArray = User::whereNotIn('type', [ User::SUPERADMIN, User::STUDENT])->get();
             $users = UserResource::collection($newArray);
             return response()->json(['status' => true, 'staffs' => $users], 200);
         } catch (\Throwable $th) {
@@ -100,16 +103,45 @@ class StaffController extends Controller
         }
     }
     
-    public function deleteGrade($id, $gradeId)
+    public function deleteGrade($id, $staff)
     {
         try {
-            $grade = Grade::find($gradeId);
-            $teacher = User::find($id);
-            $atteteacherndance->students()->detach($grade->id());
+            $grade = Grade::find($id);
+            $teacher = User::find($staff);
+            $teacher->gradeClassTeacher()->detach($grade->id());
 
             return response()->json(['status' => true, 'message' => 'Grade for teacher deleted successfully!'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
+    }
+
+    public function single($id)
+    {
+        $user = User::findOrFail($id);
+        return response()->json(['status' => true, 'staff' => new StaffResource($user)], 200);
+    }
+
+    public function activate(Request $request)
+    {
+       try{
+
+            DB::transaction(function () use ($request) {
+                $staffId = $request->staff_id;
+                $status = $request->status;
+                $user = User::findOrFail($staffId);
+                if ($status === true) {
+                    $user->update(['status' => 1]);
+                }else{
+                    $user->update(['status' => 0]);
+                }
+            });
+
+            return response()->json(['status' => true, 'message' => 'Staff Activated successfully!'], 200);
+
+       }catch(Exception $th){
+            DB::rollback();
+            return response()->json(['status' => true, 'errors' => $th->getMessage()], 500);
+       }
     }
 }

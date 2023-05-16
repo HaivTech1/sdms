@@ -116,7 +116,7 @@ class RegistrationController extends Controller
                     if($registration->mother_name !== null){
                         $mother = new Mother([
                             'student_uuid'  => $student->id(),
-                            'fname'  => $registration->mother_name,
+                            'name'  => $registration->mother_name,
                             'email' =>  $registration->mother_email,
                             'phone' =>  $registration->mother_phone,
                             'occupation'  => $registration->mother_occupation,

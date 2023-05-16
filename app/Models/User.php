@@ -117,7 +117,7 @@ class User extends Authenticatable
         return (string) $this->id;
     }
 
-    public function phone(): string
+    public function phone(): ?string
     {
         return $this->phone_number;
     }

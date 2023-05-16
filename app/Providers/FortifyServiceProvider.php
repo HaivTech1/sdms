@@ -38,7 +38,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::authenticateUsing(function (Request $request) {
-            $user = User::where('reg_no', $request->email)->first();
+            $user = User::where('reg_no', $request->email)->where('isAvailable', true)->first();
     
             if ($user &&
                 Hash::check($request->password, $user->password)) {

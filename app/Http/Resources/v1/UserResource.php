@@ -12,8 +12,6 @@ class UserResource extends JsonResource
 {
     public function toArray($request)
     {
-        $authenticatedUser = $request->user();
-
         return [
             'id'            => $this->id(),
             'name'          => $this->name(),
@@ -22,6 +20,7 @@ class UserResource extends JsonResource
             'type'          => $this->user_type,
             'image'          => $this->image(),
             'has2FA'        => $this->two_factor_secret ? true : false,
+            'status'        => $this->isAvailable
         ];
     }
 }

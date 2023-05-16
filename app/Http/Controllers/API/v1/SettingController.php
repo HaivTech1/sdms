@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Models\Term;
 use App\Models\Grade;
 use App\Models\Period;
+use App\Models\Subject;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -12,6 +13,7 @@ use App\Http\Resources\v1\TermResource;
 use App\Http\Resources\v1\GradeResource;
 use App\Http\Resources\v1\SessionResource;
 use App\Http\Resources\v1\SettingResource;
+use App\Http\Resources\v1\SubjectResource;
 
 class SettingController extends Controller
 {
@@ -45,5 +47,12 @@ class SettingController extends Controller
         $data = Term::all();
         $terms  = TermResource::collection($data);
         return response()->json(['status' => 200, 'terms' => $terms], 200);
+    }
+
+    public function subject()
+    {
+        $data = Subject::all();
+        $subjects  = SubjectResource::collection($data);
+        return response()->json(['status' => 200, 'subjects' => $subjects], 200);
     }
 }

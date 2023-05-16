@@ -40,13 +40,16 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
       Route::get('/levels/all', [SettingController::class, 'grade']);
       Route::get('/sessions/all', [SettingController::class, 'session']);
       Route::get('/terms/all', [SettingController::class, 'term']);
+      Route::get('/subjects/all', [SettingController::class, 'subject']);
     });
 
     Route::group(['prefix' => 'staffs', 'namespace' => 'Staffs'], function () {
         Route::get('/', [StaffController::class, 'index']);
+        Route::get('/single/{id}', [StaffController::class, 'single']);
         Route::post('/', [StaffController::class, 'store']);
         Route::post('/assign/grade', [StaffController::class, 'assignClass']);
-        Route::get('/staff/{id}/delete/{grade}', [StaffController::class, 'deleteGrade']);
+        Route::get('/grade/{id}/delete/{staff}', [StaffController::class, 'deleteGrade']);
+        Route::post('/activate', [StaffController::class, 'activate']);
     });
 
     Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {
@@ -54,6 +57,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/single/{id}', [StudentController::class, 'single']);
         Route::get('/assign/grade', [StudentController::class, 'assignStudent']);
         Route::post('/toggle/status', [StudentController::class, 'toggleStudent']);
+        Route::get('/delete/{id}', [StudentController::class, 'delete']);
+        Route::post('/multiple/subject/assign', [StudentController::class, 'assignSubjects']);
+        Route::get('/{id}/delete/{subject}', [StudentController::class, 'deleteSubject']);
     });
 
     Route::group(['prefix' => 'registration', 'namespace' => 'Registration'], function () {
