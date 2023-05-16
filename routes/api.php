@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\TokenAuthController;
 use App\Http\Controllers\API\v1\AgentController;
 use App\Http\Controllers\API\v1\StaffController;
+use App\Http\Controllers\API\v1\ResultController;
 use App\Http\Controllers\API\v1\SettingController;
 use App\Http\Controllers\API\v1\StudentController;
 use App\Http\Controllers\API\v1\AttendanceController;
@@ -41,6 +42,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
       Route::get('/sessions/all', [SettingController::class, 'session']);
       Route::get('/terms/all', [SettingController::class, 'term']);
       Route::get('/subjects/all', [SettingController::class, 'subject']);
+      Route::get('/midterm/format', [SettingController::class, 'midtermFormat']);
+      Route::get('/exam/format', [SettingController::class, 'examFormat']);
     });
 
     Route::group(['prefix' => 'staffs', 'namespace' => 'Staffs'], function () {
@@ -79,4 +82,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::post('/mark', [AttendanceController::class, 'mark_attendance']);
         Route::get('/stat', [AttendanceController::class, 'stat_search']);
     }); 
+
+    Route::group(['prefix' => 'result', 'namespace' => 'Result'], function () {
+        Route::post('/upload', [ResultController::class, 'store']);
+    });
 }); 

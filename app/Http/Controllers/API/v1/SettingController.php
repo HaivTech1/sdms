@@ -55,4 +55,30 @@ class SettingController extends Controller
         $subjects  = SubjectResource::collection($data);
         return response()->json(['status' => 200, 'subjects' => $subjects], 200);
     }
+
+    public function midtermFormat()
+    {
+        try{
+            $midterm = get_settings('midterm_format');
+            return response()->json(['midterm' => $midterm], 200);
+        }catch(\Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function examFormat()
+    {
+        try {
+            $exam = get_settings('exam_format');
+            return response()->json(['exam' => $exam], 200);
+        }catch(\Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
