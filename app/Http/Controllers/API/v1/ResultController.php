@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\API\v1;
 
+use App\Models\MidTerm;
 use Illuminate\Http\Request;
+use App\Models\PrimaryResult;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Http\Livewire\Components\Student\Result\Midterm;
 
 class ResultController extends Controller
 {
@@ -13,13 +14,16 @@ class ResultController extends Controller
     {
         try {
             DB::transaction(function () use ($request) {
+
                 $request->validate([
                     'students' => 'required|array',
+                    'students.*.id' => 'required',
+                    'students.*.name' => 'required',
+                    'students.*.scores' => 'required|array',
                     'type'       => 'required',
                     'session'       => 'required',
                     'term'       => 'required',
                     'level'       => 'required',
-                    'grade'       => 'required',
                     'subject'       => 'required',
                 ]);
 
@@ -27,15 +31,14 @@ class ResultController extends Controller
                 $type = $request->input('type');
                 $period = $request->input('session');
                 $term = $request->input('term');
-                $grade = $request->input('grade');
+                $grade = $request->input('level');
                 $subject = $request->input('subject');
 
                 if ($type === 'midterm') {
 
-                    $studentName = $student['name'];
-
                     foreach ($students as $key => $student) {
-                        $midterm = Midterm::where([
+
+                        $midterm = MidTerm::where([
                             'period_id' => $period,
                             'term_id' => $term,
                             'grade_id' => $grade,
@@ -71,7 +74,58 @@ class ResultController extends Controller
 
                 }elseif ($type === 'exam') {
                     
+                    foreach ($students as $key => $student) {
+                        $check = PrimaryResult::where([
+                            'period_id' => $period,
+                            'term_id' => $term,
+                            'grade_id' => $grade,
+                            'subject_id' => $subject,
+                            'student_id' => $student['id']
+                        ])->first();
 
+                        if ($check) {
+                            continue;
+                        }
+
+                        $midterm = MidTerm::where([
+                            'period_id' => $period,
+                            'term_id' => $term,
+                            'grade_id' => $grade,
+                            'subject_id' => $subject,
+                            'student_id' => $student['id']
+                        ])->first();
+
+                        if ($midterm) {
+                            continue;
+                        }else{
+                            $midterm_entry = $midterm->where('subject_id', $subject)->first();
+                            $examFormat = get_settings('midterm_format');
+                            
+                            $examData = [
+                                'period_id' => $period,
+                                'term_id' => $term,
+                                'grade_id' => $grade,
+                                'student_id' => $student['id'],
+                                'subject_id' => $subject
+                            ];
+
+                            foreach ($student['scores'] as $scoreType => $scoreData) {
+                                if (isset($examFormat[$scoreType])) {
+                                    $score = $scoreData['value'];
+                                    $examData['ca1'] = $midterm_entry->firstTest() + $midterm_entry->entry1() + $midterm_entry->entry2();
+                                    $examData['c2'] = $midterm_entry->ca();
+                                    $examData['ca3'] = $midterm_entry->classActivity();
+                                    $examData['pr'] = $midterm_entry->project();
+                                    $examData[$scoreType] = $score;
+                                }
+                            }
+
+                            $result = new MidTerm($examData);
+                            $result->authoredBy(auth()->user());
+                            $result->save();
+                        }
+
+                    }
 
                 }
             });
@@ -80,11 +134,18 @@ class ResultController extends Controller
                 'status' => true,
                 'message' => 'Result submitted successfully!',
             ], 200);
-        } catch (\Exception $e) {
-            DB::rollback();
+        } catch (\ValidationException $e) {
+            $errors = $e->validator->errors()->toArray();
+            
             return response()->json([
                 'status' => false,
-                'message' => $th->getMessage(),
+                'message' => 'Validation failed.',
+                'errors' => $errors,
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

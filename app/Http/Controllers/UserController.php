@@ -8,6 +8,7 @@ use App\Services\SaveCode;
 use Illuminate\Http\Request;
 use App\Mail\SendTeacherDetails;
 use App\Http\Requests\UserRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\v1\UserResource;
