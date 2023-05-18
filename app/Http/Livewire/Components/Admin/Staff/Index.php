@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Components\Admin\Staff;
 
 use App\Models\User;
 use App\Models\Grade;
+use App\Models\Profile;
 use Livewire\Component;
 use Livewire\WithPagination;
 

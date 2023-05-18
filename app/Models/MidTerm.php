@@ -60,37 +60,37 @@ class MidTerm extends Model
         return (string) $this->uuid;
     }
 
-    public function entry1()
+    public function entry1(): ?float
     {
         return  $this->entry_1;
     }
 
-    public function entry2()
+    public function entry2(): ?float
     {
         return  $this->entry_2;
     }
 
-    public function firstTest()
+    public function firstTest(): ?float
     {
         return  $this->first_test;
     }
 
-    public function ca()
+    public function ca(): ?float
     {
         return  $this->ca;
     }
 
-    public function classActivity()
+    public function classActivity(): ?float
     {
         return  $this->class_activity;
     }
 
-    public function project()
+    public function project(): ?float
     {
         return  $this->project;
     }
 
-    public function total()
+    public function total(): ?float
     {
         return  $this->entry1() + $this->entry2() + $this->firstTest() + $this->ca() + $this->project();
     }

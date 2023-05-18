@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Club;
+use App\Models\User;
 use App\Models\Grade;
 use App\Models\House;
+use App\Models\Father;
+use App\Models\Mother;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Schedule;
+use App\Services\SaveCode;
 use App\Jobs\CreateStudent;
 use App\Jobs\UpdateStudent;
 use Illuminate\Http\Request;
 use App\Models\PrimaryResult;
+use App\Services\SaveImageService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\RegistrationRequest;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
@@ -56,21 +62,92 @@ class StudentController extends Controller
      * @param  \App\Http\Requests\StoreStudentRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreStudentRequest $request)
+    public function store(Request $request)
     {
+        try {
+            DB::transaction(function () use ($request) {
+                $user = new User([
+                    'title' => 'student',
+                    'name' => $request->last_name. ' '. $request->first_name. ' '. $request->other_name,
+                    'email' => $request->last_name. $request->first_name.'@gmail.com',
+                    'phone_number' => '',
+                    'password' => Hash::make('password123'),
+                    'type' => '4'
+                ]);
 
-        // dd($request);
+                $code = SaveCode::Generator('SLNP/', 4, 'reg_no', $user);
+                $user->reg_no = $code;
+                if (!is_null($request->image)) {
+                    SaveImageService::UploadImage($request->image, $user, User::TABLE, 'profile_photo_path');
+                }else {
+                    $user->save();
+                }
+
+                $student = new Student([
+                    'first_name'  => $request->first_name,
+                    'last_name'  => $request->last_name,
+                    'other_name'  => $request->other_name,
+                    'gender'  => $request->gender,
+                    'dob'  => $request->dob,
+                    'nationality'  => $request->nationality,
+                    'state_of_origin'  => $request->state_of_origin,
+                    'local_government'  => $request->local_government,
+                    'address'  => $request->address,
+                    'prev_school'  => $request->prev_school,
+                    'prev_class'  => $request->prev_class,
+                    'medical_history'  => $request->medical_history,
+                    'allergics'  => $request->allergics,
+                    'grade_id'  => $request->grade_id,
+                    'house_id'  => $request->house_id,
+                    'club_id'  => $request->club_id,
+                    'status'    => 1,
+                    'user_id' => $user->id()
+                ]);
+                $student->authoredBy(auth()->user());
+                $student->save();
+                $student->schedules()->sync($request->schedule_id);
+
+                if($request->father_name !== null){
+                    $father = new Father([
+                        'student_uuid'  => $student->id(),
+                        'name'  => $request->father_name,
+                        'email' =>  $request->father_email,
+                        'phone' =>  $request->father_phone,
+                        'occupation'  => $request->father_occupation,
+                        'office_address' =>  $request->father_office_address,
+                    ]);
+                    $father->save();
+                }
+
+                if($request->mother_name !== null){
+                    $mother = new Mother([
+                        'student_uuid'  => $student->id(),
+                        'name'  => $request->mother_name,
+                        'email' =>  $request->mother_email,
+                        'phone' =>  $request->mother_phone,
+                        'occupation'  => $request->mother_occupation,
+                        'office_address' =>  $request->mother_office_address,
+                    ]);
+                    $mother->save();
+                }
+            });
+            return response()->json(['status' => true, 'message' => 'Student submitted successfully!'], 200);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
+        }
+        // // dd($request);
         
-        $this->dispatchSync(CreateStudent::fromRequest($request));
+        // $this->dispatchSync(CreateStudent::fromRequest($request));
 
-        $notification = array(
-            'messege' => 'Student Created Successfully',
-            'alert-type' => 'success',
-            'button' => 'Okay!',
-            'title' => 'Success'
-        );
+        // $notification = array(
+        //     'messege' => 'Student Created Successfully',
+        //     'alert-type' => 'success',
+        //     'button' => 'Okay!',
+        //     'title' => 'Success'
+        // );
 
-        return redirect()->route('student.index')->with($notification);
+        // return redirect()->route('student.index')->with($notification);
     }
 
     /**

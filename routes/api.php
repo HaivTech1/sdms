@@ -84,6 +84,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     }); 
 
     Route::group(['prefix' => 'result', 'namespace' => 'Result'], function () {
+        Route::get('/', [ResultController::class, 'index']);
         Route::post('/upload', [ResultController::class, 'store']);
     });
 }); 

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\PrimaryResult;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\v1\ExamResource;
+use App\Http\Resources\v1\MidtermResource;
 
 class ResultController extends Controller
 {
@@ -72,7 +74,7 @@ class ResultController extends Controller
                         $midterm->save();
                     }
 
-                }elseif ($type === 'exam') {
+                }elseif ($type === 'examination') {
                     
                     foreach ($students as $key => $student) {
                         $check = PrimaryResult::where([
@@ -95,11 +97,11 @@ class ResultController extends Controller
                             'student_id' => $student['id']
                         ])->first();
 
-                        if ($midterm) {
-                            continue;
+                        if (!$midterm) {
+                            throw new \Exception('Please upload midterm result for the students first!');
                         }else{
-                            $midterm_entry = $midterm->where('subject_id', $subject)->first();
-                            $examFormat = get_settings('midterm_format');
+
+                            $examFormat = get_settings('exam_format');
                             
                             $examData = [
                                 'period_id' => $period,
@@ -112,15 +114,15 @@ class ResultController extends Controller
                             foreach ($student['scores'] as $scoreType => $scoreData) {
                                 if (isset($examFormat[$scoreType])) {
                                     $score = $scoreData['value'];
-                                    $examData['ca1'] = $midterm_entry->firstTest() + $midterm_entry->entry1() + $midterm_entry->entry2();
-                                    $examData['c2'] = $midterm_entry->ca();
-                                    $examData['ca3'] = $midterm_entry->classActivity();
-                                    $examData['pr'] = $midterm_entry->project();
+                                    $examData['ca1'] = $midterm->firstTest() + $midterm->entry1() + $midterm->entry2();
+                                    $examData['ca2'] = $midterm->ca();
+                                    $examData['ca3'] = $midterm->classActivity();
+                                    $examData['pr'] = $midterm->project();
                                     $examData[$scoreType] = $score;
                                 }
                             }
 
-                            $result = new MidTerm($examData);
+                            $result = new PrimaryResult($examData);
                             $result->authoredBy(auth()->user());
                             $result->save();
                         }
@@ -142,6 +144,50 @@ class ResultController extends Controller
                 'message' => 'Validation failed.',
                 'errors' => $errors,
             ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function index(Request $request)
+    {
+        try {
+
+            $type = $request->type;
+            $grade = $request->level;
+            $period = $request->session;
+            $term = $request->term;
+            $subject = $request->subject;
+
+            if ($type === 'midterm') {
+                
+                $midterm = MidTerm::where([
+                    'period_id' => $period,
+                    'term_id' => $term,
+                    'grade_id' => $grade,
+                    'subject_id' => $subject,
+                ])->get();
+                $result = MidtermResource::collection($midterm);
+            }else{
+                $exam = PrimaryResult::where([
+                    'period_id' => $period,
+                    'term_id' => $term,
+                    'grade_id' => $grade,
+                    'subject_id' => $subject,
+                ])->get();
+
+                $result = ExamResource::collection($exam);
+            }
+
+            return response()->json([
+                'status' => true,
+                'results' => $result,
+                'message' => 'Results returned successfully!'
+            ], 200);
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

@@ -81,7 +81,7 @@ class PrimaryResult extends Model
 
     public function thirdCA()
     {
-        return  $this->ca2;
+        return  $this->ca3;
     }
 
     public function project()
