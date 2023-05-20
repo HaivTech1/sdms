@@ -45,8 +45,6 @@ class UserController extends Controller
                     $initial = 'ADM/';
                 }elseif($request->type == 3){
                     $initial = 'TCH/';
-                }elseif($request->type == 4){
-                    $initial = 'STD/';
                 }elseif($request->type == 5){
                     $initial = 'BUR/';
                 }elseif($request->type == 6){
@@ -56,7 +54,7 @@ class UserController extends Controller
                 $code = SaveCode::Generator($initial, 5, 'reg_no', $user);
                 $user->reg_no = $code;
         
-                $message = "<p>You are welcome to ".application('name')." portal. Please visit ".application('website')." to login with your credentials. Id: ".$code." and your password: password1234</p>";
+                $message = "<p>You are welcome to ".application('name')." portal. Please visit ".application('website')." to login with your credentials. Id: ".$code." and your password: $request->password</p>";
                 $subject = 'Welcome to '.application('name'). ' Portal';
         
                 if($request->type === '3'){

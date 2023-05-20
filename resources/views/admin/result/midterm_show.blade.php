@@ -163,23 +163,23 @@
                                     @if($result->subject->title() != null)
                                         <td style="padding-left: 10px">{{ $result->subject->title() }}</td>
                                     @endif
-                                    @if($result->entry1() != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry1() }}</td>
+                                    @if($result->entry_1 != null)
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry_1 }}</td>
                                     @endif
-                                    @if($result->firstTest() != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->firstTest() }}</td>
+                                    @if($result->first_test != null)
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->first_test }}</td>
                                     @endif
-                                    @if($result->entry2() != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry2() }}</td>
+                                    @if($result->entry_2 != null)
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry_2 }}</td>
                                     @endif
-                                    @if($result->ca() != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->ca() }}</td>
+                                    @if($result->ca != null)
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->ca }}</td>
                                     @endif
-                                    @if($result->classActivity() != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->classActivity() }}</td>
+                                    @if($result->class_activity != null)
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->class_activity }}</td>
                                     @endif
-                                    @if($result->project() != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->project() }}</td>
+                                    @if($result->project != null)
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->project }}</td>
                                     @endif
                                     @if($result->total() != null)
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->total() }}</td>

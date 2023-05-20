@@ -67,7 +67,7 @@ class RegistrationController extends Controller
                         'type' => '4'
                     ]);
         
-                    $code = SaveCode::Generator('SLNP/', 4, 'reg_no', $user);
+                    $code = SaveCode::Generator(application('alias').'/', 4, 'reg_no', $user);
                     $user->reg_no = $code;
                     $user->profile_photo_path = $registration->image;
                     $user->save();

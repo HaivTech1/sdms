@@ -75,7 +75,7 @@ class StudentController extends Controller
                     'type' => '4'
                 ]);
 
-                $code = SaveCode::Generator('SLNP/', 4, 'reg_no', $user);
+                $code = SaveCode::Generator(application('alias').'/', 4, 'reg_no', $user);
                 $user->reg_no = $code;
                 if (!is_null($request->image)) {
                     SaveImageService::UploadImage($request->image, $user, User::TABLE, 'profile_photo_path');

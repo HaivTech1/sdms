@@ -31,14 +31,22 @@ class PrimaryResult extends Model
         'grade_id',
         'subject_id',
         'student_id',
-        'ca1',
-        'ca2',
-        'ca3',
-        'pr',
-        'exam',
         'author_id',
         'published',
     ];
+
+    public function getFillable()
+    {
+        $fillable = $this->fillable;
+
+        $examFormat = get_settings('exam_format');
+        if (is_array($examFormat)) {
+            $dynamicKeys = array_keys($examFormat);
+            $fillable = array_merge($fillable, $dynamicKeys);
+        }
+
+        return $fillable;
+    }
 
     protected $primaryKey = 'uuid';
 
@@ -69,34 +77,41 @@ class PrimaryResult extends Model
         return (string) $this->uuid;
     }
 
-    public function firstCA()
+    public function total(): ?float
     {
-        return  $this->ca1;
+        $midtermFormat = get_settings('midterm_format');
+        $sum = 0;
+
+        if (is_array($midtermFormat)) {
+            foreach ($midtermFormat as $key => $value) {
+                if (isset($this->$key)) {
+                    $sum += $this->$key;
+                }
+            }
+        }
+
+        return $sum;
     }
 
-    public function secondCA()
-    {
-        return  $this->ca2;
-    }
+    public function getTotalScore(){
+        $midtermFormat = get_settings('midterm_format');
+        $examFormat = get_settings('exam_format');
 
-    public function thirdCA()
-    {
-        return  $this->ca3;
-    }
+        $total = 0;
 
-    public function project()
-    {
-        return  $this->pr;
-    }
+        foreach ($midtermFormat as $key => $value) {
+            if (isset($this->$key)) {
+                $total += $this->$key;
+            }
+        }
 
-    public function exam()
-    {
-        return  $this->exam;
-    }
+        foreach ($examFormat as $key => $value) {
+            if (isset($this->$key)) {
+                $total += $this->$key;
+            }
+        }
 
-    public function eTotal()
-    {
-        return  $this->ca1 + $this->ca2 + $this->ca3 + $this->pr + $this->exam;
+        return $total;
     }
 
     public function createdAt(): string

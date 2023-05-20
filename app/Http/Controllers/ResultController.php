@@ -308,14 +308,15 @@ class ResultController extends Controller
             $know = 1;
         }
 
-        $result = $student->primaryResults->where('period_id', $request->period_id)
-                                    ->where('term_id', $request->term_id)
-                                    ->where('grade_id', $request->grade_id)
-                                    ->where('student_id', $student->id());
+        // $result = $student->primaryResults->where('period_id', $request->period_id)
+        //                             ->where('term_id', $request->term_id)
+        //                             ->where('grade_id', $request->grade_id)
+        //                             ->where('student_id', $student->id());
 
-        $totalExamScrore = $result->sum('exam') + $result->sum('ca1') + $result->sum('ca2') + $result->sum('ca3');
-        $totalSubject = $student->subjects->count();
-        $average = $totalExamScrore / $totalSubject;
+        // $totalExamScrore = $result->eTotal();
+        // $totalSubject = $student->subjects->count();
+        // $average = $totalExamScrore / $totalSubject;
+        
                                     
         $period = Period::where('id', $request->period_id)->first();
         $term = Term::where('id', $request->term_id)->first();
@@ -326,7 +327,6 @@ class ResultController extends Controller
         $affectives = $student->affectives->where('period_id', $request->period_id)
         ->where('term_id', $request->term_id);
 
-        // $studentAttendanceAve = count($date) > 0 ? $attendance / $termDuration * 100 : 0;
         $studentAttendance = Cognitive::where('period_id', $request->period_id)
                                         ->where('term_id', $request->term_id)
                                         ->where('student_uuid', $student->id())->first();
@@ -337,6 +337,8 @@ class ResultController extends Controller
         $first_term_cumm = Cummulative::where('term_id', $first_term)->where('student_uuid', $student->id())->where('period_id', $request->period_id)->get();
         $second_term_cumm = Cummulative::where('term_id', $second_term)->where('student_uuid', $student->id())->where('period_id', $request->period_id)->get();
         $studentResults = $student->primaryResults->where('term_id', $term->id())->where('period_id', $period->id);
+        $midtermFormat = get_settings('midterm_format');
+        $examFormat = get_settings('exam_format');
 
         $newFirst = array();
         foreach ($first_term_cumm as $key => $value) {
@@ -362,19 +364,34 @@ class ResultController extends Controller
 
         $newResult = array();
         foreach ($studentResults as $key => $value) {
-            $newResult[] = [
-                'ca1' => $value->ca1,
-                'ca2' => $value->ca2,
-                'ca3' => $value->ca3,
-                'pr' => $value->pr,
-                'ct' => $value->ca1 + $value->ca2 + $value->ca3 + $value->pr,
-                'exam' => $value->exam,
-                'total' => $value->ca1 + $value->ca2 + $value->ca3  + $value->pr + $value->exam,
-                'grade' => $value->gradeRemark(),
-                'remark' => $value->remark(),
-                'subject_id' => $value->subject->id(),
-                'subject' => $value->subject->title(),
-            ];
+
+            $result = [];
+            $sum = 0;
+            if (is_array($midtermFormat)) {
+                foreach ($midtermFormat as $midtermKey => $midtermValue) {
+                    if (isset($value->$midtermKey)) {
+                        $result[$midtermKey] = $value->$midtermKey;
+                        $sum += $value->$midtermKey;
+                    }
+                }
+            }
+        
+            if (is_array($examFormat)) {
+                foreach ($examFormat as $examKey => $examValue) {
+                    if (isset($value->$examKey)) {
+                        $result[$examKey] = $value->$examKey;
+                    }
+                }
+            }
+        
+            unset($result['subject_id']);
+            $result['total'] = array_sum($result);
+            $result['midterm_total'] = $sum;
+            $result['subject_id']= $value->subject->id();
+            $result['subject'] = $value->subject->title();
+            $newResult[] = $result;
+
+            // dd($newResult);
         }
 
         $firstTermResult = $newResult;
@@ -392,10 +409,11 @@ class ResultController extends Controller
         $scores = [];
 
         foreach ($results as $item) {
-            $total_score = $item['ca1'] + $item['ca1'] + $item['ca3'] + $item['exam'];
+            $total_score = $item['total'];
             $subject_id = $item['subject_id'];
-            $scores[$subject_id] = $total_score; // calculate percentage score
+            $scores[$subject_id] = $total_score;
         }
+
         $weakness_info = "Dear $student->first_name, you need to improve in the following subject(s):";
         $comment = generate_comment($scores, $weakness_info, 0.4, 100, 'examination');
 
@@ -415,21 +433,41 @@ class ResultController extends Controller
             }
         }
 
-        return view('admin.result.primary',[
-            'student' => $student,
-            'period' => $period,
-            'term' => $term,
-            'totalExamScrore' => $totalExamScrore,
-            'totalSubject' => $totalSubject,
-            'average' => $average,
-            'psychomotors' => $psychomotors,
-            'affectives' => $affectives,
-            'totalSchoolOpen' => $totalDays,
-            'first_term_cumm' => $first_term_cumm,
-            'second_term_cumm' => $second_term_cumm,
-            'results' => $results,
-            'comment' => $comment
-        ]);
+        $position = calculateStudentPosition($student->id(), new PrimaryResult(), $period->id(), $term->id(), $student->grade->id());
+
+        $format = get_settings('result_template');
+
+        if ($format === 1) {
+            return view('admin.result.secondary',[
+                'student' => $student,
+                'period' => $period,
+                'term' => $term,
+                'psychomotors' => $psychomotors,
+                'affectives' => $affectives,
+                'totalSchoolOpen' => $totalDays,
+                'first_term_cumm' => $first_term_cumm,
+                'second_term_cumm' => $second_term_cumm,
+                'results' => $results,
+                'comment' => $comment,
+                'studentAttendance' => $studentAttendance,
+                'position' => $position,
+            ]);
+        }else{
+            return view('admin.result.primary',[
+                'student' => $student,
+                'period' => $period,
+                'term' => $term,
+                'psychomotors' => $psychomotors,
+                'affectives' => $affectives,
+                'totalSchoolOpen' => $totalDays,
+                'first_term_cumm' => $first_term_cumm,
+                'second_term_cumm' => $second_term_cumm,
+                'results' => $results,
+                'comment' => $comment,
+                'studentAttendance' => $studentAttendance,
+                'position' => $position,
+            ]);
+        }
     }
 
     public function midtermShow(Student $student, Request $request)
@@ -604,6 +642,10 @@ class ResultController extends Controller
                         throw new \Exception('Please upload midterm result for this student first!');
                     }else{
                         foreach ($request->subject_id as $i => $subject_id) {
+
+                            $midtermFormat = get_settings('midterm_format');
+                            $examFormat = get_settings('exam_format');
+
                             $midterm_entry = $midterm->where('subject_id', $subject_id)->first();
                             $result = new PrimaryResult([
                                 'period_id'     => $request->period_id,
@@ -611,14 +653,22 @@ class ResultController extends Controller
                                 'grade_id'      => $request->grade_id,
                                 'student_id'    => $request->student_id,
                                 'subject_id'    => $subject_id,
-                                'ca1'           => $midterm_entry->firstTest() + $midterm_entry->entry1() + $midterm_entry->entry2(),
-                                'ca2'           => $midterm_entry->ca(),
-                                'ca3'           => $midterm_entry->classActivity(),
-                                'pr'            => $midterm_entry->project(),
-                                'exam'          => $request->exam[$i],
                             ]);
+
+                            if (is_array($midtermFormat)) {
+                                foreach ($midtermFormat as $key => $value) {
+                                    if (isset($midterm_entry->$key)) {
+                                        $result->$key = $midterm_entry->$key;
+                                    }
+                                }
+                            }
+                            
+                            if (is_array($examFormat) && isset($request->exam[$i])) {
+                                foreach ($examFormat as $key => $value) {
+                                    $result->$key = $request->exam[$i];
+                                }
+                            }
                         
-                            // Save the new primary result
                             $result->authoredBy(auth()->user());
                             $result->save();
                         }
@@ -776,37 +826,37 @@ class ResultController extends Controller
          
     }
 
-    public function publish(Request $request)
-    {
-        try {
-            $results = Result::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
-            $cum = array();
-            foreach($results as $result){
-                // $events[] = [
-                //     'subject_id' => $result['subject_id'],
-                //     'score' =>  $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['exam'],
-                //     'student_uuid' => $request->student_id,
-                //     'term_id' => $request->term_id,
-                //     'period_id' => $request->period_id,
-                //     'grade_id' => $request->grade_id,
-                // ];
-                $cummulative = new Cummulative([
-                    'subject_id' => $result['subject_id'],
-                    'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['exam'], 
-                    'student_uuid' => $result['student_id'], 
-                    'period_id' => $result['period_id'],
-                    'term_id' => $result['term_id'], 
-                    'grade_id' => $result['grade_id'], 
-                    'author_id' => auth()->id()
-                ]);
-                $cummulative->save();
-            }
-            return response()->json(['status' => 'success','message' => 'Result cummulated successfully!' ], 200);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => false, 'message' => $th->getMessage() ], 500);
-        }
+    // public function publish(Request $request)
+    // {
+    //     try {
+    //         $results = Result::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+    //         $cum = array();
+    //         foreach($results as $result){
+    //             // $events[] = [
+    //             //     'subject_id' => $result['subject_id'],
+    //             //     'score' =>  $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['exam'],
+    //             //     'student_uuid' => $request->student_id,
+    //             //     'term_id' => $request->term_id,
+    //             //     'period_id' => $request->period_id,
+    //             //     'grade_id' => $request->grade_id,
+    //             // ];
+    //             $cummulative = new Cummulative([
+    //                 'subject_id' => $result['subject_id'],
+    //                 'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['exam'], 
+    //                 'student_uuid' => $result['student_id'], 
+    //                 'period_id' => $result['period_id'],
+    //                 'term_id' => $result['term_id'], 
+    //                 'grade_id' => $result['grade_id'], 
+    //                 'author_id' => auth()->id()
+    //             ]);
+    //             $cummulative->save();
+    //         }
+    //         return response()->json(['status' => 'success','message' => 'Result cummulated successfully!' ], 200);
+    //     } catch (\Throwable $th) {
+    //         return response()->json(['status' => false, 'message' => $th->getMessage() ], 500);
+    //     }
         
-    }
+    // }
 
     public function primaryPublish(Request $request)
     {
@@ -837,7 +887,7 @@ class ResultController extends Controller
                     foreach($results as $result){
                         $cummulative = new Cummulative([
                             'subject_id' => $result['subject_id'],
-                            'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr'] + $result['exam'], 
+                            'score' => calculateResult($result), 
                             'student_uuid' => $result['student_id'], 
                             'period_id' => $result['period_id'],
                             'term_id' => $result['term_id'], 
@@ -848,11 +898,10 @@ class ResultController extends Controller
                     }
                 }else{
                     $cum = array();
-        
                     foreach($results as $result){
                         $cummulative = new Cummulative([
                             'subject_id' => $result['subject_id'],
-                            'score' => $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr'] + $result['exam'], 
+                            'score' => calculateResult($result), 
                             'student_uuid' => $result['student_id'], 
                             'period_id' => $result['period_id'],
                             'term_id' => $result['term_id'], 

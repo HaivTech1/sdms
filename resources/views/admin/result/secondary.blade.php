@@ -1,33 +1,45 @@
 <x-app-layout>
     @section('title', application('name')." | Secondary Result Page")
 
+    @section('styles')
+        <style>
+            .rotate-header {
+                transform: rotate(-180deg);
+                writing-mode: vertical-lr;
+                white-space: nowrap;
+                font-size: 10px;
+                font-weight: bold;
+                text-align: left;
+                vertical-align: middle;
+                font-weight: 900;
+            }
+        </style>
+    @endsection
+
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <div style="border: 1px solid #000000; border-radius: 15px; padding: 10px">
+                    <div style="border: 1px solid #000000; padding: 4px 10px">
+                    
                         <div class='parent'>
                             <div class='col-xs-2 col-sm-2 col-md-2 text-center'>
                                 <img class='img-rounded img-responsive' src='{{ asset('storage/'.application('image')) }}' alt='{{ application(' name')}}' />
                             </div>
 
                             <div class='col-xs-8 col-sm-8 col-md-8 text-center'>
-                                <h1 style="font-size: 25px; font-weight: bold; text-decoration: uppercase"> {{
+                                <h1 style="font-size: 25px; font-weight: 800; text-decoration: uppercase"> {{
                                     application('name') }}</h1>
-                                    <p class=''>
-                                        {{ application('motto') }}
-                                    </p>
-
                                     <p class=''>
                                         {{ application('address') }}
                                     </p>
                                     <p class=''>
-                                        {{ application('line1') }}
+                                        {{ application('line1') }}, {{ application('line2') }}
                                     </p>
 
-                                <div class="d-flex justify-content-center align-items-center" style="margin-top: 20px">
-                                    <span class=''>{{ $term->title() }} Report Sheet For {{ $period->title() }}
-                                        Session</span>
+                                <div class="d-flex justify-content-center align-items-center" style="margin-top: 20px; font-weight: 700; font-size: 20px; text-decoration: uppercase"">
+                                    <span class=''> Report Sheet For {{ $term->title() }}, {{ $period->title() }}
+                                        Academic Session</span>
                                 </div>
                             </div>
 
@@ -36,43 +48,59 @@
                             </div>
                         </div>
 
-                        <div style="border: 1px solid #000000; border-radius: 10px;">
+                        <div style="border: 1px solid #000000">
                             <div class="d-flex justify-content-center align-items-center details">
                                 <ul style="width: 33%">
-                                    <li> NAME: <b class="s-name">{{ ucfirst($student->fullName()) }}</b>
+                                    <li> Name: <b class="s-name">{{ ucfirst($student->fullName()) }}</b>
                                     </li>
-                                    <li> SEX: <b class="s-sex">{{ ucfirst($student->gender())}}</b> </li>
-                                    <li> CLASS: <b class="s-cls">{{ $student->grade->title()}}</b> </li>
-                                    {{-- <li> <span>REG NO.:</span> <b class="s-ses-term">20212BDSU649 </b>
+                                    <li> Gender: <b class="s-sex">{{ ucfirst($student->gender())}}</b> </li>
+                                    <li> Class: <b class="s-cls">{{ $student->grade->title()}}</b> </li>
+                                    <li> Admission no.: <b class="s-ses-term">{{ $student->user->code() }} </b>
                                     </li>
-                                    <li> <span>Admission_no.:</span> <b class="s-ses-term">DLA/21/0241 </b>
-                                    </li> --}}
-                                    <li> <span>House:</span> <b class="s-ses-term">{{ $student->house?->title()}} House </b>
-                                    </li>
-
                                 </ul>
                                 <ul style="width: 32%">
-                                    <li> CLASS POPULATION: <b class="s-cls-size">{{ $student->grade->count()}}</b> </li>
+                                    <li> Class population: <b class="s-cls-size">{{ $student->grade->count()}}</b> </li>
 
-                                    <li> MARKS OBTAINABLE:<b class="s-avg">{{ $student->subjects->count() * 100 }}</b> </li>
+                                    <li> Mark obtainable:<b class="s-avg">{{ $student->subjects->count() * 100 }}</b> </li>
 
-                                    <li> MARKS OBTAINED:
-                                        <b class="s-avg">
-                                        {{ $totalExamScrore }}
-                                        </b> 
-                                    </li>
+                                    <li> Mark obtained: <b class="s-avg grand_total"></b></li>
 
-                                    <li> STUDENT AVERAGE: <b class="s-avg">{{ round($average) }}%</b> </li>
+                                    <li> Aggregate: <b class="s-avg aggregate"></b> </li>
 
                                 </ul>
                                 <ul style="width: 35%">
-                                    <li> No of TIMES SCHOOL OPENED: <b class="s-ge-pf">{{ $termDuration }}</b> </li>
-                                    <li> No. of TIMES PRESENT: <b class="s-gr-pf">{{ $attendance }}</b> </li>
-                                    <li> ATTENDANCE AVERAGE: <b class="s-gr-pf">{{ round($studentAttendanceAve) }}%</b> </li>
-
+                                    <li> No. of times school opened: <b class="s-ge-pf">{{ $studentAtendance->attendance_duration ?? 0 ?? ''}} days</b> </li>
+                                    <li> No. of times present: <b class="s-gr-pf">{{ $studentAttendance->attendance_present ?? '' }}</b> </li>
+                                    <li> Attendance Average: <b class="s-gr-pf">{{ calculatePercentage($studentAttendance->attendance_duration ?? 0, $studentAttendance->attendance_present ?? 0, 100) ?? '' }}%</b> </li>
+                                    <li> Position in class: <b class="s-gr-pf">{!!  $position !!}</b> </li>
                                 </ul>
                             </div>
                         </div>
+
+                        @php
+                            $midterm = get_settings('midterm_format');
+                            $exam = get_settings('exam_format');
+                            $midtermTotal = 0;
+                            $examTotal = 0;
+
+                            if (is_array($midterm)) {
+                                foreach ($midterm as $key => $value) {
+                                    if (isset($value['mark'])) {
+                                        $midtermTotal += $value['mark'];
+                                    }
+                                }
+                            }
+
+                            if (is_array($exam)) {
+                                foreach ($exam as $key => $value) {
+                                    if (isset($value['mark'])) {
+                                        $examTotal += $value['mark'];
+                                    }
+                                }
+                            }
+
+                            $expectedTotal = $examTotal + $midtermTotal;
+                        @endphp
 
                         <div class="d-flex justify-content-around mt-2 resultd">
                             <div style="width: 65%" class="padding-right-10 cogd">
@@ -82,189 +110,145 @@
                                             <tr>
                                                 <th>SUBJECTS</th>
 
-                                                <th style="padding-left: 0.04px; padding-right: 0.04px; padding-bottom: 1px; text-align: center;"
-                                                    colspan="4" class="rotate-45">CURRENT TERM SCORES<br><br>
+                                                <th style="padding-left: 0.04px; padding-right: 0.04px; padding-bottom: 0; text-align: center; margin-bottom: 0"
+                                                    colspan="8">
+                                                    CURRENT TERM SCORES
+                                                    
+                                                    <br>
 
-                                                    <table style="border: 0px; " class="table table-condensed">
-
-                                                        <tbody>
+                                                    <table style="" class="table">
+                                                        <thead>
                                                             <tr>
-                                                                <th style="font-size: 12px; padding: 6px; ">Ca
-                                                                    1<br>20%&nbsp;
-                                                                </th>
-                                                                <th style="font-size: 12px; padding: 6px; ">Ca
-                                                                    2<br>20%&nbsp;
-                                                                </th>
-
-                                                                <th style="font-size: 12px; padding: 6px; ">Exam<br>60%
-                                                                </th>
-                                                                <th style="font-size: 12px; padding: 6px; ">Total<br>100
-                                                                </th>
-
-
+                                                                @foreach ($midterm as $key => $value)
+                                                                    <th class="rotate-header">{{ $value['full_name'] }}</th>
+                                                                @endforeach
+                                                                @foreach ($exam as $key => $value)
+                                                                    <th class="rotate-header">{{ $value['full_name'] }}</th>
+                                                                @endforeach
+                                                                <th class="rotate-header" style="font-size: 12px">Total </th>
                                                             </tr>
-                                                        </tbody>
+                                                            <tr>
+                                                                @foreach ($midterm as $key => $value)
+                                                                    <th>{{ $value['mark'] }}</th>
+                                                                @endforeach
+                                                                @foreach ($exam as $key => $value)
+                                                                    <th>{{ $value['mark'] }}</th>
+                                                                @endforeach
+                                                                <th style="font-size: 12px">{{ $expectedTotal }}</th>
+                                                            </tr>
+                                                        </thead>
                                                     </table>
-
-
                                                 </th>
 
                                                 @if ($term->id() === '2')
-                                                    <th style='padding-buttom: -15px;' class="rotate-45">
-                                                        <div style='margin-buttom: -20px;'>&nbsp;&nbsp;&nbsp;FIRST TERM
+                                                    <th style='padding-bottom: -15px;' class="rotate-header">
+                                                        <div style='margin-bottom: -20px;'>FIRST TERM
                                                             CUMULATIVE</div>
                                                     </th>
-                                                    <th class="rotate-45">
-                                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TOTAL CUMULATIVE</div>
+                                                    <th class="rotate-header">
+                                                        <div>TOTAL CUMULATIVE</div>
                                                     </th>
-                                                    <th class="rotate-45">
-                                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AVERAGE CUMULATIVE</div>
+                                                    <th class="rotate-header">
+                                                        <div>AVERAGE CUMULATIVE</div>
                                                     </th>
                                                 @endif
 
                                                 @if ($term->id() === '3')
-                                                    <th style='padding-buttom: -15px;' class="rotate-45">
-                                                        <div style='margin-buttom: -20px;'>&nbsp;&nbsp;&nbsp;First TERM
+                                                    <th style='padding-bottom: -15px;' class="rotate-header">
+                                                        <div style='margin-bottom: -20px;'>First TERM
                                                             CUMULATIVE</div>
                                                     </th>
-                                                    <th style='padding-buttom: -15px;' class="rotate-45">
-                                                        <div style='margin-buttom: -20px;'>&nbsp;&nbsp;&nbsp;SECOND TERM
+                                                    <th style='padding-bottom: -15px;' class="rotate-header">
+                                                        <div style='margin-bottom: -20px;'>SECOND TERM
                                                             CUMULATIVE</div>
                                                     </th>
-                                                    <th class="rotate-45">
-                                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TOTAL CUMULATIVE</div>
+                                                    <th class="rotate-header">
+                                                        <div>TOTAL CUMULATIVE</div>
                                                     </th>
-                                                    <th class="rotate-45">
-                                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AVERAGE CUMULATIVE</div>
+                                                    <th class="rotate-header">
+                                                        <div>AVERAGE CUMULATIVE</div>
                                                     </th>
                                                 @endif
 
-                                                <th class="rotate-45">
+                                                <th class="rotate-header">
                                                     <div>GRADE</div>
                                                 </th>
-                                                <th class="text-center">REMARK</th>
+                                                <th class="rotate-header">REMARK</th>
                                             </tr>
                                         </thead>
                                         @foreach ($results as $result)
-                                            @php
-                                                if ($term->id() === '2'){
-                                                    $total = $result['total'] + $result['first_term_cummulative'];
-                                                }elseif($term->id() === '3'){
-                                                    $total = $result['total'] + $result['first_term_cummulative'] + $result['second_term_cummulative'];
-                                                }
-                                            @endphp
-                                            <thead>
+                                            <tbody>
                                                 <tr>
                                                     <th>{{ $result['subject'] }}</th>
-                                                    <td style="color:#000add">{{ $result['ca1'] }}</td>
-                                                    <td style="color:#000add">{{ $result['ca2'] }}</td>
-                                                    <td style="color:#000add">{{ $result['exam'] }}</td>
-                                                    <td style="color:#000add">{{ $result['total'] }}</td>
+                                                     @foreach ($midterm as $key => $value)
+                                                        @if (isset($result[$key]))
+                                                            <td style="font-size: 10px; font-weight: 400; text-align: center; color: {{ exam20Color($result[$key]) }}">{{ $result[$key] }}</td>
+                                                        @endif
+                                                    @endforeach
+                                                    @foreach ($exam as $key => $value)
+                                                        @if (isset($result[$key]))
+                                                            @php
+                                                                $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
+                                                            @endphp
+                                                            <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ $color }}">{{ $result[$key] }}</td>
+                                                        @endif
+                                                    @endforeach
+                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
+                                                    @if ($term->id() === '1')
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examGrade($result['total']) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examRemark($result['total']) }}</td>
+                                                    @endif
                                                     @if ($term->id() === '2')
-                                                        <td style="color:#000add">
-                                                            {{ $result['first_term_cummulative'] }}
-                                                        </td>
-                                                        <td style="color:#000add">{{ $total }}</td>
-                                                        <td style="color:#000add">{{ round(($total) / 2) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ sum($result['total'], $result['first_term_cummulative']) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ divnum(sum($result['total'], $result['first_term_cummulative']), 2) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examGrade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examRemark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
                                                     @endif
                                                     @if ($term->id() === '3')
-                                                         <td style="color:#000add">
-                                                            {{ $result['first_term_cummulative'] }}
-                                                        </td>
-                                                        <td style="color:#000add">
-                                                            {{ $result['second_term_cummulative'] }}
-                                                        </td>
-                                                        <td style="color:#000add">{{ $total }}</td>
-                                                        <td style="color:#000add">{{ round(($total) / 3) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['second_term_cummulative']) }}">{{ $result['second_term_cummulative'] }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3)) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examGrade(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
+                                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examRemark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
                                                     @endif
-                                                    <td style="color:#000add">
-                                                        @if($term->id == 1)
-                                                            {{ $result['grade'] }}
-                                                        @elseif($term->id == 2)
-                                                            @if ($total >= 70) 
-                                                                A
-                                                            @elseif ($total >= 60) 
-                                                                B
-                                                            @elseif($total >= 50) 
-                                                                C
-                                                            @elseif($total >= 45) 
-                                                                D
-                                                            @elseif($total >= 35) 
-                                                                E
-                                                            @elseif($total >= 20) 
-                                                                F
-                                                            @endif
-                                                        @endif
-                                                    </td>
-                                                    <td><b>
-                                                        @if($term->id == 1)
-                                                            {{ $result['remark'] }}
-                                                        @elseif($term->id == 2)
-                                                            @if ($total / 2 >= 70) 
-                                                                Distinction
-                                                            @elseif ($total / 2 >= 60) 
-                                                                V.good
-                                                            @elseif($total / 2 >= 50) 
-                                                                Credit
-                                                            @elseif($total / 2 >= 45) 
-                                                                Pass
-                                                            @elseif($total / 2 >= 35) 
-                                                                Fair
-                                                            @elseif($total / 2 >= 20) 
-                                                                Fail
-                                                            @endif
-                                                        @elseif($term->id == 3)
-                                                            @if ($total / 3 >= 70) 
-                                                                Distinction
-                                                            @elseif ($total / 3 >= 60) 
-                                                                V.good
-                                                            @elseif($total / 3 >= 50) 
-                                                                Credit
-                                                            @elseif($total / 3 >= 45) 
-                                                                Pass
-                                                            @elseif($total / 3 >= 35) 
-                                                                Fair
-                                                            @elseif($total / 3 >= 20) 
-                                                                Fail
-                                                            @endif
-                                                        @endif
-                                                    </b></td>
                                                 </tr>
-                                                        
-                                            </thead>
+                                            </tbody>
                                         @endforeach
                                     </table>
                                 </div>
 
                                 <h1>
-                                    <i class="bx bx-comment"></i> PRINCIPAL/HEAD TEACHER COMMENT(S) /
-                                    OBSERVATION(S)
+                                    <i class="bx bx-comment"></i> Class Teacher's Comment
                                 </h1>
-
                                 <div class="table-wrapper">
-                                    
                                     <table class="table table-condensed">
                                         
                                         <tbody class="co">
                                             <tr>
                                                 <td class="comment"><span class="cfn">
                                                     <p>
-                                                        {{ ucfirst($student->fullName()) }}</span>'s
-                                                        outcome this term is @if ($average > 50) Excellent, keep it up.
+                                                        {{ $studentAttendance->comment ?? '' }}
                                                     </p>
-                                                    <p> Matching {{ ucfirst($student->fullName()) }}'s end of term result with students average,
-                                                        it is an excellent performance and has the potential to improve more and her strength of mind is key factor in doing so. 
-                                                    </p>
-                                                    @else
-                                                        not too encouraging
-                                                     <strong class="txt-color-primary" style="font-size: 14px;">
-                                                        It would be great to see some improvement in <b>Basic Science /
-                                                            Technology,</b> 
-                                                    </strong>
-                                                    @endif 
-                                    
-                                                    
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
 
+                                <h1>
+                                    <i class="bx bx-comment"></i> PRINCIPAL/HEAD TEACHER COMMENT
+                                </h1>
+                                <div class="table-wrapper">
+                                    <table class="table table-condensed">
+                                        
+                                        <tbody class="co">
+                                            <tr>
+                                                <td class="comment"><span class="cfn">
+                                                    <p>
+                                                        {{ $comment }}
+                                                    </p>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -427,37 +411,14 @@
                                         </table>
                                     </div>
                                 </div>
-
-                                <div class="col-sm-12">
-                                    <div id="mis-info">
-                                        <div class="a-promo hidden"> <span class="text-bold">PROMOTION :</span>&nbsp;
-                                            <span class="rinfo frmb7">***</span> 
-                                        </div>
-                                        @if ($student->grade->gradeClassTeacher->count() > 0)
-                                            <div class="a-acad-hd"> <span class="text-bold a-title">CLASS TEACHER
-                                                    :</span>&nbsp;
-                                                <span class="rinfo frmb7">{{ $student->grade->gradeClassTeacher[0]->name() }}. {{ $student->grade->gradeClassTeacher[0]->name() }} </span> 
-                                            </div>
-                                        @endif
-
-                                        
-                                        <div class="end-date"> <span class="text-bold">THIS TERM ENDS:</span> 
-                                            <span class="rinfo frmb7">{{ $endOfTerm }}</span> </div>
-                                        <div class="resump-date"> <span class="text-bold">NEXT TERM BEGINS:</span> 
-                                            <span class="rinfo frmb7">{{ $endOfNextTerm }}</span> 
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         
-                        <p class="text-center">{{ application('motto') }}</p>
-
-                        <div class="row mt-2">
+                        <div style="display: flex; justify-content: center">
                             <div class="d-print-none">
                                 <div class="float-end">
                                     <a href="javascript:window.print()"
-                                        class="btn btn-success waves-effect waves-light me-1"><i
+                                        class="btn btn-success btn-lg waves-effect waves-light me-1"><i
                                             class="fa fa-print"></i>
                                     </a>
                                 </div>
@@ -468,4 +429,69 @@
             </div>
         </div>
     </div>
+
+     @section('scripts')
+        <script>
+            function generatePDF() {
+                toggleAble('#downloadPdf', true);
+
+                const style = document.createElement('style');
+                style.innerHTML = 'td, th { line-height: 2; padding: 5px}';
+                document.head.appendChild(style);
+                const container = document.getElementById("resultPrintMargin");
+
+                html2canvas(container, {
+                    scale: 2,
+                    allowTaint: false,
+                    }).then(function(canvas) {
+                    const imgData = canvas.toDataURL("image/png");
+
+                    const pdfDocDefinition = {
+                        pageSize: 'A4',
+                        watermark: {text: ''+@json(application('name')), color: 'gray', opacity: 0.1, bold: true, fontSize: 30,},
+                        pageOrientation: 'portrait',
+                        content: [
+                            {
+                                image: imgData,
+                                width: 520,
+                                height: 800
+                            }
+                        ],
+                        styles: {
+                            header: {
+                                fontSize: 18,
+                                bold: false,
+                                margin: [0, 0, 0, 0]
+                            },
+                            body: {
+                                fontSize: 12,
+                                margin: [0, 0, 0, 0]
+                            }
+                        }
+                    };
+
+                    pdfMake.createPdf(pdfDocDefinition).open();
+                });
+                document.head.removeChild(style);
+                toggleAble('#downloadPdf', false);
+            }
+        </script>
+
+        <script>
+            $(document).ready(function() {
+                var grandTotal = 0;
+                var numSubjects = {{ count($results) }};
+                var grand = numSubjects * 100
+                @foreach ($results as $result)
+                    var total = {{ $result['total'] }};
+                    grandTotal += total;
+                @endforeach
+                    var aggregate = grandTotal / numSubjects;
+                    aggregate = aggregate.toFixed(2);
+
+                $('.grand_total').text(grandTotal);
+                $('.aggregate').text(aggregate);
+            });
+        </script>
+    @endsection
 </x-app-layout>

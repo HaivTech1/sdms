@@ -169,6 +169,31 @@
                 </table>
             </div>
 
+            @php
+                $midterm = get_settings('midterm_format');
+                $exam = get_settings('exam_format');
+                $midtermTotal = 0;
+                $examTotal = 0;
+
+                if (is_array($midterm)) {
+                    foreach ($midterm as $key => $value) {
+                        if (isset($value['mark'])) {
+                            $midtermTotal += $value['mark'];
+                        }
+                    }
+                }
+
+                if (is_array($exam)) {
+                    foreach ($exam as $key => $value) {
+                        if (isset($value['mark'])) {
+                            $examTotal += $value['mark'];
+                        }
+                    }
+                }
+
+                $expectedTotal = $examTotal + $midtermTotal;
+            @endphp
+
             <div class="table-wrapper table-responsive">
                 @if ($term->id() === '1')
                     <table class="table table-bordered table-condensed">
@@ -178,12 +203,13 @@
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" class="rotate-header">First Test</th>
-                                <th rowspan="2" class="rotate-header">Continuous Assessment</th>
-                                <th rowspan="2" class="rotate-header">Class Activities</th>
-                                <th rowspan="2" class="rotate-header">PROJECT</th>
+                                @foreach ($midterm as $key => $value)
+                                    <th rowspan="2" class="rotate-header">{{ $value['full_name'] }}</th>
+                                @endforeach
                                 <th rowspan="2" class="rotate-header">TOTAL</th>
-                                <th rowspan="2" class="rotate-header">EXAM</th>
+                                @foreach ($exam as $key => $value)
+                                    <th rowspan="2" class="rotate-header">{{ $value['full_name'] }}</th>
+                                @endforeach
                                 <th rowspan="2" class="rotate-header">TOTAL</th>
                                 <th rowspan="2" class="rotate-header">Class Avg</th>
                             </tr>
@@ -193,13 +219,14 @@
                             </tr>
                             </tr>
                             <tr style="text-align: center">
-                                <th>20</th>
-                                <th>20</th>
-                                <th>10</th>
-                                <th>10</th>
-                                <th>60</th>
-                                <th>40</th>
-                                <th>100</th>
+                                @foreach ($midterm as $key => $value)
+                                <th>{{ $value['mark'] }}</th>
+                                @endforeach
+                                <th>{{ $midtermTotal }}</th>
+                                @foreach ($exam as $key => $value)
+                                <th>{{ $examTotal }}</th>
+                                @endforeach
+                                <th>{{ $expectedTotal }}</th>
                                 <th></th>
                                 <th></th>
                                 <th colspan="2"></th>
@@ -209,12 +236,23 @@
                             @foreach ($results as $result)
                                 <tr>
                                     <td>{{ $result['subject'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ct']) }}">{{ $result['ct'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
+                                    @foreach ($midterm as $key => $value)
+                                        @if (isset($result[$key]))
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result[$key]) }}">{{ $result[$key] }}</td>
+                                        @endif
+                                    @endforeach
+                                    @php
+                                        $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
+                                    @endphp
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ $color }}">{{ $result['midterm_total'] }}</td>
+                                    @foreach ($exam as $key => $value)
+                                        @if (isset($result[$key]))
+                                            @php
+                                                $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
+                                            @endphp
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ $color }}">{{ $result[$key] }}</td>
+                                        @endif
+                                    @endforeach
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student->grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examGrade($result['total']) }}</td>
@@ -238,12 +276,13 @@
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" class="rotate-header">First Test</th>
-                                <th rowspan="2" class="rotate-header">Continuous Assessment </th>
-                                <th rowspan="2" class="rotate-header">Class Activities</th>
-                                <th rowspan="2" class="rotate-header">PROJECT</th>
+                                @foreach ($midterm as $key => $value)
+                                    <th rowspan="2" class="rotate-header">{{ $value['full_name'] }}</th>
+                                @endforeach
                                 <th rowspan="2" class="rotate-header">TOTAL</th>
-                                <th rowspan="2" class="rotate-header">EXAM</th>
+                                @foreach ($exam as $key => $value)
+                                    <th rowspan="2" class="rotate-header">{{ $value['full_name'] }}</th>
+                                @endforeach
                                 <th rowspan="2" class="rotate-header">TOTAL</th>
                             </tr>
                             <tr>
@@ -256,13 +295,14 @@
                             </tr>
                             </tr>
                             <tr style="text-align: center">
-                                <th>20</th>
-                                <th>20</th>
-                                <th>10</th>
-                                <th>10</th>
-                                <th>60</th>
-                                <th>40</th>
-                                <th>100</th>
+                                @foreach ($midterm as $key => $value)
+                                <th>{{ $value['mark'] }}</th>
+                                @endforeach
+                                 <th>{{ $midtermTotal }}</th>
+                                @foreach ($exam as $key => $value)
+                                <th>{{ $examTotal }}</th>
+                                @endforeach
+                                <th>{{ $expectedTotal }}</th>
                                 <th>100</th>
                                 <th>200</th>
                                 <th></th>
@@ -273,22 +313,25 @@
                         </thead>
                         <tbody style="">
                             @foreach ($results as $result)
-                                @php
-                                    if ($term->id() === '2'){
-                                        $total = $result['total'] + $result['first_term_cummulative'];
-                                    }elseif($term->id() === '3'){
-                                        $total = $result['total'] + $result['first_term_cummulative'] + $result['second_term_cummulative'];
-                                    }
-                                @endphp
-
                                 <tr>
                                     <td>{{ $result['subject'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ct']) }}">{{ $result['ct'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
+                                    @foreach ($midterm as $key => $value)
+                                        @if (isset($result[$key]))
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result[$key]) }}">{{ $result[$key] }}</td>
+                                        @endif
+                                    @endforeach
+                                    @php
+                                        $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
+                                    @endphp
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ $color }}">{{ $result['midterm_total'] }}</td>
+                                    @foreach ($exam as $key => $value)
+                                        @if (isset($result[$key]))
+                                            @php
+                                                $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
+                                            @endphp
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ $color }}">{{ $result[$key] }}</td>
+                                        @endif
+                                    @endforeach
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center;">{{ sum($result['total'], $result['first_term_cummulative']) }}</td>
@@ -311,16 +354,17 @@
                     <table class="table table-bordered table-condensed">
                         <thead id="ch">
                             <tr>
-                                <th colspan="15" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">3. COGNITIVE DOMAIN</th>
+                                <th colspan="17" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">3. COGNITIVE DOMAIN</th>
                             </tr>
                             <tr>
                                 <th rowspan="3" style="width: 30%;">Subjects</th>
-                                <th rowspan="2" class="rotate-header">First Test</th>
-                                <th rowspan="2" class="rotate-header">Continuous Assessment </th>
-                                <th rowspan="2" class="rotate-header">Class Activities</th>
-                                <th rowspan="2" class="rotate-header">PROJECT</th>
+                                @foreach ($midterm as $key => $value)
+                                    <th rowspan="2" class="rotate-header">{{ $value['full_name'] }}</th>
+                                @endforeach
                                 <th rowspan="2" class="rotate-header">TOTAL</th>
-                                <th rowspan="2" class="rotate-header">EXAM</th>
+                                @foreach ($exam as $key => $value)
+                                    <th rowspan="2" class="rotate-header">{{ $value['full_name'] }}</th>
+                                @endforeach
                                 <th rowspan="2" class="rotate-header">TOTAL</th>
                             </tr>
                             <tr>
@@ -334,13 +378,14 @@
                             </tr>
                             </tr>
                             <tr style="text-align: center">
-                                <th>20</th>
-                                <th>20</th>
-                                <th>10</th>
-                                <th>10</th>
-                                <th>60</th>
-                                <th>40</th>
-                                <th>100</th>
+                                 @foreach ($midterm as $key => $value)
+                                <th>{{ $value['mark'] }}</th>
+                                @endforeach
+                                 <th>{{ $midtermTotal }}</th>
+                                @foreach ($exam as $key => $value)
+                                <th>{{ $examTotal }}</th>
+                                @endforeach
+                                <th>{{ $expectedTotal }}</th>
                                 <th>100</th>
                                 <th>100</th>
                                 <th>300</th>
@@ -351,22 +396,25 @@
                         </thead>
                         <tbody style="">
                             @foreach ($results as $result)
-                                @php
-                                    if ($term->id() === '2'){
-                                        $total = $result['total'] + $result['first_term_cummulative'];
-                                    }elseif($term->id() === '3'){
-                                        $total = $result['total'] + $result['first_term_cummulative'] + $result['second_term_cummulative'];
-                                    }
-                                @endphp
-
                                 <tr>
                                     <td>{{ $result['subject'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ct']) }}">{{ $result['ct'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
+                                    @foreach ($midterm as $key => $value)
+                                        @if (isset($result[$key]))
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result[$key]) }}">{{ $result[$key] }}</td>
+                                        @endif
+                                    @endforeach
+                                    @php
+                                        $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
+                                    @endphp
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ $color }}">{{ $result['midterm_total'] }}</td>
+                                    @foreach ($exam as $key => $value)
+                                        @if (isset($result[$key]))
+                                            @php
+                                                $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
+                                            @endphp
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ $color }}">{{ $result[$key] }}</td>
+                                        @endif
+                                    @endforeach
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['second_term_cummulative']) }}">{{ $result['second_term_cummulative'] }}</td>
@@ -374,7 +422,7 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3)) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examGrade(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student->grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
-                                    <td style="font-size: 8px; font-weight: 500; text-align: center; width: 20%">{{ examRemark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examRemark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
                                 </tr>
                             @endforeach
                             <tr>

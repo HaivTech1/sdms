@@ -5,7 +5,7 @@
 
 <title>{{ application('name') }}</title>
 
-<link rel="shortcut icon" href="{{ URL::asset('storage/' .application('fav')) }}" type="image/png">
+<link rel="shortcut icon" href="{{ URL::asset('storage/' .application('image')) }}" type="image/png">
 
 <link rel="stylesheet" href="{{ URL::asset('frontend/css/bootstrap.min.css') }}">
 

@@ -25,15 +25,22 @@ class MidTerm extends Model
         'grade_id',
         'subject_id',
         'student_id',
-        'entry_1',
-        'entry_2',
-        'first_test',
-        'ca',
-        'class_activity',
-        'project',
         'author_id',
         'published'
     ];
+
+    public function getFillable()
+    {
+        $fillable = $this->fillable;
+
+        $midtermFormat = get_settings('midterm_format');
+        if (is_array($midtermFormat)) {
+            $dynamicKeys = array_keys($midtermFormat);
+            $fillable = array_merge($fillable, $dynamicKeys);
+        }
+
+        return $fillable;
+    }
 
     protected $primaryKey = 'uuid';
 
@@ -47,12 +54,6 @@ class MidTerm extends Model
 
     protected $casts = [
         'published' => 'boolean',
-        'entry_1' => 'float',
-        'entry_2' => 'float',
-        'first_test' => 'float',
-        'ca' => 'float',
-        'class_activity' => 'float',
-        'project' => 'float',
     ];
 
     public function id(): string
@@ -60,39 +61,20 @@ class MidTerm extends Model
         return (string) $this->uuid;
     }
 
-    public function entry1(): ?float
-    {
-        return  $this->entry_1;
-    }
-
-    public function entry2(): ?float
-    {
-        return  $this->entry_2;
-    }
-
-    public function firstTest(): ?float
-    {
-        return  $this->first_test;
-    }
-
-    public function ca(): ?float
-    {
-        return  $this->ca;
-    }
-
-    public function classActivity(): ?float
-    {
-        return  $this->class_activity;
-    }
-
-    public function project(): ?float
-    {
-        return  $this->project;
-    }
-
     public function total(): ?float
     {
-        return  $this->entry1() + $this->entry2() + $this->firstTest() + $this->ca() + $this->project();
+        $midtermFormat = get_settings('midterm_format');
+        $sum = 0;
+
+        if (is_array($midtermFormat)) {
+            foreach ($midtermFormat as $key => $value) {
+                if (isset($this->$key)) {
+                    $sum += $this->$key;
+                }
+            }
+        }
+
+        return $sum;
     }
 
     public function createdAt(): string

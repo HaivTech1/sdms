@@ -77,6 +77,46 @@ function divnum($numerator, $denominator)
     return round($denominator == 0 ? 0 : ($numerator / $denominator), 1);
 }
 
+function calculatePercentage($value, $total, $percentage)
+{
+    if ($total == 0) {
+        return 0;
+    }
+
+    return ($value / $total) * $percentage;
+}
+
+function calculateStudentPosition($studentId, $model, $session, $term, $grade)
+{
+    $results = $model::where([
+        'period_id' => $session,
+        'term_id' => $term,
+        'grade_id' => $grade
+    ])->get();
+
+    $studentTotalScores = [];
+
+    foreach ($results as $result) {
+        $totalScore = $result->getTotalScore();
+        $studentTotalScores[$result->student_id] = $totalScore;
+    }
+
+    arsort($studentTotalScores);
+    $studentPosition = array_search($studentId, array_keys($studentTotalScores)) + 1;
+    $suffix = 'th';
+    if ($studentPosition % 10 === 1 && $studentPosition % 100 !== 11) {
+        $suffix = 'st';
+    } elseif ($studentPosition % 10 === 2 && $studentPosition % 100 !== 12) {
+        $suffix = 'nd';
+    } elseif ($studentPosition % 10 === 3 && $studentPosition % 100 !== 13) {
+        $suffix = 'rd';
+    }
+
+    $positionWithSuffix = $studentPosition . $suffix;
+    return $positionWithSuffix;
+}
+
+
 function examRemark($remark)
 {
     $data = get_settings('exam_remark');
@@ -304,6 +344,8 @@ function class_average($grade, $subject, $term, $period)
 {
     $subject = Subject::where('title', $subject)->first();
     $students = Student::withoutGlobalScope(new HasActiveScope)->where('grade_id', $grade)->get();
+    $midterm = get_settings('midterm_format');
+    $exam = get_settings('exam_format');
 
     $results = PrimaryResult::where('grade_id', $grade)
                  ->where('term_id', $term)
@@ -312,18 +354,58 @@ function class_average($grade, $subject, $term, $period)
                  ->groupBy('student_id')
                  ->get([
                     'student_id',
-                    DB::raw('SUM(ca1 + ca2 + ca3 + pr + exam) as total_score')
-                 ]);
+                    DB::raw('SUM(' . generateColumnSumExpression($midterm) . ' + ' . generateColumnSumExpression($exam) . ') as total_score')
+                ]);
 
     $total_score = 0;
     foreach ($results as $result) {
         $total_score += $result->total_score;
     }
-    // dd($total_score);
     
     $average = $total_score / count($students);
 
     return ceil($average);
+}
+
+function generateColumnSumExpression($format)
+{
+    $columns = array_keys($format);
+    $expression = '';
+
+    foreach ($columns as $column) {
+        $expression .= $column . ' + ';
+    }
+
+    $expression = rtrim($expression, ' + ');
+
+    return $expression;
+}
+
+function calculateResult($value)
+{
+    $midtermFormat = get_settings('midterm_format');
+    $examFormat = get_settings('exam_format');
+    
+    $midtermTotal = 0;
+    $examTotal = 0;
+
+    if (is_array($midtermFormat)) {
+        foreach ($midtermFormat as $midtermKey => $midtermValue) {
+            if (isset($value->$midtermKey)) {
+                $midtermTotal += $value->$midtermKey;
+            }
+        }
+    }
+
+    if (is_array($examFormat)) {
+        foreach ($examFormat as $examKey => $examValue) {
+            if (isset($value->$examKey)) {
+                $examTotal += $value->$examKey;
+            }
+        }
+    }
+
+    return $midtermTotal + $examTotal;
 }
 
 function payslipList()
@@ -364,7 +446,6 @@ function get_application_settings($name)
     return $config;
 }
 
-
 function env_update($key, $value)
 {
     $path = base_path('.env');
@@ -391,17 +472,17 @@ function env_key_replace($key_from, $key_to, $value)
 
 function remove_dir($dir)
 {
-if (is_dir($dir)) {
-    $objects = scandir($dir);
-    foreach ($objects as $object) {
-        if ($object != "." && $object != "..") {
-            if (filetype($dir . "/" . $object) == "dir") Helpers::remove_dir($dir . "/" . $object);
-            else unlink($dir . "/" . $object);
+    if (is_dir($dir)) {
+        $objects = scandir($dir);
+        foreach ($objects as $object) {
+            if ($object != "." && $object != "..") {
+                if (filetype($dir . "/" . $object) == "dir") Helpers::remove_dir($dir . "/" . $object);
+                else unlink($dir . "/" . $object);
+            }
         }
+        reset($objects);
+        rmdir($dir);
     }
-    reset($objects);
-    rmdir($dir);
-}
 }
 
 function get_settings($name)

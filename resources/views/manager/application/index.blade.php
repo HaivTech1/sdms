@@ -45,28 +45,30 @@
                     <div class="tab-content p-3 text-muted">
                         <div class="tab-pane" :class="currentTab === 'general' ? 'active' : ''" id="general" role="tabpanel">
                             <div class="row">
-                                <div class="col-md-12 mb-3 mt-3">
-                                    <div class="card">
-                                        <div class="card-body" style="padding-bottom: 12px">
-                                            <div class="row">
-                                                @php($config = get_application_settings('maintenance_mode'))
-                                                <div class="col-6">
-                                                    <h5 class="text-capitalize">
-                                                        <i class="bx bx-cog"></i>
-                                                        {{ translate('messages.maintenance_mode') }}
-                                                    </h5>
-                                                </div>
-                                                <div class="col-6">
-                                                    <label class="switch ml-3 float-right">
-                                                        <input type="checkbox" class="form-check-input status" onclick="maintenance_mode()"
-                                                            {{ isset($config) && $config ? 'checked' : '' }}>
-                                                        <span class="slider round"></span>
-                                                    </label>
+                                @superadmin
+                                    <div class="col-md-12 mb-3 mt-3">
+                                        <div class="card">
+                                            <div class="card-body" style="padding-bottom: 12px">
+                                                <div class="row">
+                                                    @php($config = get_application_settings('maintenance_mode'))
+                                                    <div class="col-6">
+                                                        <h5 class="text-capitalize">
+                                                            <i class="bx bx-cog"></i>
+                                                            {{ translate('messages.maintenance_mode') }}
+                                                        </h5>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="switch ml-3 float-right">
+                                                            <input type="checkbox" class="form-check-input status" onclick="maintenance_mode()"
+                                                                {{ isset($config) && $config ? 'checked' : '' }}>
+                                                            <span class="slider round"></span>
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endsuperadmin
                                 <livewire:manager.application>
                             </div> 
                         </div>
@@ -524,6 +526,14 @@
                                         </div>
 
                                         @superadmin
+                                            <div class="col-sm-4">
+                                                <h5 class="font-size-14 mb-3">Result Template</h5>
+                                                <div>
+                                                    <input type="checkbox" id="result_template" switch="success" data-field="result_template" @if (get_settings('result_template') === 1) checked @endif />
+                                                    <label for="result_template" data-on-label="Yes" data-off-label="No"></label>
+                                                </div>
+                                            </div>
+
                                             <div class="col-sm-4">
                                                 <h5 class="font-size-14 mb-3">App Debug</h5>
                                                 <div>
