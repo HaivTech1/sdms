@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', application('name')." | Secondary Result Page")
+    @section('title', application('name')." | Result Page")
 
     @section('styles')
         <style>
@@ -111,7 +111,7 @@
                                                 <th>SUBJECTS</th>
 
                                                 <th style="padding-left: 0.04px; padding-right: 0.04px; padding-bottom: 0; text-align: center; margin-bottom: 0"
-                                                    colspan="8">
+                                                    colspan="9">
                                                     CURRENT TERM SCORES
                                                     
                                                     <br>
@@ -126,6 +126,7 @@
                                                                     <th class="rotate-header">{{ $value['full_name'] }}</th>
                                                                 @endforeach
                                                                 <th class="rotate-header" style="font-size: 12px">Total </th>
+                                                                <th class="rotate-header" style="font-size: 12px">Position </th>
                                                             </tr>
                                                             <tr>
                                                                 @foreach ($midterm as $key => $value)
@@ -135,6 +136,7 @@
                                                                     <th>{{ $value['mark'] }}</th>
                                                                 @endforeach
                                                                 <th style="font-size: 12px">{{ $expectedTotal }}</th>
+                                                                <th style="font-size: 12px"></th>
                                                             </tr>
                                                         </thead>
                                                     </table>
@@ -194,6 +196,7 @@
                                                         @endif
                                                     @endforeach
                                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
+                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ calculateStudentPosition($student->id(), \App\Models\PrimaryResult::class, $period->id(), $term->id(), $student->grade->id(), $result['subject_id']); }}</td>
                                                     @if ($term->id() === '1')
                                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examGrade($result['total']) }}</td>
                                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examRemark($result['total']) }}</td>

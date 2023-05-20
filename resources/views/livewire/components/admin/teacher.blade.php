@@ -27,19 +27,16 @@
                                         <div class="col-6">
                                             <div class="btn-group btn-group-example mb-3" role="group">
                                                 <button wire:click.prevent="deleteAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
-                                                    <i class="bx bx-block"></i>
-                                                    Delete All
+                                                    class="btn btn-outline-danger w-sm">
+                                                    <i class="bx bx-trash"></i>
                                                 </button>
                                                 <button wire:click.prevent="disableAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
-                                                    <i class="bx bx-check-double"></i>
-                                                    Disable All
+                                                    class="btn btn-outline-warning w-sm">
+                                                    <i class="bx bx-x"></i>
                                                 </button>
                                                 <button wire:click.prevent="undisableAll" type="button"
-                                                    class="btn btn-outline-primary w-sm">
-                                                    <i class="bx bx-x-circle"></i>
-                                                    Undisable All
+                                                    class="btn btn-outline-success w-sm">
+                                                    <i class="bx bx-check"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -126,10 +123,8 @@
                                     </th>
                                     <th class="align-middle"></th>
                                     <th class="align-middle">Name</th>
-                                    <th class="align-middle">email</th>
-                                    <th class="align-middle">Id</th>
-                                    <th class="align-middle">Assign Class</th>
-                                    <th class="align-middle">Status</th>
+                                    <th class="align-middle">Assigned Classes</th>
+                                    <th class="align-middle">Assigned Subjects</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -153,16 +148,6 @@
                                     <td>
                                         <livewire:components.edit-title :model='$teacher' field='name'
                                             :key='$teacher->id()' />
-                                            {{-- @if ($teacher->gradeClassTeacher()->count() < 1)
-                                                <span class="badge badge-soft-danger">Assign Class</span>
-                                            @endif --}}
-                                    </td>
-                                    <td>
-                                        <livewire:components.edit-title :model='$teacher' field='email'
-                                            :key='$teacher->id()' />
-                                    </td>
-                                    <td>
-                                        {{ $teacher->code() }}
                                     </td>
                                     <td>
                                         @forelse ($teacher->gradeClassTeacher as $grade)
@@ -172,14 +157,28 @@
                                         @endforelse
                                     </td>
                                     <td>
-                                        <livewire:components.toggle-button :model='$teacher' field='isAvailable'
-                                            :key='$teacher->id()' />
+                                        @forelse ($teacher->assignedSubjects as $assignedSubjects)
+                                            <span class="badge badge-soft-primary">{{ $assignedSubjects->title() }}</span>
+                                        @empty
+                                            <span class="badge badge-soft-danger">Assign Subjects</span>
+                                        @endforelse
                                     </td>
                                     <td>
-                                        <div class="col-sm-4">
-                                            <button type="button" value="{{ $teacher->id() }}" data-class="{{ $teacher->gradeClassTeacher[0]->id() }}" id="assignClass">
-                                                <i class="fas fa-compress-arrows-alt"></i>
+                                        <div class="dropdown">
+                                            <button class="btn nav-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="bx bx-dots-horizontal-rounded"></i>
                                             </button>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <button class="dropdown-item" type="button" value="{{ $teacher->id() }}" data-class="" id="assignClass">
+                                                    <i class="fas fa-compress-arrows-alt"></i> Assign Class
+                                                </button>
+                                                <button class="dropdown-item assignSubject" type="button" data-id="{{ $teacher->id() }}" id="assignSubject">
+                                                    <i class="fas fa-compress-arrows-alt"></i> Assign Subject
+                                                </button>
+                                                <button data-id="{{ $teacher->id() }}" class="dropdown-item show"><i
+                                                    class="mdi mdi-eye me-1"></i> View
+                                                </button>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -194,53 +193,244 @@
     </div>
 
     @include('partials.add_class')
+    @include('partials.add_teacher_subject')
+
+    <div class="modal fade showTeacherSubject" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Teacher details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modalErrorr"></div>
+
+                    <div>
+                        <div class="row">
+                            <div class="row">
+                                <input name="selected_teacher_id" id="selected_teacher_id" type="hidden" />
+
+                                <div class="col-sm-6 mb-2">
+                                    <h5>List of assigned subjects</h5>
+                                    <hr/> 
+                                    <br />
+                                    
+                                    <div class="table-responsive">
+                                        <table id="subjects-teacher" class="table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                 <div class="col-sm-6 mb-2">
+                                    <h5>List of assigned classes</h5>
+                                    <hr/> 
+                                    <br />
+
+                                    <div class="table-responsive">
+                                        <table id="grades-teacher" class="table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @section('scripts')
+        <script>
 
-    <script>
-
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-        });
-
-        $(document).on('click', '#assignClass', function(e) {
-            e.preventDefault();
-            var id = $(this).val();
-            var class_id = $(this).attr('data-class');
-
-            $('#user_id').val(id);
-            $('#grade_id').val(class_id);
-            $('.addClass').modal('toggle');
-        });
-
-        $(document).on('submit', '#assignClasses', function (e) {
-            e.preventDefault();
-            toggleAble('#submit_button', true, 'Submitting...');
-            var data = $('#assignClasses').serializeArray();
-            var url = "{{ route('teacher.assignClass') }}";
-
-            $.ajax({
-                type: "POST",
-                url,
-                data
-            }).done((res) => {
-                if (res.status) {
-                    toggleAble('#submit_button', false);
-                    toastr.success(res.message, 'Success!');
-                    $('.addClass').modal('toggle');
-                } else {
-                    toggleAble('#submit_button', false);
-                    toastr.error(res.message, 'Failed!');
-                }
-                resetForm('#assignClasses');
-            }).fail((res) => {
-                console.log(res.responseJSON.message);
-                toastr.error(res.responseJSON.message, 'Failed!');
-                toggleAble('#submit_button', false);
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
             });
-        })
-    </script>
 
+            $(document).on('click', '#assignClass', function(e) {
+                e.preventDefault();
+                var id = $(this).val();
+                var class_id = $(this).attr('data-class');
+
+                $('#user_id').val(id);
+                $('#grade_id').val(class_id);
+                $('.addClass').modal('toggle');
+            });
+
+            $(document).on('click', '.assignSubject', function() {
+                var button = $(this);
+                var teacherId = $(this).data('id');
+                toggleAble(button, true);
+
+                $('#teacher_id').val(teacherId);
+                $('.addSubject').modal('toggle');
+            });
+
+            $(document).on('submit', '#assignClasses', function (e) {
+                e.preventDefault();
+                toggleAble('#submit_button', true, 'Submitting...');
+                var data = $('#assignClasses').serializeArray();
+                var url = "{{ route('teacher.assignClass') }}";
+
+                $.ajax({
+                    type: "POST",
+                    url,
+                    data
+                }).done((res) => {
+                    if (res.status) {
+                        toggleAble('#submit_button', false);
+                        toastr.success(res.message, 'Success!');
+                        $('.addClass').modal('toggle');
+                    } else {
+                        toggleAble('#submit_button', false);
+                        toastr.error(res.message, 'Failed!');
+                    }
+                    resetForm('#assignClasses');
+                }).fail((res) => {
+                    console.log(res.responseJSON.message);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                    toggleAble('#submit_button', false);
+                });
+            });
+
+            $(document).on('submit', '#createSubjects', function(e) {
+                e.preventDefault();
+
+                toggleAble('#submit_Sub', true, 'Syncing...');
+                var url = $(this).attr('action');
+                var data = $(this).serializeArray();
+
+                $.ajax({
+                    url,
+                    type: "POST",
+                    data,
+                }).done((res) => {
+                    if (res.status) {
+                        toggleAble('#submit_Sub', false);
+                        toastr.success(res.message, 'Success!');
+                        $('.addSubject').modal('toggle');
+                    }
+                    resetForm('#createSubjects');
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000)
+                }).fail((res) => {
+                    toggleAble('#submit_Sub', false);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                });;
+            });
+
+            $(document).on('click', '.show', function() {
+                var teacherId = $(this).data('id');
+                document.getElementById("selected_teacher_id").value=teacherId;
+
+                $.ajax({
+                    url: '/teacher/subject/' + teacherId,
+                    method: 'GET',
+                    success: function(response) {
+                        var subjects  = response.subjects;
+                        var grades = response.grades;
+
+                        var html = '';
+                        $.each(subjects, function(index, subject) {
+                            html += '<tr>';
+                            html += '<td>' + subject.title + '</td>';
+                            html += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove" data-id="' + subject.id + '">Remove</button></td>';
+                            html += '</tr>';
+                        });
+
+                        var template = '';
+                        $.each(grades, function(index, grade) {
+                            template += '<tr>';
+                            template += '<td>' + grade.title + '</td>';
+                            template += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove_grade" data-id="' + grade.id + '">Remove</button></td>';
+                            template += '</tr>';
+                        });
+
+                        $('#subjects-teacher tbody').html(html);
+                        $('#grades-teacher tbody').html(template);
+
+                        $('.showTeacherSubject').modal('toggle');
+                    },
+                    error: function(response) {
+                        console.log(response.responseJSON.message);
+                    }
+                });
+            });
+
+            $(document).on('click', '.remove', function(e) {
+                e.preventDefault();
+                var button = $(this);
+                toggleAble(button, true);
+
+                var subjectId = $(this).data('id');
+                var teacherId = $('#selected_teacher_id').val();
+                var row = $(this).closest('tr');
+
+                $.ajax({
+                    url: "/teacher/subject/" + subjectId + "/teacher/"+teacherId,
+                    method: 'GET',
+                    success: function(response) {
+                        toggleAble(button, false);
+                        toastr.success(response.message);
+                        row.remove();
+                        setTimeout(function(){
+                            window.location.reload();
+                        },1000)
+                    },
+                    error: function(response) {
+                        toggleAble(button, false);
+                        console.log(response.responseJSON.message);
+                    }
+                });
+            });
+
+             $(document).on('click', '.remove_grade', function(e) {
+                e.preventDefault();
+                var button = $(this);
+                toggleAble(button, true);
+
+                var gradeId = $(this).data('id');
+                var teacherId = $('#selected_teacher_id').val();
+                var row = $(this).closest('tr');
+
+                $.ajax({
+                    url: "/teacher/grade/" + gradeId + "/teacher/"+teacherId,
+                    method: 'GET',
+                    success: function(response) {
+                        toggleAble(button, false);
+                        toastr.success(response.message);
+                        row.remove();
+                        setTimeout(function(){
+                            window.location.reload();
+                        },1000)
+                    },
+                    error: function(response) {
+                        toggleAble(button, false);
+                        console.log(response.responseJSON.message);
+                    }
+                });
+            });
+        </script>
     @endsection
 </div>

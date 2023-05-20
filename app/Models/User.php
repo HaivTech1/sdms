@@ -40,6 +40,7 @@ class User extends Authenticatable
     const STUDENT = 4;
     const BURSAL = 5;
     const CASUAL = 6;
+    const GRADUATED = 7;
 
     public function routeNotificationForVonage($notification)
     {
@@ -177,6 +178,10 @@ class User extends Authenticatable
         return $this->type() === self::CASUAL;
     }
 
+    public function isGraduated(): bool
+    {
+        return $this->type() === self::GRADUATED;
+    }
 
     public function getAvailableBadgeAttribute()
     {
@@ -212,6 +217,7 @@ class User extends Authenticatable
             '4' => 'Student',
             '5' => 'Bursal',
             '6' => 'Worker',
+            '7' => 'Graduate'
         ];
 
         return $state[$this->type];
@@ -229,6 +235,11 @@ class User extends Authenticatable
     public function gradeClassTeacher(): BelongsToMany
     {
         return $this->belongsToMany(Grade::class, 'grade_user');
+    }
+
+    public function assignedSubjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'subject_user');
     }
 
     public function student(): HasOne

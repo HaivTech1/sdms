@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Components\Admin;
 
 use App\Models\User;
 use App\Models\Grade;
+use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -48,13 +49,33 @@ class Teacher extends Component
 
     public function getTeachersProperty()
     {
-        return User::where('type', 3)->search(trim($this->search))
+        return User::where('type', User::TEACHER)->search(trim($this->search))
         ->load($this->per_page);
     }
 
-    public function assignClasses()
+    public function deleteAll()
     {
-        dd($this->grade_id, $this->user_id);
+        User::whereIn('id', $this->selectedRows)->delete();
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected teachers have been deleted!']);
+        $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+    public function disableAll()
+    {
+        User::whereIn('id', $this->selectedRows)->update([
+            'isAvailable' => false,
+        ]);
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected teachers have been disabled!']);
+        $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+    public function undisableAll()
+    {
+        User::whereIn('id', $this->selectedRows)->update([
+            'isAvailable' => true,
+        ]);
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected teachers have been activated!']);
+        $this->reset(['selectedRows', 'selectPageRows']);
     }
 
     public function render()
@@ -62,9 +83,10 @@ class Teacher extends Component
         return view('livewire.components.admin.teacher',[
             'teachers' => $this->teachers,
             'grades' => Grade::orderBy('title')->pluck('title', 'id'),
-            'allTeachers' => User::where('type', 3)->get(),
-            'activeTeachers' => User::where('type', 3)->where('isAvailable', true)->get(),
-            'unactiveTeachers' => User::where('type', 3)->where('isAvailable', false)->get(),
+            'allTeachers' => User::where('type', User::TEACHER)->get(),
+            'activeTeachers' => User::where('type', User::TEACHER)->where('isAvailable', true)->get(),
+            'unactiveTeachers' => User::where('type', User::TEACHER)->where('isAvailable', false)->get(),
+            'subjects' => Subject::all()
         ]);
     }
 }

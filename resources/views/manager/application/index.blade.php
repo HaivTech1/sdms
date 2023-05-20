@@ -527,10 +527,10 @@
 
                                         @superadmin
                                             <div class="col-sm-4">
-                                                <h5 class="font-size-14 mb-3">Result Template</h5>
+                                                <h5 class="font-size-14 mb-3">Application Type</h5>
                                                 <div>
-                                                    <input type="checkbox" id="result_template" switch="success" data-field="result_template" @if (get_settings('result_template') === 1) checked @endif />
-                                                    <label for="result_template" data-on-label="Yes" data-off-label="No"></label>
+                                                    <input type="checkbox" id="result_template" switch="info" data-field="result_template" @if (get_settings('result_template') === 1) checked @endif />
+                                                    <label for="result_template" data-on-label="Sec" data-off-label="Pri"></label>
                                                 </div>
                                             </div>
 

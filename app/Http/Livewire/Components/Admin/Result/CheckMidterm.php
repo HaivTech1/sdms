@@ -80,8 +80,7 @@ class CheckMidterm extends Component
 
     public function render()
     {
-        $ids = Grade::getAllIdsExceptLast();
-        $grades = Grade::gradeIds($ids)->get();
+        $grades = Grade::get();
         
         return view('livewire.components.admin.result.check-midterm',[
             'students' => $this->students,

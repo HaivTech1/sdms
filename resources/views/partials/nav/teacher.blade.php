@@ -1,10 +1,13 @@
 @teacher
-    <li>
-        <a href="{{ route('teacher.students') }}" class="waves-effect">
-            <i class="bx bx-list-check"></i>
-            <span key="t-chat">Pupils List</span>
-        </a>
-    </li>
+    @if (count(auth()->user()->gradeClassTeacher) > 0)
+        <li>
+            <a href="{{ route('teacher.students') }}" class="waves-effect">
+                <i class="bx bx-list-check"></i>
+                <span key="t-chat">Student List</span>
+            </a>
+        </li>
+    @endif
+    
     <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
             <i class="bx bxs-folder-open"></i>

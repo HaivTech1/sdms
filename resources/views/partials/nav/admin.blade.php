@@ -30,7 +30,7 @@
             <span key="t-ecommerce">Staff Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
-            {{-- <li><a href="{{ route('teacher.index') }}" key="t-products">Teachers</a></li> --}}
+            <li><a href="{{ route('teacher.index') }}" key="t-products">Teachers</a></li>
             <li><a href="{{ route('staff.index') }}" key="t-products">Staffs</a></li>
         </ul>
     </li>

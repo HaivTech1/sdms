@@ -105,8 +105,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/', [TeacherController::class, 'index'])->name('index');
             Route::get('/students', [TeacherController::class, 'students'])->name('students');
             Route::post('assignClass', [TeacherController::class, 'assignClass'])->name('assignClass');
+            Route::post('assignSubject', [TeacherController::class, 'assignSubject'])->name('assignSubject');
             Route::get('/student/edit/{id}', [TeacherController::class, 'edit']);
             Route::post('/student/update', [TeacherController::class, 'update'])->name('student.update');
+            Route::get('/subject/{id}', [TeacherController::class, 'showSubject']);
+            Route::get('/subject/{subjectId}/teacher/{teacherId}', [TeacherController::class, 'removeSubject']); 
+            Route::get('/grade/{gradeId}/teacher/{teacherId}', [TeacherController::class, 'removeGrade']); 
         });
 
         Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
