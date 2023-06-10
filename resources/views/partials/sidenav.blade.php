@@ -12,13 +12,12 @@
                             <span key="t-ecommerce">Result Management</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="true">
-                            <li><a href="{{ route('result.midterm.upload') }}" key="t-products">Upload Mid-term Scores </a></li>
-                            <li><a href="{{ route('result.create') }}" key="t-products">Upload Subject Exam</a></li>
-                            <li><a href="{{ route('result.singleUpload') }}" key="t-products">Upload Student Exam Scores</a></li>
-                            {{-- <li><a href="{{ route('result.secondary.upload') }}" key="t-products">Secondary Exam Scores(s)</a></li> --}}
+                            <li><a href="{{ route('result.midterm.upload') }}" key="t-products">Single Mid-term Upload </a></li>
+                            <li><a href="{{ route('result.batch.midterm.upload') }}" key="t-products">Batch Mid-term Upload </a></li>
+                            <li><a href="{{ route('result.singleUpload') }}" key="t-products">Single Exam Upload</a></li>
+                            <li><a href="{{ route('result.create') }}" key="t-products">Batch Exam Upload</a></li>
                             <li><a href="{{ route('result.midterm') }}" key="t-products">Check Mid-term Scores</a></li>
                             <li><a href="{{ route('result.primary') }}" key="t-products">Check Exam Scores</a></li>
-                            {{-- <li><a href="{{ route('result.secondary') }}" key="t-products">Check Exam Scores(s)</a></li> --}}
                         </ul>
                     </li>
                 @endif 

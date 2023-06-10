@@ -28,7 +28,7 @@ class MidtermUpload extends Component
 
     public $subjects = [];
     public $selectedStudent;
-    public $results = null;
+    public $results = [];
 
     protected $queryString = [
         'period_id' => ['except' => ''],

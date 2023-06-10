@@ -11,7 +11,7 @@ class AssignedGradesScope implements Scope
     {
         $resultTemplate = get_settings('result_template');
 
-        if (!auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin()&& !auth()->user()->isStudent() && $resultTemplate == 0) {
+        if (auth()->check() && !auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin()&& !auth()->user()->isStudent() && $resultTemplate == 0) {
             $userId = auth()->user()->id();
             
             $builder->whereHas('gradeClassTeacher', function (Builder $query) use ($userId) {

@@ -140,6 +140,7 @@
                                                 </div>
                                             </th>
                                             <th class="align-middle">#</th>
+                                            <th class="align-middle"></th>
                                             <th class="align-middle"> Name </th>
                                             <th class="align-middle"> Class </th>
                                             <th class="align-middle"> Reg. No </th>
@@ -162,6 +163,13 @@
                                             <td>
                                                 <a href="javascript: void(0);" class="text-body fw-bold">{{ $key + 1
                                                     }}</a>
+                                            </td>
+                                            <td>
+                                                <img 
+                                                class="rounded-circle avatar-xs uploadImage"
+                                                data-id="{{ $student->id() }}"
+                                                src="{{ $student->image() ? asset('storage/'.$student->image()) : asset('noImage.png') }}"
+                                                alt="{{ $student->firstName() }}">
                                             </td>
                                             <td>
                                                 {{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}
@@ -293,6 +301,42 @@
 
     @include('partials.add_subject')
 
+    <div class="modal fade updatePassport" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload passport photograph</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modalErrorr"></div>
+
+                    <form id="upload" enctype="multipart/form-data">
+                        @csrf
+
+                        <input id="student_passport_id" name="student_id" type="hidden" />
+
+                        <div class="row" style="display: flex; justify-content: center; align-items: center">
+                            <div class="col-sm-6">
+                                <x-form.label for="image" value="{{ __('Passport Photograph') }}" />
+                                <x-form.input id="image" class="block w-full mt-1" type="file" name="image"/>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <canvas style="border-radius: 5px; margin: 5px; width: 150px; height: 150px" id="img-show" class="img-thumbnail img-response"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                            <button type="submit" id="submit_passport" class="btn btn-primary btn-flat"><i class="fa fa-save"></i> Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @section('scripts')
         <script>
 
@@ -302,6 +346,40 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
             });
+
+            $(document).on('click', '.uploadImage', function(e){
+                var id = $(this).data('id');
+                $('#student_passport_id').val(id);
+                $('.updatePassport').modal('toggle');
+            });
+
+            var input = document.querySelector('input[type=file]');
+            input.onchange = function () {
+                var file = input.files[0];
+                drawOnCanvas(file); 
+                // displayAsImage(file);
+            };
+
+            function drawOnCanvas(file) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var dataURL = e.target.result,
+                        c = document.querySelector('#img-show'), // see Example 4
+                        ctx = c.getContext('2d'),
+                        img = new Image();
+
+                    $('#img-show-container').show()
+
+                    img.onload = function() {
+                    c.width = img.width;
+                    c.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    };
+                    img.src = dataURL;
+                };
+                reader.readAsDataURL(file);
+            }
 
             $(document).on('click', '#assingSubject', function(e) {
                 e.preventDefault();
@@ -357,7 +435,7 @@
                 
             });
 
-             $(document).on('click', '.delete-subject', function() {
+            $(document).on('click', '.delete-subject', function() {
                 var studentId = $(this).data('student-id');
                 var subjectId = $(this).data('subject-id');
 
@@ -380,6 +458,36 @@
                         toggleAble($(this), false);
                         toastr.error(xhr.responseText, 'Failed!');
                     }
+                });
+            });
+
+             $(document).on('submit', '#upload', function (e) {
+                e.preventDefault();
+                let formData = new FormData($('#upload')[0]);
+                toggleAble('#submit_passport', true, 'Submitting...');
+                var url = "/student/upload/passport";
+
+                $.ajax({
+                    method: "POST",
+                    url,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'json',
+                }).done((res) => {
+                    toggleAble('#submit_passport', false);
+                    toastr.success(res.message, 'Success!');
+                    $('#img-show-container').hide();
+                    $('.updatePassport').modal('toggle');
+                    resetForm('#upload')
+
+                    setTimeout(function(){
+                        window.location.reload();
+                    }, 1000);
+                }).fail((err) => {
+                    console.log(err);
+                    toggleAble('#submit_passport', false);
+                    toastr.error(err.responseJSON.message, 'Failed!');
                 });
             });
         </script>

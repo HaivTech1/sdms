@@ -49,7 +49,7 @@ class UpdateStudent implements ShouldQueue
         Student $student,
         string $firstName,
         string $lastName,
-        string $otherName,
+        ?string $otherName,
         string $gender,
         string $dob,
         string $nationality,

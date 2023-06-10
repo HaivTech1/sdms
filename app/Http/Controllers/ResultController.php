@@ -91,73 +91,9 @@ class ResultController extends Controller
         return view('admin.result.midterm');
     }
 
-    public function store(Request $request)
+    public function batchMidtermUpload()
     {
-        try {
-            DB::transaction(function () use ($request) {
-                $missingResults = [];
-
-                foreach ($request->student_id as $i => $student_id) {
-
-                    $check = PrimaryResult::where('period_id', $request->period_id)
-                    ->where('term_id', $request->term_id)
-                    ->where('grade_id', $request->grade_id)
-                    ->where('subject_id', $request->subject_id)
-                    ->where('student_id', $student_id)
-                    ->first();
-
-                    if ($check) {
-                        continue;
-                    }
-
-                    $midterm = Midterm::where([
-                        'period_id' => $request->period_id,
-                        'term_id' => $request->term_id,
-                        'grade_id' => $request->grade_id,
-                        'subject_id' => $request->subject_id,
-                        'student_id' => $student_id
-                    ])->first();
-
-                    if ($midterm === null) {
-                        $student = Student::findOrFail($student_id);
-                        $missingResults[] = $student->lastName() . ' ' . $student->firstName() . ' ' . $student->otherName();
-                    } else {
-                        $result = new PrimaryResult([
-                            'period_id'     => $request->period_id,
-                            'term_id'       => $request->term_id,
-                            'grade_id'      => $request->grade_id,
-                            'student_id'    => $student_id,
-                            'subject_id'    => $request->subject_id,
-                            'ca1'           => $midterm->firstTest() + $midterm->entry1() + $midterm->entry2(),
-                            'ca2'           => $midterm->ca(),
-                            'ca3'           => $midterm->classActivity(),
-                            'pr'            => $midterm->project(),
-                            'exam'          => $request->exam[$i],
-                        ]);
-                
-                        $result->authoredBy(auth()->user());
-                        $result->save();
-                    }
-                }
-
-                if (!empty($missingResults)) {
-                    $missingStudents = implode(', ', $missingResults);
-                    throw new \Exception("Results for the following students are missing: $missingStudents");
-                }
-                
-            });
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Result uploaded successfully!',
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => false,
-                'message' => 'Error creating result: ' . $e->getMessage(),
-            ], 500);
-        }
+        return view('admin.result.batch_midterm');
     }
 
     public function show(Student $student, Request $request)
@@ -542,7 +478,18 @@ class ResultController extends Controller
                     ->first();
                     
                     if ($check) {
-                        throw new \Exception('Result for this student already exists!');
+                        $midtermFormat = get_settings('midterm_format');
+
+                        foreach ($request->subject_id as $i => $subjectId) {
+                           $midtermData = [];
+                            foreach (array_keys($midtermFormat) as $key) {
+                                if (isset($request->$key[$i])) {
+                                    $midtermData[$key] = $request->$key[$i];
+                                }
+                            }
+
+                            $check->where('subject_id', $subjectId)->update($midtermData);
+                        }
                     }else {
                         $midtermFormat = get_settings('midterm_format');
 
@@ -570,7 +517,7 @@ class ResultController extends Controller
                     }
                 });
 
-                return response()->json(['status' => 'success', 'message' => ['Result uploaded successfully!']], 200);
+                return response()->json(['status' => true, 'message' => ['Result uploaded successfully!']], 200);
             }catch(\Exception $e){
                 DB::rollBack();
                 return response()->json([
@@ -580,6 +527,79 @@ class ResultController extends Controller
             }
         }
 
+    }
+
+    public function storeBatchMidterm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'period_id'          => ['required'],
+            'term_id'              => ['required'],
+            'grade_id'              => ['required'],
+            'subject_id'              => ['required'],
+        ],[
+            "period_id.required" => "Session is required",
+            "term_id.required" => "Session is required",
+            "grade_id.required" => "Please select a class",
+            "subject_id.required" => "Please select a Subject!",
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json([
+                'success' => 'false',
+                'message'  => $validator->message()->all(),
+            ], 400);
+        }else{
+            try{
+                DB::transaction(function () use ($request) {
+                        foreach ($request->student_id as $i => $studentId) {
+
+                            $check = MidTerm::where('period_id', $request->period_id)
+                            ->where('term_id', $request->term_id)
+                            ->where('grade_id', $request->grade_id)
+                            ->where('subject_id', $request->subject_id)
+                            ->where('student_id', $studentId)
+                            ->first();
+
+                            if ($check) {
+                                $midtermData = [];
+                                $midtermData[$request->format] = $request->{$request->format}[$i];
+                                $check->update($midtermData);
+                            }else {
+                                $midtermFormat = get_settings('midterm_format');
+        
+                                foreach ($request->student_id as $i => $studentId) {
+                                    $midtermData = [
+                                        'period_id' => $request->period_id,
+                                        'term_id' => $request->term_id,
+                                        'grade_id' => $request->grade_id,
+                                        'subject_id' => $request->subject_id,
+                                        'student_id' => $studentId
+                                    ];
+                                    
+                                    foreach (array_keys($midtermFormat) as $key) {
+                                        if (isset($request->{$key}[$i])) {
+                                            $midtermData[$key] = $request->{$key}[$i];
+                                        }
+                                    }
+                                    
+                                    $midterm = new MidTerm($midtermData);
+                                    $midterm->authoredBy(auth()->user());
+                                    $midterm->save();
+                                }
+                            }
+                        }
+                });
+
+                return response()->json(['status' => true, 'message' => ['Result uploaded successfully!']], 200);
+            }catch(\Exception $e){
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error creating result: ' . $e->getMessage(),
+                ], 500);
+            }
+        }
     }
 
     public function storeSecondaryUpload(SingleResultRequest $request)
@@ -618,7 +638,6 @@ class ResultController extends Controller
     public function singlePrimaryUpload(Request $request)
     {
         try {
-            // Wrap the database queries in a transaction
             DB::transaction(function () use ($request) {
                 $check = PrimaryResult::where('period_id', $request->period_id)
                     ->where('term_id', $request->term_id)
@@ -676,7 +695,6 @@ class ResultController extends Controller
                 }
             });
 
-            // Return a success response
             return response()->json([
                 'status' => true,
                 'message' => 'Result uploaded successfully!',
@@ -695,6 +713,116 @@ class ResultController extends Controller
                 'message' => 'Error creating result: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function batchExamUpload(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'period_id'          => ['required'],
+            'term_id'              => ['required'],
+            'grade_id'              => ['required'],
+            'subject_id'              => ['required'],
+        ],[
+            "period_id.required" => "Session is required",
+            "term_id.required" => "Session is required",
+            "grade_id.required" => "Please select a class",
+            "subject_id.required" => "Please select a Subject!",
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json([
+                'success' => 'false',
+                'message'  => $validator->message()->all(),
+            ], 400);
+        }else{
+            try {
+                DB::transaction(function () use ($request) {
+                    foreach ($request->student_id as $i => $student) {
+
+                        $checkExam = PrimaryResult::where([
+                            'period_id' => $request->period_id,
+                            'term_id' => $request->term_id,
+                            'grade_id' => $request->grade_id,
+                            'subject_id' => $request->subject_id,
+                            'student_id' => $student
+                        ])->first();
+
+                        $midterm = Midterm::where([
+                            'period_id' => $request->period_id,
+                            'term_id' => $request->term_id,
+                            'grade_id' => $request->grade_id,
+                            'subject_id' => $request->subject_id,
+                            'student_id' => $student
+                        ])->first();
+
+                        $midtermFormat = get_settings('midterm_format');
+                        $examFormat = get_settings('exam_format');
+
+                        if(!$checkExam){
+
+                            if (!$midterm) {
+                                $result = new PrimaryResult([
+                                    'period_id'     => $request->period_id,
+                                    'term_id'       => $request->term_id,
+                                    'grade_id'      => $request->grade_id,
+                                    'subject_id'    => $request->subject_id,
+                                    'student_id'    => $student,
+                                ]);
+    
+                                if (is_array($midtermFormat)) {
+                                    foreach ($midtermFormat as $key => $value) {
+                                        if (isset($midterm->$key)) {
+                                            $result->$key = $midterm->$key;
+                                        }
+                                    }
+                                }
+                                
+                                if (is_array($examFormat) && isset($request->exam[$i])) {
+                                    foreach ($examFormat as $key => $value) {
+                                        $result->$key = $request->exam[$i];
+                                    }
+                                }
+                            
+                                $result->authoredBy(auth()->user());
+                                $result->save();
+                            }else{
+                                throw new \Exception('Please upload midterm result for this student first!');
+                            }
+                        }else{
+                            
+                            if (is_array($midtermFormat)) {
+                                foreach ($midtermFormat as $key => $value) {
+                                    if (isset($midterm->$key)) {
+                                        $examData[$key] = $midterm->$key;
+                                    }
+                                }
+                            }
+                            
+                            if (is_array($examFormat) && isset($request->exam[$i])) {
+                                foreach ($examFormat as $key => $value) {
+                                    $examData[$key] = $request->exam[$i];
+                                }
+                            }
+                        
+                            $checkExam->update($examData);
+                        }
+                       
+                    }
+                });
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Result uploaded successfully!',
+                ], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error creating result: ' . $e->getMessage(),
+                ], 500);
+            }
+        }
+
     }
     
     public function psychomotor(Request $request)

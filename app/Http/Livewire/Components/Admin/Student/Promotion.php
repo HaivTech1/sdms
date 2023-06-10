@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Components\Admin\Student;
 use App\Models\Grade;
 use App\Models\Student;
 use Livewire\Component;
+use App\Models\Graduate;
 use Livewire\WithPagination;
 use App\Scopes\HasActiveScope;
 
@@ -60,9 +61,21 @@ class Promotion extends Component
         ]);
 
         $toBePromoted = Student::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $this->selectedRows)->get();
-
+        $lastGrade = Grade::whereTitle('graduated')->first();
         foreach ($toBePromoted as $value) {
+
             $value->update(['grade_id' => $this->to]);
+
+            if ($this->to === $lastGrade->id()) {
+                $graduate = new Graduate([
+                    'student_id' => $value->id(),
+                    'author_id' => auth()->id(),
+                    'grade_id' => $this->from,
+                    'term_id' => term('id'),
+                    'period_id' => period('id'),
+                ]);
+                $graduate->save();
+            }
         }
 
         $this->dispatchBrowserEvent('success', ['message' => 'All students promoted successfully!']);

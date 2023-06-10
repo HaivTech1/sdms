@@ -16,9 +16,12 @@ use App\Jobs\CreateStudent;
 use App\Jobs\UpdateStudent;
 use Illuminate\Http\Request;
 use App\Models\PrimaryResult;
+use App\Scopes\HasActiveScope;
 use App\Services\SaveImageService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\RegistrationRequest;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
@@ -197,7 +200,7 @@ class StudentController extends Controller
             'title' => 'Success'
         );
 
-        return redirect()->route('student.index')->with($notification);
+        return redirect()->back()->with($notification);
     }
 
 
@@ -321,5 +324,30 @@ class StudentController extends Controller
             'message' => $th->getMessage(),
         ], 500);
        }
+    }
+
+    public function upload(Request $request)
+    {
+        
+        try{
+
+            $studentId = $request->student_id;
+            $student = Student::withoutGlobalScope(new HasActiveScope)->findOrFail($studentId);
+
+            if (!is_null($request->image)) {
+                File::delete(storage_path('app/' . $student->user->profile_photo_path));
+                SaveImageService::UploadImage($request->image, $student->user, User::TABLE, 'profile_photo_path');
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => "Passport updated successfully!",
+            ], 200);
+        }catch(Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

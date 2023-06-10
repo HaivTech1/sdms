@@ -17,11 +17,13 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="py-4">
-                        <p class="text-danger text-center">Please note that promotion must be done from the higher class to the lower class</p>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="mdi mdi-alert-outline me-2"></i>
+                        Please note that promotion must be done from the higher class to the lower class!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-12">
                             <x-form.label for="from" value="{{ __('Promote From') }}" />
                             <select class="form-control select2" wire:model.debounce.350ms="from">
                                 <option value=''>Class</option>
@@ -32,7 +34,7 @@
                             <x-form.error for="from" />
                         </div>
 
-                        <div class="col-lg-6">
+                        <div class="col-lg-12 mt-2">
                             <x-form.label for="to" value="{{ __('Promote To') }}" />
                             <select class="form-control select2" wire:model.defer="to">
                                 <option value=''>Class</option>
@@ -100,9 +102,9 @@
                                 <button type="buttton" class="btn btn-success waves-effect waves-light" wire:click="promoteAll">
                                     Promote
                                 </button>
-                                <button type="buttton" class="btn btn-danger waves-effect waves-light" wire:click="repeatAll">
+                                {{-- <button type="buttton" class="btn btn-danger waves-effect waves-light" wire:click="repeatAll">
                                     Repeat
-                                </button>
+                                </button> --}}
                             </div>
                         @endif
                     </div>

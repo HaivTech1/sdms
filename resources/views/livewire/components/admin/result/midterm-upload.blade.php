@@ -113,8 +113,68 @@
                                     @php
                                         $midterm = get_settings('midterm_format');
                                     @endphp
-                                    @if ($midterm !== null)
-                                        @if (count($results) > 0)
+                                    
+                                    {{-- @if (count($results) > 0)
+                                        <div class='col-sm-12'>
+                                    
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
+                                                value="{{ $selectedPeriod->id() }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
+                                                value="{{ $selectedTerm->id() }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
+                                                value="{{ $grade_id }}" autofocus />
+                                            <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
+                                                value="{{  $selectedStudent->id() }}" autofocus />
+
+                                            <div class='table-responsive'>
+                                                <table class="table align-middle table-nowrap table-check">
+                                                    <thead class="table-light">
+                                                        <tr class="">
+                                                            <th>Subject</th>
+                                                            @foreach ($midterm as $key => $value)
+                                                                <th>{{ $value['full_name'] }}</th>
+                                                            @endforeach
+                                                            <th>Created</th>
+                                                            <th></th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th></th>
+                                                            @foreach ($midterm as $key => $value)
+                                                                <th>{{ $value['mark'] }}</th>
+                                                            @endforeach
+                                                            <th></th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody wire:ignore>
+                                                        @foreach ($results as $result)
+                                                            <tr id='{{ $result->id() }}'>
+                                                                <td>
+                                                                    {{ $result->subject->title() }}
+                                                                </td>
+                                                                @foreach ($midterm as $key => $value)
+                                                                    <td>
+                                                                        <livewire:components.edit-title :model='$result' field='{{ $key }}' :key='$result->id()' />
+                                                                    </td>
+                                                                @endforeach
+                                                                <td>{{ $result->createdAt() }}</td>
+                                                                <td>
+                                                                    <button wire:ignore.self type="button" class="btn btn-danger delete-score" data-session="{{ $result->period->id() }}" data-term="{{ $result->term->id() }}" data-student="{{ $selectedStudent->id() }}" data-subject="{{ $result->subject->id() }}">
+                                                                        <i class="bx bx-trash"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @else --}}
+                                        <form id="midFormSubmit" method="POST">
+                                            @csrf
+
+                                            <div class="modalErrorr"></div>
+
                                             <div class='col-sm-12'>
                                         
                                                 <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
@@ -128,14 +188,14 @@
 
                                                 <div class='table-responsive'>
                                                     <table class="table align-middle table-nowrap table-check">
+                                
                                                         <thead class="table-light">
                                                             <tr class="">
-                                                                <th>Subject</th>
+                                                                <th></th>
                                                                 @foreach ($midterm as $key => $value)
                                                                     <th>{{ $value['full_name'] }}</th>
                                                                 @endforeach
-                                                                <th>Created</th>
-                                                                <th></th>
+                                                                <th>Total</th>
                                                             </tr>
                                                             <tr>
                                                                 <th></th>
@@ -146,101 +206,39 @@
                                                                 <th></th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody wire:ignore>
-                                                            @foreach ($results as $result)
-                                                                <tr id='{{ $result->id() }}'>
+                                                        <tbody>
+                                                            @foreach ($selectedStudent->subjects as $subject)
+                                                            <tr>
+                                                                <td>
+                                                                    {{ $subject->title() }}
+                                                                    <x-form.input style='width: 50px' class="text-center" type='hidden'
+                                                                        name='subject_id[]' value="{{ $subject->id() }}" />
+                                                                </td>
+                                                                <?php $total = 0; ?>
+                                                                @foreach ($midterm as $key => $mark)
                                                                     <td>
-                                                                        {{ $result->subject->title() }}
-                                                                        <livewire:components.edit-title :model='$result' field='subject_id' :key='$result->subject->id()' />
+                                                                        <x-form.input style='width: 70px' class="text-center required" type='number' name='{{ $key }}[]' value="" step="0.01"
+                                                                            onblur="validateInput(this, {{ $mark['mark'] }})" />
+                                                                        <div class="invalid-feedback"></div>
+                                                                        <?php $total += $mark['mark']; ?>
                                                                     </td>
-                                                                    @foreach ($midterm as $key => $value)
-                                                                        <td>
-                                                                            <livewire:components.edit-title :model='$result' field='{{ $key }}' :key='$result->id()' />
-                                                                        </td>
-                                                                    @endforeach
-                                                                    <td>{{ $result->createdAt() }}</td>
-                                                                    <td>
-                                                                        <button wire:ignore.self type="button" class="btn btn-danger delete-score" data-session="{{ $result->period->id() }}" data-term="{{ $result->term->id() }}" data-student="{{ $selectedStudent->id() }}" data-subject="{{ $result->subject->id() }}">
-                                                                            <i class="bx bx-trash"></i>
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
+                                                                @endforeach
+                                                                <td>{{ $total }}</td>
+                                                            </tr>
                                                             @endforeach
                                                         </tbody>
                                                     </table>
                                                 </div>
-                                            </div>
-                                        @else
-                                            <form id="midFormSubmit" method="POST">
-                                                @csrf
 
-                                                <div class="modalErrorr"></div>
-
-                                                <div class='col-sm-12'>
-                                            
-                                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='period_id'
-                                                        value="{{ $selectedPeriod->id() }}" autofocus />
-                                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='term_id'
-                                                        value="{{ $selectedTerm->id() }}" autofocus />
-                                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='grade_id'
-                                                        value="{{ $grade_id }}" autofocus />
-                                                    <x-form.input style='width: 50px' class="text-center" type='hidden' name='student_id'
-                                                        value="{{  $selectedStudent->id() }}" autofocus />
-
-                                                    <div class='table-responsive'>
-                                                        <table class="table align-middle table-nowrap table-check">
-                                    
-                                                            <thead class="table-light">
-                                                                <tr class="">
-                                                                    <th></th>
-                                                                    @foreach ($midterm as $key => $value)
-                                                                        <th>{{ $value['full_name'] }}</th>
-                                                                    @endforeach
-                                                                    <th>Total</th>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th></th>
-                                                                    @foreach ($midterm as $key => $value)
-                                                                        <th>{{ $value['mark'] }}</th>
-                                                                    @endforeach
-                                                                    <th></th>
-                                                                    <th></th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach ($selectedStudent->subjects as $subject)
-                                                                <tr>
-                                                                    <td>
-                                                                        {{ $subject->title() }}
-                                                                        <x-form.input style='width: 50px' class="text-center" type='hidden'
-                                                                            name='subject_id[]' value="{{ $subject->id() }}" />
-                                                                    </td>
-                                                                    <?php $total = 0; ?>
-                                                                    @foreach ($midterm as $key => $mark)
-                                                                        <td>
-                                                                            <x-form.input style='width: 70px' class="text-center required" type='number' name='{{ $key }}[]' value="" step="0.01"
-                                                                                onblur="validateInput(this, {{ $mark['mark'] }})" />
-                                                                            <div class="invalid-feedback"></div>
-                                                                            <?php $total += $mark['mark']; ?>
-                                                                        </td>
-                                                                    @endforeach
-                                                                    <td>{{ $total }}</td>
-                                                                </tr>
-                                                                @endforeach
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-
-                                                    <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
-                                                        <button id="submit_button" type="submit"
-                                                            class="btn btn-primary block waves-effect waves-light pull-right">
-                                                            Upload Result
-                                                        </button>
-                                                    </div>
+                                                <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
+                                                    <button id="submit_button" type="submit"
+                                                        class="btn btn-primary block waves-effect waves-light pull-right">
+                                                        Upload Result
+                                                    </button>
                                                 </div>
-                                            </form>
-                                        @endif
-                                    @endif
+                                            </div>
+                                        </form>
+                                    {{-- @endif --}}
                                 @endif
                             </div>
                        </div>
@@ -311,7 +309,7 @@
                 e.preventDefault();
                 toggleAble('#submit_button', true, 'Submitting...');
 
-                let inputs = $('#midFormSubmit .required');
+                {{-- let inputs = $('#midFormSubmit .required');
                 let invalid = false;
 
                 inputs.each(function() {
@@ -326,7 +324,7 @@
                     toggleAble('#submit_button', false);
                     toastr.error('Please fill in all required fields.', 'Validation Error!');
                     return;
-                }
+                } --}}
 
                 var url = "{{ route('result.upload.midterm.score') }}";
                 var data = $('#midFormSubmit').serializeArray();
@@ -336,7 +334,7 @@
                     url,
                     data
                 }).done((res) => {
-                    if(res.status === 'success') {
+                    if(res.status) {
                         toggleAble('#submit_button', false);
                         toastr.success(res.message, 'Success!');
                     }else{

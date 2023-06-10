@@ -35,6 +35,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     Route::get('/assigned/grades', [UserController::class, 'assignedGrade']);
     Route::get('/user/sessions', [OtherBrowserSessionsController::class, 'index']);
     Route::post('/user/sessions/purge', [OtherBrowserSessionsController::class, 'destroy']);
+    Route::put('/update/user/{id}', [UserController::class, 'update']);
+    Route::put('/profile/update/image/{id}', [UserController::class, 'updateImage']);
 
     Route::group(['prefix' => 'settings', 'namespace' => 'Settings'], function () {
       Route::get('/', [SettingController::class, 'index']);
@@ -53,6 +55,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::post('/assign/grade', [StaffController::class, 'assignClass']);
         Route::get('/grade/{id}/delete/{staff}', [StaffController::class, 'deleteGrade']);
         Route::post('/activate', [StaffController::class, 'activate']);
+        Route::get('/delete/{id}', [StaffController::class, 'delete']);
     });
 
     Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {

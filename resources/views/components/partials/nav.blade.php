@@ -3,7 +3,7 @@
         <div class="container">
             <div class="header_top_wrapper d-flex justify-content-center justify-content-md-between">
             <a class="navbar-brand" href="{{ url('/') }}">
-                    <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}" style="width: 50px; border-radius: 100%">
+                    <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}" style="width: 50px; border-radius: 50%">
                 </a>
                 <div class="header_top_info d-none d-md-block">
                     <ul>

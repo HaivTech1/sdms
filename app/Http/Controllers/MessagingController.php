@@ -26,11 +26,10 @@ class MessagingController extends Controller
     }
 
     public function sendEmail(Request $request){
-        $user = \Auth::user();
+            $user = \Auth::user();
   
           foreach ($request->to as $to){
-            Mail::to($to)
-                ->send(new SendMail($request, $user));
+            Mail::to($to)->send(new SendMail($request, $user));
         }
 
         $notification = array (

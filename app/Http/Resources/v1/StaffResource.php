@@ -11,9 +11,11 @@ class StaffResource extends JsonResource
     {
         return [
             'id'                    => $this->id(),
+            'title'                  => $this->title(),
             'name'                  => $this->name(),
             'email'                 => $this->email(),
             'phone_number'          => $this->phone(),
+            'reg_no'                => $this->code(),
             'role'                  => $this->type,
             'type'                  => $this->user_type,
             'image'                 => $this->image(),

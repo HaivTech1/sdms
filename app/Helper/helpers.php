@@ -656,3 +656,24 @@ function colorArray()
     
     return $data;
 }
+
+if (!function_exists('generate_mapping')) {
+    function generate_mapping($remarkArray, $gradeArray)
+    {
+        $mapping = [];
+
+        foreach ($remarkArray as $key => $remark) {
+            if (array_key_exists($key, $gradeArray)) {
+                $range = "{$key}-{$gradeArray[$key]['from']}";
+                $mapping[$gradeArray[$key]['text']] = "{$range}:{$remark['text']}";
+            }
+        }
+        end($remarkArray);
+        $lastKey = key($remarkArray);
+        $lastRemark = $remarkArray[$lastKey];
+        $numb = $lastKey - 1;
+        $range = "0-{$numb}";
+        $mapping['Fail'] = "{$range}:F";
+        return $mapping;
+    }
+}

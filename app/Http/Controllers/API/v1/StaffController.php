@@ -18,6 +18,7 @@ use App\Traits\NotifiableParentsTrait;
 use App\Http\Resources\v1\UserResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\v1\StaffResource;
+use Illuminate\Support\Facades\Validator;
 
 class StaffController extends Controller
 {
@@ -29,67 +30,92 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         try {
-            $newArray = User::whereNotIn('type', [ User::SUPERADMIN, User::STUDENT])->get();
-            $users = UserResource::collection($newArray);
-            return response()->json(['status' => true, 'staffs' => $users], 200);
+            $type = $request->input('type');
+            $query = User::whereNotIn('type', [User::SUPERADMIN, User::STUDENT]);
+        
+            if ($type !== null) {
+                $query->where('type', $type);
+            }
+        
+            $users = $query->get();
+            $staffs = StaffResource::collection($users);
+        
+            return response()->json(['status' => true, 'staffs' => $staffs], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
     }
 
-    public function store(UserRequest $request)
+    public function store(Request $request)
     {
-        try {
-            DB::transaction(function () use ($request) {
-                  $user = new User([
-                      'title' => $request->title,
-                      'name' => $request->name,
-                      'email' => $request->email,
-                      'phone_number' => $request->phone_number,
-                      'password' => Hash::make($request->password),
-                      'type' => $request->type
-                  ]);
-                  
-                  $initial = '';
-          
-                  if($request->type === 2){
-                      $initial = 'ADM/';
-                  }elseif($request->type === 3){
-                      $initial = 'TCH/';
-                  }elseif($request->type === 5){
-                      $initial = 'BUR/';
-                  }elseif($request->type === 6){
-                      $initial = 'WOR/';
-                  }
-          
-                  $code = SaveCode::Generator($initial, 5, 'reg_no', $user);
-                  $user->reg_no = $code;
-          
-                  $message = "<p>You are welcome to ".application('name')." portal. Please visit ".application('website')." to login with your credentials. Id: ".$code." and your password: password1234</p>";
-                  $subject = 'Welcome to '.application('name'). ' Portal';
-          
-                  if($request->type === '3'){
-                      Mail::to($request->email)->send(new SendTeacherDetails($message, $subject));
-                  }
-          
-                if ($request->hasFile('image')) {
-                    $uploadedFile = $request->file('image');
-                    $fileName = $uploadedFile->getClientOriginalName();
-                    $filePath = 'users/' . $fileName;
-                    
-                    if ($uploadedFile->storeAs('public', $filePath)) {
-                        $user->profile_photo_path = $filePath;
-                    } else {
-                        return response()->json(['status' => false, 'message' => 'Failed to upload the file'], 400);
-                    }
-                }
+        $validator = Validator::make($request->all(), [
+            'title' => ['required', 'string'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'              => ['required'],
+            'phone_number'              => ['required'],
+            'type'              => ['required'],
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json([
+                'success' => false,
+                'message'  => $validator->errors()->all(),
+            ], 400);
+        }else{
+            try {
+                DB::transaction(function () use ($request) {
+                        $user = new User([
+                            'title' => $request->input('title'),
+                            'name' => $request->name,
+                            'email' => $request->email,
+                            'phone_number' => $request->phone,
+                            'password' => Hash::make($request->password),
+                            'type' => $request->type
+                        ]);
+                        
+                        $initial = '';
                 
-                $user->save();
-            });
-            return response()->json(['status' => true, 'message' => 'User created successfully'], 200);
-         } catch (\Throwable $th) {
-              return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
-         }
+                        if($request->input('type') === 2){
+                            $initial = 'ADM/';
+                        }elseif($request->input('type') === 3){
+                            $initial = 'TCH/';
+                        }elseif($request->input('type') === 5){
+                            $initial = 'BUR/';
+                        }elseif($request->input('type') === 6){
+                            $initial = 'WOR/';
+                        }
+                
+                        $code = SaveCode::Generator($initial, 5, 'reg_no', $user);
+                        $user->reg_no = $code;
+                
+                        $message = "<p>You are welcome to ".application('name')." portal. Please visit ".application('website')." to login with your credentials. Id: ".$code." and your password: password1234</p>";
+                        $subject = 'Welcome to '.application('name'). ' Portal';
+                
+                        if($request->type === '3'){
+                            Mail::to($request->email)->send(new SendTeacherDetails($message, $subject));
+                        }
+                
+                    if ($request->hasFile('image')) {
+                        $uploadedFile = $request->file('image');
+                        $fileName = $uploadedFile->getClientOriginalName();
+                        $filePath = 'users/' . $fileName;
+                        
+                        if ($uploadedFile->storeAs('public', $filePath)) {
+                            $user->profile_photo_path = $filePath;
+                        } else {
+                            return response()->json(['status' => false, 'message' => 'Failed to upload the file'], 400);
+                        }
+                    }
+                    
+                    $user->save();
+                });
+                return response()->json(['status' => true, 'message' => 'Staff created successfully'], 200);
+            } catch (\Throwable $th) {
+                return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+            }
+        }
     }
 
     public function assignClass(Request $request)
@@ -130,18 +156,26 @@ class StaffController extends Controller
                 $staffId = $request->staff_id;
                 $status = $request->status;
                 $user = User::findOrFail($staffId);
-                if ($status === true) {
-                    $user->update(['status' => 1]);
-                }else{
-                    $user->update(['status' => 0]);
-                }
+                $user->update(['isAvailable' => $status === true ? 1 : 0]);
             });
 
-            return response()->json(['status' => true, 'message' => 'Staff Activated successfully!'], 200);
+            return response()->json(['status' => true, 'message' => 'Staff status updated successfully!'], 200);
 
        }catch(Exception $th){
             DB::rollback();
-            return response()->json(['status' => true, 'errors' => $th->getMessage()], 500);
+            return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            $teacher = User::findOrFail($id);
+            $teacher->delete();
+            return response()->json(['status' => true, 'message' => 'Staff deleted successfully!'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
+        }
+
     }
 }

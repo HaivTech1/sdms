@@ -14,11 +14,13 @@ class UserResource extends JsonResource
     {
         return [
             'id'            => $this->id(),
+            'title'         => $this->title(),
             'name'          => $this->name(),
             'email'          => $this->email(),
             'role'          => $this->type,
             'type'          => $this->user_type,
             'image'          => $this->image(),
+            'phone_number'          => $this->phone(),
             'has2FA'        => $this->two_factor_secret ? true : false,
             'status'        => $this->isAvailable
         ];

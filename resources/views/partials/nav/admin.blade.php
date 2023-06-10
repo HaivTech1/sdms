@@ -47,14 +47,10 @@
         </a>
     </li> 
     <li>
-        <a href="javascript: void(0);" class="has-arrow waves-effect">
+        <a href="{{ route('student.batch.promotion') }}" class="waves-effect">
             <i class="bx bx-transfer"></i>
-            <span key="t-ecommerce">Promotion</span>
+            <span key="t-chat">Promotion</span>
         </a>
-        <ul class="sub-menu" aria-expanded="false">
-            <li><a href="{{ route('student.batch.promotion') }}" key="t-add-product">Batch Promotion</a></li>
-            <li><a href="{{ route('student.single.promotion') }}" key="t-add-product">Single Promotion</a></li>
-        </ul>
     </li>
     <li>
         <a href="{{ route('user.certificate') }}" class="waves-effect">

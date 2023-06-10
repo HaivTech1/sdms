@@ -22,7 +22,7 @@ class UserTableSeeder extends Seeder
                 User::SUPERADMIN,
                 'users/author-one.jpg',
                 '2349066100815',
-                'ADM/22/311464'
+                'SPR/17/1777'
             ),
             $this->createUser(
                 'Mr',

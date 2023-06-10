@@ -60,7 +60,7 @@
                     </form>
 
                     <div class='row mt-4'>
-                        <div class='col-xs-12 col-sm-12 col-md-12 text-center mb-4'>
+                        {{-- <div class='col-xs-12 col-sm-12 col-md-12 text-center mb-4'>
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="row">
@@ -106,7 +106,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         @if ($selectedTerm)
                             <form action="{{ route('result.storeSingleSecondaryUpload') }}" method="POST">
                                 @csrf

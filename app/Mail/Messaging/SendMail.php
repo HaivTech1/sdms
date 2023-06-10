@@ -27,23 +27,16 @@ class SendMail extends Mailable
         $dom->savehtml();
         $this->message = $dom;//$request->message;
         $this->subject = $request->subject;
-        $this->email = $user->email;
-        $this->name = $user->name();
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
-        return $this->from(application('email').'', ucwords($this->name))
+        return $this->from(application('email').'', ucwords(application('name')))
                     ->subject($this->subject)
                     ->with([
                         'message' => $this->message,
                       ])
-                      ->replyTo($this->email)
+                      ->replyTo(application('email'))
                     ->markdown('emails.messaging.send_mail');
     }
 }

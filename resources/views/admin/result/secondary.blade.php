@@ -59,7 +59,7 @@
                                     </li>
                                 </ul>
                                 <ul style="width: 32%">
-                                    <li> Class population: <b class="s-cls-size">{{ $student->grade->count()}}</b> </li>
+                                    <li> Class population: <b class="s-cls-size">{{ $student->grade->students->count()}}</b> </li>
 
                                     <li> Mark obtainable:<b class="s-avg">{{ $student->subjects->count() * 100 }}</b> </li>
 
@@ -80,6 +80,10 @@
                         @php
                             $midterm = get_settings('midterm_format');
                             $exam = get_settings('exam_format');
+
+                            $remarkFormat = get_settings('exam_remark');
+                            $gradingFormat = get_settings('exam_grade');
+
                             $midtermTotal = 0;
                             $examTotal = 0;
 
@@ -100,6 +104,8 @@
                             }
 
                             $expectedTotal = $examTotal + $midtermTotal;
+
+                            $mapping = generate_mapping($gradingFormat, $remarkFormat);
                         @endphp
 
                         <div class="d-flex justify-content-around mt-2 resultd">
@@ -182,7 +188,7 @@
                                             <tbody>
                                                 <tr>
                                                     <th>{{ $result['subject'] }}</th>
-                                                     @foreach ($midterm as $key => $value)
+                                                    @foreach ($midterm as $key => $value)
                                                         @if (isset($result[$key]))
                                                             <td style="font-size: 10px; font-weight: 400; text-align: center; color: {{ exam20Color($result[$key]) }}">{{ $result[$key] }}</td>
                                                         @endif
@@ -196,7 +202,7 @@
                                                         @endif
                                                     @endforeach
                                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
-                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ calculateStudentPosition($student->id(), \App\Models\PrimaryResult::class, $period->id(), $term->id(), $student->grade->id(), $result['subject_id']); }}</td>
+                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ calculateStudentSubjectPosition($student->id(), \App\Models\PrimaryResult::class, $period->id(), $term->id(), $student->grade->id(), $result['subject_id']); }}</td>
                                                     @if ($term->id() === '1')
                                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examGrade($result['total']) }}</td>
                                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examRemark($result['total']) }}</td>
@@ -269,15 +275,9 @@
                                                     <tbody class="ck">
                                                         <tr>
                                                             <td class="comment" style="font-size: 8px;">
-                                                                <strong>EXCELLENT</strong>&nbsp;:&nbsp;80-100&nbsp;:&nbsp;A1,
-                                                                <strong>VERY&nbsp;GOOD</strong>&nbsp;:&nbsp;75-79&nbsp;:&nbsp;B2,
-                                                                <strong>GOOD</strong>&nbsp;:&nbsp;70-74&nbsp;:&nbsp;B3,
-                                                                <strong>CREDIT</strong>&nbsp;:&nbsp;60-69&nbsp;:&nbsp;C4,
-                                                                <strong>CREDIT</strong>&nbsp;:&nbsp;55-59&nbsp;:&nbsp;C5,
-                                                                <strong>CREDIT</strong>&nbsp;:&nbsp;50-54&nbsp;:&nbsp;C6,
-                                                                <strong>PASS</strong>&nbsp;:&nbsp;45-49&nbsp;:&nbsp;D7,
-                                                                <strong>PASS</strong>&nbsp;:&nbsp;40-45&nbsp;:&nbsp;E,
-                                                                <strong>FAIL</strong>&nbsp;:&nbsp;0-39&nbsp;:&nbsp;F,
+                                                                @foreach($mapping as $key => $value)
+                                                                    <strong>{{ strtoupper($key) }}</strong>:{{ $value }},
+                                                                @endforeach
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -291,11 +291,12 @@
                                                     <tbody id="">
                                                         <tr>
                                                             <td class="comment" style="font-size: 8px;">
-                                                                <strong>EXCELLENT</strong>&nbsp;:&nbsp;5,
-                                                                <strong>VERY&nbsp;GOOD</strong>&nbsp;:&nbsp;4,
-                                                                <strong>GOOD</strong>&nbsp;:&nbsp;3,
-                                                                <strong>NORMAL</strong>&nbsp;&nbsp;2,
-                                                                <strong>FAIR</strong>&nbsp;:&nbsp;1, <strong>NO TICK</strong>&nbsp;:&nbsp;not recorded
+                                                                <strong>EXCELLENT</strong>:5,
+                                                                <strong>VERYGOOD</strong>:4,
+                                                                <strong>GOOD</strong>:3,
+                                                                <strong>NORMAL</strong>2,
+                                                                <strong>FAIR</strong>:1, 
+                                                                <strong>NO TICK</strong>:not recorded
                                                             </td>
                                                         </tr>
                                                     </tbody>

@@ -15,7 +15,11 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         try {
-            $newArray = Student::withoutGlobalScope(new HasActiveScope)->with(['grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'])->get();
+            
+            $newArray = Student::withoutGlobalScope(new HasActiveScope)
+                ->with(['grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'])
+                ->get();
+
             $students = StudentResource::collection($newArray);
             return response()->json(['status' => true, 'students' => $students], 200);
         } catch (\Throwable $th) {

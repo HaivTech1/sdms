@@ -48,7 +48,7 @@ class StoreStudentRequest extends FormRequest
         return $this->get('last_name');
     }
 
-    public function otherName(): string
+    public function otherName(): ?string
     {
         return $this->get('other_name');
     }

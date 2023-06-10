@@ -163,27 +163,12 @@
                                     @if($result->subject->title() != null)
                                         <td style="padding-left: 10px">{{ $result->subject->title() }}</td>
                                     @endif
-                                    @if($result->entry_1 != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry_1 }}</td>
-                                    @endif
-                                    @if($result->first_test != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->first_test }}</td>
-                                    @endif
-                                    @if($result->entry_2 != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->entry_2 }}</td>
-                                    @endif
-                                    @if($result->ca != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->ca }}</td>
-                                    @endif
-                                    @if($result->class_activity != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->class_activity }}</td>
-                                    @endif
-                                    @if($result->project != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->project }}</td>
-                                    @endif
-                                    @if($result->total() != null)
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->total() }}</td>
-                                    @endif
+                                   @foreach ($midterm as $key => $value)
+                                        @if (isset($result[$key]))
+                                            <td style="font-size: 10px; font-weight: 400; text-align: center; color: {{ exam20Color($result[$key]) }}">{{ $result[$key] }}</td>
+                                        @endif
+                                    @endforeach
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->total() }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum($result->total() * 100, 60))}}</td>
                                 </tr>
                             @endforeach

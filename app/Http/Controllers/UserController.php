@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\v1\UserResource;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 
 class UserController extends Controller
@@ -26,7 +27,6 @@ class UserController extends Controller
     {
         return view('manager.user.create');
     }
-
     
     public function store(UserRequest $request)
     {
@@ -77,7 +77,7 @@ class UserController extends Controller
             return response()->json(['status' => false, 'messege' => $th->getMessage()], 500);
        }
     }
-
+    // profile-photos/SHjzZUK8XewhvwRkID1muK9ajLT5DUmTTcBytwf0.jpg
     public function me()
     {
         return new UserResource(auth()->user());
@@ -105,4 +105,57 @@ class UserController extends Controller
     {
         return view('manager.user.certificate');
     }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            DB::transaction(function () use ($request, $user) {
+                $user->update([
+                    'title' => $request->filled('title') ? $request->title : $user->title,
+                    'name' => $request->filled('name') ? $request->name : $user->name,
+                    'email' => $request->filled('email') ? $request->email : $user->email,
+                    'phone_number' => $request->filled('phone') ? $request->phone : $user->phone_number,
+                    'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
+                ]);
+            });
+            return response()->json([
+                'status' => true, 
+                'message' => 'Profile updated successfully!',
+                'user' => $user,
+            ], 200);
+        } catch (\Throwable $th) {
+                DB::rollback();
+                return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
+    
+    public function updateImage(Request $request, $id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            
+            if($request->image){
+                $fileName = $request->image->getClientOriginalName();
+                $filePath = 'users/' . $fileName;
+                $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($request->image));
+        
+                if ($isFileUploaded) {
+                    $user->update([
+                        'profile_photo_path' => $filePath,
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'status' => true, 
+                'message' => 'Profile image uploaded successfully!',
+                'user' => $user,
+            ], 200);
+        } catch (\Throwable $th) {
+                DB::rollback();
+                return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
 }
+
