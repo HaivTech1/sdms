@@ -44,7 +44,7 @@ class BatchMidtermUpload extends Component
     {
         $this->grade_id = $this->grade_id ? $this->grade_id : '';
         $class = Grade::where('id', $this->grade_id)->first();
-        $this->students = $class->students->where('status', true)->sortBy('first_name');
+        $this->students = $class->students->where('status', true)->sortBy('last_name');
         $this->selectedGrade = $class;
     }
 

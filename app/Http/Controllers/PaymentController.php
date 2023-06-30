@@ -12,14 +12,18 @@ use App\Events\Student\PaymentEvent;
 use App\Mail\Student\NewPaymentMail;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\NotifiableParentsTrait;
+use App\Traits\FlutterwavePaymentTrait;
 use Illuminate\Support\Facades\Redirect;
 use Unicodeveloper\Paystack\Facades\Paystack;
 
 class PaymentController extends Controller
 {
 
+    use FlutterwavePaymentTrait;
+    
     public function generateToken(Request $request)
     {
+        
         $paystack = new Paystack();
         $paystack->initialize('sk_test_ba1a48170406832ff34b737b4571e39f76ee8326');
 

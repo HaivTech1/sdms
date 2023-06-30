@@ -10,7 +10,7 @@
                                 <select class="form-control select2" wire:model="grade_id">
                                     <option value=''>Class</option>
                                     @foreach ($grades as $grade)
-                                    <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -19,8 +19,8 @@
                                 <select class="form-control select2" wire:model.defer="state.student_id">
                                     <option value=''>Select Student</option>
                                     @foreach ($students as $student)
-                                    <option value="{{  $student->id() }}">{{ $student->firstName() }} {{
-                                        $student->lastName() }}
+                                    <option value="{{  $student->id() }}">
+                                        {{ $selectedStudent->lastName() }} {{ $selectedStudent->firstName() }} {{ $selectedStudent->otherName() }}
                                     </option>
                                     @endforeach
                                     <x-form.error for="state.student_id" />

@@ -40,9 +40,14 @@ class MidtermUpload extends Component
     public function updatedGradeId($grade_id)
     {
         $class = Grade::where('id', $grade_id)->first();
-        $this->students = $class->students->where('status', true)->sortBy('first_name');
+        $this->students = $class->students->where('status', true)->sortBy('last_name');
         $this->grade_id = $grade_id;
         $this->selectedGrade = $class;
+    }
+
+    public function updatedStudentId($student_id)
+    {
+        $this->selectedStudent = Student::where('uuid', $student_id)->first();
     }
 
     public function selectStudent()

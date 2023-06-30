@@ -105,22 +105,22 @@ class Student extends Authenticatable
         return $this->belongsTo(User::class);
     }
 
-    public function firstName(): string
+    public function firstName(): ?string
     {
         return (string) $this->first_name;
     }
 
-    public function lastName(): string
+    public function lastName(): ?string
     {
         return (string) $this->last_name;
     }
 
-    public function otherName(): string
+    public function otherName(): ?string
     {
         return (string) $this->other_name;
     }
 
-    public function fullName(): string
+    public function fullName(): ?string
     {
         return (string) $this->first_name . ' ' . $this->last_name;
     }

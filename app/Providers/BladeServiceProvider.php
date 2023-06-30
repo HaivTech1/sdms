@@ -61,6 +61,11 @@ class BladeServiceProvider extends ServiceProvider
             return get_settings('exam_upload') === 1;
         });
 
+        Blade::if('classTeacher', function () {
+            $user = auth()->user();
+            return (auth()->check() && $user->gradeClassTeacher()->exists() && $user->isTeacher());
+        });
+
         Blade::if('hasPaid', function () {
             if (get_settings('check_payment') === 1) {
                 $user = auth()->user();

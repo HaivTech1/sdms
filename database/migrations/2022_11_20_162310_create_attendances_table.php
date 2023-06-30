@@ -15,6 +15,7 @@ class CreateAttendancesTable extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
+            $table->enum('section', ['morning', 'afternoon']);
             $table->date('date');
             $table->foreignId('grade_id')->constrained('grades')->onDelete('cascade');
             $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');

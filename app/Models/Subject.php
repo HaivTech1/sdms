@@ -37,7 +37,7 @@ class Subject extends Model
         return $this->id;
     }
 
-    public function title(): string
+    public function title(): ?string
     {
         return $this->title;
     }

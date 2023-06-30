@@ -107,12 +107,24 @@
                                                     </td> --}}
                                                     
                                                     <td class='d-flex justify-content-center align-items-center'>
-                                                        <a href="{{ route('result.midterm.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
+                                                        {{-- <a href="{{ route('result.midterm.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
                                                                 type="button"
                                                                 data-bs-toggle="tooltip" data-bs-placement="top"
                                                                 title="Click to view result">
                                                                 <i class="fa fa-eye"></i>
-                                                        </a>
+                                                        </a> --}}
+                                                        <form action="{{ route('result.midterm.pdf') }}" method="POST">
+                                                            @csrf
+
+                                                            <input type="hidden" name="student_id" value="{{ $student->id() }}" />
+                                                            <input type="hidden" name="grade_id" value="{{ $student->grade->id() }}" />
+                                                            <input type="hidden" name="period_id" value="{{ $period_id }}" />
+                                                            <input type="hidden" name="term_id" value="{{ $term_id }}" />
+
+                                                            <button class="btn btn-sm btn-secondary" type="submit">
+                                                                <i class="bx bxs-file-pdf"></i> Download PDF
+                                                            </button>
+                                                        </form>
                                                     </td>
                                                 </tr>
                                             </tbody>

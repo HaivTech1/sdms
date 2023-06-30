@@ -9,7 +9,7 @@
         </div>
     </x-slot>
 
-    @php
+    {{-- @php
         $results = \App\Models\MidTerm::where('grade_id', 5)->select('subject_id', 'entry_1', 'entry_2', 'first_test', 'ca', 'project')->get();
         $labels = $results->pluck('subject_id')->unique()->values()->toArray(); // array of unique subject IDs
 
@@ -50,7 +50,7 @@
             'borderWidth' => 1
         ];
 
-    @endphp
+    @endphp --}}
 
     <div class="row">
         <div class="col-xl-4">
@@ -165,7 +165,7 @@
         </div>
     </div>
 
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
@@ -215,8 +215,8 @@
                 </div>
             </div>
         </div>
-    </div>
-
+    </div> --}}
+{{-- 
     <div class="row">
         <div class="col-sm-6">
             <div class="card">
@@ -280,7 +280,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="modal fade newsModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

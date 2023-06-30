@@ -73,6 +73,12 @@ Route::get('/registration', function () {
     ]);
 });
 
+Route::get('/storage-link', function () {
+    $targetFolder = storage_path('app/public');
+    $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
+    symlink($targetFolder, $linkFolder);
+});
+
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
 
 Route::get('/setup/user', [VisitorController::class, 'setupUser'])->name('setupUser');
@@ -81,7 +87,7 @@ Route::post('/setup/logo', [VisitorController::class, 'uploadLogo'])->name('app.
 Route::post('/setup/details', [VisitorController::class, 'saveAppDetails'])->name('app.details');
 
 Route::post('/pay', [PaymentController::class, 'redirectToGateway'])->name('pay');
-Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback']);
+Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback'])->name('payment.recurring');
 Route::get('/payment/receipt/{payment}', [PaymentController::class, 'receipt'])->name('receipt');
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -205,6 +211,32 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/data/midterm', [ResultController::class, 'getMidTermData']);
             Route::delete('/midterm/delete/{session}/{term}/{student}/{subject}', [ResultController::class, 'midtermDeleteSubject']);
             Route::delete('/exam/delete/{session}/{term}/{student}/{subject}', [ResultController::class, 'examDeleteSubject']);
+
+            Route::get('/subject/broadsheet', [ResultController::class, 'subjectBroadsheet'])->name('subject.broadsheet');
+
+            Route::get('/fetch/broadsheet/{period_id}/{term_id}/{grade_id}', [ResultController::class, 'broadsheetFetch'])->name('fetch.broadsheet');
+
+            Route::get('/fetch/midterm/{student_id}/{period_id}/{term_id}/{grade_id}', [ResultController::class, 'midtermFetch'])->name('fetch.midterm');
+            Route::get('/fetch/exam/{student_id}/{period_id}/{term_id}/{grade_id}', [ResultController::class, 'examFetch'])->name('fetch.exam');
+
+            Route::delete('/midterm/delete/{result_id}', [ResultController::class, 'midtermDelete'])->name('delete.midterm');
+            Route::delete('/exam/delete/{result_id}', [ResultController::class, 'examDelete'])->name('delete.exam');
+
+            Route::post('/update/midterm', [ResultController::class, 'midtermUpdate'])->name('update.midterm');
+            Route::post('/update/exam', [ResultController::class, 'examUpdate'])->name('update.exam');
+
+            Route::post('/add/midterm', [ResultController::class, 'addMidterm'])->name('add.midterm');
+            Route::post('/add/exam', [ResultController::class, 'addExam'])->name('add.exam');
+
+            Route::post('/refresh/result', [ResultController::class, 'refreshResult'])->name('refresh');
+
+            Route::post('/excel/midterm/upload', [ResultController::class, 'excelMidTermUpload'])->name('excel.midterm.upload');
+            Route::post('/excel/exam/upload', [ResultController::class, 'excelExamUpload'])->name('excel.exam.upload');
+
+            Route::get('/get/students/{grade_id}', [ResultController::class, 'getStudents'])->name('get.students');
+            Route::get('/generate/pdf/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'generateMidtermPDF'])->name('generate-pdf.midterm');
+            Route::post('/pdf/midterm/generate', [ResultController::class, 'generateSingleMidtermPDF'])->name('midterm.pdf');
+            Route::post('/pdf/exam/generate', [ResultController::class, 'generateSingleExamPDF'])->name('exam.pdf');
         });
         
         Route::group(['prefix' => 'fee', 'as' => 'fee.'], function () {
@@ -373,6 +405,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/mark/format', [ApplicationController::class, 'format']);
         Route::post('/color/format', [ApplicationController::class, 'color']);
         Route::post('/grade/format', [ApplicationController::class, 'grade']);
+        Route::post('/affective/domain', [ApplicationController::class, 'domain']);
     });
 });
 

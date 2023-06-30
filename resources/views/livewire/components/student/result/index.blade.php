@@ -91,9 +91,21 @@
                                                         {{-- <button title="Click to view result" id="scratchCard" type="button" class="btn btn-sm btn-primary waves-effect waves-light" id="ajax-alert">
                                                             <i class="fa fa-eye"></i>
                                                         </button> --}}
-                                                        <a href="{{ route('result.primary.show', $user->student->id()) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}" title="Click to view result" class="btn btn-sm btn-primary waves-effect waves-light">
+                                                        {{-- <a href="{{ route('result.primary.show', $user->student->id()) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}" title="Click to view result" class="btn btn-sm btn-primary waves-effect waves-light">
                                                             <i class="fa fa-eye"></i>
-                                                        </a>
+                                                        </a> --}}
+                                                        <form action="{{ route('result.exam.pdf') }}" method="POST">
+                                                            @csrf
+
+                                                            <input type="hidden" name="student_id" value="{{ $student->id() }}" />
+                                                            <input type="hidden" name="grade_id" value="{{ $student->grade->id() }}" />
+                                                            <input type="hidden" name="period_id" value="{{ $period_id }}" />
+                                                            <input type="hidden" name="term_id" value="{{ $term_id }}" />
+
+                                                            <button class="btn btn-sm btn-secondary" type="submit">
+                                                                <i class="bx bxs-file-pdf"></i> Download PDF
+                                                            </button>
+                                                        </form>
                                                     </td>
                                                 </tr>
                                             </tbody>

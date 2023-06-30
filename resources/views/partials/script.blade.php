@@ -101,9 +101,6 @@
 <!-- Datatable init js -->
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-<script>
-    
-</script>
 
 <script>
     $(document).ready(function() {
@@ -165,6 +162,10 @@
 
     window.addEventListener('show-scratch', event => {
         $('#scratch').modal('show');
+    });
+
+     window.addEventListener('close-modal', event => {
+        $('#deleteResultModal').modal('hide');
     });
 </script>
 

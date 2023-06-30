@@ -1,0 +1,21 @@
+{
+    "material design icons": {
+        "normal": "material_design_icons_normal_73886c619656d03ea7f565a977445276"
+    },
+    "boxicons": {
+        "normal": "boxicons_normal_18b78e74871dd6d3eae612732e96b920"
+    },
+    "font awesome 5 brands": {
+        "normal": "font_awesome_5_brands_normal_0e1d111447144869152dfe987db0adfb"
+    },
+    "font awesome 5 free": {
+        "normal": "C:\\laragon\\www\\school\\storage\\fonts\/font_awesome_5_free_normal_2e79a2b1f2656791598743264b177fb7",
+        "900": "font_awesome_5_free_900_122fbfe898a5c6397368ef129d7b8b96"
+    },
+    "dripicons-v2": {
+        "normal": "dripicons_v2_normal_211661bcd745284249eb3b9c4e315491"
+    },
+    "summernote": {
+        "normal": "summernote_normal_753d0c2cf5939cd20e699c2bff28492a"
+    }
+}

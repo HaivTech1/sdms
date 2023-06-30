@@ -30,6 +30,21 @@ class ConfigServiceProvider extends ServiceProvider
         $mode = env('APP_MODE');
 
         try {
+
+            $appEnv = Setting::where(['key' => 'app_env'])->first();
+            $result = json_decode($appEnv['value'], true);
+            if ($result) {
+                $data = $result == 1 ? 'production' : 'local';
+                Config::set('APP_ENV', $data);
+            }
+
+            $appDebug = Setting::where('key', 'app_debug')->first();
+            $value = $appDebug['value'];
+            if ($value) {
+                $data = $result == 1 ? true : false;
+                Config::set('APP_DEBUG', $data);
+            }
+
             $data = Setting::where(['key' => 'mail_config'])->first();
             $emailServices = json_decode($data['value'], true);
             if ($emailServices) {
@@ -108,33 +123,6 @@ class ConfigServiceProvider extends ServiceProvider
             else{
                 Config::set('timeformat', 'H:i');
             }
-
-            $appEnv = Setting::where(['key' => 'app_env'])->first();
-            $result = json_decode($appEnv['value'], true);
-            if ($result) {
-                $config = array(
-                    'APP_ENV' => $result === 1 ? 'production' : 'local',
-                );
-                Config::set('APP_ENV', $config);
-            }
-
-            $appDebug = Setting::where('key', 'app_debug')->first();
-            if ($appDebug) {
-                $value = $appDebug['value'];
-
-                if ($value === '1') {
-                    $config = [
-                        'APP_DEBUG' => true,
-                    ];
-                } else {
-                    $config = [
-                        'APP_DEBUG' => false,
-                    ];
-                }
-
-                Config::set($config);
-            }
-
         } catch (\Exception $ex) {
 
         }

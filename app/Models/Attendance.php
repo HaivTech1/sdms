@@ -17,6 +17,7 @@ class Attendance extends Model
     protected $table = self::TABLE;
 
     protected $fillable = [
+        'section',
         'date', 
         'grade_id',
         'term_id',
@@ -38,6 +39,11 @@ class Attendance extends Model
     public function status(): bool
     {
         return $this->status;
+    }
+
+    public function section(): string
+    {
+        return $this->section;
     }
 
     public function students(): BelongsToMany

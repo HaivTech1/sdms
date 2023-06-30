@@ -21,12 +21,12 @@ class ResultController extends Controller
                     'students' => 'required|array',
                     'students.*.id' => 'required',
                     'students.*.name' => 'required',
-                    'students.*.scores' => 'required|array',
                     'type'       => 'required',
                     'session'       => 'required',
                     'term'       => 'required',
                     'level'       => 'required',
                     'subject'       => 'required',
+                    'format'       => 'required',
                 ]);
 
                 $students = $request->input('students');
@@ -35,11 +35,11 @@ class ResultController extends Controller
                 $term = $request->input('term');
                 $grade = $request->input('level');
                 $subject = $request->input('subject');
+                $format = $request->input('format');
+                $midtermFormat = get_settings('midterm_format');
 
                 if ($type === 'midterm') {
-
-                    foreach ($students as $key => $student) {
-
+                    foreach ($students as $student) {
                         $midterm = MidTerm::where([
                             'period_id' => $period,
                             'term_id' => $term,
@@ -48,30 +48,31 @@ class ResultController extends Controller
                             'student_id' => $student['id']
                         ])->first();
                     
-                        if ($midterm) {
-                            continue;
-                        }
-                    
-                        $midtermFormat = get_settings('midterm_format');
-                    
-                        $midtermData = [
-                            'period_id' => $period,
-                            'term_id' => $term,
-                            'grade_id' => $grade,
-                            'student_id' => $student['id'],
-                            'subject_id' => $subject
-                        ];
-                    
-                        foreach ($student['scores'] as $scoreType => $scoreData) {
-                            if (isset($midtermFormat[$scoreType])) {
-                                $score = $scoreData['value'];
-                                $midtermData[$scoreType] = $score;
+                        if (!$midterm) {
+
+                            $midtermData = [
+                                'period_id' => $period,
+                                'term_id' => $term,
+                                'grade_id' => $grade,
+                                'student_id' => $student['id'],
+                                'subject_id' => $subject
+                            ];
+
+                            if (isset($student[$format])) {
+                                $score = $student[$format]['value'];
+                                $midtermData[$format] = $score;
+                            }
+                            $midterm = new MidTerm($midtermData);
+                            $midterm->authoredBy(auth()->user());
+                            $midterm->save();
+                        }else{
+                            if (isset($student[$format])) {
+                                $score = $student[$format]['value'];
+                                $midterm->$format = $score;
+                                $midterm->save();
                             }
                         }
-                    
-                        $midterm = new MidTerm($midtermData);
-                        $midterm->authoredBy(auth()->user());
-                        $midterm->save();
+
                     }
 
                 }elseif ($type === 'examination') {
@@ -85,10 +86,6 @@ class ResultController extends Controller
                             'student_id' => $student['id']
                         ])->first();
 
-                        if ($check) {
-                            continue;
-                        }
-
                         $midterm = MidTerm::where([
                             'period_id' => $period,
                             'term_id' => $term,
@@ -97,32 +94,44 @@ class ResultController extends Controller
                             'student_id' => $student['id']
                         ])->first();
 
-                        if (!$midterm) {
-                            throw new \Exception('Please upload midterm result for the students first!');
-                        }else{
-
-                            $examFormat = get_settings('exam_format');
-                            
-                            $examData = [
-                                'period_id' => $period,
-                                'term_id' => $term,
-                                'grade_id' => $grade,
-                                'student_id' => $student['id'],
-                                'subject_id' => $subject
-                            ];
-
-                            foreach ($student['scores'] as $scoreType => $scoreData) {
-                                if (isset($examFormat[$scoreType])) {
-                                    $score = $scoreData['value'];
-                                    $examData['ca1'] = $midterm->firstTest() + $midterm->entry1() + $midterm->entry2();
-                                    $examData['ca2'] = $midterm->ca();
-                                    $examData['ca3'] = $midterm->classActivity();
-                                    $examData['pr'] = $midterm->project();
-                                    $examData[$scoreType] = $score;
+                        if ($check) {
+                            $midtermDate = [];
+                            if (is_array($midtermFormat)) {
+                                foreach ($midtermFormat as $key => $value) {
+                                    if (isset($midterm->$key)) {
+                                        $midtermDate[$key] = $midterm->$key;
+                                    }
                                 }
                             }
 
-                            $result = new PrimaryResult($examData);
+                            if (isset($student[$format])) {
+                                $score = $student[$format]['value'];
+                                $midtermDate[$format] = $score;
+                            }
+                        
+                            $check->update($midtermDate);
+                        }else{
+                            $result = new PrimaryResult([
+                                'period_id'     => $period,
+                                'term_id'       => $term,
+                                'grade_id'      => $grade,
+                                'subject_id'    => $subject,
+                                'student_id'    => $student['id'],
+                            ]);
+
+                            if (is_array($midtermFormat)) {
+                                foreach ($midtermFormat as $key => $value) {
+                                    if (isset($midterm->$key)) {
+                                        $result->$key = $midterm->$key;
+                                    }
+                                }
+                            }
+
+                            if (isset($student[$format])) {
+                                $score = $student[$format]['value'];
+                                $result->$format = $score;
+                            }
+                        
                             $result->authoredBy(auth()->user());
                             $result->save();
                         }
@@ -162,29 +171,69 @@ class ResultController extends Controller
             $term = $request->term;
             $subject = $request->subject;
 
-            if ($type === 'midterm') {
-                
-                $midterm = MidTerm::where([
-                    'period_id' => $period,
-                    'term_id' => $term,
-                    'grade_id' => $grade,
-                    'subject_id' => $subject,
-                ])->get();
-                $result = MidtermResource::collection($midterm);
-            }else{
-                $exam = PrimaryResult::where([
-                    'period_id' => $period,
-                    'term_id' => $term,
-                    'grade_id' => $grade,
-                    'subject_id' => $subject,
-                ])->get();
+            $midtermFormat = get_settings('midterm_format');
+            $examFormat = get_settings('exam_format');
+            $midterms = MidTerm::where([
+                'period_id' => $period,
+                'term_id' => $term,
+                'grade_id' => $grade,
+                'subject_id' => $subject,
+            ])->get();
 
-                $result = ExamResource::collection($exam);
+            $exams = PrimaryResult::where([
+                'period_id' => $period,
+                'term_id' => $term,
+                'grade_id' => $grade,
+                'subject_id' => $subject,
+            ])->get();
+
+            if ($type === 'midterm') {
+                $results = [];
+                foreach ($midterms as $midterm) {
+                    $result = [
+                        'id' => $midterm->id(),
+                        'student_id' => $midterm->student->id(),
+                        'student' => $midterm->student->firstName() . ' ' . $midterm->student->lastName() . ' ' . $midterm->student->otherName(),
+                    ];
+
+                    foreach ($midtermFormat as $format => $formatData) {
+                        $result[$format] = $midterm->{$format};
+                    }
+
+                    $results[] = $result;
+                }
+            }else{
+               
+                $results = [];
+                foreach ($exams as $exam) {
+                    $result = [
+                        'id' => $exam->id(),
+                        'student_id' => $exam->student->id(),
+                        'student' => $exam->student->firstName() . ' ' . $exam->student->lastName() . ' ' . $exam->student->otherName(),
+                    ];
+
+                    foreach ($examFormat as $format => $formatData) {
+                        $result[$format] = $exam->{$format};
+                    }
+
+                    // foreach ($midterms as $midtermEntry) {
+                    //     if ($midtermEntry->student->id() === $exam->student->id()) {
+                    //         foreach ($midtermFormat as $format => $formatData) {
+                    //             $result[$format] = $midtermEntry->{$format};
+                    //         }
+                    //         break;
+                    //     }
+                    // }
+
+                    $results[] = $result;
+                }
             }
+
+            
 
             return response()->json([
                 'status' => true,
-                'results' => $result,
+                'results' => $results,
                 'message' => 'Results returned successfully!'
             ], 200);
 

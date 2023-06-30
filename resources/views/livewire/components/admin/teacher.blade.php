@@ -38,6 +38,10 @@
                                                     class="btn btn-outline-success w-sm">
                                                     <i class="bx bx-check"></i>
                                                 </button>
+                                                <button wire:click.prevent="sendDetails" type="button"
+                                                    class="btn btn-outline-info w-sm">
+                                                    <i class="bx bx-key"></i>
+                                                </button>
                                             </div>
                                         </div>
                                         @endif
@@ -123,6 +127,7 @@
                                     </th>
                                     <th class="align-middle"></th>
                                     <th class="align-middle">Name</th>
+                                    <th class="align-middle">Email</th>
                                     <th class="align-middle">Assigned Classes</th>
                                     <th class="align-middle">Assigned Subjects</th>
                                     <th></th>
@@ -147,6 +152,10 @@
                                     </td>
                                     <td>
                                         <livewire:components.edit-title :model='$teacher' field='name'
+                                            :key='$teacher->id()' />
+                                    </td>
+                                    <td>
+                                        <livewire:components.edit-title :model='$teacher' field='email'
                                             :key='$teacher->id()' />
                                     </td>
                                     <td>

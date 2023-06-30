@@ -10,6 +10,7 @@ use Livewire\Component;
 use App\Models\Cognitive;
 use App\Models\Psychomotor;
 use Livewire\WithPagination;
+use App\Models\PrimaryResult;
 
 class CheckPrimary extends Component
 {
@@ -26,6 +27,7 @@ class CheckPrimary extends Component
     public $psych = [];
     public $sortBy = 'asc';
     public $orderBy = 'last_name';
+    public $result;
 
     protected $queryString = [
         'period_id' => ['except' => ''],
@@ -71,12 +73,32 @@ class CheckPrimary extends Component
                     });
                 });
             });
-        })->search(trim($this->search))->loadLatest($this->count, $this->orderBy, $this->sortBy);        
+        })->orderBy('last_name', 'asc')->search(trim($this->search))->loadLatest($this->count, $this->orderBy, $this->sortBy);        
+    }
+
+    public function deleteResult($student)
+    {
+        $this->result = $student;
+    }
+
+    public function destroyResult()
+    {
+        $results = PrimaryResult::where([
+            'student_id' => $this->result,
+            'period_id' => $this->period_id,
+            'term_id' => $this->term_id,
+        ])->get();
+
+        foreach($results as $result){
+            $result->delete();
+        }
+
+        $this->dispatchBrowserEvent('success',[ 'message' => 'Result deleted successfully!']);
+        $this->dispatchBrowserEvent('close-modal');
     }
     
     public function render()
     {
-
         $grades = Grade::get();
 
         return view('livewire.components.admin.result.check-primary',[

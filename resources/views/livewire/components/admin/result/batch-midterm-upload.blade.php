@@ -32,7 +32,6 @@
                                         <option value="{{  $period->id() }}">{{  $period->title() }}</option>
                                         @endforeach
                                     </select>
-        
                                 </div>
         
                                 <div class="col-lg-6">
@@ -208,8 +207,6 @@
                 }
             }
 
-
-
             $(document).on('submit', '#midFormSubmit', function (e) {
                 e.preventDefault();
                 toggleAble('#submit_button', true, 'Submitting...');
@@ -251,6 +248,7 @@
                         toastr.success(res.message, 'Success!');
                         resetForm('#midFormSubmit');
                     }).fail((err) => {
+                        toggleAble('#submit_button', false);
                         let allErrors = Object.values(err.responseJSON).map(el => (
                         el = `<li>${el}</li>`
                         )).reduce((next, prev) => (next = prev + next));
@@ -262,7 +260,6 @@
 
                         $('.modalErrorr').html(setErrors);
                         console.log(err.responseJSON.message);
-                        toggleAble('#submit_button', false);
                     });
                 }
             });

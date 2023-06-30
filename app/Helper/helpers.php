@@ -325,15 +325,6 @@ function publishExamState($student, $period, $term)
     }
 }
 
-// function flash($title=null, $message=null)
-// {
-//     $flash = app('App\Http\Flash');
-//     if (func_num_args()==0) {
-//         return $flash;
-//     }
-//     return $flash->info($title, $message);
-// }
-
 function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100, $type = 'mid term')
 {
     // Set the maximum score for each subject

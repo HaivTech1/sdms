@@ -45,6 +45,12 @@ class PrimaryResult extends Model
             $fillable = array_merge($fillable, $dynamicKeys);
         }
 
+        $midtermFormat = get_settings('midterm_format');
+        if (is_array($midtermFormat)) {
+            $dynamicKeys = array_keys($midtermFormat);
+            $fillable = array_merge($fillable, $dynamicKeys);
+        }
+
         return $fillable;
     }
 
@@ -60,11 +66,6 @@ class PrimaryResult extends Model
 
     protected $casts = [
         'published' => 'boolean',
-        'ca1' => 'float',
-        'ca2' => 'float',
-        'ca3' => 'float',
-        'pr' => 'float',
-        'exam' => 'float',
     ];
 
     protected static function booted()

@@ -2,7 +2,12 @@
     <div data-simplebar class="h-100">
         <div id="sidebar-menu">
             <ul class="metismenu list-unstyled" id="side-menu">
-                
+                <li>
+                    <a href="{{ route('dashboard') }}" class="waves-effect">
+                        <i class="bx bx-home-circle"></i>
+                        <span key="t-dashboards">Dashboard</span>
+                    </a>
+                </li>
                 @include('partials.nav.super')
                 @include('partials.nav.admin')
                 @if (!auth()->user()->isStudent())
@@ -18,6 +23,13 @@
                             <li><a href="{{ route('result.create') }}" key="t-products">Batch Exam Upload</a></li>
                             <li><a href="{{ route('result.midterm') }}" key="t-products">Check Mid-term Scores</a></li>
                             <li><a href="{{ route('result.primary') }}" key="t-products">Check Exam Scores</a></li>
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Broadsheet</a>
+                                <ul class="sub-menu" aria-expanded="true">
+                                    <li><a href="{{ route('result.subject.broadsheet') }}">Generate Subject List</a></li>
+                                    <li><a href="{{ route('result.subject.broadsheet') }}">Generate Class List</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                 @endif 

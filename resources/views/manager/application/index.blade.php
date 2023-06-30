@@ -460,6 +460,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="tab-pane" :class="currentTab === 'notification' ? 'active' : ''" id="notification" role="tabpanel">
                             <div class="card">
                                 <div class="card-body">
@@ -575,7 +576,7 @@
                                             </thead>
                                             <tbody>
                                                 @foreach(\App\Models\Setting::all() as $setting)
-                                                    @if (!in_array($setting->key, ['mail_config', 'digital_payment', 'paystack', 'cash', 'over_ten', 'over_twenty', 'over_fourty', 'over_sixty', 'over_hundred', 'exam_grade', 'exam_remark']) && $setting->value != 1 && $setting->value != 0)
+                                                    @if (!in_array($setting->key, ['mail_config', 'digital_payment', 'paystack', 'cash', 'over_ten', 'over_twenty', 'over_fourty', 'over_sixty', 'over_hundred', 'exam_grade', 'exam_remark', 'affective_domain', 'psychomotor_domain']) && $setting->value != 1 && $setting->value != 0)
                                                         <?php $data = json_decode($setting->value, true); ?>
                                                         <tr>
                                                             <td>
@@ -710,7 +711,6 @@
                                             <button type="button" onclick="copyToGradeClipboard()" class="btn btn-sm btn-primary">Copy grade format</button>
                                         </div>
                                     </div>
-
                                     <form id="gradeForm" enctype="multipart/form-data" method="POST">
                                         @csrf
                                         <div class="row">
@@ -772,7 +772,78 @@
                                             <button id="gradeBtn" class="btn btn-success" type="submit">Save</button>
                                         </div>
                                     </form>
+                                </div>
+                            </div>
 
+                             <div class="card">
+                                <div class="card-body">
+                                    <h1 class="card-title mt-2 mb-2">Affective and Psychomotor Domain</h1>
+
+                                    <form id="affectiveForm" method="POST">
+                                        @csrf
+                                        <div class="row">
+                                            <table class="table table-bordered" id="affectiveTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Value</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                        $domains = \App\Models\Setting::whereIn('key', [
+                                                            'affective_domain', 'psychomotor_domain'
+                                                        ])->get();
+                                                    ?>
+                                                    
+                                                    @foreach( $domains as $domain)
+                                                            <?php $data = json_decode($domain->value, true); ?>
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $domain->key }}" class="form-control" />
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][value]"
+                                                                        value="{{ 
+                                                                            implode(',', array_map(function ($key, $value) { 
+                                                                                return $value; 
+                                                                            }, 
+                                                                            array_keys($data), $data)) 
+                                                                        }}"
+                                                                        class="form-control"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" name="add" id="addAffective" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                                </td>
+                                                            </tr>
+                                                    @endforeach
+
+                                                    @if ($domains->count() == 0)
+                                                        <tr>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][key]"
+                                                                    placeholder="Enter domain" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][value]"
+                                                                    placeholder="eg. hand-writing" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" name="add" id="addAffective" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                            
+                                        </div>
+
+                                        <div class="float-right">
+                                            <button id="affectiveBtn" class="btn btn-success" type="submit">Save</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -781,10 +852,6 @@
             </div>
         </div>
     </div>
-
-    @push('alpine-plugins')
-        <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
-    @endpush
 
     @section('scripts')
         <script>
@@ -1154,17 +1221,57 @@
                 });
         </script>
 
-         <script>
-             var i = 0;
-                $("#addGrade").click(function(){
-                    ++i;
-                    $("#gradeTable").append('<tr><td><input type="text" name="addmore['+i+'][key]" placeholder="Enter your name" class="form-control" /></td><td><input type="text" name="addmore['+i+'][value]" placeholder="Enter your value" class="form-control" /></td><td><button type="button" class="btn btn-danger remove-tr"><i class="bx bx-trash"></i></button></td></tr>');
-                });
-            
-                $(document).on('click', '.remove-tr', function(){  
-                    $(this).parents('tr').remove();
-                });
+        <script>
+            var i = 0;
+            $("#addGrade").click(function(){
+                ++i;
+                $("#gradeTable").append('<tr><td><input type="text" name="addmore['+i+'][key]" placeholder="Enter your name" class="form-control" /></td><td><input type="text" name="addmore['+i+'][value]" placeholder="Enter your value" class="form-control" /></td><td><button type="button" class="btn btn-danger remove-tr"><i class="bx bx-trash"></i></button></td></tr>');
+            });
+        
+            $(document).on('click', '.remove-tr', function(){  
+                $(this).parents('tr').remove();
+            });
         </script>
 
+        <script>
+            var i = 0;
+            $("#addAffective").click(function(){
+                ++i;
+                $("#affectiveTable").append('<tr><td><input type="text" name="addmore['+i+'][key]" placeholder="Enter domain" class="form-control" /></td><td><input type="text" name="addmore['+i+'][value]" placeholder="eg. hand-writing" class="form-control" /></td><td><button type="button" class="btn btn-danger remove-tr"><i class="bx bx-trash"></i></button></td></tr>');
+            });
+        
+            $(document).on('click', '.remove-tr', function(){  
+                $(this).parents('tr').remove();
+            });
+
+            $('#affectiveForm').on('submit' , function(e){
+                e.preventDefault();
+                var data = $(this).serializeArray();
+                toggleAble('#affectiveBtn', true, 'Saving...');
+                    $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    url: "/appSetting/affective/domain",
+                    method: 'post',
+                    data,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                    }
+                }).then((response) => {
+                    toggleAble('#affectiveBtn', false);
+                    toastr.success(response.message);
+                    setTimeout(() =>{
+                        window.location.reload();
+                    }, 1000)
+                }).catch((error) => {
+                    toggleAble('#affectiveBtn', false);
+                    toastr.error(error.responseJSON.message);
+                });
+            });
+        </script>
     @endsection
 </x-app-layout>

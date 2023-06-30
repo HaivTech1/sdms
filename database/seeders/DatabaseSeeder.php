@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SubjectSeeder::class);
         $this->call(HouseSeeder::class);
         $this->call(ClubSeeder::class);
-        // $this->call(StudentSeeder::class);
+        $this->call(StudentSeeder::class);
         // $this->call(GuardianSeeder::class);
         // $this->call(GradeSubjectSeeder::class);
         // $this->call(EventSeeder::class);

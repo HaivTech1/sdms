@@ -11,7 +11,7 @@ class AssignedSubjectsScope implements Scope
     {
         $resultTemplate = get_settings('result_template');
 
-        if (auth()->check() && !auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin() && !auth()->user()->isStudent() && $resultTemplate == 1) {
+        if (auth()->check() && !auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin() && !auth()->user()->isStudent() && !auth()->user()->gradeClassTeacher()->exists() && $resultTemplate == 1) {
             $userId = auth()->user()->id();
             
             $builder->whereHas('teachers', function (Builder $query) use ($userId) {

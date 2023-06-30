@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Models\Student;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\v1\UserResource;
 use App\Http\Resources\v1\AttendanceResource;
@@ -85,7 +86,7 @@ class AttendanceController extends Controller
     {
         try {
             DB::transaction(function () use ($request) {
-                $secret = $request->secret;
+                $secret = $request->student;
                 $student = Student::whereHas('user', function ($query) use ($secret) {
                     $query->where('reg_no', $secret);
                 })->first();
@@ -114,18 +115,20 @@ class AttendanceController extends Controller
     {
         try {
             $request->validate([
-                'grade_id' => ['required'],
-                'session_id' => ['required'],
-                'term_id' => ['required'],
+                'level' => ['required'],
+                'session' => ['required'],
+                'term' => ['required'],
                 'date' => ['required'],
+                'section' => ['required'],
             ]);
     
             DB::transaction(function() use ($request) {
                 $attendance = new Attendance([
-                    'grade_id' => $request->grade,
+                    'grade_id' => $request->level,
                     'term_id' => $request->term,
                     'period_id' => $request->session,
                     'date' => $request->date,
+                    'section' => $request->section,
                     'status' => 1,
                 ]);
                 $attendance->authoredBy(auth()->user());

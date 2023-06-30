@@ -505,4 +505,35 @@ class ApplicationController extends Controller
         return $parsed;
     }
 
+    private function parseDomain($data)
+    {
+        $parsed = [];
+        $items = explode(',', $data);
+        foreach ($items as $item) {
+            $parsed[] = $item;
+        }
+        return $parsed;
+    }
+
+    public function domain(Request $request)
+    {
+        try {
+            foreach ($request->addmore as $data) {
+                $setting = Setting::where('key', $data['key'])->first();
+                if ($setting) {
+                    $setting->value = json_encode($this->parseDomain($data['value']));
+                    $setting->save();
+                } else {
+                    Setting::create([
+                        'key' => $data['key'],
+                        'value' => json_encode($this->parseDomain($data['value']))
+                    ]);
+                }
+            }
+            return response()->json(['status' => true, 'message' => 'Setting saved successfully!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
 }

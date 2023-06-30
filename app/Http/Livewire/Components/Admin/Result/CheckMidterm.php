@@ -58,7 +58,7 @@ class CheckMidterm extends Component
                     });
                  });
             });
-        })->search(trim($this->search))->paginate($this->count);        
+        })->orderBy('last_name', 'asc')->search(trim($this->search))->paginate($this->count);        
     }
 
     public function fetchResult()

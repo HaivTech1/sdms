@@ -7,6 +7,9 @@ use App\Models\Grade;
 use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Mail\SendMidtermMail;
+use App\Mail\Messaging\SendMail;
+use Illuminate\Support\Facades\Mail;
 
 class Teacher extends Component
 {
@@ -76,6 +79,32 @@ class Teacher extends Component
         ]);
         $this->dispatchBrowserEvent('success', ['message' => 'All selected teachers have been activated!']);
         $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+    public function sendDetails()
+    {
+        try {
+           $teachers = User::whereIn('id', $this->selectedRows)->get();
+
+            foreach ($teachers as $teacher) {
+                $idNumber = $teacher->code();
+                $name = $teacher->name;
+                $message = "
+                    <p>$name, use the following credentials to login into your teacher's dashbord.</p>
+                    <p><b>Id Number</b>: $idNumber</p>
+                    <p><b>Password</b>: password or password123 or password1234</p>
+                    <p><em>Note: If you are logged in on your dashboard, please ignore this email; else, you can use either of the three passwords, one will work for you.</em></p>
+                ";
+                $subject = 'Portal Login Credentials';
+            
+                Mail::to($teacher->email())->send(new SendMidtermMail($message, $subject));
+            }
+
+            $this->dispatchBrowserEvent('success', ['message' => 'Credentials sent successfully!']);
+            $this->reset(['selectedRows', 'selectPageRows']);
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('error', ['message' => $th->getMessage()]);
+        }
     }
 
     public function render()

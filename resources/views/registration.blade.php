@@ -14,7 +14,7 @@
                     <div class="row" style="display: flex; justify-content: center; align-items: center">
                             <div style="margin-right: 10px; padding: 5px">
                                 <x-form.label for="image" value="{{ __('Passport Photograph') }}" />
-                                <x-form.input id="image" class="block w-full mt-1" type="file" name="image"/>
+                                <x-form.input id="image" class="block w-full mt-1" type="file" name="image" style="display: none"/>
                             </div>
                             <div style="">
                                 <canvas style="border-radius: 5px; margin: 5px; width: 150px; height: 150px" id="img-show" class="img-thumbnail img-response"></canvas>
@@ -380,6 +380,11 @@
 
     @section('scripts')
         <script>
+
+            $('#img-show').click(function() {
+                $('#image').click();
+            });
+            
             var cherker = document.getElementById('agreement');
             var sendBtn = document.getElementById('submit');
 

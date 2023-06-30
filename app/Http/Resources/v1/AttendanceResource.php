@@ -18,6 +18,7 @@ class AttendanceResource extends JsonResource
             'grade'        => $this->grade->title(),
             'session'        => $this->session->title(),
             'term'        => $this->term->title(),
+            'section'       => $this->section(),
             'marked' => StudentResource::collection($this->students),
         ];
     }

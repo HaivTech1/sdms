@@ -17,11 +17,11 @@
                             </div>
 
                             <div class="col-lg-3 mt-2">
-                                <select class="form-control select2" wire:model.defer="student_id">
+                                <select class="form-control select2" wire:model="student_id">
                                     <option value=''>Select Student</option>
                                     @foreach ($students as $student)
-                                    <option value="{{  $student->id() }}">{{ $student->firstName() }} {{
-                                        $student->lastName() }}
+                                    <option value="{{  $student->id() }}">
+                                        {{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}
                                     </option>
                                     @endforeach
                                     <x-form.error for="student_id" />

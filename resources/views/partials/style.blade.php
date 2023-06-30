@@ -566,199 +566,199 @@
     }
 
     .onoffswitch3
-{
-    position: relative; 
-    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
-}
+    {
+        position: relative; 
+        -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+    }
 
-.onoffswitch3-checkbox {
-    display: none;
-}
+    .onoffswitch3-checkbox {
+        display: none;
+    }
 
-.onoffswitch3-label {
-    display: block; overflow: hidden; cursor: pointer;
-    border: 0px solid #999999; border-radius: 0px;
-}
+    .onoffswitch3-label {
+        display: block; overflow: hidden; cursor: pointer;
+        border: 0px solid #999999; border-radius: 0px;
+    }
 
-.onoffswitch3-inner {
-    display: block; width: 200%; margin-left: -100%;
-    -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
-    -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
-}
+    .onoffswitch3-inner {
+        display: block; width: 200%; margin-left: -100%;
+        -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
+        -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
+    }
 
-.onoffswitch3-inner > span {
-    display: block; float: left; position: relative; width: 50%; height: 30px; padding: 0; line-height: 30px;
-    font-size: 14px; color: white; font-family: 'Montserrat', sans-serif; font-weight: bold;
-    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
+    .onoffswitch3-inner > span {
+        display: block; float: left; position: relative; width: 50%; height: 30px; padding: 0; line-height: 30px;
+        font-size: 14px; color: white; font-family: 'Montserrat', sans-serif; font-weight: bold;
+        -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+    }
 
-.onoffswitch3-inner .onoffswitch3-active {
-    padding-left: 10px;
-    background-color: #EEEEEE; color: #FFFFFF;
-}
+    .onoffswitch3-inner .onoffswitch3-active {
+        padding-left: 10px;
+        background-color: #EEEEEE; color: #FFFFFF;
+    }
 
-.onoffswitch3-inner .onoffswitch3-inactive {
-    width: 100px;
-    padding-left: 16px;
-    background-color: #EEEEEE; color: #FFFFFF;
-    text-align: right;
-}
+    .onoffswitch3-inner .onoffswitch3-inactive {
+        width: 100px;
+        padding-left: 16px;
+        background-color: #EEEEEE; color: #FFFFFF;
+        text-align: right;
+    }
 
-.onoffswitch3-switch {
-    display: block; width: 50%; margin: 0px; text-align: center; 
-    border: 0px solid #999999;border-radius: 0px; 
-    position: absolute; top: 0; bottom: 0;
-}
-.onoffswitch3-active .onoffswitch3-switch {
-    background: #27A1CA; left: 0;
-    width: 160px;
-}
-.onoffswitch3-inactive{
-    background: #A1A1A1; right: 0;
-    width: 20px;
-}
-.onoffswitch3-checkbox:checked + .onoffswitch3-label .onoffswitch3-inner {
-    margin-left: 0;
-}
+    .onoffswitch3-switch {
+        display: block; width: 50%; margin: 0px; text-align: center; 
+        border: 0px solid #999999;border-radius: 0px; 
+        position: absolute; top: 0; bottom: 0;
+    }
+    .onoffswitch3-active .onoffswitch3-switch {
+        background: #27A1CA; left: 0;
+        width: 160px;
+    }
+    .onoffswitch3-inactive{
+        background: #A1A1A1; right: 0;
+        width: 20px;
+    }
+    .onoffswitch3-checkbox:checked + .onoffswitch3-label .onoffswitch3-inner {
+        margin-left: 0;
+    }
 
-.scroll-text{
-    color: #000;
-}
+    .scroll-text{
+        color: #000;
+    }
 
-figure {
-	max-width:1024px;
-	max-width:64rem;
-	width:100%;
-	height:auto;
-	margin:20px 0 0;
-	margin:1.25rem 0 0;
-}
-figcaption {
-	display:block;
-	font-size:16px;
-	font-size:1rem;
-}
-video {
-	width:100%;
-	height:auto;
-}
+    figure {
+        max-width:1024px;
+        max-width:64rem;
+        width:100%;
+        height:auto;
+        margin:20px 0 0;
+        margin:1.25rem 0 0;
+    }
+    figcaption {
+        display:block;
+        font-size:16px;
+        font-size:1rem;
+    }
+    video {
+        width:100%;
+        height:auto;
+    }
 
-/* controls */
-.controls, .controls li {
-	padding:0;
-	margin:0;
-}
-.controls {
-	display:none;
-	list-style-type:none;
-	overflow:hidden;
-	background:transparent;
-}
-.controls li {
-	float:left;
-	width:10%;
-	margin-left:0.3%;
-}
-.controls li:first-child {
-	margin-left:0;
-}
-.controls .progress {
-	width:38%;
-	cursor:pointer;
-}
-.controls button {
-	width:100%;
-	text-align:center;
-	overflow:hidden;
-	white-space:nowrap;
-  	text-overflow:ellipsis;
-}
-.controls progress {
-	display:block;
-	width:100%;
-	height:20px;
-	height:1.25rem;
-	margin-top:2px;
-	margin-top:0.125rem;
-	border:1px solid #aaa;
-	overflow:hidden;
-	-moz-border-radius:5px;
-	-webkit-border-radius:5px;
-	border-radius:5px;
-}
-.controls progress span {
-	width:0%;
-	height:100%;
-	display:inline-block;
-	background-color:#2a84cd;	
-}
+    /* controls */
+    .controls, .controls li {
+        padding:0;
+        margin:0;
+    }
+    .controls {
+        display:none;
+        list-style-type:none;
+        overflow:hidden;
+        background:transparent;
+    }
+    .controls li {
+        float:left;
+        width:10%;
+        margin-left:0.3%;
+    }
+    .controls li:first-child {
+        margin-left:0;
+    }
+    .controls .progress {
+        width:38%;
+        cursor:pointer;
+    }
+    .controls button {
+        width:100%;
+        text-align:center;
+        overflow:hidden;
+        white-space:nowrap;
+        text-overflow:ellipsis;
+    }
+    .controls progress {
+        display:block;
+        width:100%;
+        height:20px;
+        height:1.25rem;
+        margin-top:2px;
+        margin-top:0.125rem;
+        border:1px solid #aaa;
+        overflow:hidden;
+        -moz-border-radius:5px;
+        -webkit-border-radius:5px;
+        border-radius:5px;
+    }
+    .controls progress span {
+        width:0%;
+        height:100%;
+        display:inline-block;
+        background-color:#2a84cd;	
+    }
 
-/* fullscreen */
-html:-ms-fullscreen {
-	width:100%;
-}
-:-webkit-full-screen {
-	background-color:transparent;
-}
-/* hide controls on fullscreen with WebKit */
-figure[data-fullscreen=true] video::-webkit-media-controls {
-	display:none !important;
-}
-figure[data-fullscreen=true] {
-	max-width:100%;
-	width:100%;
-	margin:0;
-	padding:0;
-}
-figure[data-fullscreen=true] video {
-	height:auto;
-}
-figure[data-fullscreen=true] figcaption {
-	display:none;
-}
-figure[data-fullscreen=true] .controls {
-	position:absolute;
-	bottom:2%;
-	width:100%;
-	z-index:2147483647;
-}
-figure[data-fullscreen=true] .controls li {
-	width:5%;
-}
-figure[data-fullscreen=true] .controls .progress {
-	width:68%;
-}
+    /* fullscreen */
+    html:-ms-fullscreen {
+        width:100%;
+    }
+    :-webkit-full-screen {
+        background-color:transparent;
+    }
+    /* hide controls on fullscreen with WebKit */
+    figure[data-fullscreen=true] video::-webkit-media-controls {
+        display:none !important;
+    }
+    figure[data-fullscreen=true] {
+        max-width:100%;
+        width:100%;
+        margin:0;
+        padding:0;
+    }
+    figure[data-fullscreen=true] video {
+        height:auto;
+    }
+    figure[data-fullscreen=true] figcaption {
+        display:none;
+    }
+    figure[data-fullscreen=true] .controls {
+        position:absolute;
+        bottom:2%;
+        width:100%;
+        z-index:2147483647;
+    }
+    figure[data-fullscreen=true] .controls li {
+        width:5%;
+    }
+    figure[data-fullscreen=true] .controls .progress {
+        width:68%;
+    }
 
-.box {
-    background-color: #F7FF00;
-    color: black;
-    padding: 20px;
-    margin: 20px;
-    display: inline-block;
-    vertical-align: middle;
-}
-.rotateX {
-    margin: 0 0 0 200px;
-    font-size: 18px;
-    transform: rotateX(180deg);
-}
+    .box {
+        background-color: #F7FF00;
+        color: black;
+        padding: 20px;
+        margin: 20px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .rotateX {
+        margin: 0 0 0 200px;
+        font-size: 18px;
+        transform: rotateX(180deg);
+    }
 
-.rotateY {
-    margin: 0 0 0 200px;
-    font-size: 18px;
-    transform: rotateY(3.14rad);
-}
+    .rotateY {
+        margin: 0 0 0 200px;
+        font-size: 18px;
+        transform: rotateY(3.14rad);
+    }
 
-.rotateZ {
-    margin: 0 0 0 200px;
-    font-size: 18px;
-    transform: rotateZ(-180deg);
-}
+    .rotateZ {
+        margin: 0 0 0 200px;
+        font-size: 18px;
+        transform: rotateZ(-180deg);
+    }
 
-.rotate {
-   -webkit-transform: rotate(270deg);
-    -moz-transform: rotate(270deg);
-    -o-transform: rotate(270deg);
-    writing-mode: lr-tb;
-}
+    .rotate {
+    -webkit-transform: rotate(270deg);
+        -moz-transform: rotate(270deg);
+        -o-transform: rotate(270deg);
+        writing-mode: lr-tb;
+    }
 </style>

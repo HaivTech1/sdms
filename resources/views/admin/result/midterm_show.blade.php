@@ -150,12 +150,21 @@
                             </tr>
                         </thead>
                         <tbody style="">
+
+                                @php
+                                    $totalSum = 0;
+                                @endphp
                                 <tr style="text-align: center; color: green;">
                                     <td></td>
                                     @foreach ($midterm as $key => $value)
-                                        <th style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">{{ $value['mark'] }}</th>
+                                        <th style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">
+                                            {{ $value['mark'] }}
+                                            @php
+                                                $totalSum += $value['mark'];
+                                            @endphp
+                                        </th>
                                     @endforeach
-                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">60</td>
+                                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">{{ $totalSum }}</td>
                                     <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">100%</td>
                                 </tr>
                             @foreach ($results as $result)
@@ -169,7 +178,7 @@
                                         @endif
                                     @endforeach
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->total() }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum($result->total() * 100, 60))}}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum($result->total() * 100, $totalSum))}}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -208,7 +217,7 @@
         </div>
     </div>
 
-     @section('scripts')
+    @section('scripts')
         <script>
             function generatePDF() {
                 toggleAble('#downloadPdf', true);

@@ -21,7 +21,7 @@
     <li>
         <a href="{{ route('design.index') }}" class="waves-effect">
             <i class="bx bx-cog"></i>
-            <span key="t-chat">Frontend Management</span>
+            <span key="t-chat">Website Management</span>
         </a>
     </li>
     <li>
@@ -66,6 +66,26 @@
         <ul class="sub-menu" aria-expanded="false">
             <li><a href="{{ route('messaging.email') }}" key="t-add-product">Email</a></li>
             <li><a href="{{ route('messaging.sms') }}" key="t-add-product">Bulk SMS</a></li>
+        </ul>
+    </li>
+    <li>
+        <a href="javascript: void(0);" class="has-arrow waves-effect">
+            <i class="bx bx-car"></i>
+            <span key="t-ecommerce">Transport Management</span>
+        </a>
+        <ul class="sub-menu" aria-expanded="false">
+            <li><a href="" key="t-add-product">Email</a></li>
+            <li><a href="" key="t-add-product">Bulk SMS</a></li>
+        </ul>
+    </li>
+    <li>
+        <a href="javascript: void(0);" class="has-arrow waves-effect">
+            <i class="bx bxl-whatsapp"></i>
+            <span key="t-ecommerce">Whatsapp Management</span>
+        </a>
+        <ul class="sub-menu" aria-expanded="false">
+            <li><a href="{{ route('messaging.email') }}" key="t-add-product">Connect</a></li>
+            <li><a href="{{ route('messaging.sms') }}" key="t-add-product">Inbox</a></li>
         </ul>
     </li>
 @endadmin
