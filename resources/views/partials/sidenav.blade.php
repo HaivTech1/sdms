@@ -17,25 +17,33 @@
                             <span key="t-ecommerce">Result Management</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="true">
-                            <li><a href="{{ route('result.midterm.upload') }}" key="t-products">Single Mid-term Upload </a></li>
-                            <li><a href="{{ route('result.batch.midterm.upload') }}" key="t-products">Batch Mid-term Upload </a></li>
-                            <li><a href="{{ route('result.singleUpload') }}" key="t-products">Single Exam Upload</a></li>
-                            <li><a href="{{ route('result.create') }}" key="t-products">Batch Exam Upload</a></li>
+                            <li><a href="{{ route('result.batch.midterm.upload') }}" key="t-products">Subject Mid-term Upload </a></li>
+                            <li><a href="{{ route('result.create') }}" key="t-products">Subject Exam Upload</a></li>
+                            @classTeacher
+                                <li><a href="{{ route('result.midterm.upload') }}" key="t-products">Student Mid-term Upload </a></li>
+                                <li><a href="{{ route('result.singleUpload') }}" key="t-products">Student Exam Upload</a></li>
+                                <li>
+                                    <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Broadsheet</a>
+                                    <ul class="sub-menu" aria-expanded="true">
+                                        <li><a href="{{ route('result.subject.broadsheet') }}">Generate Subject List</a></li>
+                                        <li><a href="{{ route('result.subject.broadsheet') }}">Generate Class List</a></li>
+                                    </ul>
+                                </li>
+                            @endclassTeacher
                             <li><a href="{{ route('result.midterm') }}" key="t-products">Check Mid-term Scores</a></li>
                             <li><a href="{{ route('result.primary') }}" key="t-products">Check Exam Scores</a></li>
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Broadsheet</a>
-                                <ul class="sub-menu" aria-expanded="true">
-                                    <li><a href="{{ route('result.subject.broadsheet') }}">Generate Subject List</a></li>
-                                    <li><a href="{{ route('result.subject.broadsheet') }}">Generate Class List</a></li>
-                                </ul>
-                            </li>
                         </ul>
                     </li>
                 @endif 
                 @include('partials.nav.bursal')
                 @include('partials.nav.teacher')
                 @include('partials.nav.student')
+                <li>
+                    <a class="waves-effect" href="{{ route('user.product.index') }}">
+                        <i class="bx bx-store-alt"></i> 
+                        <span key="t-chat">Market</span>
+                    </a>
+                </li>
                 <li>
                     <a href="{{ route('timetable.index') }}" class="waves-effect">
                         <i class="mdi mdi-clock-outline"></i>
@@ -46,6 +54,12 @@
                     <a class="waves-effect" href="{{ route('calendar.index') }}">
                         <i class="bx bx-calendar"></i> 
                         <span key="t-chat">School Calender</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="waves-effect" href="{{ route('calendar.index') }}">
+                        <i class="bx bx-notepad"></i> 
+                        <span key="t-chat">Edu Jobs</span>
                     </a>
                 </li>
             </ul>

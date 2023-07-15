@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\NotifiableParentsTrait;
+use App\Exports\MidtermResultDataExport;
 use App\Http\Requests\StoreResultRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
@@ -1248,7 +1249,6 @@ class ResultController extends Controller
                     }
                 }
                 
-                dd($examData);
                 $exam = new PrimaryResult($examData);
                 $exam->authoredBy(auth()->user());
                 $exam->save();
@@ -1757,7 +1757,7 @@ class ResultController extends Controller
                 $scores[$subject_id] = $total_score;
             }
 
-            $weakness_info = "Dear {$student->first_name}, based on your current term score, you need to improve in the following subject(s):";
+            $weakness_info = "Dear $student->first_name $student->last_name, based on your current term score, you need to improve in the following subject(s):";
             $commentResult = generate_comment($scores, $weakness_info, 0.5, 40);
 
             $filename = "{$student->id()}_result.pdf";
@@ -1774,10 +1774,13 @@ class ResultController extends Controller
             return $pdf->download($filename);
 
         } catch (\Throwable $th) {
-           return response()->json([
-            'status' => false,
-            'message' => $th->getMessage(),
-           ], 500); 
+            $notification = ([
+                'messege' => $th->getMessage(),
+                'alert-type' => 'error',
+                'buttons' => 'Okay',
+                'title' => 'Error generating result'
+            ]);
+            return redirect()->back()->with($notifiction);
         }
         
     }
@@ -1842,47 +1845,26 @@ class ResultController extends Controller
             }
 
             $newResult = array();
+
             foreach ($studentResults as $key => $value) {
-
-                $result = [];
-                $sum = 0;
-                if (is_array($midtermFormat)) {
-                    foreach ($midtermFormat as $midtermKey => $midtermValue) {
-                        if (isset($value->$midtermKey)) {
-                            $result[$midtermKey] = $value->$midtermKey;
-                            $sum += $value->$midtermKey;
-                        }
-                    }
-                }
-            
-                if (is_array($examFormat)) {
-                    foreach ($examFormat as $examKey => $examValue) {
-                        if (isset($value->$examKey)) {
-                            $result[$examKey] = $value->$examKey;
-                        }
-                    }
-                }
-            
-                unset($result['subject_id']);
-                $result['total'] = array_sum($result);
-                $result['midterm_total'] = $sum;
-                $result['subject_id']= $value->subject->id();
+                $result = array();
+                $result['total'] = $value->ca1 + $value->ca2 + $value->ca3 + $value->pr + $value->exam;
+                $result['subject_id'] = $value->subject->id();
                 $result['subject'] = $value->subject->title();
+                $result['ca1'] = $value->ca1;
+                $result['ca2'] = $value->ca2;
+                $result['ca3'] = $value->ca3;
+                $result['pr'] = $value->pr;
+                $result['exam'] = $value->exam;
                 $newResult[] = $result;
-
-                // dd($newResult);
-            }
-
-            $firstTermResult = $newResult;
-            $secondTermResult = $this->custom_array_merge($newFirst, $newResult);
-            $thirdTermResult = $this->custom_array_merge($secondTermResult, $newSecond);
-
+            }    
+            
             if($request->term_id === '1'){
-                $results = $firstTermResult;
+                $results = $newResult;
             }elseif ($request->term_id === '2') {
-                $results = $secondTermResult;
+                $results = $this->custom_array_merge($newFirst, $newResult);
             }elseif($request->term_id === '3'){
-                $results = $thirdTermResult;
+                $results = $this->custom_array_merge($secondTermResult, $newSecond);
             }
 
             $scores = [];
@@ -1893,7 +1875,7 @@ class ResultController extends Controller
                 $scores[$subject_id] = $total_score;
             }
 
-            $weakness_info = "Dear $student->first_name, you need to improve in the following subject(s):";
+            $weakness_info = "Dear $student->first_name $student->last_name, you need to improve in the following subject(s):";
             $comment = generate_comment($scores, $weakness_info, 0.4, 100, 'examination');
 
             $totalDays = 0;
@@ -1921,9 +1903,8 @@ class ResultController extends Controller
                 $marksObtained += $total;
             }
             $aggregate = $marksObtained / $numSubjects;
-
             $position = calculateStudentPosition($student->id(), new PrimaryResult(), $period->id(), $term->id(), $student->grade->id());
-            $filename = "{$student->id()}_result.pdf";
+            $filename = "{$student->last_name}_{$student->first_name}_{$student->other_name}_result.pdf";
 
             $pdf = PDF::loadView('admin.result.exam_pdf_result', [
                 'period' => $period,
@@ -1944,11 +1925,184 @@ class ResultController extends Controller
 
             return $pdf->download($filename);
         } catch (\Throwable $th) {
-           return response()->json([
-            'status' => false,
-            'message' => $th->getMessage(),
-           ], 500); 
+            $notification = ([
+                'messege' => $th->getMessage(),
+                'alert-type' => 'error',
+                'button' => 'Okay',
+                'title' => 'Error generating result'
+            ]);
+            return redirect()->back()->with($notification);
         }
         
+    }
+
+    public function checkMidterm($grade_id, $period_id, $term_id)
+    {
+        try {
+            $data = Student::where('grade_id', $grade_id)->orderBy('last_name', 'asc')->get();
+            $students = [];
+
+            foreach($data as $value){
+                $students[] = [
+                    'id' => $value->id(),
+                    'name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
+                    'recorded_subjects' => $value->midTermResults->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
+                ];
+            }
+
+            return response()->json([
+                'students' => $students,
+                'grade' => $grade_id,
+                'period' => $period_id,
+                'term' => $term_id,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function checkExam($grade_id, $period_id, $term_id)
+    {
+        try {
+            $data = Student::where('grade_id', $grade_id)->orderBy('last_name', 'asc')->get();
+            $students = [];
+
+            foreach($data as $value){
+                $students[] = [
+                    'id' => $value->id(),
+                    'name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
+                    'recorded_subjects' => $value->primaryResults->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
+                ];
+            }
+
+            return response()->json([
+                'students' => $students,
+                'grade' => $grade_id,
+                'period' => $period_id,
+                'term' => $term_id,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function studentComment($student_id, $period_id, $term_id)
+    {
+        try {
+            $data = Cognitive::where([
+                'student_uuid' => $student_id,
+                'term_id' => $term_id,
+                'period_id' => $period_id
+            ])->first();
+
+            if ($data) {
+                $comment = [
+                    'id' => $data->id(),
+                    'total' => $data->attendance_duration,
+                    'present' => $data->attendance_present,
+                    'comment' => $data->comment,
+                ];
+        
+                return response()->json([
+                    'status' => 1,
+                    'comment' => $comment,
+                ], 200);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function generateMidtermResult(Request $request)
+    {
+        try{
+
+            $grade = $request->grade_id;
+            $period = $request->period_id;
+            $term = $request->term_id;
+            $students = Student::where('grade_id', $grade)->get();
+        
+            DB::transaction(function () use ($students, $period, $term, $grade) {
+                $midtermFormat = get_settings('midterm_format');
+        
+                foreach ($students as $student) {
+                    $examResults = PrimaryResult::where([
+                        'grade_id' => $grade,
+                        'period_id' => $period,
+                        'term_id' => $term,
+                        'student_id' => $student->id()
+                    ])->get();
+        
+                    if ($examResults->isNotEmpty()) {
+                        foreach ($examResults as $result) {
+                            if ($result->student_id === $student->id()) {
+                                $subjectId = $result->subject_id;
+
+                                $check = MidTerm::where([
+                                    'grade_id' => $grade,
+                                    'period_id' => $period,
+                                    'term_id' => $term,
+                                    'student_id' => $student->id(),
+                                    'subject_id' => $subjectId,
+                                ])->first();
+        
+                                if($check){
+                                    continue;
+                                }else{
+                                    $newMidtermResult = new MidTerm([
+                                        'grade_id' => $grade,
+                                        'period_id' => $period,
+                                        'term_id' => $term,
+                                        'subject_id' => $subjectId,
+                                        'student_id' => $student->id(),
+                                        'author_id' => auth()->id(),
+                                        'entry_1' => $result->ca1 / 2,
+                                        'entry_2' => $result->ca1 / 2,
+                                        'first_test' => $result->ca3,
+                                        'ca' => $result->ca2,
+                                        'project' => $result->pr,
+                                    ]);
+                
+                                    // foreach ($midtermFormat as $key => $value) {
+                                    //     if (isset($result->$key)) {
+                                    //         $newMidtermResult[$key] = $result->$key;
+                                    //     }
+                                    // }
+        
+                                    $newMidtermResult->save();
+                                }
+                                
+                            }
+                        }
+                    }
+
+                    continue;
+                }
+            });
+        
+            return response()->json([
+                'status' => true,
+                'message' => 'Result generated successfully!',
+            ], 200);
+        }catch (\Throwable $th){
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(new MidtermResultDataExport($request), 'midterm_result_.xlsx');
     }
 }

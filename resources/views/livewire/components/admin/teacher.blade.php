@@ -127,6 +127,7 @@
                                     </th>
                                     <th class="align-middle"></th>
                                     <th class="align-middle">Name</th>
+                                    <th class="align-middle">ID</th>
                                     <th class="align-middle">Email</th>
                                     <th class="align-middle">Assigned Classes</th>
                                     <th class="align-middle">Assigned Subjects</th>
@@ -153,6 +154,9 @@
                                     <td>
                                         <livewire:components.edit-title :model='$teacher' field='name'
                                             :key='$teacher->id()' />
+                                    </td>
+                                    <td>
+                                        {{ $teacher->code() }}
                                     </td>
                                     <td>
                                         <livewire:components.edit-title :model='$teacher' field='email'

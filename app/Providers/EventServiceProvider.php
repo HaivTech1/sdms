@@ -5,11 +5,13 @@ namespace App\Providers;
 use App\Models\Fee;
 use App\Models\User;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Events\ResultEvent;
 use App\Observers\FeeObserver;
 use App\Observers\UserObserver;
 use App\Events\SendNewTaskEvent;
 use App\Observers\PaymentObserver;
+use App\Observers\ProductObserver;
 use App\Events\Student\PaymentEvent;
 use Illuminate\Support\Facades\Event;
 use App\Listeners\SendNewTaskListener;
@@ -50,6 +52,6 @@ class EventServiceProvider extends ServiceProvider
     {
         // User::observe(UserObserver::class);
         // Fee::observe(FeeObserver::class);
-        // Payment::observe(PaymentObserver::class);
+        Product::observe(ProductObserver::class);
     }
 }

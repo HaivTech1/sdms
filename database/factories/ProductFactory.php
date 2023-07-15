@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Support\Str;
 use App\Models\ProductCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,16 +23,11 @@ class ProductFactory extends Factory
             'title'                 => $title,
             'slug'                  => Str::slug($title . '-' . now()->getPreciseTimestamp(4)),
             'price'                 => $this->faker->numberBetween($min = 1500, $max = 6000),
-            'discount'                 => $this->faker->numberBetween($min = 300, $max = 600),
-            'qty'                     => rand(1, 10),
-            'brand'                     =>  $this->faker->randomElement(['Adidas', 'Gucci', 'Lewis', 'Gramdor']), 
-            'type'                     =>  $this->faker->randomElement(['clothing', 'furniture', 'wallpaper']),  
+            'quantity'                     => rand(1, 10),
             'image'                 => json_encode('product-'. $this->faker->randomElement(['one', 'two', 'three', 'four']) . '.jpg'),
             'description'           => $this->faker->paragraph(5),
-            'isAvailable'           => 1,
-            'isVerified'            => 1,
-            'product_category_id'  => $attribute['product_category_id'] ?? ProductCategory::factory(),
-            'author_id'               => $attribute['author_id'] ?? User::factory(),
+            'status'                => 1,
+            'category_id'           => $attribute['category_id'] ?? Category::factory(),
         ];
     }
 }

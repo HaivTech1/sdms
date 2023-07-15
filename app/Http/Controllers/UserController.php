@@ -49,6 +49,8 @@ class UserController extends Controller
                     $initial = 'BUR/';
                 }elseif($request->type == 6){
                     $initial = 'WOR/';
+                }elseif($request->type == 7){
+                    $initial = 'DRV/';
                 }
         
                 $code = SaveCode::Generator($initial, 5, 'reg_no', $user);

@@ -23,6 +23,7 @@
                                 <option value="3">Teachers</option>
                                 <option value="5">Bursar</option>
                                 <option value="6">Workers</option>
+                                <option value="8">Drivers</option>
                             </select>
                         </div>
                         <div class="col-sm-2 form-check font-size-16">
@@ -302,6 +303,7 @@
                                             <option value="3">Teacher</option>
                                             <option value="5">Bursar</option>
                                             <option value="6">Worker</option>
+                                            <option value="8">Driver</option>
                                         </select>
                                         <x-form.error for="type" />
                                     </div>
@@ -405,7 +407,7 @@
             });
         });
 
-         $('#edit_bank_code').on('change', function() {
+        $('#edit_bank_code').on('change', function() {
             var code = $(this).val();
 
             $.ajax({
@@ -544,7 +546,7 @@
                         toggleAble('#create_employee', false);
                         toastr.success(res.message, 'Success!');
                         $('.createEmployee').modal('toggle');
-                        setInterval(function () {window.location.reload()}, 1000);
+                        setTimeout(function () {window.location.reload()}, 1000);
                     }else{
                         toggleAble('#create_employee', false);
                         toastr.error(res.message, 'Failed!');

@@ -6,6 +6,7 @@ use App\Models\Term;
 use App\Models\Grade;
 use App\Models\Period;
 use App\Models\Student;
+use App\Models\Subject;
 use Livewire\Component;
 use Illuminate\Http\Request;
 use Livewire\WithPagination;
@@ -87,6 +88,7 @@ class CheckMidterm extends Component
             'grades' => $grades,
             'periods' => Period::all(),
             'terms' => Term::all(),
+            'allsubjects' => Subject::all(),
         ]);
     }
 }

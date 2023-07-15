@@ -159,6 +159,8 @@
                 </div>
             </div> --}}
 
+            <livewire:components.student.cart-counter>
+
             <div class="dropdown d-inline-block">
                 @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                 <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"

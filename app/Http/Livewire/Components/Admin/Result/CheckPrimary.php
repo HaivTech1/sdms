@@ -8,9 +8,12 @@ use App\Models\Period;
 use App\Models\Student;
 use Livewire\Component;
 use App\Models\Cognitive;
+use App\Models\Cummulative;
 use App\Models\Psychomotor;
 use Livewire\WithPagination;
 use App\Models\PrimaryResult;
+use Illuminate\Support\Facades\DB;
+use App\Traits\NotifiableParentsTrait;
 
 class CheckPrimary extends Component
 {
@@ -96,6 +99,66 @@ class CheckPrimary extends Component
         $this->dispatchBrowserEvent('success',[ 'message' => 'Result deleted successfully!']);
         $this->dispatchBrowserEvent('close-modal');
     }
+
+    // public function publishResult()
+    // {
+        
+    //     DB::transaction(function () use ($request) {
+    //         $students = Student::whereIn('id', $this->selectedRows)->get();
+
+    //         foreach ($students as $key => $student) {
+    //             $results = PrimaryResult::where('student_id', $student->id())->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+    //             $idNumber = $student->user->code();
+    //             $password = 'password123';
+    //             $name = $student->last_name." ".$student->first_name. " ".$student->other_name;
+    //             $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+    //             $subject = 'Evaluation Report Sheet';
+        
+    //             foreach($results as $result){
+    //                 $result->update(['published' => true]);
+    //             }
+                
+    //             NotifiableParentsTrait::notifyParents($student, $message, $subject);
+        
+    //             $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+        
+    //             if(count($check) > 0){
+    //                 foreach($check as $value){
+    //                     $value->delete();
+    //                 }
+
+    //                 $cum = array();
+    //                 foreach($results as $result){
+    //                     $cummulative = new Cummulative([
+    //                         'subject_id' => $result['subject_id'],
+    //                         'score' => calculateResult($result), 
+    //                         'student_uuid' => $result['student_id'], 
+    //                         'period_id' => $result['period_id'],
+    //                         'term_id' => $result['term_id'], 
+    //                         'grade_id' => $result['grade_id'], 
+    //                         'author_id' => auth()->id()
+    //                     ]);
+    //                     $cummulative->save();
+    //                 }
+    //             }else{
+    //                 $cum = array();
+    //                 foreach($results as $result){
+    //                     $cummulative = new Cummulative([
+    //                         'subject_id' => $result['subject_id'],
+    //                         'score' => calculateResult($result), 
+    //                         'student_uuid' => $result['student_id'], 
+    //                         'period_id' => $result['period_id'],
+    //                         'term_id' => $result['term_id'], 
+    //                         'grade_id' => $result['grade_id'], 
+    //                         'author_id' => auth()->id()
+    //                     ]);
+    //                     $cummulative->save();
+    //                 }
+            
+    //             }
+    //         }
+    //     });
+    // }
     
     public function render()
     {

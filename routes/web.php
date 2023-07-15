@@ -43,7 +43,10 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ContestantController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\User\MarketController;
+use App\Http\Controllers\Admin\DriverController;
 use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\BiometricDeviceController;
 use Laravel\Fortify\Http\Controllers\PasswordController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
@@ -117,6 +120,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/subject/{id}', [TeacherController::class, 'showSubject']);
             Route::get('/subject/{subjectId}/teacher/{teacherId}', [TeacherController::class, 'removeSubject']); 
             Route::get('/grade/{gradeId}/teacher/{teacherId}', [TeacherController::class, 'removeGrade']); 
+        });
+
+        Route::group(['prefix' => 'driver', 'as' => 'driver.'], function () {
+            Route::get('/', [DriverController::class, 'index'])->name('index');
+            Route::post('/', [DriverController::class, 'addVehicle'])->name('add.vehicle');
         });
 
         Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
@@ -229,6 +237,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/add/exam', [ResultController::class, 'addExam'])->name('add.exam');
 
             Route::post('/refresh/result', [ResultController::class, 'refreshResult'])->name('refresh');
+            Route::post('/generate/midterm/result', [ResultController::class, 'generateMidtermResult'])->name('generate.midterm');
 
             Route::post('/excel/midterm/upload', [ResultController::class, 'excelMidTermUpload'])->name('excel.midterm.upload');
             Route::post('/excel/exam/upload', [ResultController::class, 'excelExamUpload'])->name('excel.exam.upload');
@@ -237,6 +246,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/generate/pdf/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'generateMidtermPDF'])->name('generate-pdf.midterm');
             Route::post('/pdf/midterm/generate', [ResultController::class, 'generateSingleMidtermPDF'])->name('midterm.pdf');
             Route::post('/pdf/exam/generate', [ResultController::class, 'generateSingleExamPDF'])->name('exam.pdf');
+
+            Route::get('midterm/check/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'checkMidterm'])->name('check.midterm');
+            Route::get('exam/check/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'checkExam'])->name('check.exam');
+
+            Route::get('student/comment/{student_id}/{period_id}/{term_id}', [ResultController::class, 'studentComment'])->name('student.comment');
+
+            Route::post('/export/excel', [ResultController::class, 'exportExcel'])->name('export.excel');
         });
         
         Route::group(['prefix' => 'fee', 'as' => 'fee.'], function () {
@@ -394,6 +410,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/review', [PayslipController::class, 'review']);
             Route::get('/{user}', [PayslipController::class, 'single']);
         });
+
+        Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
+            Route::get('/', [ProductController::class, 'index'])->name('index');
+            Route::post('/', [ProductController::class, 'store'])->name('store');
+            Route::post('/update', [ProductController::class, 'update'])->name('update');
+        });
+
+        Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
+            Route::get('/', [ProductController::class, 'index'])->name('index');
+            Route::post('/', [ProductController::class, 'store'])->name('store');
+            Route::post('/update', [ProductController::class, 'update'])->name('update');
+        });
     });
 
     Route::group(['prefix' => 'appSetting', 'as' => 'appSetting.'], function () {
@@ -406,6 +434,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/color/format', [ApplicationController::class, 'color']);
         Route::post('/grade/format', [ApplicationController::class, 'grade']);
         Route::post('/affective/domain', [ApplicationController::class, 'domain']);
+    });
+
+    Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
+        Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
+            Route::get('/', [MarketController::class, 'index'])->name('index');
+            Route::get('/{product}/details', [MarketController::class, 'show'])->name('show');
+            Route::get('/cart', [MarketController::class, 'cart'])->name('cart');
+            Route::get('/checkout', [MarketController::class, 'checkout'])->name('checkout');
+            Route::get('/delete/cart/{item}', [MarketController::class, 'remove'])->name('delete.cartitem');
+            Route::get('/update/cart/{item}/{quantity}', [MarketController::class, 'update'])->name('update.cartitem');
+        });
     });
 });
 

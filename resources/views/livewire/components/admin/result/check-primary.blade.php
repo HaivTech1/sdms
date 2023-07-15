@@ -2,13 +2,6 @@
     <x-loading />
 
     <div class="row">
-        <div class="col-sm-12">
-            <div class="row">
-                <div class="col-lg-6">
-                    <x-search />
-                </div>
-            </div>
-        </div>
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
@@ -28,21 +21,26 @@
                                         Upload Excel Result
                                     </button>
                                 </div>
+                                @superadmin
+                                    <div>
+                                        <button data-bs-toggle="modal" data-bs-target=".generateResultModal" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Generate Midterm Result</button>
+                                    </div>
+                                @endsuperadmin
                             </div>
                         <div class="mt-2">
-                            <form wire:submit.prevent="fetchResult">
+                            <form id="fetchResultForm">
                                 <div class="row">
-                                    <div class="col-lg-2">
-                                        <select class="form-control select2" wire:model.defer="grade_id">
+                                    <div class="col-lg-3">
+                                        <select class="form-control" id="grade_id" name="grade_id">
                                             <option value=''>Class</option>
                                             @foreach ($grades as $grade)
                                             <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-
+                                    
                                     <div class="col-lg-3">
-                                        <select class="form-control " wire:model.defer="period_id">
+                                        <select class="form-control" id="period_id" name="period_id">
                                             <option value=''>Select Session</option>
                                             @foreach ($periods as $period)
                                             <option value="{{  $period->id() }}">{{ $period->title() }}</option>
@@ -52,7 +50,7 @@
                                     </div>
 
                                     <div class="col-lg-3">
-                                        <select class="form-control select2" wire:model.defer="term_id">
+                                        <select class="form-control" id="term_id" name="term_id">
                                             <option value=''>Select Term</option>
                                             @foreach ($terms as $term)
                                             <option value="{{  $term->id() }}">{{ $term->title() }}</option>
@@ -61,10 +59,9 @@
                                         <x-form.error for="term_id" />
                                     </div>
                                     <div class="col-lg-3">
-                                        <div class="d-flex justify-content-center align-self-center">
-                                            <button type="submit" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
+                                        <div class="d-flex justify-content-center align-item-center">
+                                            <button type="submit" id="fetchResultButton" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
                                                 <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
-                                                Student
                                             </button>
                                         </div>
                                     </div>
@@ -75,138 +72,137 @@
 
                     <div class="row">
                         <div class="col-12 py-4">
-                            @if ($grade_id)
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped table-nowrap mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col" class="text-center">Name of Student</th>
-                                                <th scope="col" class="text-center">
-                                                    Recorded Subjects
-                                                </th>
-                                                <th scope="col" class="text-center" id="action">
-                                                    Action
-                                                </th>
-                                                
-                                            </tr>
-                                        </thead>
+                            <div class="table-responsive">
+                                <table id="result-data" class="table table-bordered table-striped table-nowrap mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="text-center">Name of Student</th>
+                                            <th scope="col" class="text-center">
+                                                Recorded Subjects
+                                            </th>
+                                            <th scope="col" class="text-center" id="action">
+                                                Action
+                                            </th>
+                                            
+                                        </tr>
+                                    </thead>
 
-                                        <tbody wire:ignore>
-                                            @foreach ($students as $student)
-                                            <tr>
-                                                <td class='text-center'>{{ $student->firstName() }} {{ $student->lastName() }}</td>
-                                                <td class='text-center'>
-                                                    {{ $student->primaryResults->where('term_id', $term_id)->where('period_id', $period_id)->count() }}
-                                                </td>
-                                                @php
-                                                    $comments = \App\Models\Cognitive::where([
-                                                        'student_uuid' => $student->id(),
-                                                        'term_id' => $term_id,
-                                                        'period_id' => $period_id
-                                                    ])->first()
-                                                @endphp
+                                    <tbody>
+                                        
+                                    </tbody>
+
+                                    {{-- <tbody wire:ignore>
+                                        @foreach ($students as $student)
+                                        <tr>
+                                            <td class='text-center'>{{ $student->firstName() }} {{ $student->lastName() }}</td>
+                                            <td class='text-center'>
+                                                {{ $student->primaryResults->where('term_id', $term_id)->where('period_id', $period_id)->count() }}
+                                            </td>
+                                            @php
+                                                $comments = \App\Models\Cognitive::where([
+                                                    'student_uuid' => $student->id(),
+                                                    'term_id' => $term_id,
+                                                    'period_id' => $period_id
+                                                ])->first()
+                                            @endphp
+                                            
+                                            <td class='d-flex justify-content-center align-items-center gap-2'>
                                                 
-                                                <td class='d-flex justify-content-center align-items-center gap-2'>
-                                                    
+                                                <button 
+                                                    wire:key="{{ $student->id() }}"
+                                                    type="button"
+                                                    class="btn btn-sm btn-secondary recorded"
+                                                    data-student="{{ $student->id() }}"
+                                                    data-grade="{{ $grade_id }}"
+                                                    data-period="{{ $period_id }}"
+                                                    data-term="{{ $term_id }}"
+                                                >
+                                                    <i class="fa fa-cogs"></i> View Recorded
+                                                </button>
+                                                <button 
+                                                            wire:key="{{ $student->id() }}"
+                                                            type="button"
+                                                            wire:ignore class="btn btn-sm btn-info editCom"
+                                                            data-id="{{$student->id()}}" 
+                                                            data-term="{{$term_id}}"
+                                                            data-period="{{$period_id}}"
+                                                            data-total="{{$comments->attendance_duration ?? ''}}"
+                                                            data-present="{{$comments->attendance_present ?? ''}}"
+                                                            data-comment="{{$comments->comment ?? ''}}"
+                                                    >
+                                                        Comment
+                                                </button>
+                                                @if (affectives($student, $term_id, $period_id) === false)
                                                     <button 
                                                         wire:key="{{ $student->id() }}"
-                                                        type="button"
-                                                        class="btn btn-sm btn-secondary recorded"
+                                                        type="button" class="btn btn-sm btn-secondary uploadAffective" 
                                                         data-student="{{ $student->id() }}"
-                                                        data-grade="{{ $grade_id }}"
                                                         data-period="{{ $period_id }}"
                                                         data-term="{{ $term_id }}"
                                                     >
-                                                        <i class="fa fa-cogs"></i> View Recorded
+                                                        <i class="fas fa-compress-arrows-alt"></i>
+                                                        Affective
                                                     </button>
-                                                    {{-- @classTeacher --}}
-                                                        <button 
-                                                                wire:key="{{ $student->id() }}"
-                                                                type="button"
-                                                                wire:ignore class="btn btn-sm btn-info editCom"
-                                                                data-id="{{$student->id()}}" 
-                                                                data-term="{{$term_id}}"
-                                                                data-period="{{$period_id}}"
-                                                                data-total="{{$comments->attendance_duration ?? ''}}"
-                                                                data-present="{{$comments->attendance_present ?? ''}}"
-                                                                data-comment="{{$comments->comment ?? ''}}"
-                                                        >
-                                                            Comment
-                                                        </button>
-                                                        @if (affectives($student, $term_id, $period_id) === false)
-                                                            <button 
-                                                                wire:key="{{ $student->id() }}"
-                                                                type="button" class="btn btn-sm btn-secondary uploadAffective" 
-                                                                data-student="{{ $student->id() }}"
-                                                                data-period="{{ $period_id }}"
-                                                                data-term="{{ $term_id }}"
-                                                            >
-                                                                <i class="fas fa-compress-arrows-alt"></i>
-                                                                Affective
+                                                @endif
+                                                @if (psychomotors($student, $term_id, $period_id) === false)
+                                                    <button 
+                                                        wire:key="{{ $student->id() }}"
+                                                        type="button" 
+                                                        class="btn btn-sm btn-secondary uploadPsychomotor"
+                                                        data-student="{{ $student->id() }}"
+                                                        data-period="{{ $period_id }}"
+                                                        data-term="{{ $term_id }}"
+                                                    >
+                                                        <i class="fas fa-compress-arrows-alt"></i>
+                                                        Psychomotor
+                                                    </button>
+                                                @endif
+                                                <a class="btn btn-sm btn-success" href="{{ route('result.primary.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Click to view result">
+                                                    <i class="bx bx-show"></i>
+                                                    Show
+                                                </a>
+                                                @admin
+                                                    @if (publishExamState($student->id(), $period_id, $term_id))
+                                                        <div class="d-flex gap-2">
+                                                            <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                                <span class="badge bg-success"><i class="bx bx-upload"></i> Published</span>
                                                             </button>
-                                                        @endif
-                                                        @if (psychomotors($student, $term_id, $period_id) === false)
-                                                            <button 
-                                                                wire:key="{{ $student->id() }}"
-                                                                type="button" 
-                                                                class="btn btn-sm btn-secondary uploadPsychomotor"
-                                                                data-student="{{ $student->id() }}"
-                                                                data-period="{{ $period_id }}"
-                                                                data-term="{{ $term_id }}"
-                                                            >
-                                                                <i class="fas fa-compress-arrows-alt"></i>
-                                                                Psychomotor
-                                                            </button>
-                                                        @endif
-                                                    {{-- @endclassTeacher --}}
-                                                    <a class="btn btn-sm btn-success" href="{{ route('result.primary.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top"
-                                                        title="Click to view result">
-                                                        <i class="bx bx-show"></i>
-                                                        Show
-                                                    </a>
-                                                    @admin
-                                                        @if (publishExamState($student->id(), $period_id, $term_id))
-                                                            <div class="d-flex gap-2">
-                                                                <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                    <span class="badge bg-success"><i class="bx bx-upload"></i> Published</span>
+                                                            <form action="{{ route('result.exam.pdf') }}" method="POST">
+                                                                @csrf
+
+                                                                <input type="hidden" name="student_id" value="{{ $student->id() }}" />
+                                                                <input type="hidden" name="grade_id" value="{{ $student->grade->id() }}" />
+                                                                <input type="hidden" name="period_id" value="{{ $period_id }}" />
+                                                                <input type="hidden" name="term_id" value="{{ $term_id }}" />
+
+                                                                <button class="btn btn-sm btn-info" type="submit">
+                                                                    <i class="bx bxs-file-pdf"></i> PDF
                                                                 </button>
-                                                                <form action="{{ route('result.exam.pdf') }}" method="POST">
-                                                                    @csrf
-
-                                                                    <input type="hidden" name="student_id" value="{{ $student->id() }}" />
-                                                                    <input type="hidden" name="grade_id" value="{{ $student->grade->id() }}" />
-                                                                    <input type="hidden" name="period_id" value="{{ $period_id }}" />
-                                                                    <input type="hidden" name="term_id" value="{{ $term_id }}" />
-
-                                                                    <button class="btn btn-sm btn-info" type="submit">
-                                                                        <i class="bx bxs-file-pdf"></i> PDF
-                                                                    </button>
-                                                                </form>
-                                                            </div>
-                                                        @else
-                                                            <button type="button" class="btn btn-sm btn-primary" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                <i class="bx bx-upload"></i> Publish
-                                                            </button>
-                                                        @endif
-                                                        <button 
-                                                            wire:key="{{ $student->id() }}"
-                                                            type="button" 
-                                                            class="btn btn-sm btn-danger"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#deleteResultModal"
-                                                            wire:click="deleteResult('{{ $student->id() }}')">
-                                                            <i class="bx bx-trash"></i>
+                                                            </form>
+                                                        </div>
+                                                    @else
+                                                        <button type="button" class="btn btn-sm btn-primary" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
+                                                            <i class="bx bx-upload"></i> Publish
                                                         </button>
-                                                    @endadmin
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                                {{ $students->links('pagination::custom-pagination')}}
-                            @endif
+                                                    @endif
+                                                    <button 
+                                                        wire:key="{{ $student->id() }}"
+                                                        type="button" 
+                                                        class="btn btn-sm btn-danger"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteResultModal"
+                                                        wire:click="deleteResult('{{ $student->id() }}')">
+                                                        <i class="bx bx-trash"></i>
+                                                    </button>
+                                                @endadmin
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody> --}}
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -532,8 +528,6 @@
                         <form id="resultUpload" method="POST">
                             @csrf
                             <input name="student_id" id="add_student_id" type="hidden" />
-                            <input name="period_id" value="{{ $period_id }}" type="hidden" />
-                            <input name="term_id" value="{{ $term_id }}" type="hidden" />
 
                             @php
                                 $examForm = get_settings('exam_format');
@@ -640,11 +634,326 @@
         </div>
     </div>
 
+    <div class="modal fade generateResultModal" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Generate midterm scores from midterm exam</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modalErrorr"></div>
+
+                    <div class="row">
+                        <form id="generateResult" method="POST">
+                            @csrf
+                            @php
+                                $grades = \App\Models\Grade::all();
+                                $periods = \App\Models\Period::all();
+                                $terms = \App\Models\Term::all();
+                            @endphp
+
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <select class="form-control" name="grade_id">
+                                        <option value=''>Class</option>
+                                        @foreach ($grades as $grade)
+                                        <option value="{{  $grade->id() }}">{{  $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <select class="form-control" name="period_id">
+                                        <option value=''>Session</option>
+                                        @foreach ($periods as $period)
+                                        <option value="{{  $period->id() }}">{{  $period->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <select class="form-control" name="term_id">
+                                        <option value=''>Term</option>
+                                        @foreach ($terms as $term)
+                                        <option value="{{  $term->id() }}">{{  $term->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center flex-wrap mt-2">
+                                <button id="generate_button" type="submit"
+                                    class="btn btn-primary block waves-effect waves-light pull-right">
+                                    Generate Result
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @section('scripts')
 
     <script>
 
-         $(document).ready(function(){
+        $('#fetchResultForm').on('submit', function(e){
+            e.preventDefault();
+            var button = $('#fetchResultButton');
+            toggleAble(button, true, 'Fetching...');
+
+            var grade = $('#grade_id').val();
+            var period = $('#period_id').val();
+            var term = $('#term_id').val();
+
+            $.ajax({
+                url: '{{ route("result.check.exam", ["period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':grade_id', grade),
+                type: 'GET',
+                dataType: 'json',
+            }).done((response) => {
+                toggleAble(button, false);
+                var students = response.students;
+
+                var html = '';
+
+                $.each(students, function(index, student) {
+                    html += '<tr>';
+                    html += '<td class="text-center">' + student.name + '</td>';
+                    html += '<td class="text-center">' + student.recorded_subjects + '</td>';
+                    html += '<td>';
+                    html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
+                    html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-conversation"></i> Comment</button>';
+                    html += '<a href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                    html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';                   
+                    html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                    html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
+                    html += '</button>';
+                    html += '<?php endif; ?>';
+                    html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin() || auth()->user()->gradeClassTeacher()->exists()): ?>';                   
+                    html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                    html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
+                    html += '</button>';
+                    html += '<?php endif; ?>';
+                    html += '<div class="d-flex gap-2">';
+                    html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';
+                    html += '<?php if (publishMidState(' + student.id + ', ' + response.period + ', ' + response.term + ')): ?>';
+                    html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + '\', ' + response.period + ', ' + response.term + ', ' + response.grade + ')">';
+                    html += '<span>Publish</span>';
+                    html += '</button>';
+                    html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
+                    html += '@csrf';
+                    html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                    html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                    html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                    html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                    html += '<button class="btn btn-sm btn-info" type="submit">';
+                    html += '<i class="bx bxs-file-pdf"></i> PDF';
+                    html += '</button>';
+                    html += '</form>';
+                    html += '<?php else: ?>';
+                    html += '<button class="btn btn-sm btn-primary" type="button" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + '\', ' + response.period + ', ' + response.term + ', ' + response.grade + ')">';
+                    html += '<i class="mdi mdi-upload d-block font-size-16"></i> Publish';
+                    html += '</button>';
+                    html += '<?php endif; ?>';
+                    html += '<?php endif; ?>';
+                    html += '</div>';
+                    html += '</td>';
+                    html += '</tr>';
+                });
+
+                $('#result-data tbody').html(html);
+
+                $('.recorded').on('click', function(e){
+                    var button = $(this);
+                    toggleAble(button, true)
+
+                    var id = $(this).data('student');
+                    var classId = $(this).data('grade');
+                    var sessionId = $(this).data('period');
+                    var termId = $(this).data('term');
+
+
+                    $.ajax({
+                        url: '{{ route("result.fetch.exam", ["student_id" => ":student_id",  "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
+                        type: 'GET',
+                        dataType: 'json',
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        var results = response.results;
+
+                        var html = '';
+                        $.each(results, function(index, result) {
+                        html += '<tr>';
+                        html += '<td>' + result.subject_name + '</td>';
+
+                        var resultScores = results;
+                        var examFormat = JSON.parse('<?php echo json_encode($examForm); ?>');
+
+                        $.each(examFormat, function(examKey, examValue) {
+                            var score = '-';
+                            if (examKey in result) {
+                                score = result[examKey];
+                            }
+                            html += '<td class="score-cell" data-result-id="' + result.result_id + '" data-subject-id="' + result.subject_id + '" data-exam-key="' + examKey + '">' + score + '</td>';
+                        });
+
+                        html += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove" data-id="' + result.result_id + '"><i class="bx bx-trash"></button></td>';
+                        html += '</tr>';
+                        });
+
+                        $('#students-result tbody').html(html);
+                        $('.addResult').data('student-id', id)
+                        $('.previewResultModal').modal('toggle');
+
+                        $('.score-cell').click(function() {
+                            var resultId = $(this).data('result-id');
+                            var subjectId = $(this).data('subject-id');
+                            var examKey = $(this).data('exam-key');
+                            var currentScore = $(this).text();
+                            $('#scoreInput').val(currentScore);
+                            $('#saveScoreBtn').data('result-id', resultId);
+                            $('#saveScoreBtn').data('subject-id', subjectId);
+                            $('#saveScoreBtn').data('exam-key', examKey);
+                            $('#editModal').modal('show');
+                        });
+
+                        $('#saveScoreBtn').click(function() {
+                            var button = $(this);
+                            toggleAble(button, true, 'Updating...');
+                            var resultId = $(this).data('result-id');
+                            var subjectId = $(this).data('subject-id');
+                            var examKey = $(this).data('exam-key');
+                            var editedScore = $('#scoreInput').val();
+
+                            Swal.fire({
+                                title: 'Confirm Submission',
+                                text: 'Are you sure you want to update the score?',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#502179',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Update'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajaxSetup({
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        },
+                                    });
+                                    
+                                    $.ajax({
+                                        url: '{{ route('result.update.exam') }}',
+                                        type: 'POST',
+                                        data: {result_id: resultId, subject_id: subjectId, field: examKey, score: editedScore},
+                                    }).done((response) => {
+                                        toggleAble(button, false);
+                                        Swal.fire('Updated!', response.message, 'success');
+                                        $('.score-cell[data-subject-id="' + subjectId + '"][data-exam-key="' + examKey + '"]').text(editedScore);
+                                        $('#editModal').modal('toggle');
+                                    }).fail((error) => {
+                                        toggleAble(button, false);
+                                        console.log(error);
+                                        toastr.error(error.responseJSON.message, 'Failed!');
+                                    });
+                                }else{
+                                    toggleAble(button, false);
+                                }
+                            });
+                        });
+
+                        $('.addResult').click(function(){
+                            $('.previewResultModal').modal('toggle');
+                            var student = $(this).data('student-id');
+                            document.getElementById('add_student_id').value = student;
+                            $('.addResultModal').modal('toggle');
+                        });
+
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        toastr.error(error.responseJSON.message);
+                        console.log(error);
+                    });
+
+                });
+
+                $(".editCom").click(function(e) {
+                    e.preventDefault();
+                    var button = $(this);
+                    toggleAble(button, true);
+
+                    var id = $(this).data('id');
+                    var period = $(this).data('period');
+                    var term = $(this).data('term');
+                    
+                    $.ajax({
+                        method: 'GET',
+                        url: '{{ route('result.student.comment', ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':student_id', id),
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        console.log(response.comment);
+                        if(response.comment != undefined || response.comment != null){
+                            var total = response.comment.total;
+                            var present = response.comment.present;
+                            var comment = response.comment.comment;
+
+                            document.getElementById('attendance_duration').value=total;
+                            document.getElementById('attendance_present').value=present;
+                            document.getElementById('attendance_comment').value=comment;
+                        }else{
+                            document.getElementById('attendance_duration').value = ' ';
+                            document.getElementById('attendance_present').value = '';
+                            document.getElementById('attendance_comment').value = '';
+                        }
+
+                        document.getElementById("student").value=id;
+                        document.getElementById('periodC').value=period;
+                        document.getElementById('termC').value=term;
+                        $("#createCommentModal").modal('toggle');
+
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        console.log(error.responseJSON.message);
+                    });
+                });
+
+                $(".uploadAffective").click(function(e) {
+                    e.preventDefault();
+
+                    var student = $(this).data('id');
+                    var period = $(this).data('period');
+                    var term = $(this).data('term');
+
+                    $("#createAffectiveModal").modal('toggle');
+
+                    document.getElementById("affective_student_id").value = student;
+                    document.getElementById('affective_period_id').value = period;
+                    document.getElementById('affective_term_id').value = term;
+                });
+
+                $(".uploadPsychomotor").click(function(e) {
+                    e.preventDefault();
+
+                    var student = $(this).data('id');
+                    var period = $(this).data('period');
+                    var term = $(this).data('term');
+
+                    $("#createPsychomotorModal").modal('toggle');
+
+                    document.getElementById("psychomotor_student_id").value = student;
+                    document.getElementById('psychomotor_period_id').value = period;
+                    document.getElementById('psychomotor_term_id').value = term;
+                });
+
+            }).fail((error) => {
+                toggleAble(button, false);
+                toastr.error(error.responseJSON.message);
+                console.log(error);
+            });
+        });
+
+        $(document).ready(function(){
             $('.exam-input').prop('disabled', true);
 
             $('#format-select').on('change', function() {
@@ -674,54 +983,6 @@
                 input.classList.remove('is-invalid');
             }
         }
-
-        $(".uploadAffective").click(function(e) {
-            e.preventDefault();
-
-            var student = $(this).data('student');
-            var period = $(this).data('period');
-            var term = $(this).data('term');
-
-            $("#createAffectiveModal").modal('toggle');
-
-            document.getElementById("affective_student_id").value = student;
-            document.getElementById('affective_period_id').value = period;
-            document.getElementById('affective_term_id').value = term;
-        });
-
-        $(".uploadPsychomotor").click(function(e) {
-            e.preventDefault();
-
-            var student = $(this).data('student');
-            var period = $(this).data('period');
-            var term = $(this).data('term');
-
-            $("#createPsychomotorModal").modal('toggle');
-
-            document.getElementById("psychomotor_student_id").value = student;
-            document.getElementById('psychomotor_period_id').value = period;
-            document.getElementById('psychomotor_term_id').value = term;
-        });
-
-        $(".editCom").click(function(e) {
-            e.preventDefault();
-
-            var id = $(this).data('id');
-            var period = $(this).data('period');
-            var term = $(this).data('term');
-            var total = $(this).data('total');
-            var present = $(this).data('present');
-            var comment = $(this).data('comment');
-
-            $("#createCommentModal").modal('toggle');
-
-            document.getElementById("student").value=id;
-            document.getElementById('periodC').value=period;
-            document.getElementById('termC').value=term;
-            document.getElementById('attendance_duration').value=total;
-            document.getElementById('attendance_present').value=present;
-            document.getElementById('attendance_comment').value=comment;
-        });
         
     </script>
 
@@ -803,9 +1064,9 @@
                         toastr.success(res.message, 'Success!');
                         resetForm('#createComment');
                         $("#createCommentModal").modal('toggle');
-                        setTimeout(function(){
+                        {{-- setTimeout(function(){
                             window.location.reload();
-                        }, 1000);
+                        }, 1000); --}}
                     }
                 }).fail((res) => {
                     toggleAble('#submit_comment', false);
@@ -865,15 +1126,8 @@
                 method: 'GET',
                 data: {student_id, period_id, term_id, grade_id }
             }).done((res) => {
-                    if(res.status === true) {
-                        toggleAble('#cummulative'+ student_id, false);
-                        toastr.success(res.message, 'Success!');
-                    }else{
-                        toggleAble('#cummulative'+ student_id, false);
-                        toastr.error(res.message, 'Success!');
-                    }
-                    console.log(res)
-                    location.reload()
+                toggleAble('#cummulative'+ student_id, false);
+                toastr.success(res.message, 'Success!');
             }).fail((res) => {
                 console.log(res.responseJSON.message);
                 toastr.error(res.responseJSON.message, 'Failed!');
@@ -883,119 +1137,7 @@
     </script>
 
     <script>
-        $('.recorded').on('click', function(e){
-            var button = $(this);
-            toggleAble(button, true)
-
-            var id = $(this).data('student');
-            var classId = $(this).data('grade');
-            var sessionId = $(this).data('period');
-            var termId = $(this).data('term');
-
-
-            $.ajax({
-                url: '{{ route("result.fetch.exam", ["student_id" => ":student_id",  "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
-                type: 'GET',
-                dataType: 'json',
-            }).done((response) => {
-                toggleAble(button, false);
-                var results = response.results;
-
-                var html = '';
-                $.each(results, function(index, result) {
-                html += '<tr>';
-                html += '<td>' + result.subject_name + '</td>';
-
-                var resultScores = results;
-                var examFormat = JSON.parse('<?php echo json_encode($examForm); ?>');
-
-                $.each(examFormat, function(examKey, examValue) {
-                    var score = '-';
-                    if (examKey in result) {
-                        score = result[examKey];
-                    }
-                    html += '<td class="score-cell" data-result-id="' + result.result_id + '" data-subject-id="' + result.subject_id + '" data-exam-key="' + examKey + '">' + score + '</td>';
-                });
-
-                html += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove" data-id="' + result.result_id + '"><i class="bx bx-trash"></button></td>';
-                html += '</tr>';
-                });
-
-                $('#students-result tbody').html(html);
-                $('.addResult').data('student-id', id)
-                $('.previewResultModal').modal('toggle');
-
-                $('.score-cell').click(function() {
-                    var resultId = $(this).data('result-id');
-                    var subjectId = $(this).data('subject-id');
-                    var examKey = $(this).data('exam-key');
-                    var currentScore = $(this).text();
-                    $('#scoreInput').val(currentScore);
-                    $('#saveScoreBtn').data('result-id', resultId);
-                    $('#saveScoreBtn').data('subject-id', subjectId);
-                    $('#saveScoreBtn').data('exam-key', examKey);
-                    $('#editModal').modal('show');
-                });
-
-                $('#saveScoreBtn').click(function() {
-                    var button = $(this);
-                    toggleAble(button, true, 'Updating...');
-                    var resultId = $(this).data('result-id');
-                    var subjectId = $(this).data('subject-id');
-                    var examKey = $(this).data('exam-key');
-                    var editedScore = $('#scoreInput').val();
-
-                    Swal.fire({
-                        title: 'Confirm Submission',
-                        text: 'Are you sure you want to update the score?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#502179',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Update'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajaxSetup({
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                },
-                            });
-                            
-                            $.ajax({
-                                url: '{{ route('result.update.exam') }}',
-                                type: 'POST',
-                                data: {result_id: resultId, subject_id: subjectId, field: examKey, score: editedScore},
-                            }).done((response) => {
-                                toggleAble(button, false);
-                                Swal.fire('Updated!', response.message, 'success');
-                                $('.score-cell[data-subject-id="' + subjectId + '"][data-exam-key="' + examKey + '"]').text(editedScore);
-                                $('#editModal').modal('toggle');
-                            }).fail((error) => {
-                                toggleAble(button, false);
-                                console.log(error);
-                                toastr.error(error.responseJSON.message, 'Failed!');
-                            });
-                        }else{
-                            toggleAble(button, false);
-                        }
-                    });
-                });
-
-                $('.addResult').click(function(){
-                    $('.previewResultModal').modal('toggle');
-                    var student = $(this).data('student-id');
-                    document.getElementById('add_student_id').value = student;
-                    $('.addResultModal').modal('toggle');
-                });
-
-            }).fail((error) => {
-                toggleAble(button, false);
-                toastr.error(error.responseJSON.message);
-                console.log(error);
-            });
-
-        });
-
+       
         $(document).on('click', '.remove', function(e) {
             e.preventDefault();
             var button = $(this);
@@ -1072,7 +1214,21 @@
 
                 var url = "{{ route('result.add.exam') }}";
                 var data = $('#resultUpload').serializeArray();
-                data.push({ name: 'format', value: selectedFormat });
+
+                var period = $('#period_id').val();
+                var term = $('#term_id').val();
+
+                data.push({ 
+                    name: 'format', value: selectedFormat,
+                });
+
+                data.push({ 
+                    name: 'period_id', value: period,
+                });
+
+                data.push({ 
+                    name: 'term_id', value: term,
+                });
 
                 $.ajax({
                     type: "POST",
@@ -1131,6 +1287,50 @@
                         Swal.fire('Updated!', response.message, 'success');
                         resetForm('#refreshResult');
                         $('.refreshResultModal').modal('toggle');
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        console.log(error);
+                        toastr.error(error.responseJSON.message, 'Failed!');
+                    });
+                }else{
+                    toggleAble(button, false);
+                }
+            });
+        });
+
+        $('#generateResult').on('submit', function(e){
+            e.preventDefault();
+            var button = $('#generate_button');
+            toggleAble(button, true, 'Refreshing...');
+
+            var url = "{{ route('result.generate.midterm') }}";
+            var data = $('#generateResult').serializeArray();
+
+            Swal.fire({
+                title: 'Confirm Refreshing',
+                text: 'Are you sure you want to generate the scores?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#502179',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Generate'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                    });
+                    
+                    $.ajax({
+                        url,
+                        type: 'POST',
+                        data,
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        Swal.fire('Updated!', response.message, 'success');
+                        resetForm('#refreshResult');
+                        $('.generateResultModal').modal('toggle');
                     }).fail((error) => {
                         toggleAble(button, false);
                         console.log(error);

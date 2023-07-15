@@ -21,12 +21,12 @@ class IsAdmin
      * @return mixed
      */
 
-    public function handle(Request $request, Closure $next, $guard = null)
-    {
-        if (Auth::guard($guard)->user()->can(UserPolicy::ADMIN, User::class)) {
-            return $next($request);
-        }
-
-        throw new AdminException();
-    }
+     public function handle(Request $request, Closure $next, $guard = null)
+     {
+         if (Auth::guard($guard)->user()->can(UserPolicy::ADMIN, User::class)) {
+             return $next($request);
+         }
+ 
+         throw new AdminException();
+     }
 }

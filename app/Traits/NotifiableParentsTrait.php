@@ -17,7 +17,7 @@ trait NotifiableParentsTrait
             Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
         }
 
-        if (get_settings('mother_notification') === 1 && isset($student->guardian) && !empty($student->guardian->email)) {
+        if (get_settings('guardian_notification') === 1 && isset($student->guardian) && !empty($student->guardian->email)) {
             Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
         }
     }

@@ -56,7 +56,8 @@ class ConfigServiceProvider extends ServiceProvider
                     'username' => $emailServices['username'],
                     'password' => $emailServices['password'],
                     'encryption' => $emailServices['encryption'],
-                    'from' => array('address' => $emailServices['email_id'], 'name' => $emailServices['name']),
+                    'from' => array('address' => $emailServices['email_id'], 
+                    'name' => $emailServices['name']),
                     'sendmail' => '/usr/sbin/sendmail -bs',
                     'pretend' => false,
                 );

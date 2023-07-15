@@ -31,7 +31,7 @@ class Index extends Component
 
     public function getStudentsProperty()
     {
-        return Student::when($this->grade_id, function($query, $grade) {
+        return Student::where('uuid', $this->user->student->id())->when($this->grade_id, function($query, $grade) {
             $query->whereHas('grade', function($query) use ($grade){
                $query->where('id', $grade);
             })

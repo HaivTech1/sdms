@@ -41,6 +41,7 @@ class User extends Authenticatable
     const BURSAL = 5;
     const CASUAL = 6;
     const GRADUATED = 7;
+    const DRIVER = 8;
 
     public function routeNotificationForVonage($notification)
     {
@@ -183,6 +184,11 @@ class User extends Authenticatable
         return $this->type() === self::GRADUATED;
     }
 
+    public function isDriver(): bool
+    {
+        return $this->type() === self::DRIVER;
+    }
+
     public function getAvailableBadgeAttribute()
     {
 
@@ -217,7 +223,8 @@ class User extends Authenticatable
             '4' => 'Student',
             '5' => 'Bursal',
             '6' => 'Worker',
-            '7' => 'Graduate'
+            '7' => 'Graduate',
+            '8' => 'Driver',
         ];
 
         return $state[$this->type];
@@ -249,6 +256,11 @@ class User extends Authenticatable
 
     public function profile(): HasOne
     {
-    return $this->hasOne(Profile::class, 'author_id');
+        return $this->hasOne(Profile::class, 'author_id');
+    }
+
+    public function vehicleDriver(): BelongsToMany
+    {
+        return $this->belongsToMany(Vehicle::class, 'driver_vehicle', 'driver_id', 'vehicle_id');
     }
 }

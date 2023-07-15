@@ -74,8 +74,18 @@
             <span key="t-ecommerce">Transport Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
-            <li><a href="" key="t-add-product">Email</a></li>
-            <li><a href="" key="t-add-product">Bulk SMS</a></li>
+            <li><a href="{{ route('driver.index') }}" key="t-add-product">Drivers</a></li>
+            <li><a href="#" key="t-add-product">Trips</a></li>
+        </ul>
+    </li>
+    <li>
+        <a href="javascript: void(0);" class="has-arrow waves-effect">
+            <i class="bx bx-store-alt"></i>
+            <span key="t-ecommerce">Ecommerce Management</span>
+        </a>
+        <ul class="sub-menu" aria-expanded="false">
+            <li><a href="{{ route('product.index') }}" key="t-add-product">Products</a></li>
+            <li><a href="{{ route('order.index') }}" key="t-add-product">Orders</a></li>
         </ul>
     </li>
     <li>

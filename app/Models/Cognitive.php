@@ -48,14 +48,19 @@ class Cognitive extends Model
         return $this->id;
     }
 
-    public function title(): string
+    public function duration(): string
     {
-        return $this->title;
+        return $this->attendance_duration;
     }
 
-    public function rate(): int
+    public function present(): string
     {
-        return $this->rate;
+        return $this->attendance_present;
+    }
+
+    public function comment(): ?string
+    {
+        return $this->comment;
     }
 
     public function scopeSearch($query, $term)

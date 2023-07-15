@@ -10,6 +10,7 @@ class ResultPolicy
 {
     const UPDATE = 'update';
     const PUBLISH = 'publish';
+    const CANVIEW = 'can_check';
     
     public function update(User $user, Result $result): bool
     {
@@ -20,4 +21,9 @@ class ResultPolicy
     // {
     //     return;
     // }
+
+    public function can_check(Result $result, User $user): bool
+    {
+        return;
+    }
 }

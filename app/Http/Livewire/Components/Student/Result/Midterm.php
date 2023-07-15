@@ -54,18 +54,18 @@ class Midterm extends Component
     public function fetchResult()
     {
         $this->validate([
-            'state.period_id' => ['required'],
-            'state.term_id' => ['required'],
-            'state.grade_id' => ['required'],
+            'period_id' => ['required'],
+            'term_id' => ['required'],
+            'grade_id' => ['required'],
         ],[
-            'state.period_id.required' => 'Please select Session',
-            'state.term_id.required' => 'Please select Term',
-            'state.grade_id.required' => 'Please select Class',
+            'period_id.required' => 'Please select Session',
+            'term_id.required' => 'Please select Term',
+            'grade_id.required' => 'Please select Class',
         ]);
 
-        $this->period_id = $this->state['period_id'] ?? '1';
-        $this->term_id = $this->state['term_id'] ?? '1';
-        $this->grade_id = $this->state['grade_id'];
+        $this->period_id = $this->period_id ?? '1';
+        $this->term_id = $this->term_id ?? '1';
+        $this->grade_id = $this->grade_id;
     }
 
     public function render()

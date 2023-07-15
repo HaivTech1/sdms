@@ -116,6 +116,39 @@ function calculateStudentPosition($studentId, $model, $session, $term, $grade)
     return $positionWithSuffix;
 }
 
+function calculateStudentGradePosition($studentId, $model, $session, $term, $grade)
+{
+    $studentGrade = get_grade($grade);
+
+    $results = $model::where([
+        'period_id' => $session,
+        'term_id' => $term,
+    ])->whereHas('grade', function($query) use ($studentGrade){
+        $query->where('title', 'like', $studentGrade .'%');
+    })->get();
+
+    $studentTotalScores = [];
+
+    foreach ($results as $result) {
+        $totalScore = $result->getTotalScore();
+        $studentTotalScores[$result->student_id] = $totalScore;
+    }
+
+    arsort($studentTotalScores);
+    $studentPosition = array_search($studentId, array_keys($studentTotalScores)) + 1;
+    $suffix = 'th';
+    if ($studentPosition % 10 === 1 && $studentPosition % 100 !== 11) {
+        $suffix = 'st';
+    } elseif ($studentPosition % 10 === 2 && $studentPosition % 100 !== 12) {
+        $suffix = 'nd';
+    } elseif ($studentPosition % 10 === 3 && $studentPosition % 100 !== 13) {
+        $suffix = 'rd';
+    }
+
+    $positionWithSuffix = $studentPosition . $suffix;
+    return $positionWithSuffix;
+}
+
 function calculateStudentSubjectPosition($studentId, $model, $session, $term, $grade, $subjectId)
 {
     $results = $model::where([
@@ -124,6 +157,40 @@ function calculateStudentSubjectPosition($studentId, $model, $session, $term, $g
         'grade_id' => $grade,
         'subject_id' => $subjectId
     ])->get();
+
+    $studentTotalScores = [];
+
+    foreach ($results as $result) {
+        $totalScore = $result->getTotalScore();
+        $studentTotalScores[$result->student_id] = $totalScore;
+    }
+
+    arsort($studentTotalScores);
+    $studentPosition = array_search($studentId, array_keys($studentTotalScores)) + 1;
+
+    $suffix = 'th';
+    if ($studentPosition % 10 === 1 && $studentPosition % 100 !== 11) {
+        $suffix = 'st';
+    } elseif ($studentPosition % 10 === 2 && $studentPosition % 100 !== 12) {
+        $suffix = 'nd';
+    } elseif ($studentPosition % 10 === 3 && $studentPosition % 100 !== 13) {
+        $suffix = 'rd';
+    }
+
+    $positionWithSuffix = $studentPosition . $suffix;
+    return $positionWithSuffix;
+}
+
+function calculateStudentGradeSubjectPosition($studentId, $model, $session, $term, $grade, $subjectId)
+{
+    $studentGrade = get_grade($grade);
+    $results = $model::where([
+        'period_id' => $session,
+        'term_id' => $term,
+        'subject_id' => $subjectId
+    ])->whereHas('grade', function($query) use ($studentGrade){
+        $query->where('title', 'like', $studentGrade .'%');
+    })->get();
 
     $studentTotalScores = [];
 
@@ -271,7 +338,7 @@ function cummulatives($student, $term, $period, $grade)
 
 function affectives($student, $term, $period)
 {
-    $affective = Affective::where('student_uuid', $student->id())->where('term_id', $term)->where('period_id', $period)->exists();
+    $affective = Affective::where('student_uuid', $student)->where('term_id', $term)->where('period_id', $period)->exists();
     return $affective;
 }
 
@@ -667,4 +734,11 @@ if (!function_exists('generate_mapping')) {
         $mapping['Fail'] = "{$range}:F";
         return $mapping;
     }
+}
+
+function get_grade($data)
+{
+    $split = explode(' ', $data);
+    $class =  $split[0] . ' ' . $split[1];
+    return $class;
 }

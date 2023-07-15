@@ -6,7 +6,7 @@
                     @php
                         $grades = \App\Models\Grade::all();
                         $periods = \App\Models\Period::all();
-                        $subjects = \App\Models\Subject::all();
+                        $subjects = \App\Models\Subject::withoutGlobalScope(new \App\Scopes\AssignedSubjectsScope)->get();
                     @endphp
 
                     <form wire:submit.prevent="fetchResult">

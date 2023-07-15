@@ -96,13 +96,12 @@
                                                         </a> --}}
                                                         <form action="{{ route('result.exam.pdf') }}" method="POST">
                                                             @csrf
-
                                                             <input type="hidden" name="student_id" value="{{ $student->id() }}" />
                                                             <input type="hidden" name="grade_id" value="{{ $student->grade->id() }}" />
                                                             <input type="hidden" name="period_id" value="{{ $period_id }}" />
                                                             <input type="hidden" name="term_id" value="{{ $term_id }}" />
 
-                                                            <button class="btn btn-sm btn-secondary" type="submit">
+                                                            <button class="btn btn-sm btn-primary" type="submit">
                                                                 <i class="bx bxs-file-pdf"></i> Download PDF
                                                             </button>
                                                         </form>
