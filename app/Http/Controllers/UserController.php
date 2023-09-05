@@ -159,5 +159,27 @@ class UserController extends Controller
                 return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
     }
-}
 
+    public function updatePassword(Request $request)
+    {
+        try {
+            $user = User::findOrFail($request->user_id);
+        $password = $request->password;
+
+        $user->update([
+            'password' => bcrypt($password)
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password updated successfully'
+        ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ]);
+        }
+    }
+}

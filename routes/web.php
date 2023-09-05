@@ -45,8 +45,10 @@ use App\Http\Controllers\ContestantController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\User\MarketController;
 use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\VehicleController;
 use App\Http\Controllers\BiometricDeviceController;
 use Laravel\Fortify\Http\Controllers\PasswordController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
@@ -83,6 +85,7 @@ Route::get('/storage-link', function () {
 });
 
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
+Route::post('/update/password', [UserController::class, 'updatePassword'])->name('update.password');
 
 Route::get('/setup/user', [VisitorController::class, 'setupUser'])->name('setupUser');
 Route::post('/setup/user', [VisitorController::class, 'register'])->name('visitor.register');
@@ -93,10 +96,16 @@ Route::post('/pay', [PaymentController::class, 'redirectToGateway'])->name('pay'
 Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback'])->name('payment.recurring');
 Route::get('/payment/receipt/{payment}', [PaymentController::class, 'receipt'])->name('receipt');
 
+Route::post('/payment/order', [OrderPaymentController::class, 'makePayment'])->name('payment.order.pay');
+Route::get('/paystack/order/callback', [OrderPaymentController::class, 'handlePaymentCallback'])->name('payment.order.callback');
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware('maintenance')->group(function () {
     
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+        Route::post('/subject/download/pdf', [SubjectController::class, 'subjectDownloadPdf'])->name('subject.download-pdf');
+        Route::post('/subject/download/excel', [SubjectController::class, 'subjectDownloadExcel'])->name('subject.download-excel');
+        Route::get('/get/grade/subjects/{grade_id}', [SubjectController::class, 'getGradeSubjects'])->name('grade.subjects');
 
         Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
@@ -124,7 +133,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::group(['prefix' => 'driver', 'as' => 'driver.'], function () {
             Route::get('/', [DriverController::class, 'index'])->name('index');
-            Route::post('/', [DriverController::class, 'addVehicle'])->name('add.vehicle');
+        });
+
+        Route::group(['prefix' => 'vehicle', 'as' => 'vehicle.'], function () {
+            Route::get('/', [VehicleController::class, 'index'])->name('index');
+            Route::post('/', [VehicleController::class, 'store'])->name('store');
         });
 
         Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
@@ -164,6 +177,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/subjects/{id}', [StudentController::class, 'subjects'])->name('subjects');
             Route::delete('/{student}/subject/{subject}', [StudentController::class, 'deleteAssignedSubject'])->name('assignedSubject.delete');
             Route::post('/upload/passport', [StudentController::class, 'upload']);
+
+            Route::post('/download/pdf', [StudentController::class, 'studentDownloadPdf'])->name('download-pdf');
         });
 
         Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -178,6 +193,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::group(['prefix' => 'result', 'as' => 'result.'], function () {
             Route::get('/', [ResultController::class, 'index'])->name('index');
             Route::get('/all/midterm', [ResultController::class, 'midtermIndex'])->name('midtermIndex');
+            Route::get('/view/results', [ResultController::class, 'viewResults'])->name('view.results');
 
             Route::post('/', [ResultController::class, 'batchExamUpload'])->name('store');
             
@@ -251,8 +267,35 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('exam/check/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'checkExam'])->name('check.exam');
 
             Route::get('student/comment/{student_id}/{period_id}/{term_id}', [ResultController::class, 'studentComment'])->name('student.comment');
+            Route::get('student/principal/comment/{student_id}/{period_id}/{term_id}', [ResultController::class, 'studentPrincipalComment'])->name('student.principalComment');
+            Route::post('/principal/comment', [ResultController::class, 'principalComment'])->name('principal.comment.upload');
 
             Route::post('/export/excel', [ResultController::class, 'exportExcel'])->name('export.excel');
+            Route::get('/{student_id}/subjects', [ResultController::class, 'studentSubject'])->name('student.subjects');
+
+            Route::get('/playgroup/upload', [ResultController::class, 'playgroupUpload'])->name('playgroup.upload');
+            Route::get('/playgroup/student/{student_id}/{period_id}/{term_id}', [ResultController::class, 'showPlaygroupResult'])->name('playgroup.student');
+            Route::post('/playgroup/store', [ResultController::class, 'storePlayGroupResult'])->name('playgroup.store');
+
+            Route::get('/statistic/show', [ResultController::class, 'resultStatistic'])->name('statistic.show');
+            Route::get('/statistic/generate/grade/{grade_id}/{period_id}', [ResultController::class, 'gradeResultStatistic'])->name('statistic.grade.generate');
+            Route::get('/statistic/generate/subject/{grade_id}/{period_id}/{subject_id}', [ResultController::class, 'getHighestScoreBySubject'])->name('statistic.subject.generate');
+
+            Route::get('/statistic/generate/class/{grade_id}/{period_id}', [ResultController::class, 'classResultStatistic'])->name('statistic.class.generate');
+            
+            Route::post('/download/subject/statistic', [ResultController::class, 'downloadSubjectStatistic'])->name('download.subject.statistic');
+            Route::post('/download/grade/statistic', [ResultController::class, 'downloadGradeStatistic'])->name('download.grade.statistic');
+            Route::post('/download/class/statistic', [ResultController::class, 'downloadClassStatistic'])->name('download.class.statistic');
+
+           
+            Route::get('playgroup/show/{student}', [ResultController::class, 'playgroupShow'])->name('playgroup.show');
+            Route::post('/pdf/playgroup/generate', [ResultController::class, 'generateSinglePlaygroupPDF'])->name('playgroup.pdf');
+
+            Route::post('/update/cummulative/grade', [ResultController::class, 'generateCumulativeScore'])->name('calculate.class.cummulative');
+            Route::post('/update/position/grade', [ResultController::class, 'generatePositionScore'])->name('calculate.class.position');
+            Route::post('/update/position/score/grade', [ResultController::class, 'generateGradePositionScore'])->name('calculate.student.position');
+            Route::get('/sync/position/student/{student_id}/{period_id}/{term_id}', [ResultController::class, 'syncStudentPosition'])->name('student.sync.position');
+            Route::get('/single/position/student/{student_id}/{period_id}/{term_id}', [ResultController::class, 'syncStudentSinglePosition'])->name('student.sync.single.position');
         });
         
         Route::group(['prefix' => 'fee', 'as' => 'fee.'], function () {
@@ -264,6 +307,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::put('/{student}', [FeeController::class, 'update'])->name('update');
             Route::post('/update', [FeeController::class, 'update'])->name('updateFee');
             Route::post('assignSubject', [FeeController::class, 'assignSubject'])->name('assignSubject');
+            Route::get('/debtors/list/', [FeeController::class, 'debtorList'])->name('debtors.list');
+            Route::delete('/debt/delete/{student_id}', [FeeController::class, 'debtDelete'])->name('delete.debt');
+            Route::post('/download/debtor/list', [FeeController::class, 'downloadDebtorListPDF'])->name('download.debtor.pdf');
+            Route::post('/outstanding/update', [FeeController::class, 'updateOutstanding'])->name('update.outstanding');
         });
 
         Route::group(['prefix' => 'event', 'as' => 'event.'], function () {
@@ -418,9 +465,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
 
         Route::group(['prefix' => 'order', 'as' => 'order.'], function () {
-            Route::get('/', [ProductController::class, 'index'])->name('index');
-            Route::post('/', [ProductController::class, 'store'])->name('store');
-            Route::post('/update', [ProductController::class, 'update'])->name('update');
+            Route::get('/', [ProductController::class, 'orders'])->name('index')->middleware('admin');
+            Route::post('/', [ProductController::class, 'store'])->name('store')->middleware('admin');
+            Route::post('/update', [ProductController::class, 'update'])->name('update')->middleware('admin');
+            Route::get('/user/orders', [ProductController::class, 'userOrders'])->name('user.orders');
         });
     });
 

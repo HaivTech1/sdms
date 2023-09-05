@@ -25,6 +25,20 @@ class Index extends Component
         }
     }
 
+    public function delete($id)
+    {
+        Vehicle::where('id', $id)->delete();
+        $this->dispatchBrowserEvent('success', ['message' => 'Vehicles has been deleted!']);
+        $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
+     public function deleteAll()
+    {
+        Vehicle::whereIn('id', $this->selectedRows)->delete();
+        $this->dispatchBrowserEvent('success', ['message' => 'All selected vehicles have been deleted!']);
+        $this->reset(['selectedRows', 'selectPageRows']);
+    }
+
     public function getVehiclesProperty()
     {
         return Vehicle::all();

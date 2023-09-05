@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Support\Arr;
 use App\Scopes\HasActiveScope;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use App\Scopes\AssignedGradesScope;
+use Illuminate\Database\Eloquent\Model;
+use App\Scopes\ExcludeLastRecordService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -36,6 +37,7 @@ class Grade extends Model
     {
         static::addGlobalScope(new HasActiveScope);
         static::addGlobalScope(new AssignedGradesScope);
+        static::addGlobalScope(new ExcludeLastRecordService());
     }
 
     public static function getAllIdsExceptLast()

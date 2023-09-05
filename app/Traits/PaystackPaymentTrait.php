@@ -1,127 +1,64 @@
 <?php
 
-namespace App\Http\Controllers\Traits;
-
+namespace App\Traits;
+use App\Models\Payment;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Models\User;
 
 trait PaystackPaymentTrait
 {
-    
     public function makeOneTimePayment(Request $request)
     {
-        // Set your Paystack API credentials
-        $secretKey = 'YOUR_SECRET_KEY';
-
-        // Prepare the request payload for one-time payment
+        $data = Setting::where(['key' => 'paystack'])->first();
+        $paystack = json_decode($data['value'], true);
+        $secretKey = env('PAYSTACK_SECRET_KEY', $paystack['secretKey']);
         $payload = [
             'email' => $request->input('email'),
-            'amount' => $request->input('amount') * 100, // Paystack amount is in kobo (multiply by 100 to convert to kobo)
-            'reference' => 'YOUR_TRANSACTION_REFERENCE',
-            'callback_url' => route('payment.callback'), // Set the callback URL here
+            'amount' => $request->input('amount'), 
+            'reference' => time(),
+            'currency' => $request->currency,
+            'callback_url' => route('payment.order.callback'),
+            'metadata' => $request->metadata,
         ];
 
-        // Make the API request to Paystack for one-time payment
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $secretKey,
         ])->post('https://api.paystack.co/transaction/initialize', $payload);
 
-        // Check the response status
         if ($response->successful()) {
-            // Payment request was successful
-            // Redirect the user to the Paystack payment page
             $authorizationUrl = $response['data']['authorization_url'];
             return redirect($authorizationUrl);
         } else {
-            // Payment request failed
             $errorMessage = $response['message'];
-            return back()->with('error', $errorMessage);
+            $notification = [
+                'messege' => $errorMessage,
+                'alert-type' => 'error',
+                'button' => 'Okay',
+                'title' => 'Transactional Error'
+            ];
+            return back()->with($notification);
         }
     }
-
-   
-    public function handlePaymentCallback(Request $request)
-    {
-        // Verify the payment callback here
-        // Retrieve the transaction reference and verify the payment status
-        $transactionRef = $request->input('reference');
-        $status = $this->verifyPayment($transactionRef);
-
-        if ($status === 'success') {
-            // Payment was successful
-            return $this->onPaymentSuccess($request);
-        } else {
-            // Payment was not successful
-            return $this->onPaymentFailure($request);
-        }
-    }
-
-   
-    abstract protected function onPaymentSuccess(Request $request);
-   
-    abstract protected function onPaymentFailure(Request $request);
 
     private function verifyPayment($transactionRef)
     {
-        // Set your Paystack API credentials
-        $secretKey = 'YOUR_SECRET_KEY';
+        $data = Setting::where(['key' => 'paystack'])->first();
+        $paystack = json_decode($data['value'], true);
+        $secretKey = env('PAYSTACK_SECRET_KEY', $paystack['secretKey']);
 
-        // Make the API request to Paystack for verifying payment status
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $secretKey,
         ])->get("https://api.paystack.co/transaction/verify/{$transactionRef}");
 
-        // Check the response status
         if ($response->successful()) {
             $data = $response['data'];
             $status = $data['status'];
-
-            return $status;
+            return [
+                'status' => $status,
+                'data' => $data
+            ];
         }
-
         return null;
-    }
-
-    public function makeSplitPayment(Request $request)
-    {
-        // Set your Paystack API credentials
-        $secretKey = 'YOUR_SECRET_KEY';
-
-        // Prepare the request payload for split payment
-        $payload = [
-            'email' => $request->input('email'),
-            'amount' => $request->input('amount') * 100, // Paystack amount is in kobo (multiply by 100 to convert to kobo)
-            'reference' => 'YOUR_TRANSACTION_REFERENCE',
-            'callback_url' => route('payment.callback'), // Set the callback URL here
-            'subaccounts' => [
-                [
-                    'subaccount' => 'SUBACCOUNT1_CODE',
-                    'share' => 50, // Percentage share for subaccount 1
-                ],
-                [
-                    'subaccount' => 'SUBACCOUNT2_CODE',
-                    'share' => 30, // Percentage share for subaccount 2
-                ],
-                // Add more subaccounts as needed
-            ],
-        ];
-
-        // Make the API request to Paystack for split payment
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $secretKey,
-        ])->post('https://api.paystack.co/transaction/initialize', $payload);
-
-        // Check the response status
-        if ($response->successful()) {
-            // Payment request was successful
-            // Redirect the user to the Paystack payment page
-            $authorizationUrl = $response['data']['authorization_url'];
-            return redirect($authorizationUrl);
-        } else {
-            // Payment request failed
-            $errorMessage = $response['message'];
-            return back()->with('error', $errorMessage);
-        }
     }
 }

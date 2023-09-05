@@ -1,4 +1,9 @@
 <div>
+    @php
+        $flutterData = \App\Models\Setting::where(['key' => 'flutterwave'])->first();
+        $paystackData = \App\Models\Setting::where(['key' => 'paystack'])->first();
+        $paystack = json_decode($paystackData['value'], true);
+    @endphp
     <div class="checkout-tabs">
             <div class="row">
                 <div class="col-xl-2 col-sm-3">
@@ -63,8 +68,23 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="text-end">
-                                <a href="" class="btn btn-success">
-                                    <i class="mdi mdi-truck-fast me-1"></i> Proceed to Shipping </a>
+                                @if ($paystack['status'] == 1)
+                                    <form action="{{ route('payment.order.pay') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="amount" value="{{($total) * 100 }}">
+                                        <input type="hidden" name="currency" value="NGN">
+                                        <input type="hidden" name="email" value="{{ auth()->user()->email()}}">
+                                        <input type="hidden" name="metadata" value="{{ json_encode($array = [
+                                                    'price' => $total,
+                                                    'user_id' => auth()->id(),
+                                                    'cartItems' => $items,
+                                                ]) }}"
+                                        >
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bx bx-credit-card me-1"></i> Make Payment
+                                        </button> 
+                                    </form>
+                                @endif
                             </div>
                         </div> 
                     </div>

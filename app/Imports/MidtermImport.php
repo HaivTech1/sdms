@@ -25,9 +25,10 @@ class MidtermImport implements ToModel, WithHeadingRow
         $periodId = $this->request->input('period_id');
         $termId = $this->request->input('term_id');
         $studentId = $this->request->input('student_id');
+        $midtermFormat = get_settings('midterm_format');
 
-        $subjectTitle = $row['subject'];
-        $subject = Subject::where('title', 'LIKE', '%' . $subjectTitle . '%')->first();
+        $subjectId = $row['subject_id'];
+        $subject = Subject::where('id', $subjectId)->first();
         // $student = Student::whereRaw("CONCAT(last_name, ' ', first_name, ' ', other_name) LIKE ?", ['%'.$studentName.'%'])->first();
         if ($subject) {
             $result = new MidTerm([
@@ -36,8 +37,12 @@ class MidtermImport implements ToModel, WithHeadingRow
                 'grade_id' => $gradeId,
                 'student_id' => $studentId,
                 'subject_id' => $subject->id(),
+                'entry_1' => $row['entry_1'],
+                'entry_2' => $row['entry_2'],
                 'first_test' => $row['first_test'],
-                'second_test' => $row['second_test'],
+                'class_activity' => $row['class_activity'],
+                'ca' => $row['ca'],
+                'project' => $row['project'],
                 'author_id' => auth()->id()
             ]);
             $result->save();

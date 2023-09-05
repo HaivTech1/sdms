@@ -372,39 +372,38 @@
                                     <th colspan="15" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">3. COGNITIVE DOMAIN</th>
                                 </tr>
                                 <tr>
-                                    <th style="width: 30%;">Subjects</th>
+                                    <th style="width: 20%;">Subjects</th>
                                     <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
                                     <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
-                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Re-Entry Test Class Activities</th>
-                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
-                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
-                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                </tr>
-                                <tr>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Activities</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Project</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Total</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Exam</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Total</th>
                                     <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">1st TS</th>
                                     <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">2nd TS</th>
-                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grand TOTAL</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grand Total</th>
                                     <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Avg.</th>
-                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">GRADE</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grade</th>
                                     <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg.</th>
-                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center" colspan="2">Remarks</th>
-                                </tr>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Remarks</th>
                                 </tr>
                                 <tr style="text-align: center">
-                                    <th>20</th>
-                                    <th>20</th>
-                                    <th>10</th>
-                                    <th>10</th>
-                                    <th>60</th>
-                                    <th>40</th>
-                                    <th>100</th>
-                                    <th>100</th>
-                                    <th>100</th>
-                                    <th>300</th>
-                                    <th>%</th>
-                                    <th></th>
-                                    <th colspan="2"></th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"></th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">20</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">20</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">10</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">10</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">60</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">40</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">300</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">%</th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"></th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"></th>
+                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"></th>
                                 </tr>
                             </thead>
                             <tbody style="">
@@ -418,12 +417,12 @@
                                     @endphp
 
                                     <tr>
-                                        <td>{{ $result['subject'] }}</td>
+                                        <td style="text-align: left; font-size: 10px">{{ $result['subject'] }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ct']) }}">{{ $result['ct'] }}</td>
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr']) }}"> {{ $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr']  }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>

@@ -25,6 +25,9 @@
                                     <div>
                                         <button data-bs-toggle="modal" data-bs-target=".generateResultModal" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Generate Midterm Result</button>
                                     </div>
+                                    <div>
+                                        <button data-bs-toggle="modal" data-bs-target=".setCummulative" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Set Cumulative</button>
+                                    </div>
                                 @endsuperadmin
                             </div>
                         <div class="mt-2">
@@ -210,7 +213,7 @@
         </div>
     </div>
 
-     <div class="modal fade excelResultModal" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+    <div class="modal fade excelResultModal" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -318,6 +321,53 @@
 
                                     <div class="modal-footer">
                                         <button id="submit_comment" type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="createPrincipalCommentModal" class="modal fade bs-example-modal-xl" tabindex="-1" role="dialog" aria-hidden="true"
+        wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Principal's Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="col-xl-12 p-2">
+
+                                <form id="createPrincipalComment" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="student_uuid" id="student_principal" />
+                                    <input type="hidden" name="period_id" id="period_principal" />
+                                    <input type="hidden" name="term_id" id="term_principal" />
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <textarea class="form-control" name="principal_comment" id="attendance_principal_comment" cols="5" rows="5" placeholder="Type in your comment here..."></textarea>
+                                            <x-form.error for="principal_comment" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <textarea class="form-control" name="promotion_comment" id="attendance_promotion_comment" cols="10" rows="5" placeholder="Type in your promotional comment here..."></textarea>
+                                            <x-form.error for="promotion_comment" />
+                                        </div>
+                                    </div>
+
+                                    
+
+                                    <div class="modal-footer">
+                                        <button id="submit_principal_comment" type="submit" class="btn btn-primary">Submit</button>
                                     </div>
                                 </form>
                             </div>
@@ -695,10 +745,115 @@
         </div>
     </div>
 
+    <div class="modal fade editPlayModal" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modalErrorr"></div>
+
+                    <div class="row">
+                        <form id="uploadPlaygroupResult" action="{{ route('result.playgroup.store') }}" method="POST">
+                            @csrf
+
+                            <input type="hidden" id="edit_playgroup_student" value="" name="student_id" />
+                            <input type="hidden" id="edit_playgroup_period" value="" name="period_id" />
+                            <input type="hidden" id="edit_playgroup_term" value="" name="term_id" />
+                        
+                            <div class='table-responsive'>
+                                <table class="table align-middle table-nowrap" id="edit-play-result">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Subjects</th>
+                                            <th>Activity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
+                                <button type="submit" id="upload_playgroup_btn"
+                                    class="btn btn-primary block waves-effect waves-light pull-right">
+                                    Update Result
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade setCummulative" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update class Cummulative</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modalErrorr"></div>
+
+                    <div class="row">
+                        <form id="setCummulative" method="POST">
+                            @csrf
+                            @php
+                                $grades = \App\Models\Grade::all();
+                                $periods = \App\Models\Period::all();
+                                $terms = \App\Models\Term::all();
+                            @endphp
+
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <select class="form-control" name="grade_id">
+                                        <option value=''>Class</option>
+                                        @foreach ($grades as $grade)
+                                        <option value="{{  $grade->id() }}">{{  $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <select class="form-control" name="period_id">
+                                        <option value=''>Session</option>
+                                        @foreach ($periods as $period)
+                                        <option value="{{  $period->id() }}">{{  $period->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <select class="form-control" name="term_id">
+                                        <option value=''>Term</option>
+                                        @foreach ($terms as $term)
+                                        <option value="{{  $term->id() }}">{{  $term->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center flex-wrap mt-2">
+                                <button id="set_button" type="submit"
+                                    class="btn btn-primary block waves-effect waves-light pull-right">
+                                    Cummulate Result
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @section('scripts')
 
     <script>
-
         $('#fetchResultForm').on('submit', function(e){
             e.preventDefault();
             var button = $('#fetchResultButton');
@@ -717,53 +872,145 @@
                 var students = response.students;
 
                 var html = '';
+                if (response.grade_name === 'Playgroup') {
 
-                $.each(students, function(index, student) {
-                    html += '<tr>';
-                    html += '<td class="text-center">' + student.name + '</td>';
-                    html += '<td class="text-center">' + student.recorded_subjects + '</td>';
-                    html += '<td>';
-                    html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
-                    html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-conversation"></i> Comment</button>';
-                    html += '<a href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
-                    html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';                   
-                    html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                    html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
-                    html += '</button>';
-                    html += '<?php endif; ?>';
-                    html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin() || auth()->user()->gradeClassTeacher()->exists()): ?>';                   
-                    html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                    html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
-                    html += '</button>';
-                    html += '<?php endif; ?>';
-                    html += '<div class="d-flex gap-2">';
-                    html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';
-                    html += '<?php if (publishMidState(' + student.id + ', ' + response.period + ', ' + response.term + ')): ?>';
-                    html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + '\', ' + response.period + ', ' + response.term + ', ' + response.grade + ')">';
-                    html += '<span>Publish</span>';
-                    html += '</button>';
-                    html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
-                    html += '@csrf';
-                    html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
-                    html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
-                    html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
-                    html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
-                    html += '<button class="btn btn-sm btn-info" type="submit">';
-                    html += '<i class="bx bxs-file-pdf"></i> PDF';
-                    html += '</button>';
-                    html += '</form>';
-                    html += '<?php else: ?>';
-                    html += '<button class="btn btn-sm btn-primary" type="button" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + '\', ' + response.period + ', ' + response.term + ', ' + response.grade + ')">';
-                    html += '<i class="mdi mdi-upload d-block font-size-16"></i> Publish';
-                    html += '</button>';
-                    html += '<?php endif; ?>';
-                    html += '<?php endif; ?>';
-                    html += '</div>';
-                    html += '</td>';
-                    html += '</tr>';
-                });
+                    $.each(students, function(index, student) {
+                        html += '<tr>';
+                        html += '<td class="text-center">' + student.name + '</td>';
+                        html += '<td class="text-center">' + student.recorded_subjects + '</td>';
+                        html += '<td>';
+                        html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
+                        html += '<button class="btn btn-sm btn-danger editPlayResult" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-edit"></i> Edit</button>';
+                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin() || auth()->user()->gradeClassTeacher()->exists()): ?>';                   
+                        html += '<button class="btn btn-sm btn-primary uploadAffective gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                        html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
+                        html += '</button>';
+                        html += '<?php endif; ?>';
+                        html += '<a target="_blank" href="{{ route('result.playgroup.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                        html += '<div class="d-flex gap-2">';
+                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';
+                        html += '<?php if (publishMidState(' + student.id + ', ' + response.period + ', ' + response.term + ')): ?>';
+                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                        html += '<span>Publish</span>';
+                        html += '</button>';
+                        html += '<form action="{{ route('result.playgroup.pdf') }}" method="POST">';
+                        html += '@csrf';
+                        html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                        html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                        html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                        html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                        html += '<button class="btn btn-sm btn-info" type="submit">';
+                        html += '<i class="bx bxs-file-pdf"></i> PDF';
+                        html += '</button>';
+                        html += '</form>';
+                        html += '<?php else: ?>';
+                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                        html += '<i class="mdi mdi-upload d-block font-size-16"></i> Publish';
+                        html += '</button>';
+                        html += '<?php endif; ?>';
+                        html += '<?php endif; ?>';
+                        html += '</div>';
+                        html += '</td>';
+                        html += '</tr>';
+                    });
+
+                } else {
+                    $.each(students, function(index, student) {
+                        html += '<tr>';
+                        html += '<td class="text-center">' + student.name + '</td>';
+                        html += '<td class="text-center">' + student.recorded_subjects + '</td>';
+                        html += '<td>';
+                        html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
+                        html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
+                        html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin() || auth()->user()->gradeClassTeacher()->exists()): ?>';                   
+                        html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                        html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
+                        html += '</button>';
+                        html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                        html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
+                        html += '</button>';
+                        html += '<?php endif; ?>';
+                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin() || auth()->user()->gradeClassTeacher()->exists()): ?>';                   
+                        html += '<button class="btn btn-sm btn-danger editPrincipalCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Principal Comment</button>';
+                        html += '<?php endif; ?>';
+                        html += '<div class="d-flex gap-2">';
+                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';
+                        html += '<?php if (publishMidState(' + student.id + ', ' + response.period + ', ' + response.term + ')): ?>';
+                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                        html += '<span>Publish</span>';
+                        html += '</button>';
+                        html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
+                        html += '@csrf';
+                        html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                        html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                        html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                        html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                        html += '<button class="btn btn-sm btn-info" type="submit">';
+                        html += '<i class="bx bxs-file-pdf"></i> PDF';
+                        html += '</button>';
+                        html += '</form>';
+                        html += '<?php else: ?>';
+                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                        html += '<i class="mdi mdi-upload d-block font-size-16"></i> Publish';
+                        html += '</button>';
+                        html += '<?php endif; ?>';
+                        html += '<?php endif; ?>';
+                        html += '</div>';
+                        html += '<?php if (auth()->user()->isSuperAdmin()): ?>';                   
+                        html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Cummulate Position</button>';
+                        html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Cummulate Single Position</button>';
+                        html += '<?php endif; ?>';
+                        html += '</td>';
+                        html += '</tr>';
+                    });
+                }
 
                 $('#result-data tbody').html(html);
+
+                $(".studentPositionSync").click(function(e) {
+                    e.preventDefault();
+                    var button = $(this);
+                    toggleAble(button, true);
+
+                    var id = $(this).data('id');
+                    var period = $(this).data('period');
+                    var term = $(this).data('term');
+                    
+                    $.ajax({
+                        method: 'GET',
+                        url: '{{ route('result.student.sync.position', ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':student_id', id),
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        console.log(response);
+                        toastr.success(response.message, "Successfully.");
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        console.log(error.responseJSON.message);
+                    });
+                });
+
+                $(".studentSinglePositionSync").click(function(e) {
+                    e.preventDefault();
+                    var button = $(this);
+                    toggleAble(button, true);
+
+                    var id = $(this).data('id');
+                    var period = $(this).data('period');
+                    var term = $(this).data('term');
+                    
+                    $.ajax({
+                        method: 'GET',
+                        url: '{{ route('result.student.sync.single.position', ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':student_id', id),
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        console.log(response);
+                        toastr.success(response.message, "Successfully.");
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        console.log(error.responseJSON.message);
+                    });
+                });
 
                 $('.recorded').on('click', function(e){
                     var button = $(this);
@@ -773,7 +1020,6 @@
                     var classId = $(this).data('grade');
                     var sessionId = $(this).data('period');
                     var termId = $(this).data('term');
-
 
                     $.ajax({
                         url: '{{ route("result.fetch.exam", ["student_id" => ":student_id",  "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
@@ -902,7 +1148,7 @@
                             document.getElementById('attendance_present').value=present;
                             document.getElementById('attendance_comment').value=comment;
                         }else{
-                            document.getElementById('attendance_duration').value = ' ';
+                            document.getElementById('attendance_duration').value = '';
                             document.getElementById('attendance_present').value = '';
                             document.getElementById('attendance_comment').value = '';
                         }
@@ -911,6 +1157,79 @@
                         document.getElementById('periodC').value=period;
                         document.getElementById('termC').value=term;
                         $("#createCommentModal").modal('toggle');
+
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        console.log(error.responseJSON.message);
+                    });
+                });
+
+                $(".editPrincipalCom").click(function(e) {
+                    e.preventDefault();
+                    var button = $(this);
+                    toggleAble(button, true);
+
+                    var id = $(this).data('id');
+                    var period = $(this).data('period');
+                    var term = $(this).data('term');
+                    
+                    $.ajax({
+                        method: 'GET',
+                        url: '{{ route('result.student.principalComment', ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':student_id', id),
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        var results = response.results;
+                        
+                        if(response.comment != undefined || response.comment != null || response.comment != []){
+                            var comment = response.comment.principal_comment;
+                            var promotion_comment = response.comment.promotion_comment;
+                            document.getElementById('attendance_principal_comment').value = comment;
+                            document.getElementById('attendance_promotion_comment').value = promotion_comment;
+                        }else{
+                            document.getElementById('attendance_principal_comment').value = '';
+                            document.getElementById('attendance_promotion_comment').value = '';
+                        }
+
+                        document.getElementById("student_principal").value = id;
+                        document.getElementById('period_principal').value = period;
+                        document.getElementById('term_principal').value = term;
+
+                        var html = '';
+                        $.each(results, function (index, result){
+                            html += '<tr>';
+                            html += '<td>' + result.subject + '</td>';   
+                            var midtermFormat = JSON.parse('<?php echo json_encode($midtermForm); ?>');
+                            $.each(midtermFormat, function(midtermKey, midtermValue) {
+                                var score = '-';
+                                if (midtermKey in result) {
+                                    score = result[midtermKey];
+                                }
+                                html += '<td class="score-cell" data-result-id="' + result.result_id + '" data-subject-id="' + result.subject_id + '" data-midterm-key="' + midtermKey + '">' + score + '</td>';
+                            });
+                            
+                            var examFormat = JSON.parse('<?php echo json_encode($examForm); ?>');
+                            $.each(examFormat, function(examKey, examValue) {
+                                var score = '-';
+                                if (examKey in result) {
+                                    score = result[examKey];
+                                }
+                                html += '<td class="score-cell" data-result-id="' + result.result_id + '" data-subject-id="' + result.subject_id + '" data-exam-key="' + examKey + '">' + score + '</td>';
+                            });
+
+                            html += '<td>' + result.total + '</td>';
+                            html += '<td>' + result.position + '</td>'; 
+                            html += '<td>' + result.position_grade + '</td>'; 
+                            html += '<td>' + result.average + '</td>'; 
+                            html += '<td>' + result.remark + '</td>'; 
+                            html += '</tr>';
+                        });
+
+                        document.getElementById('aggregate-span').innerHTMl = response.knowAggregateResults
+
+                        $('#principal-result-data tbody').html(html);
+                        $("#createPrincipalCommentModal").modal('toggle');
+
+
 
                     }).fail((error) => {
                         toggleAble(button, false);
@@ -946,11 +1265,90 @@
                     document.getElementById('psychomotor_term_id').value = term;
                 });
 
+                $('.editPlayResult').click(function(e){
+                    e.preventDefault();
+                    var button = $(this);
+                    toggleAble(button, true);
+
+                    var id = $(this).data('id');
+                    var period = $(this).data('period');
+                    var term = $(this).data('term');
+
+                    $.ajax({
+                        method: 'GET',
+                        url: '{{ route('result.playgroup.student', ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':student_id', id),
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        var results = response.results;
+                        var html = '';
+
+                        $.each(results, function(index, result) {
+                            if (typeof result.remark !== 'string') {
+                                var formattedRemark = [];
+
+                                for( var key in result.remark) {
+                                    if(result.remark.hasOwnProperty(key)){
+                                        formattedRemark.push(key + ': ' + result.remark[key]);
+                                    }
+                                }
+
+                                result.remark   = formattedRemark.join('. ');
+
+                            }
+
+                            html += '<tr>';
+                            html += '<td style="width: 5%">';
+                            html += '<p class="text-left">' + result.subject_name + '</p>';
+                            html += '</td>';
+                            html += '<td>';
+                            html += '<input type="hidden" value="' + result.subject_id + '" name="subject_id[]" />';
+                            html += '<input type="text" name="remark[' + result.subject_id + ']" class="form-control block w-full mt-1" style="height: 60px" value="'+ result.remark+'" />';
+                            html += '</td>';
+                            html += '</tr>';
+
+                        });
+
+                        document.getElementById('edit_playgroup_student').value = response.student_id;
+                        document.getElementById('edit_playgroup_period').value = response.period_id;
+                        document.getElementById('edit_playgroup_term').value = response.term_id;
+
+                        $('#edit-play-result tbody').html(html);
+                        $(".editPlayModal").modal('toggle');
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        console.log(error.responseJSON.message);
+                    });
+                })
+
             }).fail((error) => {
                 toggleAble(button, false);
                 toastr.error(error.responseJSON.message);
                 console.log(error);
             });
+        });
+
+        $(document).on('submit', '#uploadPlaygroupResult', function(e){
+            e.preventDefault();
+            
+            var button = "#upload_playgroup_btn"
+            toggleAble(button, true, 'Submitting Result...');
+            var data = $(this).serializeArray();
+            var url = $(this).attr('action');
+
+            $.ajax({
+                method: 'POST',
+                url,
+                data
+            }).done((response) => {
+                toggleAble(button, false);
+                resetForm($(this));
+                toastr.success(response.message, 'Submitted Successfully!');
+                $('.editPlayModal').modal('toggle');
+            }).fail((error) => {
+                toggleAble(button, false);
+                console.log(error.responseJSON.message);
+            });
+           
         });
 
         $(document).ready(function(){
@@ -983,7 +1381,6 @@
                 input.classList.remove('is-invalid');
             }
         }
-        
     </script>
 
     <script>
@@ -1070,6 +1467,31 @@
                     }
                 }).fail((res) => {
                     toggleAble('#submit_comment', false);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                });
+            });
+
+            $('#createPrincipalComment').submit((e) => {
+                e.preventDefault();
+                var button = "#submit_principal_comment";
+                toggleAble(button, true, 'Submitting...');
+
+                var data = $('#createPrincipalComment').serializeArray();
+                var url = '{{ route('result.principal.comment.upload') }}';
+
+                $.ajax({
+                    type: 'POST',
+                    url,
+                    data
+                }).done((res) => {
+                    if(res.status === true) {
+                        toggleAble(button, false);
+                        toastr.success(res.message, 'Success!');
+                        resetForm('#createComment');
+                        $("#createPrincipalCommentModal").modal('toggle');
+                    }
+                }).fail((res) => {
+                    toggleAble(button, false);
                     toastr.error(res.responseJSON.message, 'Failed!');
                 });
             });
@@ -1298,6 +1720,50 @@
             });
         });
 
+        $('#setCummulative').on('submit', function(e){
+            e.preventDefault();
+            var button = $('#set_button');
+            toggleAble(button, true, 'Setting cummulative...');
+
+            var url = "{{ route('result.calculate.class.cummulative') }}";
+            var data = $('#setCummulative').serializeArray();
+
+            Swal.fire({
+                title: 'Confirm Setting cummulative',
+                text: 'Are you sure you want to set the cummulatives?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#502179',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Cummulate'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                    });
+                    
+                    $.ajax({
+                        url,
+                        type: 'POST',
+                        data,
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        Swal.fire('Updated!', response.message, 'success');
+                        resetForm('#setCummulative');
+                        {{-- $('.refreshResultModal').modal('toggle'); --}}
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        console.log(error);
+                        toastr.error(error.responseJSON.message, 'Failed!');
+                    });
+                }else{
+                    toggleAble(button, false);
+                }
+            });
+        });
+
         $('#generateResult').on('submit', function(e){
             e.preventDefault();
             var button = $('#generate_button');
@@ -1343,74 +1809,74 @@
         });
 
         $(document).on('submit', '#excelResultUpload', function (e) {
-                e.preventDefault();
-                var button = $('#excel_upload_button')
-                let formData = new FormData($('#excelResultUpload')[0]);
-                toggleAble(button, true, 'Uploading Result...');
+            e.preventDefault();
+            var button = $('#excel_upload_button')
+            let formData = new FormData($('#excelResultUpload')[0]);
+            toggleAble(button, true, 'Uploading Result...');
 
-                Swal.fire({
-                    title: 'Confirm Uploading of Result',
-                    text: 'Are you sure you want to upload the file?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#502179',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Upload'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                        });
+            Swal.fire({
+                title: 'Confirm Uploading of Result',
+                text: 'Are you sure you want to upload the file?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#502179',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Upload'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                    });
 
-                        $.ajax({
-                            method: "POST",
-                            url: "{{ route('result.excel.exam.upload') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            dataType: 'json',
-                        }).done((res) => {
-                            toggleAble(button, false);
-                            resetForm('#excelResultUpload')
-                            $('.excelResultModal').modal('toggle');
-                            Swal.fire('Uploaded!', res.message, 'success');
-                        }).fail((err) => {
-                            console.log(err);
-                            toggleAble(button, false);
-                            toastr.error(err.responseJSON.message, 'Failed!');
-                        });
-                    }else{
+                    $.ajax({
+                        method: "POST",
+                        url: "{{ route('result.excel.exam.upload') }}",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                    }).done((res) => {
                         toggleAble(button, false);
-                    }
-                });
+                        resetForm('#excelResultUpload')
+                        $('.excelResultModal').modal('toggle');
+                        Swal.fire('Uploaded!', res.message, 'success');
+                    }).fail((err) => {
+                        console.log(err);
+                        toggleAble(button, false);
+                        toastr.error(err.responseJSON.message, 'Failed!');
+                    });
+                }else{
+                    toggleAble(button, false);
+                }
             });
+        });
 
-            $('#excel_grade_id').change(function(){
-                var grade = $(this).val();
-                var select = $('.student-select select');
-                select.empty();
+        $('#excel_grade_id').change(function(){
+            var grade = $(this).val();
+            var select = $('.student-select select');
+            select.empty();
 
-                $.ajax({
-                    url: "{{ route("result.get.students",["grade_id" => ":grade_id"]) }}".replace(':grade_id', grade),
-                    method: 'GET',
-                    success: function(response) {
-                        var students = response;
-                        select.empty();
-                        $.each(students, function (index, student) {
-                            var option = $('<option>');
-                            option.attr('value', student.uuid);
-                            option.text(student.last_name + ' ' + student.first_name + ' ' + student.other_name);
-                            select.append(option);
-                        });
+            $.ajax({
+                url: "{{ route("result.get.students",["grade_id" => ":grade_id"]) }}".replace(':grade_id', grade),
+                method: 'GET',
+                success: function(response) {
+                    var students = response;
+                    select.empty();
+                    $.each(students, function (index, student) {
+                        var option = $('<option>');
+                        option.attr('value', student.uuid);
+                        option.text(student.last_name + ' ' + student.first_name + ' ' + student.other_name);
+                        select.append(option);
+                    });
 
-                    },
-                    error: function(response) {
-                        toastr.error(response.responseJSON.message);
-                    }
-                });
+                },
+                error: function(response) {
+                    toastr.error(response.responseJSON.message);
+                }
             });
+        });
     </script>
     @endsection
 

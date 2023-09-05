@@ -22,6 +22,16 @@ class ProductController extends Controller
         return view('admin.commerce.product');
     }
 
+    public function orders()
+    {
+        return view('admin.commerce.orders');
+    }
+
+    public function userOrders()
+    {
+        return view('student.market.orders');
+    }
+
     protected function parseSpec($data)
     {
         $parsed = [];

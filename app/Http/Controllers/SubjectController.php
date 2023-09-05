@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use PDF;
+use App\Models\Student;
 use App\Models\Subject;
 use App\Jobs\CreateSubject;
 use Illuminate\Http\Request;
+use App\Exports\SubjectExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\SubjectRequest;
 
 class SubjectController extends Controller
@@ -48,16 +52,63 @@ class SubjectController extends Controller
         return redirect()->back()->with($notification);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Subject  $subject
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Subject $subject)
+    public function subjectDownloadPdf()
     {
-        //
+        $subjects = Subject::where([
+            'status' => 1,
+        ])->get();
+
+        $pdf = PDF::loadHTML('generate.subject_list');
+        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setWarnings(false);
+        $pdf->getDomPDF()->setHttpContext(
+            stream_context_create([
+                'ssl' => [
+                    'allow_self_signed' => true,
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ])
+        );
+        $pdf->loadView('generate.subject_list', ['subjects' => $subjects]);
+
+        return $pdf->download('subject_list.pdf');
     }
+
+    
+    public function getGradeSubjects($grade_id)
+    {
+        try{
+            $student = Student::where('grade_id', $grade_id)->first();
+            $student_subjects = $student->subjects;
+
+            $subjects = [];
+            foreach($student_subjects as $value){
+                $subjects[] = [
+                    'id' => $value->id(),
+                    'title' => $value->title(),
+                ];
+            }
+
+            return response()->json([
+                'status' => true,
+                'subjects' => $subjects
+            ], 200);
+        }catch(\Throwable $th){
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function subjectDownloadExcel(Request $request)
+    {
+        $subjects = $request->get('subject-selected');
+        return Excel::download(new SubjectExport($subjects), 'name_class_term_session_.xlsx');
+    }
+    
 
     /**
      * Show the form for editing the specified resource.

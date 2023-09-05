@@ -235,6 +235,11 @@ class Student extends Authenticatable
         return $this->hasMany(PrimaryResult::class, 'student_id');
     }
 
+    public function playgroupResults(): HasMany
+    {
+        return $this->hasMany(PlaygroupResult::class, 'student_id');
+    }
+
     public function midTermResults(): HasMany
     {
         return $this->hasMany(MidTerm::class, 'student_id');
@@ -248,6 +253,11 @@ class Student extends Authenticatable
     public function affectives(): hasMany
     {
         return $this->hasMany(Affective::class);
+    }
+
+    public function cummulatives(): hasMany
+    {
+        return $this->hasMany(Cummulative::class);
     }
 
     public function subjects(): BelongsToMany

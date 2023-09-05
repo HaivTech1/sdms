@@ -20,6 +20,10 @@ class Cognitive extends Model
         'attendance_duration', 
         'attendance_present', 
         'comment',
+        'principal_comment',
+        'promotion_comment',
+        'position_in_class',
+        'position_in_grade',
         'student_uuid', 
         'term_id',
         'period_id',
@@ -61,6 +65,16 @@ class Cognitive extends Model
     public function comment(): ?string
     {
         return $this->comment;
+    }
+
+    public function pComment(): ?string
+    {
+        return $this->principal_comment;
+    }
+
+    public function promotionComment(): ?string
+    {
+        return $this->promotion_comment;
     }
 
     public function scopeSearch($query, $term)

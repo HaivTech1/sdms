@@ -123,6 +123,17 @@
                                                 </option>
                                             </select>
                                         </div>
+                                        <div class="dropdown">
+                                            <button class="btn nav-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="bx bx-dots-horizontal-rounded"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                
+                                                <button class="dropdown-item" type="button" id="changePassword" data-user="{{ $user->id() }}">
+                                                    <i class="fas fa-compress-arrows-alt"></i>Update Password
+                                                </button>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -134,4 +145,70 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade passwordUpdate" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="updatePass" enctype="multipart/form-data">
+                        @csrf
+
+                        <input id="user_id" name="user_id" type="hidden" />
+
+                        <div class="row" style="display: flex; justify-content: center; align-items: center">
+                            <div class="col-sm-6">
+                                <x-form.label for="password" value="{{ __('New Password') }}" />
+                                <x-form.input id="password" class="block w-full mt-1" type="text" name="password"/>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer mt-3">
+                            <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                            <button type="submit" id="submit_password" class="btn btn-primary btn-flat"><i class="fa fa-save"></i> Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+      @section('scripts')
+        <script>
+
+            $(document).on('click', '#changePassword', function() {
+                var userId = $(this).data('user');
+                document.getElementById('user_id').value = userId;
+                $('.passwordUpdate').modal('toggle')
+            });
+
+             $(document).on('submit', '#updatePass', function (e) {
+                e.preventDefault();
+                let data = $(this).serializeArray();
+                toggleAble('#submit_password', true, 'Submitting...');
+                var url = "{{ route('update.password') }}";
+
+                $.ajax({
+                    method: "POST",
+                    url,
+                    data: data,
+                }).done((res) => {
+                    toggleAble('#submit_password', false);
+                    toastr.success(res.message, 'Success!');
+                    $('#img-show-container').hide();
+                    $('.updatePassport').modal('toggle');
+                    resetForm('#upload')
+
+                    setTimeout(function(){
+                        window.location.reload();
+                    }, 1000);
+                }).fail((err) => {
+                    console.log(err);
+                    toggleAble('#submit_password', false);
+                    toastr.error(err.responseJSON.message, 'Failed!');
+                });
+            });
+        </script>
+        
+    @endsection
+
 </div>

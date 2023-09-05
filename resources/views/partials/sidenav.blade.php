@@ -19,17 +19,31 @@
                         <ul class="sub-menu" aria-expanded="true">
                             <li><a href="{{ route('result.batch.midterm.upload') }}" key="t-products">Subject Mid-term Upload </a></li>
                             <li><a href="{{ route('result.create') }}" key="t-products">Subject Exam Upload</a></li>
+                            <li><a href="{{ route('result.playgroup.upload') }}" key="t-products">Playgroup Result Upload </a></li>
                             @classTeacher
                                 <li><a href="{{ route('result.midterm.upload') }}" key="t-products">Student Mid-term Upload </a></li>
                                 <li><a href="{{ route('result.singleUpload') }}" key="t-products">Student Exam Upload</a></li>
-                                <li>
-                                    <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Broadsheet</a>
-                                    <ul class="sub-menu" aria-expanded="true">
-                                        <li><a href="{{ route('result.subject.broadsheet') }}">Generate Subject List</a></li>
-                                        <li><a href="{{ route('result.subject.broadsheet') }}">Generate Class List</a></li>
-                                    </ul>
-                                </li>
                             @endclassTeacher
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Broadsheet</a>
+                                <ul class="sub-menu" aria-expanded="true">
+                                    <li><a href="{{ route('result.subject.broadsheet') }}">Generate Subject List</a></li>
+                                    <li><a href="{{ route('result.subject.broadsheet') }}">Generate Class List</a></li>
+                                </ul>
+                            </li>
+                            @admin
+                                <li>
+                                    <a href="{{ route('result.statistic.show') }}" key="t-products">
+                                        Score Statistics
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('result.view.results') }}" key="t-products">
+                                        View Results
+                                    </a>
+                                </li>
+                            @endadmin
                             <li><a href="{{ route('result.midterm') }}" key="t-products">Check Mid-term Scores</a></li>
                             <li><a href="{{ route('result.primary') }}" key="t-products">Check Exam Scores</a></li>
                         </ul>

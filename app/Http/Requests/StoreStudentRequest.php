@@ -53,7 +53,7 @@ class StoreStudentRequest extends FormRequest
         return $this->get('other_name');
     }
 
-    public function gender(): string
+    public function gender(): ?string
     {
         return $this->get('gender');
     }
@@ -108,7 +108,7 @@ class StoreStudentRequest extends FormRequest
         return $this->image;
     }
 
-    public function grade(): string
+    public function grade(): ?string
     {
         return $this->get('grade_id');
     }
@@ -118,12 +118,12 @@ class StoreStudentRequest extends FormRequest
         return $this->get('house_id');
     }
 
-    public function club(): string
+    public function club(): ?string
     {
         return $this->get('club_id');
     }
     
-    public function schedule(): string
+    public function schedule(): ?string
     {
         return $this->get('schedule_id');
     }

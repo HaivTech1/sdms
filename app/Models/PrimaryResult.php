@@ -33,6 +33,11 @@ class PrimaryResult extends Model
         'student_id',
         'author_id',
         'published',
+        'first_term_cummulative',
+        'second_term_cummulative',
+        'third_term_cummulative',
+        'position_in_class_subject',
+        'position_in_grade_subject',
     ];
 
     public function getFillable()
@@ -61,7 +66,8 @@ class PrimaryResult extends Model
     public $incrementing = false;
 
     protected $with = [
-        'authorRelation'
+        'authorRelation',
+        'subject'
     ];
 
     protected $casts = [

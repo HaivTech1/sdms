@@ -25,9 +25,10 @@ class ExamImport implements ToModel, WithHeadingRow
         $termId = $this->request->input('term_id');
         $studentId = $this->request->input('student_id');
 
-        $subjectTitle = $row['subject'];
-        $subject = Subject::where('title', 'LIKE', '%' . $subjectTitle . '%')->first();
+        $subjectId = $row['subject_id'];
+        $subject = Subject::where('id', $subjectId)->first();
         // $student = Student::whereRaw("CONCAT(last_name, ' ', first_name, ' ', other_name) LIKE ?", ['%'.$studentName.'%'])->first();
+
         if ($subject) {
             $result = new PrimaryResult([
                 'period_id' => $periodId,
@@ -35,6 +36,10 @@ class ExamImport implements ToModel, WithHeadingRow
                 'grade_id' => $gradeId,
                 'student_id' => $studentId,
                 'subject_id' => $subject->id(),
+                'ca1'           => $row['first_test'] + $row['entry_1'] + $row['entry_2'],
+                'ca2'           => $row['ca'],
+                'ca3'           => $row['class_activity'],
+                'pr'            => $row['project'],
                 'exam' => $row['exam'],
                 'author_id' => auth()->id()
             ]);

@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\RegistrationRequest;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
+use PDF;
 
 class StudentController extends Controller
 {
@@ -349,5 +350,30 @@ class StudentController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function studentDownloadPdf(Request $request)
+    {
+        $grade = Grade::findOrFail($request->grade_id);
+        $students = Student::where([
+            'grade_id' => $request->get('grade_id'),
+        ])->get();
+
+        $pdf = PDF::loadHTML('generate.student_list');
+        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setWarnings(false);
+        $pdf->getDomPDF()->setHttpContext(
+            stream_context_create([
+                'ssl' => [
+                    'allow_self_signed' => true,
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ])
+        );
+        $pdf->loadView('generate.student_list', ['students' => $students, 'grade' => $grade]);
+
+        return $pdf->download('student_list.pdf');
     }
 }

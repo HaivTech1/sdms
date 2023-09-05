@@ -77,8 +77,8 @@
             
                                             <div class="col-sm-6 mb-3">
                                                 <x-form.label for="gender" value="{{ __('Gender') }}" />
-                                                <select class="form-control select2" name="gender" :value="old('purpose')">
-                                                    <option>Select</option>
+                                                <select class="form-control select2" name="gender">
+                                                    <option value="">Select</option>
                                                     <option value="male"  @if($student->gender === 'male') selected @endif>Male</option>
                                                     <option value="female" @if($student->gender === 'female') selected @endif>Female</option>
                                                 </select>
@@ -86,8 +86,8 @@
 
                                             <div class="col-sm-6 mb-3">
                                                 <x-form.label for="type" value="{{ __('Type') }}" />
-                                                <select class="form-control select2" name="type" :value="old('type')">
-                                                    <option>Select</option>
+                                                <select class="form-control select2" name="type">
+                                                    <option value="">Select</option>
                                                     <option value="n" @if($student->type() === 'n') selected
                                                         @endif>Normal</option>
                                                     <option value="s" @if($student->type() === 's') selected
@@ -99,7 +99,7 @@
 
                                             <div class="col-sm-6 mb-3">
                                                 <x-form.label for="schedule_id" value="{{ __('Schedule') }}" />
-                                                <select class="form-control select2" name="schedule_id" :value="old('schedule_id')">
+                                                <select class="form-control select2" name="schedule_id">
                                                     <option value="">Select</option>
                                                      @foreach ($schedules as $schedule)
                                                         <option value="{{ $schedule->id() }}" @if($schedule->id() === $student->schedules[0]->id()) selected @endif>{{ $schedule->slug() }}</option>

@@ -10,6 +10,7 @@ use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Scopes\HasActiveScope;
+use App\Scopes\AssignedSubjectsScope;
 
 class Students extends Component
 {
@@ -55,7 +56,7 @@ class Students extends Component
             'grades' => Grade::all(),
             'houses' => House::all(),
             'clubs' => Club::all(),
-            'subjects' => Subject::orderBy('title')->get()
+            'subjects' => Subject::withoutGlobalScope(new AssignedSubjectsScope)->orderBy('title')->get()
         ]);
     }
 }

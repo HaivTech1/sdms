@@ -5,12 +5,6 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex gap-2">
-                        <div>
-                            <button data-bs-toggle="modal" data-bs-target=".vehicleModal" class="btn btn-sm btn-primary"><i class="bx bx-bus"></i> Vehicles Management</button>
-                        </div>
-                    </div>
-
                     <div class="row mt-2">
                         <div class="col-md-4">
                             <div class="card mini-stats-wid">
@@ -181,7 +175,7 @@
                                                 <i class="bx bx-dots-horizontal-rounded"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
-                                                <button class="dropdown-item" type="button" value="{{ $driver->id() }}" data-class="" id="assignVehicle">
+                                                <button class="dropdown-item" type="button" value="{{ $driver->id() }}" id="assignVehicle">
                                                     <i class="fas fa-compress-arrows-alt"></i> Assign Vehicle
                                                 </button>
                                             </div>
@@ -198,19 +192,30 @@
         </div>
     </div>
 
-    <div class="modal fade vehicleModal" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
-        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Vehicle management</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <livewire:components.admin.vehicle.index>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @section('scripts')
+        <script>
+            $(document).on('click', '#assignVehicle', function(e) {
+                e.preventDefault();
+                var id = $(this).val();
+                var button = $(this);
+                toggleAble(button, true);
+
+                $.ajax({
+                    url: "/vehicles/list/" + id,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(response) {
+                        toggleAble(button, false);
+
+                        $.each(response.data, function(index, vehicle) {
+                            $('#vehicles option[value="' + vehicle.id + '"]').prop('selected', true);
+                        });
+
+                        $('#user_id').val(id);
+                        $('.addVehicle').modal('show');
+                    }
+                });
+            });
+        </script>
+    @endsection
 </div>

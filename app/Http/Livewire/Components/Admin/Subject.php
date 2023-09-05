@@ -14,7 +14,7 @@ class Subject extends Component
 
     public $selectedRows = [];
     public $selectPageRows = false;
-    public $per_page = 5;
+    public $per_page = 10;
     public $title = ''; 
 
     public $search = '';

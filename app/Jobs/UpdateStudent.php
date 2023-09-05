@@ -61,8 +61,8 @@ class UpdateStudent implements ShouldQueue
         ?string $medical,
         ?string $allergics,
         ?string $image,
-        string $grade,
-        string $house,
+        ?string $grade,
+        ?string $house,
         ?string $type,
         ?int $schedule
         // string $phoneNumber,

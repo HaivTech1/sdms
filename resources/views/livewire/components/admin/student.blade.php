@@ -79,6 +79,12 @@
                                         </div>
                                     </div>
                                 </diV>
+
+                                <div class="col-lg-12 mt-2">
+                                    <div>
+                                        <button data-bs-toggle="modal" data-bs-target=".generateStudentList" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Generate Student List </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -332,6 +338,43 @@
                             <button type="submit" id="submit_passport" class="btn btn-primary btn-flat"><i class="fa fa-save"></i> Save</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade generateStudentList" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-sm modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Generate student list</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form action="{{ route('student.download-pdf') }}" method="POST">
+                            @csrf
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <select class="form-control" name="grade_id" id="grade_id">
+                                        <option value=''>Class</option>
+                                        @foreach ($grades as $grade)
+                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="d-flex justify-content-center flex-wrap mt-2">
+                                    <button id="excel_upload_button" type="submit"
+                                        class="btn btn-primary block waves-effect waves-light pull-right">
+                                        Generate List
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Fee;
 use App\Jobs\CreateFee;
+use App\Models\Student;
 use App\Models\FeeDetail;
 use Illuminate\Http\Request;
 use App\Http\Requests\FeeRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use PDF;
 
 class FeeController extends Controller
 {
@@ -25,6 +27,33 @@ class FeeController extends Controller
     public function create()
     {
         return view('admin.fee.create');
+    }
+
+    public function debtorList()
+    {
+        try {
+            $data = Student::where('outstanding', '!=', null)->get();
+            $debtors = [];
+
+            foreach ($data as $value){
+                $debtors[] = [
+                    'student_id' => $value->id(),
+                    'student_name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
+                    'outstanding' => $value->outstanding,
+                    'class' => $value->grade->title(),
+                ];
+            }
+
+            return response()->json([
+                'status' => true,
+                'debtors' => $debtors
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     public function store(Request $request)
@@ -126,5 +155,78 @@ class FeeController extends Controller
                 'message' => $th->getMessage(),
             ], 500);
         }
+    }
+
+    public function debtDelete($student_id)
+    {
+        try {
+            $student = Student::findOrFail($student_id);
+            $student->update([
+                'outstanding' => null,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Deleted debt successfully.'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => true,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function downloadDebtorListPDF()
+    {
+        $data = Student::where('outstanding', '!=', null)->get();
+        $debtors = [];
+
+        foreach ($data as $value){
+            $debtors[] = [
+                'student_id' => $value->id(),
+                'student_name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
+                'outstanding' => $value->outstanding,
+                'class' => $value->grade->title(),
+            ];
+        }
+
+        $pdf = PDF::loadHTML('generate.debtor_list');
+        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setWarnings(false);
+        $pdf->getDomPDF()->setHttpContext(
+            stream_context_create([
+                'ssl' => [
+                    'allow_self_signed' => true,
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ])
+        );
+        $pdf->loadView('generate.debtor_list', ['debtors' => $debtors]);
+
+        return $pdf->download('debtor_list.pdf');
+    }
+
+    public function updateOutstanding(Request $request)
+    {
+       try {
+        $student = Student::findOrFail($request->get('student_id'));
+        $outstandingData = $student->outstanding;
+        $outstandingData['outstanding'] = $request->price;
+        $student->outstanding = $outstandingData;
+        $student->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Updated successfully.'
+        ], 200);
+       } catch (\Throwable $th) {
+            return response()->json([
+                'status' => true,
+                'message' => $th->getMessage(),
+            ], 500);
+       }
     }
 }

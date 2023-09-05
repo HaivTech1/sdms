@@ -13,7 +13,6 @@
             <li><a href="{{ route('grade.index') }}" key="t-products">Class</a></li>
             <li><a href="{{ route('subgrade.index') }}" key="t-products">Sub Class</a></li>
             <li><a href="{{ route('subject.index') }}" key="t-products">Subjects</a></li>
-            {{-- <li><a href="{{ route('event.index') }}" key="t-products">Event</a></li> --}}
             <li><a href="{{ route('schedule.index') }}" key="t-products">Schedule</a></li>
             <li><a href="{{ route('finger_device.index') }}" key="t-products">Biometric Device</a></li>
         </ul>
@@ -74,6 +73,7 @@
             <span key="t-ecommerce">Transport Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
+            <li><a href="{{ route('vehicle.index') }}" key="t-products">Vehicle</a></li>
             <li><a href="{{ route('driver.index') }}" key="t-add-product">Drivers</a></li>
             <li><a href="#" key="t-add-product">Trips</a></li>
         </ul>
@@ -91,7 +91,7 @@
     <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
             <i class="bx bxl-whatsapp"></i>
-            <span key="t-ecommerce">Whatsapp Management</span>
+            <span key="t-ecommerce">Bot Management</span>
         </a>
         <ul class="sub-menu" aria-expanded="false">
             <li><a href="{{ route('messaging.email') }}" key="t-add-product">Connect</a></li>

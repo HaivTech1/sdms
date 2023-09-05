@@ -36,11 +36,11 @@
                                 <p class="text-muted mb-1"><span class="badge badge-soft-info">Reg No.:</span> {{ $user->code() }}</p>
                                 <p class="text-muted mb-0"><span class="badge badge-soft-info">Class:</span> {{ $user->student->grade->title() }}</p>
                                      
-                                <ul>
+                                {{-- <ul>
                                     @foreach ($user->student->grade->gradeClassTeacher as $key => $teacher)
                                         <li><span class="badge badge-soft-info">{{ $key+1 }}. Class Teacher:</span> {{ $teacher->title() }}. {{ $teacher->name() }}</li>
                                     @endforeach
-                                </ul>
+                                </ul> --}}
                             </div>
                         </div>
 

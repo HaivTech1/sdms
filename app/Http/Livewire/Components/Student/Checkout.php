@@ -30,8 +30,18 @@ class Checkout extends Component
 
     public function render()
     {
+        $items = [];
+        foreach ($this->cartItems as $cart){
+            $items[] = [
+                'id' => $cart->id,
+                'product_id' => $cart->product->id(),
+                'quantity' => $cart->quantity,
+                'author_id' => $cart->user_id, 
+            ];
+        }
         return view('livewire.components.student.checkout',[
-            'cartItems' => $this->cartItems
+            'cartItems' => $this->cartItems,
+            'items' => $items
         ]);
     }
 }

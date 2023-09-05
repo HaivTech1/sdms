@@ -47,6 +47,11 @@
                                     </div>
                                 </diV>
                             </div>
+                            <div class="row">
+                                <div>
+                                    <button wire:ignore.self class="btn btn-sm btn-primary generateDebtorsList"><i class="bx bx-cog"></i> Generate Debtors List </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="btn-group btn-group-example mb-3" role="group">
@@ -356,6 +361,71 @@
         </div>
     </div>
 
+    <div class="modal fade outstandingModal" tabindex="-1" role="dialog" aria-labelledby="outstandingModal" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="outstandingModal">List of debtors</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ route('fee.download.debtor.pdf')}}">
+                        @csrf
+
+                        <div clss="row">
+                            <div class="table-responsive col-md-12 mb-2">
+                               <div>
+                                    <span><b>Total Outstanding:</b>  <span id="total_outstanding"></span></span>
+                               </div>
+                               <div>
+                                    <table id="debtors-list" class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Name</th>
+                                                    <th>Class</th>
+                                                    <th>Outstanding</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
+                                    </table>
+                               </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center flex-wrap mt-2">
+                            <button id="excel_upload_button" type="submit"
+                                class="btn btn-primary block waves-effect waves-light pull-right">
+                                Download List
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Outstanding</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="number" id="priceInput" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="savePriceBtn">Save</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     @section('scripts')
         <script>
             $('#email').on('change', function () {
@@ -401,6 +471,141 @@
                     success: function (response) {
                         toggleAble(button, false);
                         toastr.success(response.message);
+                    },
+                    error: function (xhr, status, error) {
+                        toggleAble(button, false);
+                        console.log(xhr.responseText);
+                        toastr.error(xhr.responseText);
+                    }
+                });
+            });
+
+            $('.generateDebtorsList').on('click', function () {
+                var button = $(this);
+                toggleAble(button, true, 'Generating');
+                $.ajax({
+                    url: '{{ route('fee.debtors.list') }}',
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        toggleAble(button, false);
+                        var debtors = response.debtors;
+
+                        var html = '';
+                        var total = 0;
+                        $.each(debtors, function(index, debtor){
+                            var price = debtor.outstanding.outstanding;
+                            if(!isNaN(price)) {
+                                total += parseFloat(price)
+                            }
+
+                            html += '<tr>';
+                            html += '<td>'+ (index + 1)+'</td>';
+                            html += '<td>' + debtor.student_name + '</td>'; 
+                            html += '<td>' + debtor.class + '</td>'; 
+                            html += '<td class="score-cell" data-student-id="' + debtor.student_id + '">' + debtor.outstanding.outstanding + '</td>'; 
+                            html += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 removeDebt" data-id="' + debtor.student_id + '"><i class="bx bx-trash"></button></td>';
+                            html += '</tr>';
+                        });
+
+                        document.getElementById('total_outstanding').innerText = total.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' });
+                        $('#debtors-list tbody').html(html);
+                        $('.outstandingModal').modal('toggle');
+
+                        $('.score-cell').click(function() {
+                            var studentId = $(this).data('student-id');
+                            var currentPrice = $(this).text();
+                            $('#scoreInput').val(currentPrice);
+                            $('#savePriceBtn').data('student-id', studentId);
+                            $('#editModal').modal('show');
+                        });
+
+                         $('#savePriceBtn').click(function() {
+                            var button = $(this);
+                            toggleAble(button, true, 'Updating...');
+                            var studentId = $(this).data('student-id');
+                            var editedPrice = $('#priceInput').val();
+
+                            Swal.fire({
+                                title: 'Confirm Submission',
+                                text: 'Are you sure you want to update the price?',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#502179',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Update'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajaxSetup({
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        },
+                                    });
+                                    
+                                    $.ajax({
+                                        url: '{{ route('fee.update.outstanding') }}',
+                                        type: 'POST',
+                                        data: {student_id: studentId, price: editedPrice},
+                                    }).done((response) => {
+                                        toggleAble(button, false);
+                                        Swal.fire('Updated!', response.message, 'success');
+                                        $('.score-cell[data-student-id="' + studentId + '"]').text(editedPrice);
+                                        $('#editModal').modal('toggle');
+                                    }).fail((error) => {
+                                        toggleAble(button, false);
+                                        console.log(error);
+                                        toastr.error(error.responseJSON.message, 'Failed!');
+                                    });
+                                }else{
+                                    toggleAble(button, false);
+                                }
+                            });
+                        });
+
+                        $(document).on('click', '.removeDebt', function(e) {
+                            e.preventDefault();
+                            var button = $(this);
+                            toggleAble(button, true);
+                            var studentId = $(this).data('id');
+                            var row = $(this).closest('tr');
+
+                            Swal.fire({
+                                    title: 'Confirm Deletion',
+                                    text: 'Are you sure you want to delete this debt?',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#502179',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Delete'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajaxSetup({
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        },
+                                    });
+
+                                    $.ajax({
+                                        url: "{{ route('fee.delete.debt', ["student_id" => ":student_id"]) }}".replace(':student_id', studentId),
+                                        method: 'DELETE',
+                                        success: function(response) {
+                                            toggleAble(button, false);
+                                            Swal.fire('Deleted!', response.message, 'success');
+                                            row.remove();
+                                        },
+                                        error: function(response) {
+                                            toggleAble(button, false);
+                                            console.log(response.responseJSON.message);
+                                        }
+                                    });
+                                    
+                                }else{
+                                    toggleAble(button, false);
+                                }
+                            });
+                        });
                     },
                     error: function (xhr, status, error) {
                         toggleAble(button, false);

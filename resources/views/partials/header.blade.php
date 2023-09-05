@@ -159,7 +159,7 @@
                 </div>
             </div> --}}
 
-            <livewire:components.student.cart-counter>
+            {{-- <livewire:components.student.cart-counter> --}}
 
             <div class="dropdown d-inline-block">
                 @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
