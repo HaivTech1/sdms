@@ -1032,3 +1032,15 @@ function promotedTo($grade)
         return null;
     }
 }
+
+if (!function_exists('calculateTotalAmount')) {
+    function calculateTotalAmount($payments) {
+        return $payments?->amount ?? 0;
+    }
+}
+
+if (!function_exists('calculateTripBalance')) {
+    function calculateTripBalance($payments) {
+        return $payments?->balance ?? 0;
+    }
+}

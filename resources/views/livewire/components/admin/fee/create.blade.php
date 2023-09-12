@@ -26,7 +26,7 @@
                                             </div>
                                         @endif
 
-                                        <div class="col-lg-3">
+                                        <div class="col-lg-4">
                                             <select class="form-control select2" wire:model="period">
                                                 <option value=''>Select Period</option>
                                                 @foreach ($periods as $period)
@@ -35,14 +35,22 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-lg-3">
+                                        <div class="col-lg-4">
                                             <select class="form-control select2" wire:model="term">
                                                 <option value=''>Select Term</option>
                                                 @foreach ($terms as $term)
                                                 <option value="{{ $term->id }}">{{ $term->title() }}</option>
                                                 @endforeach
                                             </select>
+                                        </div>
 
+                                        <div class="col-lg-4">
+                                            <select class="form-control select2" wire:model="category">
+                                                <option value=''>Select Category</option>
+                                                <option value="school_fees">School Fee</option>
+                                                <option value="schoolbus_service">School Bus</option>
+                                                <option value="ecommerce">Ecommerce</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </diV>
@@ -77,6 +85,7 @@
                                                 </div>
                                             </th>
                                             <th class="align-middle">#</th>
+                                            <th class="align-middle">Paid for</th>
                                             <th class="align-middle"> Paid by</th>
                                             <th class="align-middle"> Student Name</th>
                                             <th class="align-middle"> Class</th>
@@ -100,6 +109,9 @@
                                             </td>
                                             <td>
                                                 {{ $key + 1}}
+                                            </td>
+                                            <td>
+                                                {{ $payment->category}}
                                             </td>
                                             <td>
                                                 {{ $payment->paidBy()}}

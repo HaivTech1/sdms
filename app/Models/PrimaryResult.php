@@ -11,6 +11,7 @@ use App\Traits\HasUuid;
 use App\Traits\HasAuthor;
 use App\Scopes\HasPublishScope;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -19,6 +20,7 @@ class PrimaryResult extends Model
     use HasFactory;
     use HasUuid;
     use HasAuthor;
+    use SoftDeletes;
     
     const TABLE = 'primary_results';
 

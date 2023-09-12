@@ -40,7 +40,11 @@
 
                             <tbody>
                                 @php
-                                    $verification = \App\Models\Payment::whereTerm_id($fee['term_id'])->where('student_uuid', $user->student->id())->first();
+                                    $verification = \App\Models\Payment::whereTerm_id($fee['term_id'])
+                                        ->where('payment_category', 'school_fees')
+                                        ->where('student_uuid', $user->student->id())
+                                        ->first();
+
                                     $term = \App\Models\Term::findOrFail($fee['term_id']);
                                 @endphp
 
@@ -51,64 +55,36 @@
                                     <td> 
                                         @php
                                             $newFee = $fee['price'];
-                                            $feeOut = auth()->user()->student->outstanding['outstanding'] ?? 0;
-                                            $toPay = $newFee + $feeOut;
+                                            $toPay = $newFee;
                                         @endphp
                                         {{ trans('global.naira') }}  
                                         {{ $verification ? $fee['price'] : number_format($toPay, 2) }}
                                     </td>
                                     <td>
-                                        @if($verification && $verification->amount() == $verification->payable() && $verification->type === 'full')
-                                            <span class="badge badge-soft-success">Paid</span>
-                                            <div class="ml-2">
-                                                <a class="btn btn-primary btn-sm"
-                                                    href="{{ route('receipt', $verification) }}">Print Receipt</a>
+                                        @if($verification)
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                <span class="badge badge-soft-success text-center mr-2">Paid</span>
+                                                <div class="ml-2">
+                                                    <a class="btn btn-primary btn-sm"
+                                                        href="{{ route('receipt', $verification) }}">Print Receipt</a>
+                                                </div>
                                             </div>
-                                        @elseif($verification && $verification->term_id == $fee['term_id'] && $verification->type === 'partial')
-
-                                            @php
-                                                $leftOver = $verification->payable() - $verification->amount();
-                                                $per = payment_percent(0.015, $leftOver);
-                                            @endphp
-                                            <span class="badge badge-soft-danger">You have a balance of <b> {{ trans('global.naira') }}{{ $leftOver }}</b> to pay!</span>
-                                            <form method="POST" action="{{ route('pay') }}">
-                                                @csrf
-                                                <input type="hidden" name="metadata" value="{{ json_encode($array = [
-                                                                                                                        'student_uuid' => $user->student->id(),
-                                                                                                                        'term_id' => $fee['term_id'],
-                                                                                                                        'author_id' => $user->id(),
-                                                                                                                        'initial' => $newFee,
-                                                                                                                        'payable' =>  $verification->payable(),
-                                                                                                                        'old_payment' => $verification->amount(),
-                                                                                                                        'old_payment_id' => $verification->id()
-                                                                                                                    ])
-                                                                                            }}">
-                                                @if(isset($user->student->mother))
-                                                    <input type="hidden" name="email" value="{{ $user->student->mother->email()}}">
-                                                @elseif(isset($user->student->father))
-                                                    <input type="hidden" name="email" value="{{ $user->student->father->email()}}">
-                                                @else
-                                                    <input type="hidden" name="email" value="{{ application('email')}}">
-                                                @endif
-                                                <input type="hidden" name="amount" value="{{($leftOver + $per) * 100 }}">
-                                                <input type="hidden" name="currency" value="NGN">
-                                                <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"/>
-                                                <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="bx bx-credit-card label-icon"></i> Pay Now</button>
-                                            </form>
                                         @else
-                                            <form method="POST" action="{{ route('pay') }}">
+                                            <form method="POST" action="{{ route('payment.paystack.initiate') }}">
                                                 @csrf
                                                 @php
                                                     $per = payment_percent(0.015, $toPay);
                                                 @endphp
-                                                <input type="hidden" name="metadata" value="{{ json_encode($array = ['student_uuid' => $user->student->id(),
-                                                                                                                        'term_id' => $fee['term_id'],
-                                                                                                                        'author_id' => $user->id(),
-                                                                                                                        'payable' => $toPay,
-                                                                                                                        'initial' => $newFee,
-                                                                                                                        'old_payment' => false,
-                                                                                                                        'old_payment_id' => false
-                                                                                                                    ]) }}">
+                                                <input type="hidden" name="metadata" 
+                                                        value="{{ json_encode($array = [
+                                                                    'student_uuid' => $user->student->id(),
+                                                                    'term_id' => $fee['term_id'],
+                                                                    'author_id' => $user->id(),
+                                                                    'type' => 'school_fees',
+                                                                    'callback' => 'payment.paystack.callback',
+                                                                ]) }}"
+                                                >
+
                                                 @if(isset($user->student->mother))
                                                     <input type="hidden" name="email" value="{{ $user->student->mother->email()}}">
                                                 @elseif(isset($user->student->father))
@@ -117,14 +93,8 @@
                                                     <input type="hidden" name="email" value="{{ application('email')}}">
                                                 @endif
                                                 
-                                                <input id="amount" type="hidden" name="amount" value="{{ ($toPay + $per) * 100 }}">
-                                                <input type="hidden" name="currency" value="NGN">
-                                                <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"/> 
-
-                                                <div class="btn-group btn-group-example mb-3" role="group">
-                                                    <button id="pay" type="submit" class="btn btn-primary w-xs">Pay Full</button>
-                                                    <button id="partial" type="button" class="btn btn-danger w-xs">Enter Amount</button>
-                                                </div>
+                                                <input id="amount" type="hidden" name="amount" value="{{ ($toPay) * 100 }}">
+                                                <button type="submit" class="btn btn-primary">Pay Now</button>
                                             </form>
                                         @endif
                                     </td>

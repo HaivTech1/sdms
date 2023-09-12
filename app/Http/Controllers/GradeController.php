@@ -13,79 +13,28 @@ class GradeController extends Controller
         $this->middleware(['auth', 'admin']);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function gradeStudents(Grade $grade)
     {
-        return view('admin.grade.index');
-    }
+        try {
+            $students = [];
+            $data = $grade->students;  
+            foreach ($data as $item) {
+                $students[] = [
+                    'id' => $item->id(),
+                    'name' => $item->firstName() . ' ' . $item->lastName() . ' ' . $item->otherName(),
+                ];
+            }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreGradeRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreGradeRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Grade  $grade
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Grade $grade)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Grade  $grade
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Grade $grade)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateGradeRequest  $request
-     * @param  \App\Models\Grade  $grade
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateGradeRequest $request, Grade $grade)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Grade  $grade
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Grade $grade)
-    {
-        //
+            return response()->json([
+                'status' => true,
+                'student' => $students
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 200);
+        }
+         
     }
 }

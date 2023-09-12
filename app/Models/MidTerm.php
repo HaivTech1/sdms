@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasUuid;
 use App\Traits\HasAuthor;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -13,6 +14,7 @@ class MidTerm extends Model
     use HasFactory;
     use HasUuid;
     use HasAuthor;
+    use SoftDeletes;
     
     const TABLE = 'mid_terms';
 

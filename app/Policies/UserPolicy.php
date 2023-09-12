@@ -30,7 +30,7 @@ class UserPolicy
 
     public function bursal(User $user): bool
     {
-        return $user->isBursal() || $user->isSuperAdmin();
+        return $user->isBursal() || $user->isSuperAdmin() ||  $user->isAdmin();
     }
 
     public function admin(User $user): bool

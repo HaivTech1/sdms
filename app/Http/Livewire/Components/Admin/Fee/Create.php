@@ -21,6 +21,7 @@ class Create extends Component
     public $students = []; 
     public $period;
     public $term;
+    public $category;
 
     public $grade;
     public $payable;
@@ -59,6 +60,9 @@ class Create extends Component
 
     protected $queryString = [
         'search' => ['except' => ''],
+        'term' => ['except' => ''],
+        'period' => ['except' => ''],
+        'category' => ['except' => ''],
     ];
 
     public function updatedSelectPageRows($value)
@@ -202,6 +206,9 @@ class Create extends Component
                     $query->whereHas('term', function($query) use ($term){
                     $query->where('id', $term);
                 });
+            })
+             ->when($this->category, function($query, $category) {
+                    $query->where('payment_category', $category);
             })
             ->search(trim($this->search))->loadLatest($this->count);
     }

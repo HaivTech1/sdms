@@ -15,6 +15,15 @@ class CreateTripsTable extends Migration
     {
         Schema::create('trips', function (Blueprint $table) {
             $table->id();
+            $table->string('address');
+            $table->string('longitude')->nullable();
+            $table->string('latitude')->nullable();
+            $table->string('distance')->nullable();
+            $table->integer('no_of_students')->nullable();
+            $table->double('price');
+            $table->boolean('split')->default(0);
+            $table->enum('split_type',['daily', 'monthly', 'termly'])->default('termly');
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }

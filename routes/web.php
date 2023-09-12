@@ -38,6 +38,7 @@ use App\Http\Controllers\HairstyleController;
 use App\Http\Controllers\MessagingController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\Admin\TripController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
@@ -49,6 +50,7 @@ use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\VehicleController;
+use App\Http\Controllers\User\SchoolBusController;
 use App\Http\Controllers\BiometricDeviceController;
 use Laravel\Fortify\Http\Controllers\PasswordController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
@@ -94,10 +96,11 @@ Route::post('/setup/details', [VisitorController::class, 'saveAppDetails'])->nam
 
 Route::post('/pay', [PaymentController::class, 'redirectToGateway'])->name('pay');
 Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback'])->name('payment.recurring');
+
+Route::post('/payment/paystack', [PaymentController::class, 'makePayment'])->name('payment.paystack.initiate');
+Route::get('/payment/callback/paystack', [PaymentController::class, 'callback'])->name('payment.paystack.callback');
 Route::get('/payment/receipt/{payment}', [PaymentController::class, 'receipt'])->name('receipt');
 
-Route::post('/payment/order', [OrderPaymentController::class, 'makePayment'])->name('payment.order.pay');
-Route::get('/paystack/order/callback', [OrderPaymentController::class, 'handlePaymentCallback'])->name('payment.order.callback');
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware('maintenance')->group(function () {
@@ -133,11 +136,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::group(['prefix' => 'driver', 'as' => 'driver.'], function () {
             Route::get('/', [DriverController::class, 'index'])->name('index');
+            Route::post('/', [DriverController::class, 'store'])->name('store');
+            Route::post('/assign/vehicle', [DriverController::class, 'assignVehicle'])->name('assignVehicle');
         });
 
         Route::group(['prefix' => 'vehicle', 'as' => 'vehicle.'], function () {
             Route::get('/', [VehicleController::class, 'index'])->name('index');
             Route::post('/', [VehicleController::class, 'store'])->name('store');
+            Route::get('/list', [VehicleController::class, 'list'])->name('list');
+        });
+
+        Route::group(['prefix' => 'trip', 'as' => 'trip.'], function () {
+            Route::get('/', [TripController::class, 'index'])->name('index');
+            Route::post('/', [TripController::class, 'store'])->name('store');
+            Route::post('/download-pdf', [TripController::class, 'downloadPdf'])->name('download-pdf');
+            Route::post('/generate/paid', [TripController::class, 'generatePaid'])->name('generate.paid');
+            Route::post('/generate/unpaid', [TripController::class, 'generateUnPaid'])->name('generate.unpaid');
         });
 
         Route::group(['prefix' => 'payment', 'as' => 'payment.'], function () {
@@ -155,6 +169,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('term',TermController::class);
         Route::resource('house', HouseController::class);
         Route::resource('club', ClubController::class);
+
+        Route::get('/grade/students/{grade}', [GradeController::class, 'gradeStudents'])->name('grade.students');
 
         Route::group(['prefix' => 'student', 'as' => 'student.'], function () {
             Route::get('/', [StudentController::class, 'index'])->name('index');
@@ -216,6 +232,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/single/secondary', [ResultController::class, 'secondaryUpload'])->name('secondary.upload');
             Route::post('/store/Single/Secondary/Upload', [ResultController::class, 'storeSecondaryUpload'])->name('storeSingleSecondaryUpload');
 
+            Route::get('/check/general', [ResultController::class, 'general'])->name('general');
             Route::get('/check/secondary', [ResultController::class, 'secondary'])->name('secondary');
             Route::get('/check/primary', [ResultController::class, 'primary'])->name('primary');
             Route::get('/check/midterm', [ResultController::class, 'midterm'])->name('midterm');
@@ -265,6 +282,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             Route::get('midterm/check/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'checkMidterm'])->name('check.midterm');
             Route::get('exam/check/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'checkExam'])->name('check.exam');
+            Route::get('/single/exam/check/{student_id}/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'singleCheckExam'])->name('check.single.exam');
 
             Route::get('student/comment/{student_id}/{period_id}/{term_id}', [ResultController::class, 'studentComment'])->name('student.comment');
             Route::get('student/principal/comment/{student_id}/{period_id}/{term_id}', [ResultController::class, 'studentPrincipalComment'])->name('student.principalComment');
@@ -493,12 +511,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/delete/cart/{item}', [MarketController::class, 'remove'])->name('delete.cartitem');
             Route::get('/update/cart/{item}/{quantity}', [MarketController::class, 'update'])->name('update.cartitem');
         });
+
+        Route::group(['prefix' => 'schoolbus', 'as' => 'schoolbus.'], function () {
+            Route::get('/', [SchoolBusController::class, 'index'])->name('index');
+            // Route::post('/payment/paystack', [SchoolBusController::class, 'makePayment'])->name('paystack.one-time');
+            // Route::get('/paystack/paystack/callback', [SchoolBusController::class, 'callback'])->name('paystack.callback');
+        });
     });
 });
 
-/**
- * Teamwork routes
- */
 Route::group(['prefix' => 'teams', 'namespace' => 'Teamwork'], function()
 {
     Route::get('/', [App\Http\Controllers\Teamwork\TeamController::class, 'index'])->name('teams.index');

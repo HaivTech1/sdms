@@ -6,7 +6,6 @@
               <div class="card-body">
                     @hasPaid
                         <form wire:submit.prevent="fetchResult" class="repeater" enctype="multipart/form-data">
-                            <input type="hidden" value="{{ $user->student->grade_id }}" name="grade_id" />
                             <div data-repeater-list="group-a">
                                 <div data-repeater-item class="row">
                                     <div class="mb-3 col-lg-3">

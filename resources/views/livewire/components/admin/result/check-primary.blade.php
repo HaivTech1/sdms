@@ -520,6 +520,7 @@
                                 <div class="col-sm-12 mb-2">
                                     @php
                                         $examForm = get_settings('exam_format');
+                                        $midtermForm = get_settings('midterm_format');
                                     @endphp
                                     <div class="table-responsive">
                                         <table id="students-result" class="table table-borderless">

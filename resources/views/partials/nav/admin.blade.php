@@ -75,7 +75,7 @@
         <ul class="sub-menu" aria-expanded="false">
             <li><a href="{{ route('vehicle.index') }}" key="t-products">Vehicle</a></li>
             <li><a href="{{ route('driver.index') }}" key="t-add-product">Drivers</a></li>
-            <li><a href="#" key="t-add-product">Trips</a></li>
+            <li><a href="{{ route('trip.index') }}" key="t-add-product">Trips</a></li>
         </ul>
     </li>
     <li>
@@ -88,7 +88,7 @@
             <li><a href="{{ route('order.index') }}" key="t-add-product">Orders</a></li>
         </ul>
     </li>
-    <li>
+    {{-- <li>
         <a href="javascript: void(0);" class="has-arrow waves-effect">
             <i class="bx bxl-whatsapp"></i>
             <span key="t-ecommerce">Bot Management</span>
@@ -97,5 +97,5 @@
             <li><a href="{{ route('messaging.email') }}" key="t-add-product">Connect</a></li>
             <li><a href="{{ route('messaging.sms') }}" key="t-add-product">Inbox</a></li>
         </ul>
-    </li>
+    </li> --}}
 @endadmin

@@ -5,7 +5,7 @@
 
         <div class="page-title-right">
             <ol class="breadcrumb m-0">
-                <li class="breadcrumb-item active">Index</li>
+                <li class="breadcrumb-item active">Payments</li>
             </ol>
         </div>
     </x-slot>

@@ -25,10 +25,11 @@ class Payment extends Model
         'initial',
         'balance',
         'payable',
-        'type',
+        'payment_type',
+        'payment_category',
         'trans_id',
         'ref_id',
-        'method',
+        'channel',
         'author_id'
     ];
 
@@ -73,12 +74,17 @@ class Payment extends Model
 
     public function type(): string
     {
-        return (string) $this->type;
+        return (string) $this->payment_type;
     }
 
-    public function method(): string
+    public function category(): string
     {
-        return (string) $this->method;
+        return (string) $this->payment_category;
+    }
+
+    public function channel(): string
+    {
+        return (string) $this->channel;
     }
 
     public function transactionId(): string
@@ -127,6 +133,19 @@ class Payment extends Model
         return $query->paginate($count);
     }
 
+     public function getCategoryAttribute()
+    {
+
+        $category = [
+            'ecommerce' => 'Ecommerce Service',
+            'school_fees' => 'School Fee Service',
+            'schoolbus_service' => 'School Bus Service',
+
+        ];
+
+        return $category[$this->payment_category];
+    }
+
     public function getPaymentStatusAttribute()
     {
 
@@ -135,7 +154,7 @@ class Payment extends Model
             'partial' => 'Partial Payment',
         ];
 
-        return $status[$this->type];
+        return $status[$this->payment_type];
     }
 
     public function getPaymentBadgeAttribute()
@@ -146,17 +165,6 @@ class Payment extends Model
             'partial' => 'badge bg-info',
         ];
 
-        return $status[$this->type];
-    }
-
-    public function getPaymentMethodAttribute()
-    {
-
-        $method = [
-            'card' => 'Paystack Payment',
-            'cash' => 'Cash Payment',
-        ];
-
-        return $method[$this->method];
+        return $status[$this->payment_type];
     }
 }

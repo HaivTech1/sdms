@@ -10,7 +10,7 @@
             </div>
             <center id="top">
                 <div class="info">
-                    <h2 style="font-size: 20px; font-weight: bold; text-decoration: uppercase; background-color: rgba(37, 41, 88, 0.7); border-radius: 10px; padding: 10px; color: #ffffff">{{ application('name')}}</h2>
+                    <h2 style="font-size: 10px; font-weight: semibold; text-decoration: uppercase;">{{ application('name')}}</h2>
                     <address style="font-size: 8px">{{ application('address')}}</address>
                 </div>
             </center>
@@ -46,6 +46,10 @@
                         <tr>
                             <th style="text-align: left">Term/Session:</th>
                             <td>{{ $payment->term->title() }}-{{ $payment->period->title() }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: left">Paid for:</th>
+                            <td>{{ $payment->category }}</td>
                         </tr>
                     </tbody>
                 </table>

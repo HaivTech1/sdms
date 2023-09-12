@@ -162,9 +162,9 @@
                                         @foreach ($driver->vehicleDriver  as $key => $vehicle)
                                             <ul class="">
                                                 <li>
-                                                    <span>{{ $key+1 }}. </span>
-                                                    <span class="badge soft-badge-primary">{{ $vehicle->name }}</span>
-                                                    <span class="badge soft-badge-primary">{{ $vehicle->plate_no }}</span>
+                                                    <span class="mr-1">({{ $key+1 }}) </span>
+                                                    <span class="mr-2">{{ $vehicle->name }} - </span>
+                                                    <span>{{ $vehicle->plate_no }}</span>
                                                 </li>
                                             </ul>
                                         @endforeach
@@ -190,6 +190,40 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade addVehicle bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Assign Vehicle</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form id="createVehicleDriver">
+                                    @csrf
+
+                                    <x-form.input type="hidden" value="" name="driver_id" id="driver_id" />
+                                    
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <select name="vehicle_id" class="form-control" id="vehicles">
+                                               
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                                        <button type="submit" id="submit_vehicle" class="btn btn-primary btn-flat"><i class="fa fa-save"></i> Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @section('scripts')
@@ -201,20 +235,52 @@
                 toggleAble(button, true);
 
                 $.ajax({
-                    url: "/vehicles/list/" + id,
+                    url: "{{ route('vehicle.list') }}",
                     type: "GET",
                     dataType: "json",
                     success: function(response) {
                         toggleAble(button, false);
+                        var vehicles = response.vehicles
+                        console.log(id);
 
-                        $.each(response.data, function(index, vehicle) {
-                            $('#vehicles option[value="' + vehicle.id + '"]').prop('selected', true);
+                        $.each(vehicles, function(index, vehicle) {
+                           $('#vehicles').append($('<option>', {
+                                value: vehicle.id,
+                                text: vehicle.name
+                            }));
                         });
 
-                        $('#user_id').val(id);
+                        $('#driver_id').val(id);
                         $('.addVehicle').modal('show');
                     }
                 });
+            });
+
+             $(document).on('submit', '#createVehicleDriver', function(e){
+                e.preventDefault();
+                var button = $('#submit_vehicle');
+                toggleAble(button, true, 'Submitting...');
+                var data = $(this).serializeArray();
+                var url = "{{ route('driver.assignVehicle') }}";
+
+                $.ajax({
+                    type: "POST",
+                    url,
+                    data
+                }).done((res) => {
+                    toggleAble(button, false);
+                    toastr.success(res.message, 'Success!');
+                    resetForm('#createVehicleDriver');
+                    $('.addVehicle').modal('toggle');
+                    setTimeout(function () {
+                        window.location.reload()
+                    }, 2000);
+                }).fail((res) => {
+                    toggleAble(button, false);
+                    console.log(res.responseJSON.message);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                });
+                
             });
         </script>
     @endsection

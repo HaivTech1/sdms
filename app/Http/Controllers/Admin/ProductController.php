@@ -99,7 +99,8 @@ class ProductController extends Controller
     {        
         try {
             
-            $product = Product::where('id', $request->product_id)->update([
+            $product = Product::where('id', $request->product_id)->first();
+            $product->update([
                 'title'                 => $request->title,
                 'price'                 => $request->price,
                 'quantity'              => $request->quantity,

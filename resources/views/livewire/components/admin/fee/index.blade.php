@@ -81,6 +81,7 @@
                                             <td>
                                                 {{ $key + 1}}
                                             </td>
+                                           
                                              <td>
                                                 {{ $fee->grade->title() ?? '' }}
                                             </td>

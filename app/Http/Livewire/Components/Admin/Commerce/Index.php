@@ -15,7 +15,7 @@ class Index extends Component
 
     public $selectedRows = [];
     public $selectPageRows = false;
-    public $per_page = 5;
+    public $per_page = 10;
     public $orderBy = 'title';
     public $sortBy = 'asc';
     public $category = '';
@@ -46,12 +46,16 @@ class Index extends Component
         })->loadLatest($this->per_page, $this->orderBy, $this->sortBy, $this->status);
     }
 
-    public function delete(Product $product)
+    public function delete($product)
     {
-        File::delete(storage_path('app/public/'.$product->image));
-        $product->delete();
+        $pro = Product::find($product);
+
+        if($pro->image){
+            File::delete(storage_path('app/public/'.$pro->image));
+        }
+        $pro->delete();
         $this->dispatchBrowserEvent('success', ['message' => 'Product deleted!']);
-        $this->reset(['reset']);
+        $this->reset();
     }
 
     public function deleteAll()

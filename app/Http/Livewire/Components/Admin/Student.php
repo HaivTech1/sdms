@@ -2,7 +2,9 @@
 
 namespace App\Http\Livewire\Components\Admin;
 
+use App\Models\Term;
 use App\Models\Grade;
+use App\Models\Period;
 use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -188,6 +190,8 @@ class Student extends Component
         return view('livewire.components.admin.student', [
             'students' => $this->students,
             'grades' => Grade::all(),
+            'periods' => Period::all()->pluck('title', 'id'),
+            'terms' => Term::all()->pluck('title', 'id'),
         ]);
     }
 }

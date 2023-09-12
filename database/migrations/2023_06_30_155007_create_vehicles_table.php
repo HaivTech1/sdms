@@ -19,6 +19,7 @@ class CreateVehiclesTable extends Migration
             $table->string('plate_no')->nullable();
             $table->integer('seats')->nullable();
             $table->enum('type',['car', 'bus'])->default('bus');
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }

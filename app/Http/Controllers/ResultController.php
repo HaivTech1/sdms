@@ -100,6 +100,11 @@ class ResultController extends Controller
         return view('admin.result.check_midterm');
     }
 
+    public function general()
+    {
+        return view('admin.result.check_general');
+    }
+
     public function midTermUpload()
     {
         return view('admin.result.midterm');
@@ -280,6 +285,11 @@ class ResultController extends Controller
                 'result_id'     => $exam->id(),
                 'subject_id' => $subjectId,
                 'subject_name' => $subjectName,
+                'ca1'  => $exam->ca1,
+                'ca2' => $exam->ca2,
+                'ca3' => $exam->ca3,
+                'pr' => $exam->pr,
+                'total' => $exam->ca1 + $exam->ca2 + $exam->ca3 + $exam->exam
             ];
         
             if (is_array($examFormat)) {
@@ -359,7 +369,7 @@ class ResultController extends Controller
     public function examUpdate(Request $request)
     {
         try {
-            $exam = PrimaryResult::findOrFail($request->result_id);
+            $exam = PrimaryResult::where('uuid', $request->result_id)->where('subject_id', $request->subject_id)->first();
             $exam->update([
                 $request->field => $request->score
             ]);
@@ -1884,6 +1894,44 @@ class ResultController extends Controller
                 'grade_name' => $grade->title(),
                 'period' => $period_id,
                 'term' => $term_id,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function singleCheckExam($student_id, $grade_id, $period_id, $term_id)
+    {
+        try {
+
+            $grade = Grade::find($grade_id);
+            $template = get_settings('result_template');
+            $data = Student::where('uuid', $student_id)->first();
+
+            if ($grade->title !== 'Playgroup'){
+                $result = [
+                        'id' => $data->id(),
+                        'name' => $data->last_name . ' ' . $data->first_name . ' ' . $data->other_name,
+                        'recorded_subjects' => $data->primaryResults->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
+                ];
+            }else{
+                $result[] = [
+                    'id' => $data->id(),
+                    'name' => $data->last_name . ' ' . $data->first_name . ' ' . $data->other_name,
+                    'recorded_subjects' => $data->playgroupResults->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
+                ];
+            }
+            
+            return response()->json([
+                'result' => $result,
+                'grade' => $grade_id,
+                'grade_name' => $grade->title(),
+                'period' => $period_id,
+                'term' => $term_id,
+                'current_class' => $data->grade->title()
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

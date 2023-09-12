@@ -34,4 +34,21 @@ class VehicleController extends Controller
             ], 500);
         }
     }
+
+    public function list() 
+    {
+        try {
+            $vehicles = Vehicle::get();
+
+            return response()->json([
+                'status' => true,
+                'vehicles' => $vehicles,
+            ], 200);
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
 }

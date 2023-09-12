@@ -373,9 +373,9 @@ class Student extends Authenticatable
         return $this->hasMany(Leave::class);
     }
 
-    public function trip(): BelongsToMany
+    public function assingedTrip(): HasMany
     {
-        return $this->belongsToMany(Trip::class, 'student_trip');
+        return $this->hasMany(StudentTrip::class, 'student_id');
     }
 
 }

@@ -43,6 +43,11 @@
                                         View Results
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="{{ route('result.general') }}" key="t-products">
+                                        General Results
+                                    </a>
+                                </li>
                             @endadmin
                             <li><a href="{{ route('result.midterm') }}" key="t-products">Check Mid-term Scores</a></li>
                             <li><a href="{{ route('result.primary') }}" key="t-products">Check Exam Scores</a></li>
@@ -52,30 +57,39 @@
                 @include('partials.nav.bursal')
                 @include('partials.nav.teacher')
                 @include('partials.nav.student')
-                <li>
-                    <a class="waves-effect" href="{{ route('user.product.index') }}">
-                        <i class="bx bx-store-alt"></i> 
-                        <span key="t-chat">Market</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('timetable.index') }}" class="waves-effect">
-                        <i class="mdi mdi-clock-outline"></i>
-                        <span key="t-chat">Timetable</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="waves-effect" href="{{ route('calendar.index') }}">
-                        <i class="bx bx-calendar"></i> 
-                        <span key="t-chat">School Calender</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="waves-effect" href="{{ route('calendar.index') }}">
-                        <i class="bx bx-notepad"></i> 
-                        <span key="t-chat">Edu Jobs</span>
-                    </a>
-                </li>
+
+                @if (auth()->user()->isStudent())
+                    <li>
+                        <a class="waves-effect" href="{{ route('user.product.index') }}">
+                            <i class="bx bx-store-alt"></i> 
+                            <span key="t-chat">Market</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('timetable.index') }}" class="waves-effect">
+                            <i class="mdi mdi-clock-outline"></i>
+                            <span key="t-chat">Timetable</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="waves-effect" href="{{ route('calendar.index') }}">
+                            <i class="bx bx-calendar"></i> 
+                            <span key="t-chat">School Calender</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="waves-effect" href="{{ route('calendar.index') }}">
+                            <i class="bx bx-notepad"></i> 
+                            <span key="t-chat">Edu Jobs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="waves-effect" href="{{ route('user.schoolbus.index') }}">
+                            <i class="bx bx-car"></i> 
+                            <span key="t-chat">School Bus</span>
+                        </a>
+                    </li>
+                @endif 
             </ul>
         </div>
     </div>

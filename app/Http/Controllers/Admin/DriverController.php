@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\user;
+use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -15,21 +15,16 @@ class DriverController extends Controller
         return view('admin.driver.index');
     }
 
-    public function addVehicle($user, $vehicle)
+    public function assignVehicle(Request $request)
     {
         try {
-            $vehicle = new Vehicle([
-                'name' => $request->get('name'),
-                'plate_no' => $request->get('plate_no'),    
-                'seats' => $request->get('seats'),
-                'type' =>$request->get('type'),  
-            ]);
-            $vehicle->save();
+            $user = User::findOrFail($request->driver_id);
+            $user->vehicleDriver()->attach($request->vehicle_id);
 
             return response()->json([
                 'status' => true,
-                'message' => "Vehicle added successfully",
-            ], 500);
+                'message' => "Vehicle assigned to driver successfully",
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th->getMessage(),
