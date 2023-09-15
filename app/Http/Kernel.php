@@ -70,6 +70,7 @@ class Kernel extends HttpKernel
         'superadmin' => \App\Http\Middleware\IsSuperAdmin::class,
         'admin' => \App\Http\Middleware\IsAdmin::class,
         'teacher' => \App\Http\Middleware\IsTeacher::class,
+        'classTeacher' => \App\Http\Middleware\IsClassTeacher::class,
         'bursal' => \App\Http\Middleware\IsBursal::class,
         'student' => \App\Http\Middleware\IsStudent::class,
         'hasPaid' => \App\Http\Middleware\SchoolFeesMiddleware::class,

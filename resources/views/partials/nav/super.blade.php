@@ -7,7 +7,8 @@
         <ul class="sub-menu" aria-expanded="false">
             <li><a href="{{ route('user.index') }}" key="t-products">Users</a></li>
             <li><a href="{{ route('teams.index') }}" key="t-products">Team</a></li>
-            {{-- <li><a href="{{ route('task.index') }}" key="t-products">Task</a></li> --}}
+            <li><a href="{{ route('permission.index') }}" key="t-products">Permissions</a></li>
+            <li><a href="{{ route('role.index') }}" key="t-products">Roles</a></li>
         </ul>
     </li>
         <li>

@@ -14,11 +14,13 @@ use Database\Seeders\PeriodSeeder;
 use Database\Seeders\StudentSeeder;
 use Database\Seeders\SubjectSeeder;
 use Database\Seeders\GuardianSeeder;
+use Database\Seeders\RoleUserSeeder;
 use Database\Seeders\ScheduleSeeder;
 use Database\Seeders\UserTableSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\ApplicationSeeder;
 use Database\Seeders\GradeSubjectSeeder;
+use Database\Seeders\PermissionRoleSeeder;
 use Database\Seeders\ScheduleStudentSeeder;
 
 
@@ -42,6 +44,8 @@ class DatabaseSeeder extends Seeder
         $this->call(ClubSeeder::class);
         $this->call(PermissionSeeder::class);
         $this->call(RoleSeeder::class);
+        $this->call(PermissionRoleSeeder::class);
+        $this->call(RoleUserSeeder::class);
         // $this->call(StudentSeeder::class);
         // $this->call(GuardianSeeder::class);
         // $this->call(GradeSubjectSeeder::class);

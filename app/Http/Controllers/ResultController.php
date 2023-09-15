@@ -1790,6 +1790,8 @@ class ResultController extends Controller
             $period = Period::where('id', $request->period_id)->first();
             $term = Term::where('id', $request->term_id)->first();
             $student = Student::findOrfail($request->student_id);
+            $grade = Grade::findOrfail($request->grade_id);
+
             $result = $student->midTermResults->where('period_id', $request->period_id)
             ->where('term_id',  $request->term_id)
             ->where('grade_id',  $request->grade_id);
@@ -1812,7 +1814,8 @@ class ResultController extends Controller
                 'scores' => $scores,
                 'comment' => $commentResult,
                 'period' => $period,
-                'term' => $term
+                'term' => $term,
+                'grade' => $grade,
             ]);
 
             return $pdf->download($filename);

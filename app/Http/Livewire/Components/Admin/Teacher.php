@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Components\Admin;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Grade;
 use App\Models\Subject;
@@ -115,7 +116,8 @@ class Teacher extends Component
             'allTeachers' => User::where('type', User::TEACHER)->get(),
             'activeTeachers' => User::where('type', User::TEACHER)->where('isAvailable', true)->get(),
             'unactiveTeachers' => User::where('type', User::TEACHER)->where('isAvailable', false)->get(),
-            'subjects' => Subject::all()
+            'subjects' => Subject::all(),
+            'roles' => Role::all(),
         ]);
     }
 }

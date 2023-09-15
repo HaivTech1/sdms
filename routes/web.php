@@ -38,6 +38,7 @@ use App\Http\Controllers\HairstyleController;
 use App\Http\Controllers\MessagingController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TripController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendanceController;
@@ -52,6 +53,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\VehicleController;
 use App\Http\Controllers\User\SchoolBusController;
 use App\Http\Controllers\BiometricDeviceController;
+use App\Http\Controllers\Admin\PermissionController;
 use Laravel\Fortify\Http\Controllers\PasswordController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\VerifyEmailController;
@@ -120,11 +122,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('generate/pin', [UserController::class, 'generatePin'])->name('generatePin');
             Route::get('pins', [UserController::class, 'pins'])->name('pins');
             Route::get('certificate', [UserController::class, 'certificate'])->name('certificate');
+            Route::get('/roles/{id}', [UserController::class, 'roles'])->name('roles');
+            Route::post('assign/role', [UserController::class, 'assignRole'])->name('assignRole');
+            Route::delete('/{user}/role/{role}', [UserController::class, 'deleteAssignedRole'])->name('assignedRole.delete');
+        });
+
+        Route::resource('permission', PermissionController::class);
+        
+        Route::group(['prefix' => 'role', 'as' => 'role.'], function () {
+            Route::get('/', [RoleController::class, 'index'])->name('index');
+            Route::get('/destroy', [RoleController::class, 'destroy'])->name('destroy');
+            Route::get('/permissions/{id}', [RoleController::class, 'permissions'])->name('permissions');
+            Route::post('assignPermission', [RoleController::class, 'assignPermission'])->name('assignPermission');
+            Route::delete('/{role}/permission/{permission}', [RoleController::class, 'deleteAssignedPermission'])->name('assignedPermission.delete');
         });
 
         Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
             Route::get('/', [TeacherController::class, 'index'])->name('index');
-            Route::get('/students', [TeacherController::class, 'students'])->name('students');
+            Route::get('/students', [TeacherController::class, 'students'])->name('students')->middleware('classTeacher');
             Route::post('assignClass', [TeacherController::class, 'assignClass'])->name('assignClass');
             Route::post('assignSubject', [TeacherController::class, 'assignSubject'])->name('assignSubject');
             Route::get('/student/edit/{id}', [TeacherController::class, 'edit']);

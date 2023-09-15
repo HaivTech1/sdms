@@ -17,19 +17,19 @@ class RoleSeeder extends Seeder
         $roles = [
             [
                 'id'    => 1,
-                'title' => 'SuperAdmin',
-            ],
-            [
-                'id'    => 2,
                 'title' => 'Admin',
             ],
             [
+                'id'    => 2,
+                'title' => 'Secretary',
+            ],
+            [
                 'id'    => 3,
-                'title' => 'Bursal',
+                'title' => 'Class Teacher',
             ],
             [
                 'id'    => 4,
-                'title' => 'Teacher',
+                'title' => 'Subject Teacher',
             ],
             [
                 'id'    => 5,

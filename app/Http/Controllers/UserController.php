@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Jobs\CreateUser;
 use App\Services\SaveCode;
@@ -49,7 +50,7 @@ class UserController extends Controller
                     $initial = 'BUR/';
                 }elseif($request->type == 6){
                     $initial = 'WOR/';
-                }elseif($request->type == 7){
+                }elseif($request->type == 8){
                     $initial = 'DRV/';
                 }
         
@@ -181,5 +182,43 @@ class UserController extends Controller
                 'message' => $th->getMessage(),
             ]);
         }
+    }
+
+    public function roles($id)
+    {
+        $user = User::findOrFail($id);
+        $roles = $user->roles;
+
+        return response()->json(['status' => true, 'data' => $roles]);
+    }
+
+    public function assignRole (Request $request)
+    {
+        try {
+            $user = User::findOrFail($request->user_id);
+            $user->roles()->detach();
+            $user->roles()->attach($request->roles);
+            return response()->json(['status' => true, 'message' => 'Roles synced successfully!'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+        
+
+    }
+
+    public function deleteAssignedRole(User $user, Role $role)
+    {
+       try {
+         $user->roles()->detach($role);
+         return response()->json([
+            'status' => true,
+            'message' => 'Role removed successfully!'
+         ], 200);
+       } catch (\Throwable $th) {
+        return response()->json([
+            'status' => false,
+            'message' => $th->getMessage(),
+        ], 500);
+       }
     }
 }

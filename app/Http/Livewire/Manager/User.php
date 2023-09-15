@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Manager;
 
+use App\Models\Role;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,7 @@ class User extends Component
 
     public $selectedRows = [];
     public $selectPageRows = false;
-    public $per_page = 5;
+    public $per_page = 20;
     public $search = '';
 
     protected $queryString = [
@@ -97,6 +98,7 @@ class User extends Component
     {
         return view('livewire.manager.user', [
             'users' => $this->users,
+            'roles' => Role::all(),
         ]);
     }
 }

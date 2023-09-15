@@ -14,6 +14,7 @@ class UserPolicy
     const TEACHER = 'teacher';
     const STUDENT = 'student';
     const BURSAL = 'bursal';
+    const CLASSTEACHER = 'class_teacher';
     const BAN = 'ban';
     const DELETE = 'delete';
 
@@ -51,5 +52,10 @@ class UserPolicy
     public function delete(User $user, User $subject)
     {
         return ($user->isAdmin() || $user->matches($subject)) && !$subject->isAdmin() || $user->isSuperAdmin();
+    }
+
+    public function class_teacher(User $user)
+    {
+         return ($user->gradeClassTeacher()->exists());
     }
 }

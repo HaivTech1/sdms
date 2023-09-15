@@ -1,5 +1,4 @@
-@teacher
-    @if (count(auth()->user()->gradeClassTeacher) > 0)
+    @can('student_list_access')
         <li>
             <a href="{{ route('teacher.students') }}" class="waves-effect">
                 <i class="bx bx-list-check"></i>
@@ -8,33 +7,39 @@
         </li>
     @endif
     
-    <li>
-        <a href="javascript: void(0);" class="has-arrow waves-effect">
-            <i class="bx bxs-folder-open"></i>
-            <span key="t-ecommerce">Attendance Management</span>
-        </a>
-        <ul class="sub-menu" aria-expanded="true">
-            {{-- <li><a href="{{ route('attendance.create') }}" key="t-products">Mark Attendance</a></li> --}}
-            <li><a href="{{ route('attendance.index') }}" key="t-products">Mark Attendance</a></li>
-            <li><a href="{{ route('attendance.stat') }}" key="t-products">Attendance Stat</a></li>
-            {{-- <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li> --}}
-            <li>
-                <a href="{{ route('check.index') }}" key="t-products">
-                    Attendance Sheet
-                </a>
-            </li>
-        </ul>
-    </li>
-    <li>
-        <a href="{{ route('lesson.teacher') }}" class="waves-effect">
-            <i class="bx bx-video"></i>
-            <span key="t-chat">Virtual Lesson</span>
-        </a>
-    </li>
-    <li>
-        <a href="{{ route('assignment.index') }}" class="waves-effect">
-            <i class="bx bx-archive-out"></i>
-            <span key="t-chat">Assignment Management</span>
-        </a>
-    </li>
-@endteacher
+    @can('attendance_create')
+        <li>
+            <a href="javascript: void(0);" class="has-arrow waves-effect">
+                <i class="bx bxs-folder-open"></i>
+                <span key="t-ecommerce">Attendance Management</span>
+            </a>
+            <ul class="sub-menu" aria-expanded="true">
+                {{-- <li><a href="{{ route('attendance.create') }}" key="t-products">Mark Attendance</a></li> --}}
+                <li><a href="{{ route('attendance.index') }}" key="t-products">Mark Attendance</a></li>
+                <li><a href="{{ route('attendance.stat') }}" key="t-products">Attendance Stat</a></li>
+                {{-- <li><a href="{{ route('check.sheet-report') }}" key="t-products">Attendance Report</a></li> --}}
+                <li>
+                    <a href="{{ route('check.index') }}" key="t-products">
+                        Attendance Sheet
+                    </a>
+                </li>
+            </ul>
+        </li>
+    @endcan
+
+    @can('lesson_create')
+        <li>
+            <a href="{{ route('lesson.teacher') }}" class="waves-effect">
+                <i class="bx bx-video"></i>
+                <span key="t-chat">Virtual Lesson</span>
+            </a>
+        </li>
+    @endcan
+    @can('assignment_create')
+        <li>
+            <a href="{{ route('assignment.index') }}" class="waves-effect">
+                <i class="bx bx-archive-out"></i>
+                <span key="t-chat">Assignment Management</span>
+            </a>
+        </li>
+    @endcan

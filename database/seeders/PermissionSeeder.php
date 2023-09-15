@@ -80,168 +80,156 @@ class PermissionSeeder extends Seeder
                 'title' => 'user_access',
             ],
             [
-                'id'    => '17',
-                'title' => 'audit_log_show',
+                'id' => '17',
+                'title' => 'payment_create'
             ],
             [
-                'id'    => '18',
-                'title' => 'audit_log_access',
+                'id' => '18',
+                'title' => 'result_create'
             ],
             [
-                'id'    => '19',
-                'title' => 'status_create',
+                'id' => '19',
+                'title' => 'result_edit'
             ],
             [
-                'id'    => '20',
-                'title' => 'status_edit',
+                'id' => '20',
+                'title' => 'result_show'
             ],
             [
-                'id'    => '21',
-                'title' => 'status_show',
+                'id' => '21',
+                'title' => 'result_access'
             ],
             [
-                'id'    => '22',
-                'title' => 'status_delete',
+                'id' => '22',
+                'title' => 'setting_access'
             ],
             [
-                'id'    => '23',
-                'title' => 'status_access',
+                'id' => '23',
+                'title' => 'student_list_access'
             ],
             [
-                'id'    => '24',
-                'title' => 'loan_application_create',
+                'id' => '24',
+                'title' => 'account_access'
             ],
             [
-                'id'    => '25',
-                'title' => 'loan_application_edit',
+                'id' => '25',
+                'title' => 'fee_create'
             ],
             [
-                'id'    => '26',
-                'title' => 'loan_application_show',
+                'id' => '26',
+                'title' => 'payment_access'
             ],
             [
-                'id'    => '27',
-                'title' => 'loan_application_delete',
+                'id' => '27',
+                'title' => 'payslip_access'
             ],
             [
-                'id'    => '28',
-                'title' => 'loan_application_access',
+                'id' => '28',
+                'title' => 'attendance_create'
             ],
             [
-                'id'    => '29',
-                'title' => 'comment_create',
+                'id' => '29',
+                'title' => 'lesson_create'
             ],
             [
-                'id'    => '30',
-                'title' => 'comment_edit',
+                'id' => '30',
+                'title' => 'assignment_create'
             ],
             [
-                'id'    => '31',
-                'title' => 'comment_show',
+                'id' => '31',
+                'title' => 'student_result_access'
             ],
             [
-                'id'    => '32',
-                'title' => 'comment_delete',
+                'id' => '32',
+                'title' => 'student_assignment_access'
             ],
             [
-                'id'    => '33',
-                'title' => 'comment_access',
+                'id' => '33',
+                'title' => 'student_lesson_access'
             ],
             [
-                'id'    => '34',
-                'title' => 'profile_password_edit',
+                'id' => '34',
+                'title' => 'student_access'
             ],
             [
-                'id'    => '35',
-                'title' => 'add_referee',
+                'id' => '35',
+                'title' => 'student_fee_access'
             ],
             [
-                'id'    => '36',
-                'title' => 'add_institution',
+                'id' => '36',
+                'title' => 'student_result_access'
             ],
             [
-                'id'    => '37',
-                'title' => 'payment_access',
+                'id' => '37',
+                'title' => 'student_assignment_access'
             ],
             [
-                'id'    => '38',
-                'title' => 'files_access',
+                'id' => '38',
+                'title' => 'student_lesson_access'
             ],
             [
-                'id'    => '39',
-                'title' => 'testimomy_access',
+                'id' => '39',
+                'title' => 'student_market_access'
             ],
             [
-                'id'    => '40',
-                'title' => 'ask_access',
+                'id' => '40',
+                'title' => 'timetable_access'
             ],
             [
-                'id'    => '41',
-                'title' => 'newsletter_access',
+                'id' => '41',
+                'title' => 'calendar_access'
             ],
             [
-                'id'    => '42',
-                'title' => 'faq_access',
+                'id' => '42',
+                'title' => 'schoolbus_access'
             ],
             [
-                'id'    => '43',
-                'title' => 'blog_access',
+                'id' => '43',
+                'title' => 'broadsheet_access'
             ],
             [
-                'id'    => '44',
-                'title' => 'blog_create',
+                'id' => '44',
+                'title' => 'statistic_access'
             ],
             [
-                'id'    => '45',
-                'title' => 'blog_edit',
+                'id' => '45',
+                'title' => 'website_access'
             ],
             [
-                'id'    => '46',
-                'title' => 'blog_show',
+                'id' => '46',
+                'title' => 'staff_access'
             ],
             [
-                'id'    => '47',
-                'title' => 'delete',
+                'id' => '47',
+                'title' => 'registration_access'
             ],
             [
-                'id'    => '48',
-                'title' => 'faq_create',
+                'id' => '48',
+                'title' => 'promotion_access'
             ],
             [
-                'id'    => '49',
-                'title' => 'faq_edit',
+                'id' => '49',
+                'title' => 'certificate_access'
             ],
             [
-                'id'    => '50',
-                'title' => 'faq_show',
+                'id' => '50',
+                'title' => 'messaging_access'
             ],
             [
-                'id'    => '51',
-                'title' => 'newsletter_delete',
+                'id' => '51',
+                'title' => 'transport_access'
             ],
             [
-                'id'    => '52',
-                'title' => 'message',
+                'id' => '52',
+                'title' => 'ecommerce_access'
             ],
             [
-                'id'    => '53',
-                'title' => 'file_show',
+                'id' => '53',
+                'title' => 'whatsapp_access'
             ],
             [
-                'id'    => '54',
-                'title' => 'files_edit',
-            ],
-            [
-                'id'    => '55',
-                'title' => 'files_delete',
-            ],
-            [
-                'id'    => '56',
-                'title' => 'faq_delete',
-            ],
-            [
-                'id'    => '57',
-                'title' => 'payment_access',
+                'id' => '54',
+                'title' => 'scratchcard_access'
             ],
         ];
 
