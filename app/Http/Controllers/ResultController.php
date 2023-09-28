@@ -120,6 +120,11 @@ class ResultController extends Controller
         return view('admin.result.broadsheet');
     }
 
+    public function classBroadsheet()
+    {
+        return view('admin.result.classBroadsheet');
+    }
+
     public function playgroupUpload()
     {
         return view('admin.result.playgroup.create');
@@ -1843,6 +1848,7 @@ class ResultController extends Controller
                     'id' => $value->id(),
                     'name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
                     'recorded_subjects' => $value->midTermResults->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
+                    'publish_state' =>  publishMidState($value->id(), $period_id, $term_id),
                 ];
             }
 
@@ -1866,27 +1872,26 @@ class ResultController extends Controller
 
             $grade = Grade::find($grade_id);
             $template = get_settings('result_template');
+            $data = Student::where('grade_id', $grade_id)->orderBy('last_name', 'asc')->get();
+            $students = [];
 
             if ($grade->title !== 'Playgroup' && $template == 1){
-                $data = Student::where('grade_id', $grade_id)->orderBy('last_name', 'asc')->get();
-                $students = [];
     
                 foreach($data as $value){
                     $students[] = [
                         'id' => $value->id(),
                         'name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
                         'recorded_subjects' => $value->primaryResults->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
+                        'publish_state' => publishExamState($value->id(), $period_id, $term_id),
                     ];
                 }
             }else{
-                $data = Student::where('grade_id', $grade_id)->orderBy('last_name', 'asc')->get();
-                $students = [];
-    
                 foreach($data as $value){
                     $students[] = [
                         'id' => $value->id(),
                         'name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
                         'recorded_subjects' => $value->playgroupResults->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
+                        'publish_state' => publishExamState($value->id(), $period_id, $term_id),
                     ];
                 }
             }
@@ -2410,117 +2415,9 @@ class ResultController extends Controller
                 $comment = [];
             }
 
-            $student = Student::findOrFail($student_id);
-
-            if($term_id == 1){
-                $know = (int) $term_id +1;
-            }elseif($term_id == 1){
-                $know = (int) $term_id +1;
-            }else{
-                $know = 1;
-            }
-
-            $period = Period::where('id', $period_id)->first();
-            $term = Term::where('id', $term_id)->first();
-
-            $first_term = 1;
-            $second_term = 2;
-            
-            $first_term_cumm = Cummulative::where('term_id', $first_term)->where('student_uuid', $student->id())->where('period_id', $period_id)->get();
-            $second_term_cumm = Cummulative::where('term_id', $second_term)->where('student_uuid', $student->id())->where('period_id', $period_id)->get();
-            $studentResults = $student->primaryResults->where('term_id', $term->id())->where('period_id', $period->id);
-            $midtermFormat = get_settings('midterm_format');
-            $examFormat = get_settings('exam_format');
-
-            $newFirst = array();
-            foreach ($first_term_cumm as $key => $value) {
-                $newFirst[] = [
-                    'first_term_cummulative' => $value->score,
-                    'subject_id' => $value->subject_id,
-                    'grade_id' => $value->grade_id,
-                    'term_id' => $value->term_id,
-                    'period_id' => $value->period_id,
-                ];
-            }
-
-            $newSecond = array();
-            foreach ($second_term_cumm as $key => $value) {
-                $newSecond[] = [
-                    'second_term_cummulative' => $value->score,
-                    'subject_id' => $value->subject_id,
-                    'grade_id' => $value->grade_id,
-                    'term_id' => $value->term_id,
-                    'period_id' => $value->period_id,
-                ];
-            }
-
-            $newResult = array();
-            foreach ($studentResults as $key => $value) {
-
-                $result = [];
-                $sum = 0;
-                if (is_array($midtermFormat)) {
-                    foreach ($midtermFormat as $midtermKey => $midtermValue) {
-                        if (isset($value->$midtermKey)) {
-                            $result[$midtermKey] = $value->$midtermKey;
-                            $sum += $value->$midtermKey;
-                        }
-                    }
-                }
-            
-                if (is_array($examFormat)) {
-                    foreach ($examFormat as $examKey => $examValue) {
-                        if (isset($value->$examKey)) {
-                            $result[$examKey] = $value->$examKey;
-                        }
-                    }
-                }
-            
-                unset($result['subject_id']);
-                $result['total'] = array_sum($result);
-                $result['midterm_total'] = $sum;
-                $result['subject_id']= $value->subject->id();
-                $result['subject'] = $value->subject->title();
-                $result['position'] = studentSubjectPositionInGrade($student->id(), $period->id(), $student->grade->id(), $result['subject_id']);
-                $result['position_grade'] = calculateStudentGradeSubjectPosition($student->id(), $period->id(), $student->grade->title(), $result['subject_id']);
-                $newResult[] = $result;
-                // dd($newResult);
-            }
-
-            $firstTermResult = $newResult;
-            $secondTermResult = $this->custom_array_merge($newFirst, $newResult);
-            $thirdTermResult = $this->custom_array_merge($secondTermResult, $newSecond);
-
-            if($term_id === '1'){
-                $results = $firstTermResult;
-            }elseif ($term_id === '2') {
-                $results = $secondTermResult;
-            }elseif($term_id === '3'){
-                $results = $thirdTermResult;
-                $finalResult = [];
-                $knowAggregateResults = '';
-                foreach ($results as &$result) {
-                    $marksObtained = 0;
-                    $numSubjects = count($results);
-                    $grand = $numSubjects * 100;
-
-                    $total = secondary_average($result['first_term_cummulative'], $result['second_term_cummulative'], $result['total'], 2);
-                    $marksObtained += $total;
-
-                    $aggregate = $marksObtained / $grand * 100;
-                    $knowAggregateResults = $aggregate . ' of ' .' 100';
-
-                    $result['average'] = round(secondary_average($result['first_term_cummulative'], $result['second_term_cummulative'], $result['total'], 2 ));
-                    $result['remark'] = examRemark(secondary_average($result['first_term_cummulative'], $result['second_term_cummulative'], $result['total'], 2 ));
-                    $finalResult[] = $result;
-                }
-            }  
-
             return response()->json([
                 'status' => 1,
                 'comment' => $comment,
-                'results' => $results,
-                'knowAggregateResults' => $knowAggregateResults
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

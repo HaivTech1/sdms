@@ -522,7 +522,7 @@
                 }).done((response) => {
                     toggleAble(button, false);
                     var students = response.students;
-                    console.log(response.period);
+                    var userPermissions = @json(userPermissions());
 
                     var html = '';
                     $.each(students, function(index, student) {
@@ -530,37 +530,43 @@
                         html += '<td class="text-center">' + student.name + '</td>';
                         html += '<td class="text-center">' + student.recorded_subjects + '</td>';
                         html += '<td>';
+
                         html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
-                        {{-- html += '<a href="{{ route('result.midterm.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>'; --}}
-                        html += '<div class="d-flex gap-2">';
-                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';
-                        html += '<?php if (publishMidState(' + student.id + ', ' + response.period + ', ' + response.term + ')): ?>';
-                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                        html += '<span>Publish</span>';
-                        html += '</button>';
-                        html += '<form action="{{ route('result.midterm.pdf') }}" method="POST">';
-                        html += '@csrf';
-                        html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
-                        html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
-                        html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
-                        html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
-                        html += '<button class="btn btn-sm btn-info" type="submit">';
-                        html += '<i class="bx bxs-file-pdf"></i> PDF';
-                        html += '</button>';
-                        html += '</form>';
-                        html += '<?php else: ?>';
-                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                        html += '<i class="mdi mdi-upload d-block font-size-16"></i> Publish';
-                        html += '</button>';
-                        html += '<?php endif; ?>';
-                        html += '<?php endif; ?>';
-                        html += '</div>';
+                        
+                        if (userPermissions.includes('result_show')) {
+                           html += '<a target="_blank" href="{{ route('result.midterm.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                        }
+
+                        if (userPermissions.includes('result_publish')) {
+                            if(student.publish_state){
+                                html += '<button type="button" class="btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                html += '<span>Published</span>';
+                                html += '</button>';
+                            }else{
+                                html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                html += '<span>Publish</span>';
+                                html += '</button>';
+                            }
+                        }
+
+                        if (userPermissions.includes('result_download')) {
+                            html += '<form action="{{ route('result.midterm.pdf') }}" method="POST">';
+                            html += '@csrf';
+                            html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                            html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                            html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                            html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                            html += '<button class="btn btn-sm btn-info" type="submit">';
+                            html += '<i class="bx bxs-file-pdf"></i> PDF';
+                            html += '</button>';
+                            html += '</form>';
+                        }
+                        
                         html += '</td>';
                         html += '</tr>';
                     });
 
                     $('#result-data tbody').html(html);
-
                         $('.recorded').on('click', function(){
                         var button = $(this);
                         toggleAble(button, true)

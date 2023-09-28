@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Jobs\CreateAssignment;
 use App\Mail\SendAssignmentMail;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\NotifiableParentsTrait;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\AssignmentRequest;
 
@@ -43,21 +44,25 @@ class AssignmentController extends Controller
 
 
         $assignment->authoredBy(auth()->user());
+
+        if($request->path){
         
-        $fileName = $request->path->getClientOriginalName();
-        $fileMimeType = $request->path->getMimeType(); 
+            $fileName = $request->path->getClientOriginalName();
+            $fileMimeType = $request->path->getMimeType(); 
 
-        $filePath = 'assignments/' . $fileName;
-        $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($request->path));
+            $filePath = 'assignments/' . $fileName;
+            $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($request->path));
 
-        // File URL to access the video in frontend
-        $url = Storage::disk('public')->url($filePath);
+            // File URL to access the video in frontend
+            $url = Storage::disk('public')->url($filePath);
 
-        if ($isFileUploaded) {
-            $assignment->type = $fileMimeType;
-            $assignment->path = $filePath;
-            $assignment->save();
+            if ($isFileUploaded) {
+                $assignment->type = $fileMimeType;
+                $assignment->path = $filePath;
+                $assignment->save();
+            }
         }
+
         
         $assignment->save();
 
@@ -101,7 +106,7 @@ class AssignmentController extends Controller
             $students = $class->students;
 
             foreach ($students as $key => $value) {
-                Mail::to($value->guardian->email())->send(new SendAssignmentMail($message, $subject));
+                NotifiableParentsTrait::notifyParents($value, $message, $subject);
             }
 
 
@@ -120,4 +125,20 @@ class AssignmentController extends Controller
             'assignments' => $assignments
         ]);
     }
+
+    public function destroy($id)
+    {
+        $assignment = Assignment::findOrFail($id);
+        $assignment->delete();
+        
+         $notification = array (
+            'messege' => 'Assignment deleted successfully!',
+            'alert-type' => 'success',
+            'button' => 'Okay!',
+            'title' => 'Success'
+        );
+        return redirect()->back()->with($notification) ;
+    }
+
+    
 }

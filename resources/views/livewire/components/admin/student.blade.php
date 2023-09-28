@@ -118,15 +118,15 @@
                                             </button>
                                         </div>
                                     </div>
-                                    {{-- <div class="col-sm-2">
+                                    <div class="col-sm-2">
                                         <div class="btn-group btn-group-example" role="group">
-                                            <button wire:click.prevent="repeatAll" type="button"
-                                                class="btn btn-outline-danger w-sm">
+                                            <button wire:click.prevent="syncRole" type="button"
+                                                class="btn btn-outline-primary w-sm">
                                                 <i class="bx bx-caret-left"></i>
-                                                Repeat All
+                                                Sync Role
                                             </button>
                                         </div>
-                                    </div> --}}
+                                    </div>
                                 </div>
                             @endif
                         </diV>
@@ -149,6 +149,7 @@
                                             <th class="align-middle"></th>
                                             <th class="align-middle"> Name </th>
                                             <th class="align-middle"> Class </th>
+                                            <th class="align-middle"> Priviledge </th>
                                             <th class="align-middle"> Reg. No </th>
                                             <th class="align-middle"> Subjects </th>
                                             <th class="align-middle">Status</th>
@@ -182,6 +183,11 @@
                                             </td>
                                             <td>
                                                 {{ $student->grade->title() }}
+                                            </td>
+                                            <td>
+                                                @foreach($student->user->roles as $role )
+                                                    {{ $role->title() }}
+                                                @endforeach
                                             </td>
                                             <td>
                                                 <livewire:components.edit-title :model='$student->user' field='reg_no' :key='$student->user->id()'/>
@@ -607,6 +613,51 @@
         </div>
     </div>
 
+    <div class="modal fade editPlayModal" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modalErrorr"></div>
+
+                    <div class="row">
+                        <form id="uploadPlaygroupResult" action="{{ route('result.playgroup.store') }}" method="POST">
+                            @csrf
+
+                            <input type="hidden" id="edit_playgroup_student" value="" name="student_id" />
+                            <input type="hidden" id="edit_playgroup_period" value="" name="period_id" />
+                            <input type="hidden" id="edit_playgroup_term" value="" name="term_id" />
+                        
+                            <div class='table-responsive'>
+                                <table class="table align-middle table-nowrap" id="edit-play-result">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Subjects</th>
+                                            <th>Activity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-sm 12 d-flex justify-content-center flex-wrap gap-2">
+                                <button type="submit" id="upload_playgroup_btn"
+                                    class="btn btn-primary block waves-effect waves-light pull-right">
+                                    Update Result
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     @section('scripts')
         <script>
@@ -868,6 +919,61 @@
                         });
 
                     });
+
+                    $('.editPlayResult').click(function(e){
+                    e.preventDefault();
+                    var button = $(this);
+                    toggleAble(button, true);
+
+                    var id = $(this).data('id');
+                    var period = $(this).data('period');
+                    var term = $(this).data('term');
+
+                    $.ajax({
+                        method: 'GET',
+                        url: '{{ route('result.playgroup.student', ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':student_id', id),
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        var results = response.results;
+                        var html = '';
+
+                        $.each(results, function(index, result) {
+                            if (typeof result.remark !== 'string') {
+                                var formattedRemark = [];
+
+                                for( var key in result.remark) {
+                                    if(result.remark.hasOwnProperty(key)){
+                                        formattedRemark.push(key + ': ' + result.remark[key]);
+                                    }
+                                }
+
+                                result.remark   = formattedRemark.join('. ');
+
+                            }
+
+                            html += '<tr>';
+                            html += '<td style="width: 5%">';
+                            html += '<p class="text-left">' + result.subject_name + '</p>';
+                            html += '</td>';
+                            html += '<td>';
+                            html += '<input type="hidden" value="' + result.subject_id + '" name="subject_id[]" />';
+                            html += '<input type="text" name="remark[' + result.subject_id + ']" class="form-control block w-full mt-1" style="height: 60px" value="'+ result.remark+'" />';
+                            html += '</td>';
+                            html += '</tr>';
+
+                        });
+
+                        document.getElementById('edit_playgroup_student').value = response.student_id;
+                        document.getElementById('edit_playgroup_period').value = response.period_id;
+                        document.getElementById('edit_playgroup_term').value = response.term_id;
+
+                        $('#edit-play-result tbody').html(html);
+                        $(".editPlayModal").modal('toggle');
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        console.log(error.responseJSON.message);
+                    });
+                });
 
                 }).fail((error) => {
                     toggleAble(button, false);

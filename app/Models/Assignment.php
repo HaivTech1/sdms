@@ -49,7 +49,7 @@ class Assignment extends Model implements Viewable, CommentAble
         return $this->description;
     }
 
-    public function path(): string
+    public function path(): ?string
     {
         return $this->path;
     }

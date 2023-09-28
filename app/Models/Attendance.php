@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasAuthor;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -31,7 +32,7 @@ class Attendance extends Model
         return $this->id;
     }
 
-    public function date(): string
+    public function date(): ?string
     {
         return $this->date;
     }
@@ -46,9 +47,9 @@ class Attendance extends Model
         return $this->section;
     }
 
-    public function students(): BelongsToMany
+    public function markedAttendance(): HasMany
     {
-        return $this->belongsToMany(Student::class, 'attendance_student', 'attendance_id', 'student_id');
+        return $this->hasMany(AttendanceStudent::class, 'attendance_id');
     }
 
     public function term(): BelongsTo

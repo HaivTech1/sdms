@@ -8,10 +8,14 @@
                     <div class="row mb-2">
                         <div class="col-sm-12">
                             <div class="row">
-                                <div class="col-lg-12">
+                                <div class="col-lg-6">
                                     <x-search />
                                 </div>
-
+                                <div class=" col-sm-6">
+                                    <div class="">
+                                        <button data-bs-toggle="modal" data-bs-target=".downloadRegistrationForm" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Download Registration Form </button>
+                                    </div>
+                                </div>
                                 <div class="col-lg-12">
                                     <div class="row">
                                         <div class="col-lg-2">

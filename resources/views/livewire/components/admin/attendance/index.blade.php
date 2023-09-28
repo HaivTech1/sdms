@@ -77,11 +77,12 @@
                                                     :key='$attendance->id()' />
                                             </td>
                                             <td>
-                                                {{ $attendance->students->count() ?? '' }}
+                                                {{ $attendance->markedAttendance->count() ?? '' }}
                                             </td>
                                             <td>
-                                                <button data-id="{{ $attendance->id() }}" class="btn btn-sm btn-success btn-rounded waves-effect waves-light mb-2 me-2 markAtt" data-bs-toggle="modal" data-bs-target=".addAttend"><i
-                                                    class="mdi mdi-plus me-1"></i> Mark Attendance</button>
+                                                <button data-id="{{ $attendance->id() }}" data-class="{{ $attendance->grade->id() }}" class="btn btn-sm btn-success btn-rounded waves-effect waves-light mb-2 me-2 markAtt" data-bs-toggle="modal" data-bs-target=".addAttend">
+                                                    <i class="mdi mdi-plus me-1"></i> Mark Attendance
+                                                </button>
                                                 <button data-id="{{ $attendance->id() }}" class="btn btn-sm btn-primary btn-rounded waves-effect waves-light mb-2 me-2 show" data-bs-toggle="modal" data-bs-target=".showAttendance"><i
                                                     class="mdi mdi-eye me-1"></i> View</button>
                                             </td>
@@ -99,7 +100,7 @@
     </div>
 
     <div class="modal fade showAttendance" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">List of student's attendance taken</h5>
@@ -120,6 +121,8 @@
                                                 <tr>
                                                     <th>Name</th>
                                                     <th>Registration No.</th>
+                                                    <th>Morning</th>
+                                                    <th>Afternoon</th>
                                                     <th>Status</th>
                                                 </tr>
                                             </thead>
@@ -137,7 +140,7 @@
         </div>
     </div>
 
-     <div class="modal fade addAttend" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+    <div class="modal fade addAttend" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -155,8 +158,9 @@
                                 <div class="row">
 
                                     <input name="attendance_id" id="attendance" type="hidden" />
+                                    <input name="grade" id="attendance_grade" type="hidden" />
 
-                                    <div class="col-sm-12 mb-2">
+                                    {{-- <div class="col-sm-12 mb-2">
                                         @php
                                             $grades = \App\Models\Grade::all();
                                         @endphp
@@ -167,7 +171,7 @@
                                                 <option value="{{ $grade->id }}">{{ $grade->title }}</option>
                                             @endforeach
                                         </select>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="col-sm-12 mb-2">
                                         <div class="table-responsive">
@@ -176,7 +180,8 @@
                                                     <tr>
                                                         <th>Name</th>
                                                         <th>Registration No.</th>
-                                                        <th>Mark</th>
+                                                        <th>Morning</th>
+                                                        <th>Afternoon</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -306,7 +311,13 @@
                             html += '<td>' + student.reg_no + '</td>';
                             html += '<td>';
                             html += '<div class="form-check form-checkbox-outline form-check-success mb-3">';
-                            html += '<input class="form-check-input" type="checkbox" name="students[]" value="' + student.id + '">';
+                            html += '<input class="form-control" type="hidden" name="student[]" value="' + student.id + '">';
+                            html += '<input class="form-check-input" type="checkbox" name="morning[]" ' + (student.morning ? 'checked' : '') + '>';
+                            html += '</div>';
+                            html += '</td>';
+                            html += '<td>';
+                            html += '<div class="form-check form-checkbox-outline form-check-success mb-3">';
+                            html += '<input class="form-check-input" type="checkbox" name="afternoon[]" ' + (student.afternoon ? 'checked' : '') + '>';
                             html += '</div>';
                             html += '</td>';
                             html += '</tr>';
@@ -348,9 +359,47 @@
 
             $('.markAtt').on('click', function(e){
                 e.preventDefault();
-                var id = $(this).data('id');
-                $(".addStudent").modal('toggle');
-                document.getElementById("attendance").value=id;
+                {{-- var id = $(this).data('id'); --}}
+                {{-- $(".addStudent").modal('toggle'); --}}
+
+                var gradeId = $(this).data('class');
+                var attendanceId = $(this).data('id');
+
+                document.getElementById("attendance").value= attendanceId;
+                document.getElementById("attendance_grade").value = gradeId;
+
+                $.ajax({
+                    url: "/attendance/students/fetch",
+                    method: 'GET',
+                    data: { gradeId: gradeId, attendanceId: attendanceId },
+                    success: function(response) {
+                        var students = response.students;
+                        var html = '';
+
+                        $.each(students, function(index, student) {
+                            html += '<tr>';
+                            html += '<td>' + student.name + '</td>';
+                            html += '<td>' + student.reg_no + '</td>';
+                            html += '<td>';
+                            html += '<div class="form-check form-checkbox-outline form-check-success mb-3">';
+                            html += '<input class="form-control" type="hidden" name="student[]" value="' + student.id + '">';
+                            html += '<input class="form-check-input" type="checkbox" name="morning[]" ' + (student.morning ? 'checked' : '') + '>';
+                            html += '</div>';
+                            html += '</td>';
+                            html += '<td>';
+                            html += '<div class="form-check form-checkbox-outline form-check-success mb-3">';
+                            html += '<input class="form-check-input" type="checkbox" name="afternoon[]" ' + (student.afternoon ? 'checked' : '') + '>';
+                            html += '</div>';
+                            html += '</td>';
+                            html += '</tr>';
+                        });
+
+                        $('#students-table tbody').html(html);
+                    },
+                    error: function(response) {
+                        toastr.error(response.responseJSON.message);
+                    }
+                });
             });
 
             $('#markAttendance').on('submit', function(e) {
@@ -394,12 +443,26 @@
                             html += '<tr>';
                             html += '<td>' + student.name + '</td>';
                             html += '<td>' + student.reg_no + '</td>';
+                            html += '<td>';
+                            if (student.morning) {
+                                html += '<i class="bx bx-user-check text-success"></i>';
+                            }else{
+                                html += '<i class="bx bx-user-x text-danger"></i>';
+                            }
+                            html += '</td>';
+                            html += '<td>';
+                            if (student.afternoon) {
+                                html += '<i class="bx bx-user-check text-success"></i>';
+                            }else{
+                                html += '<i class="bx bx-user-x text-danger"></i>';
+                            }
+                            html += '</td>';
                             html += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove" data-id="' + student.id + '">Remove</button></td>';
                             html += '</tr>';
                         });
 
                         $('#students-attendance tbody').html(html);
-                        $('.showAttendance').modal('toggle');
+                        $('.showAttendance').modal('show');
                     },
                     error: function(response) {
                         console.log(response.responseJSON.message);
@@ -413,6 +476,7 @@
                 toggleAble(button, true);
                 var studentId = $(this).data('id');
                 var attendanceId = $('#attendance_id').val();
+                
                 var row = $(this).closest('tr');
 
                 $.ajax({

@@ -11,7 +11,68 @@
         </x-slot>
     
      <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="table-responsive">
+                    <table class="table align-middle table-nowrap table-check">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="align-middle"> Title</th>
+                                <th class="align-middle">Subject</th>
+                                <th class="align-middle">Class</th>
+                                <th class="align-middle">Status</th>
+                                <th class="align-middle">Views</th>
+                                <th class="align-middle">Comments</th>
+                                <th class="align-middle">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($assignments as $key => $assignment)
+                            <tr>
+                                <td>
+                                    <livewire:components.edit-title :model='$assignment' field='title'
+                                        :key='$assignment->id()' />
+                                </td>
+                                <td>
+                                    {{ $assignment->subject->title() }}
+                                </td>
+                                <td>
+                                    {{ $assignment->grade->title() }}
+                                </td>
+                                <td>
+                                    <livewire:components.toggle-button :model='$assignment' field='status' :key='$assignment->id()'/>
+                                </td>
+                                <td>
+                                    <i class= "bx bxs-show me-1"></i> {{ views($assignment)->count(); }}
+                                </td>
+                                <td>
+                                    <i class= "bx bxs-comment me-1"></i> {{ $assignment->comments()->count() }}
+                                    <input class="d-none" id="link" value="{{ application('website') }}/assignment/show/{{ $assignment->id() }}" />
+                                </td>
+                                <td>
+                                    {{-- @teacher --}}
+                                        @can('assignment_action')
+                                            @if ($assignment->path())
+                                                <a href="{{ route('assignment.download', $assignment->id()) }}" class="btn btn-sm btn-primary"><i class="bx bx-download"></i></a>
+                                            @endif
+                                            <a href="{{ route('assignment.show', $assignment->id()) }}" class="btn btn-sm btn-success"><i class="bx bx-show"></i></a>
+
+                                            <button id="publish" onClick="publish('{{ $assignment->id() }}')" class="btn btn-sm btn-warning"><i class="mdi mdi-upload"></i></button>
+                                            <button onclick="copyClipboard()" class="btn btn-sm btn-primary">Generate Link</button>
+                                            <a href="{{ route('assignment.destroy', $assignment->id()) }}" class="btn btn-sm btn-danger"><i class="bx bx-trash"></i></a>
+                                        @endcan
+                                    {{-- @endteacher --}}
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{ $assignments->links('pagination::custom-pagination')}}
+        </div>
+
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
 
@@ -73,63 +134,6 @@
 
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="row">
-                <div class="table-responsive">
-                    <table class="table align-middle table-nowrap table-check">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="align-middle"> Title</th>
-                                <th class="align-middle">Subject</th>
-                                <th class="align-middle">Class</th>
-                                <th class="align-middle">Status</th>
-                                <th class="align-middle">Views</th>
-                                <th class="align-middle">Comments</th>
-                                <th class="align-middle">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($assignments as $key => $assignment)
-                            <tr>
-                                <td>
-                                    <livewire:components.edit-title :model='$assignment' field='title'
-                                        :key='$assignment->id()' />
-                                </td>
-                                <td>
-                                    {{ $assignment->subject->title() }}
-                                </td>
-                                <td>
-                                    {{ $assignment->grade->title() }}
-                                </td>
-                                <td>
-                                    <livewire:components.toggle-button :model='$assignment' field='status' :key='$assignment->id()'/>
-                                </td>
-                                <td>
-                                    <i class= "bx bxs-show me-1"></i> {{ views($assignment)->count(); }}
-                                </td>
-                                <td>
-                                    <i class= "bx bxs-comment me-1"></i> {{ $assignment->comments()->count() }}
-                                    <input class="d-none" id="link" value="{{ application('website') }}/assignment/show/{{ $assignment->id() }}" />
-                                </td>
-                                <td>
-                                    @teacher
-                                        @if ($assignment->path())
-                                            <a href="{{ route('assignment.download', $assignment->id()) }}" class="btn btn-sm btn-primary"><i class="bx bx-download"></i></a>
-                                        @endif
-                                            <a href="{{ route('assignment.show', $assignment->id()) }}" class="btn btn-sm btn-success"><i class="bx bx-show"></i></a>
-
-                                            <button id="publish" onClick="publish('{{ $assignment->id() }}')" class="btn btn-sm btn-warning"><i class="mdi mdi-upload"></i></button>
-                                            <button onclick="copyClipBoard()" class="btn btn-sm btn-danger">Generate Link</button>
-                                    @endteacher
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            {{ $assignments->links('pagination::custom-pagination')}}
         </div>
     </div>
 
@@ -196,20 +200,19 @@
                 });
             }
 
-            function copyClipBoard(){
-                // Get the text field
+           function copyClipboard() {
                 var copyText = document.getElementById("link");
-
-                // Select the text field
                 copyText.select();
-                copyText.setSelectionRange(0, 99999); // For mobile devices
-
-                // Copy the text inside the text field
-                navigator.clipboard.writeText(copyText.value);
-
-                // Alert the copied text
-                alert("Link generated: " + copyText.value);
+                copyText.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(copyText.value)
+                    .then(function() {
+                        alert("Link copied to clipboard: " + copyText.value);
+                    })
+                    .catch(function(error) {
+                        console.error("Error copying text to clipboard: ", error);
+                    });
             }
+
         </script>
     @endsection
 

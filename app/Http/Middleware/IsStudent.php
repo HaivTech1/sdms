@@ -8,6 +8,7 @@ use App\Policies\UserPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Gate;
 
 class IsStudent
 {
@@ -21,7 +22,7 @@ class IsStudent
 
     public function handle(Request $request, Closure $next, $guard = null)
     {
-        if (Auth::guard($guard)->user()->can(UserPolicy::STUDENT, User::class)) {
+        if (Auth::guard($guard)->user()->can(UserPolicy::STUDENT, User::class) && !Gate::denies('student_result_access')) {
             return $next($request);
         }
 

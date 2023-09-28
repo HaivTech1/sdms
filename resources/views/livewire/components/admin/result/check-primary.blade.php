@@ -871,101 +871,98 @@
             }).done((response) => {
                 toggleAble(button, false);
                 var students = response.students;
+                var userPermissions = @json(userPermissions());
 
                 var html = '';
-                if (response.grade_name === 'Playgroup') {
-
-                    $.each(students, function(index, student) {
+                $.each(students, function(index, student) {
                         html += '<tr>';
                         html += '<td class="text-center">' + student.name + '</td>';
                         html += '<td class="text-center">' + student.recorded_subjects + '</td>';
                         html += '<td>';
-                        html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
-                        html += '<button class="btn btn-sm btn-danger editPlayResult" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-edit"></i> Edit</button>';
-                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin() || auth()->user()->gradeClassTeacher()->exists()): ?>';                   
-                        html += '<button class="btn btn-sm btn-primary uploadAffective gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                        html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
-                        html += '</button>';
-                        html += '<?php endif; ?>';
-                        html += '<a target="_blank" href="{{ route('result.playgroup.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
-                        html += '<div class="d-flex gap-2">';
-                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';
-                        html += '<?php if (publishMidState(' + student.id + ', ' + response.period + ', ' + response.term + ')): ?>';
-                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                        html += '<span>Publish</span>';
-                        html += '</button>';
-                        html += '<form action="{{ route('result.playgroup.pdf') }}" method="POST">';
-                        html += '@csrf';
-                        html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
-                        html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
-                        html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
-                        html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
-                        html += '<button class="btn btn-sm btn-info" type="submit">';
-                        html += '<i class="bx bxs-file-pdf"></i> PDF';
-                        html += '</button>';
-                        html += '</form>';
-                        html += '<?php else: ?>';
-                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                        html += '<i class="mdi mdi-upload d-block font-size-16"></i> Publish';
-                        html += '</button>';
-                        html += '<?php endif; ?>';
-                        html += '<?php endif; ?>';
-                        html += '</div>';
-                        html += '</td>';
-                        html += '</tr>';
-                    });
 
-                } else {
-                    $.each(students, function(index, student) {
-                        html += '<tr>';
-                        html += '<td class="text-center">' + student.name + '</td>';
-                        html += '<td class="text-center">' + student.recorded_subjects + '</td>';
-                        html += '<td>';
                         html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
-                        html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
-                        html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
-                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin() || auth()->user()->gradeClassTeacher()->exists()): ?>';                   
-                        html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                        html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
-                        html += '</button>';
-                        html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                        html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
-                        html += '</button>';
-                        html += '<?php endif; ?>';
-                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin() || auth()->user()->gradeClassTeacher()->exists()): ?>';                   
-                        html += '<button class="btn btn-sm btn-danger editPrincipalCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Principal Comment</button>';
-                        html += '<?php endif; ?>';
-                        html += '<div class="d-flex gap-2">';
-                        html += '<?php if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()): ?>';
-                        html += '<?php if (publishMidState(' + student.id + ', ' + response.period + ', ' + response.term + ')): ?>';
-                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                        html += '<span>Publish</span>';
-                        html += '</button>';
-                        html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
-                        html += '@csrf';
-                        html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
-                        html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
-                        html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
-                        html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
-                        html += '<button class="btn btn-sm btn-info" type="submit">';
-                        html += '<i class="bx bxs-file-pdf"></i> PDF';
-                        html += '</button>';
-                        html += '</form>';
-                        html += '<?php else: ?>';
-                        html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                        html += '<i class="mdi mdi-upload d-block font-size-16"></i> Publish';
-                        html += '</button>';
-                        html += '<?php endif; ?>';
-                        html += '<?php endif; ?>';
-                        html += '</div>';
-                        html += '<?php if (auth()->user()->isSuperAdmin()): ?>';                   
-                        html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Cummulate Position</button>';
-                        html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Cummulate Single Position</button>';
-                        html += '<?php endif; ?>';
+                       
+                       if (userPermissions.includes('result_comment')) {
+                            html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
+                       }
+
+                       if (response.grade_name === 'Playgroup') {
+
+                            html += '<button class="btn btn-sm btn-danger editPlayResult" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-edit"></i> Edit</button>';
+                            
+                            if (userPermissions.includes('result_show')) {
+                                html += '<a target="_blank" href="{{ route('result.playgroup.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                            }
+
+                            if (userPermissions.includes('result_download')) {
+                                html += '<form action="{{ route('result.playgroup.pdf') }}" method="POST">';
+                                html += '@csrf';
+                                html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                                html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                                html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                                html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                                html += '<button class="btn btn-sm btn-info" type="submit">';
+                                html += '<i class="bx bxs-file-pdf"></i> PDF';
+                                html += '</button>';
+                                html += '</form>';
+                            }
+
+
+                       }else{
+                            if (userPermissions.includes('result_show')) {
+                                html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                            }
+
+                            if (userPermissions.includes('result_download')) {
+                                html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
+                                html += '@csrf';
+                                html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                                html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                                html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                                html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                                html += '<button class="btn btn-sm btn-info" type="submit">';
+                                html += '<i class="bx bxs-file-pdf"></i> PDF';
+                                html += '</button>';
+                                html += '</form>';
+                            }
+                       }
+
+                        if (userPermissions.includes('affective_create')) {
+                            html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                            html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
+                            html += '</button>';
+                        }
+
+                        if (userPermissions.includes('affective_create')) {
+                            html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                            html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
+                            html += '</button>';
+                        }
+
+                        if (userPermissions.includes('principal_comment')) {
+                            html += '<button class="btn btn-sm btn-danger editPrincipalCom" data-period="' + response.period + '" data-term="' + response.term + '" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Principal Comment</button>';
+                        }
+
+                        if (userPermissions.includes('result_publish')) {
+                            if(student.publish_state){
+                                html += '<button type="button" class="btn btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                html += '<span class="">Published</span>';
+                                html += '</button>';
+                            }else{
+                                html += '<button type="button" class="btn btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                html += '<span>Publish</span>';
+                                html += '</button>';
+                            }
+                        }
+
+                        if (userPermissions.includes('position_access')) {
+                            html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Cummulate Position</button>';
+                            html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Cummulate Single Position</button>';
+                        }
+                        
                         html += '</td>';
                         html += '</tr>';
                     });
-                }
 
                 $('#result-data tbody').html(html);
 
@@ -1179,8 +1176,6 @@
                         url: '{{ route('result.student.principalComment', ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':student_id', id),
                     }).done((response) => {
                         toggleAble(button, false);
-                        var results = response.results;
-                        
                         if(response.comment != undefined || response.comment != null || response.comment != []){
                             var comment = response.comment.principal_comment;
                             var promotion_comment = response.comment.promotion_comment;
@@ -1194,43 +1189,7 @@
                         document.getElementById("student_principal").value = id;
                         document.getElementById('period_principal').value = period;
                         document.getElementById('term_principal').value = term;
-
-                        var html = '';
-                        $.each(results, function (index, result){
-                            html += '<tr>';
-                            html += '<td>' + result.subject + '</td>';   
-                            var midtermFormat = JSON.parse('<?php echo json_encode($midtermForm); ?>');
-                            $.each(midtermFormat, function(midtermKey, midtermValue) {
-                                var score = '-';
-                                if (midtermKey in result) {
-                                    score = result[midtermKey];
-                                }
-                                html += '<td class="score-cell" data-result-id="' + result.result_id + '" data-subject-id="' + result.subject_id + '" data-midterm-key="' + midtermKey + '">' + score + '</td>';
-                            });
-                            
-                            var examFormat = JSON.parse('<?php echo json_encode($examForm); ?>');
-                            $.each(examFormat, function(examKey, examValue) {
-                                var score = '-';
-                                if (examKey in result) {
-                                    score = result[examKey];
-                                }
-                                html += '<td class="score-cell" data-result-id="' + result.result_id + '" data-subject-id="' + result.subject_id + '" data-exam-key="' + examKey + '">' + score + '</td>';
-                            });
-
-                            html += '<td>' + result.total + '</td>';
-                            html += '<td>' + result.position + '</td>'; 
-                            html += '<td>' + result.position_grade + '</td>'; 
-                            html += '<td>' + result.average + '</td>'; 
-                            html += '<td>' + result.remark + '</td>'; 
-                            html += '</tr>';
-                        });
-
-                        document.getElementById('aggregate-span').innerHTMl = response.knowAggregateResults
-
-                        $('#principal-result-data tbody').html(html);
                         $("#createPrincipalCommentModal").modal('toggle');
-
-
 
                     }).fail((error) => {
                         toggleAble(button, false);
@@ -1319,7 +1278,7 @@
                         toggleAble(button, false);
                         console.log(error.responseJSON.message);
                     });
-                })
+                });
 
             }).fail((error) => {
                 toggleAble(button, false);

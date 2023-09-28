@@ -183,6 +183,7 @@ class RegistrationController extends Controller
                 $user->reg_no = $code;
                 $user->profile_photo_path = $registration->image;
                 $user->save();
+                $user->roles()->sync(5);
         
                 $student = new Student([
                     'first_name'  => $registration->first_name,

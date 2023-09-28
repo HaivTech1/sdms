@@ -44,7 +44,7 @@ class Index extends Component
 
     public function getAttendancesProperty()
     {
-        return Attendance::calendarByRole()->paginate($this->per_page);
+        return Attendance::calendarByRole()->latest()->paginate($this->per_page);
     }
     
     public function render()

@@ -219,11 +219,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/assignment/publish', [AssignmentController::class, 'publish'])->name('publish');
             Route::get('/show/{assignment}', [AssignmentController::class, 'show'])->name('show');
             Route::get('download/{id}', [AssignmentController::class, 'downloadFile'])->name('download');
+            Route::get('destroy/{id}', [AssignmentController::class, 'destroy'])->name('destroy');
         });
 
         Route::group(['prefix' => 'result', 'as' => 'result.'], function () {
-            Route::get('/', [ResultController::class, 'index'])->name('index');
-            Route::get('/all/midterm', [ResultController::class, 'midtermIndex'])->name('midtermIndex');
+            Route::get('/', [ResultController::class, 'index'])->name('index')->middleware('student');
+            Route::get('/all/midterm', [ResultController::class, 'midtermIndex'])->name('midtermIndex')->middleware('student');
             Route::get('/view/results', [ResultController::class, 'viewResults'])->name('view.results');
 
             Route::post('/', [ResultController::class, 'batchExamUpload'])->name('store');
@@ -269,6 +270,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::delete('/exam/delete/{session}/{term}/{student}/{subject}', [ResultController::class, 'examDeleteSubject']);
 
             Route::get('/subject/broadsheet', [ResultController::class, 'subjectBroadsheet'])->name('subject.broadsheet');
+            Route::get('/class/broadsheet', [ResultController::class, 'classBroadsheet'])->name('class.broadsheet');
 
             Route::get('/fetch/broadsheet/{period_id}/{term_id}/{grade_id}', [ResultController::class, 'broadsheetFetch'])->name('fetch.broadsheet');
 

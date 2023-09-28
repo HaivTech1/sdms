@@ -231,6 +231,46 @@ class PermissionSeeder extends Seeder
                 'id' => '54',
                 'title' => 'scratchcard_access'
             ],
+            [
+                'id' => '55',
+                'title' => 'student_midterm_access'
+            ],
+            [
+                'id' => '56',
+                'title' => 'student_exam_access'
+            ],
+            [
+                'id' => '57',
+                'title' => 'principal_comment'
+            ],
+            [
+                'id' => '58',
+                'title' => 'psychomotor_create'
+            ],
+            [
+                'id' => '59',
+                'title' => 'affective_create'
+            ],
+            [
+                'id' => '60',
+                'title' => 'result_publish'
+            ],
+            [
+                'id' => '61',
+                'title' => 'download_result'
+            ],
+            [
+                'id' => '62',
+                'title' => 'result_download'
+            ],
+            [
+                'id' => '63',
+                'title' => 'position_access'
+            ],
+            [
+                'id' => '64',
+                'title' => 'result_comment'
+            ],
         ];
 
         Permission::insert($permissions);

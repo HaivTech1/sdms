@@ -368,6 +368,11 @@ class Student extends Authenticatable
         return $this->hasMany(Attendance::class);
     }
 
+    public function dailyAttendance()
+    {
+        return $this->hasMany(AttendanceStudent::class, 'student_id');
+    }
+
     public function leave()
     {
         return $this->hasMany(Leave::class);

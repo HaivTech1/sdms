@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasUuid;
 use App\Traits\HasAuthor;
+use App\Scopes\HasPublishScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -57,6 +58,12 @@ class MidTerm extends Model
     protected $casts = [
         'published' => 'boolean',
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new HasPublishScope);
+    }
+
 
     public function id(): string
     {

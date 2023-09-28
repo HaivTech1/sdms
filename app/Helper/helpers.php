@@ -1044,3 +1044,15 @@ if (!function_exists('calculateTripBalance')) {
         return $payments?->balance ?? 0;
     }
 }
+
+if (!function_exists('userPermissions')) {
+    function userPermissions() {
+        $permissions = array();
+        $roles = Auth::user()->roles;
+        foreach ($roles as $role) {
+            $permissionTitles = $role->permissions->pluck('title')->toArray();
+            $permissions = array_merge($permissions, $permissionTitles);
+        }
+        return $permissions;
+    }
+}

@@ -142,14 +142,6 @@ class Student extends Component
             $subject = 'Portal Login Credentials';
 
             NotifiableParentsTrait::notifyParents($student, $message, $subject);
-
-            // if(isset($student->mother)) {
-            //     Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-            // }elseif(isset($student->father)) {
-            //     Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-            // }elseif(isset($student->guardian)) {
-            //     Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-            // }
             
             $this->dispatchBrowserEvent('success', ['message' => 'Credentials have been sent successfully!']);
         } catch (\Throwable $th) {
@@ -168,14 +160,6 @@ class Student extends Component
                 $subject = 'Portal Login Credentials';
 
                 NotifiableParentsTrait::notifyParents($student, $message, $subject);
-    
-                // if(isset($student->mother)) {
-                //     Mail::to($student->mother->email())->send(new SendMidtermMail($message, $subject));
-                // }elseif(isset($student->father)) {
-                //     Mail::to($student->father->email())->send(new SendMidtermMail($message, $subject));
-                // }elseif(isset($student->guardian)) {
-                //     Mail::to($student->guardian->email())->send(new SendMidtermMail($message, $subject));
-                // }
             }
             $this->dispatchBrowserEvent('success', ['message' => 'Credentials have been sent successfully!']);
             $this->reset(['selectedRows', 'selectPageRows']);
@@ -183,6 +167,17 @@ class Student extends Component
             $this->dispatchBrowserEvent('error', ['message' => $th->getMessage()]);
             $this->reset(['selectedRows', 'selectPageRows']);
         }
+    }
+
+    public function syncRole()
+    {
+        $students = ClientStudent::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $this->selectedRows)->get();
+        foreach ($students as $key => $student) {
+           $student->user->roles()->sync(5);
+        }
+        
+        $this->dispatchBrowserEvent('success', ['message' => 'Roles Activated successfully!']);
+        $this->reset(['selectedRows', 'selectPageRows']);
     }
     
     public function render()

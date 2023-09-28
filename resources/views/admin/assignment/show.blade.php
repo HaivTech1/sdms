@@ -52,15 +52,17 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">Comments</h4>
+        @can('assignment_comment')
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Comments</h4>
 
-                    <x-lesson.comments :lesson="$assignment" />
+                        <x-lesson.comments :lesson="$assignment" />
+                    </div>
                 </div>
             </div>
-        </div>
+        @endcan
     </div>
 
     @section('scripts')
