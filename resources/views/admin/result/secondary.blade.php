@@ -259,7 +259,7 @@
                             </th>
                             @if ($term->id() === '2')
                                 <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
-                                    1st cummulative
+                                    Brought Forward
                                 </th>
                                 <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
                                 Total cummulative
@@ -277,7 +277,7 @@
                                 cummulative
                                 </th>
                                 <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
-                                    Total Score
+                                    Average cummulative
                                 </th>
                             @endif
                             <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
@@ -321,7 +321,7 @@
                             
                             @foreach ($results as $result)
                                 <tr>
-                                    <td style="padding-left: 10px; font-weight: 500; width: 40%; text-align: left; font-size: 11px">{{ $result['subject']['title'] }}</td>
+                                    <td style="padding-left: 10px; font-weight: 500; width: 40%; text-align: left; font-size: 11px">{{ $result['subject'] }}</td>
                                     @foreach ($midterm as $key => $value)
                                         @if (isset($result[$key]))
                                         <td
@@ -344,54 +344,60 @@
                                         {{ calculateResult($result) }}</td>
 
                                     @if ($term->id() === '1')
+                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                            {{ $result['position_in_class_subject'] }}
+                                        </td>
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                            {{ $result['position_in_grade_subject'] }}
+                                        </td>
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade($result['total']) }}</td>
+                                            {{ examGrade(calculateResult($result)) }}</td>
                                         <td
                                         style="font-size: 10px; width: 20%; font-weight: 500; text-align: center">
-                                        {{ examRemark($result['total']) }}</td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                        {{ examRemark(calculateResult($result)) }}</td>
+                                        {{-- <td style="font-size: 10px; font-weight: 500; text-align: center">
                                             {{ $result['position'] }}
                                         </td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
                                             {{ $result['position_in_grade'] }}
-                                        </td>
+                                        </td> --}}
                                     @endif
 
                                     @if ($term->id() === '2')
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['first_term_cummulative'] }}</td>
+                                            {{ $result['first_term'] }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ sum($result['total'], $result['first_term_cummulative']) }}
+                                            {{ sum($result['first_term'], calculateResult($result)) }}
                                         </td>
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ divnum(sum($result['total'], $result['first_term_cummulative']), 2) }}
+                                            {{ divnum(sum($result['first_term'], calculateResult($result)), 2) }}
                                         </td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position'] }}
+                                            {{ $result['position_in_class_subject'] }}
                                         </td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position_in_grade'] }}
+                                            {{ $result['position_in_grade_subject'] }}
                                         </td>
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}
+                                            {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
                                         </td>
                                         <td
                                             style="font-size: 10px; font-weight: 500; width: 20%; text-align: center">
-                                            {{ examRemark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}
+                                            {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
                                         </td>
                                     @endif
 
                                     @if ($term->id() === '3')
                                         <td
-                                            style="font-size: 10px; font-weight: 500; text-align: center">{{ ceil($result['second_term_cummulative']) }}</td>
+                                            style="font-size: 10px; font-weight: 500; text-align: center">{{ divnum(sum($result['first_term'], $result['second_term']), 2) }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ ceil($result['second_term_cummulative'] + calculateResult($result))}}
+                                            {{ ceil(divnum(sum($result['first_term'], $result['second_term']), 2) + calculateResult($result))}}
                                         </td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ ceil($result['third_term_cummulative']) }}</td>
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)) }}</td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
                                             {{ $result['position_in_class_subject'] }}
                                         </td>
@@ -399,10 +405,10 @@
                                             {{ $result['position_in_grade_subject'] }}
                                         </td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(ceil($result['third_term_cummulative'])) }}
+                                            {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
                                         </td>
                                         <td style="font-size: 8px; font-weight: 500; width: 30%; text-align: center">
-                                            {{ examRemark(ceil($result['third_term_cummulative'])) }}
+                                            {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
                                         </td>
                                     @endif
                                 </tr>
@@ -447,7 +453,7 @@
                         </thead>
 
                         @foreach ($psychomotors as $psychomotor)
-                            <tbody class="beh-d" style="height: 100px; padding: 10px;">
+                            <tbody class="beh-d">
                                 <tr>
                                     <th style="font-size: 8px; text-align: left">{{ $psychomotor->title() }}</th>
                                     <td>

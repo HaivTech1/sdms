@@ -104,7 +104,11 @@
 <!-- end preheader -->
 <div class="card">
     <div class="card-header">
-        {{translate('mail_received_successfully')}}.
+        {{-- {{translate('mail_received_successfully')}}. --}}
+        <h4>Welcome to {{ application('name') }} Portal Management System</h4>
+        <p>We are pleased to inform you that your portal has been activated. We are pleased to have you on board. We do hope you enjoy our service. </p>
+        <a href="{{ application('website') }}">Check it out on {{ application('website') }}</a>
+        <p>Official Email: {{ application('email') }}</p>
     </div>
 </div>
 </body>

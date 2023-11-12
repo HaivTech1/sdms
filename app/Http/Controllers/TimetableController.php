@@ -11,6 +11,7 @@ use App\Services\CalendarService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreTimetableRequest;
 use App\Http\Requests\UpdateTimetableRequest;
+use App\Models\Week;
 
 class TimetableController extends Controller
 {
@@ -89,6 +90,24 @@ class TimetableController extends Controller
             return response()->json(['status' => false, 'message' => 'Teacher is currently assigned to this week!'], 500);
         }else{
             $week->teachers()->attach($teacher);
+            return response()->json(['status' => true, 'message' => 'Teacher has assigned successfully!'], 200);
+        }
+
+    }
+
+    public function duty(Request $request)
+    {
+        $old_teacher_id = $request->old_teacher_id;
+        $week_id = $request->week_id;
+        $teacher_id = $request->teacher_id;
+
+        $week = Week::findOrFail($request->week_id);
+
+        if ($week->teachers()->where('user_id', $teacher_id)->exists()) {
+            return response()->json(['status' => false, 'message' => 'Teacher is currently assigned to this week!'], 500);
+        }else{
+            $week->teachers()->detach($old_teacher_id);
+            $week->teachers()->attach($teacher_id);
             return response()->json(['status' => true, 'message' => 'Teacher has assigned successfully!'], 200);
         }
 

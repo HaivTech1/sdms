@@ -83,8 +83,8 @@
                                                 <button data-id="{{ $attendance->id() }}" data-class="{{ $attendance->grade->id() }}" class="btn btn-sm btn-success btn-rounded waves-effect waves-light mb-2 me-2 markAtt" data-bs-toggle="modal" data-bs-target=".addAttend">
                                                     <i class="mdi mdi-plus me-1"></i> Mark Attendance
                                                 </button>
-                                                <button data-id="{{ $attendance->id() }}" class="btn btn-sm btn-primary btn-rounded waves-effect waves-light mb-2 me-2 show" data-bs-toggle="modal" data-bs-target=".showAttendance"><i
-                                                    class="mdi mdi-eye me-1"></i> View</button>
+                                                <!-- <button data-id="{{ $attendance->id() }}" class="btn btn-sm btn-primary btn-rounded waves-effect waves-light mb-2 me-2 show" data-bs-toggle="modal" data-bs-target=".showAttendance"><i
+                                                    class="mdi mdi-eye me-1"></i> View</button> -->
                                             </td>
                                         </tr>
                                         @endforeach
@@ -141,7 +141,7 @@
     </div>
 
     <div class="modal fade addAttend" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Mark daily attendance</h5>
@@ -359,9 +359,6 @@
 
             $('.markAtt').on('click', function(e){
                 e.preventDefault();
-                {{-- var id = $(this).data('id'); --}}
-                {{-- $(".addStudent").modal('toggle'); --}}
-
                 var gradeId = $(this).data('class');
                 var attendanceId = $(this).data('id');
 
@@ -382,13 +379,13 @@
                             html += '<td>' + student.reg_no + '</td>';
                             html += '<td>';
                             html += '<div class="form-check form-checkbox-outline form-check-success mb-3">';
-                            html += '<input class="form-control" type="hidden" name="student[]" value="' + student.id + '">';
-                            html += '<input class="form-check-input" type="checkbox" name="morning[]" ' + (student.morning ? 'checked' : '') + '>';
+                            html += '<input type="hidden" name="student_id[]" value="' + student.id + '">';
+                            html += '<input class="form-check-input" type="checkbox" data-student="' + student.id + '" name="morning[]" ' + (student.morning ? 'checked' : '') + '>';
                             html += '</div>';
                             html += '</td>';
                             html += '<td>';
                             html += '<div class="form-check form-checkbox-outline form-check-success mb-3">';
-                            html += '<input class="form-check-input" type="checkbox" name="afternoon[]" ' + (student.afternoon ? 'checked' : '') + '>';
+                            html += '<input class="form-check-input" type="checkbox" data-student="' + student.id + '" name="afternoon[]" ' + (student.afternoon ? 'checked' : '') + '>';
                             html += '</div>';
                             html += '</td>';
                             html += '</tr>';

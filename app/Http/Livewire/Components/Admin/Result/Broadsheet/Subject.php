@@ -130,7 +130,11 @@ class Subject extends Component
 
                         // Add exam score to the result item
                         if ($result instanceof PrimaryResult) {
-                            $resultItem['exam'] = $result->exam;
+                            foreach ($examFormat as $examKey => $examValue) {
+                                if (isset($result->$examKey)) {
+                                    $resultItem[$examKey] = $result->$examKey;
+                                }
+                            }
                         }
                         
                     }

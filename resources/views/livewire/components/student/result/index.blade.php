@@ -5,45 +5,47 @@
           <div class="card">
               <div class="card-body">
                     @hasPaid
-                        <form wire:submit.prevent="fetchResult" class="repeater" enctype="multipart/form-data">
+                        <form id="fetchResultForm" class="repeater" enctype="multipart/form-data">
+                            <div class="mb-3">
+                              <input type="hidden"
+                                class="form-control" name="student_id" id="student_id" value="{{ Auth::user()->student->id() }}">
+                            </div>
+
                             <div data-repeater-list="group-a">
                                 <div data-repeater-item class="row">
                                     <div class="mb-3 col-lg-3">
                                         <label for="name">Grade</label>
-                                        <select class="form-control " wire:model.defer="grade_id">
+                                        <select class="form-control" id="grade_id">
                                             <option value=''>Choose...</option>
                                             @foreach ($grades as $id => $grade)
                                             <option value="{{  $id }}">{{ $grade }}</option>
                                             @endforeach
                                         </select>
-                                        <x-form.error for="grade_id" />
                                     </div>
 
                                     <div class="mb-3 col-lg-3">
                                         <label for="name">Session</label>
-                                        <select class="form-control " wire:model.defer="period_id">
+                                        <select class="form-control " id="period_id">
                                             <option value=''>Choose...</option>
                                             @foreach ($periods as $id => $period)
                                             <option value="{{  $id }}">{{ $period }}</option>
                                             @endforeach
                                         </select>
-                                        <x-form.error for="period_id" />
                                     </div>
 
                                     <div class="mb-3 col-lg-3">
                                         <label for="email">Term</label>
-                                        <select id="formrow-inputState" class="form-select" wire:model.defer="term_id">
+                                        <select class="form-select" id="term_id">
                                             <option selected>Choose...</option>
                                             @foreach ($terms as $id => $term)
                                             <option value="{{ $id }}">{{ $term }}</option>
                                             @endforeach
                                         </select>
-                                        <x-form.error for="term_id" />
                                     </div>
 
                                     <div class="col-lg-3 align-self-center">
                                         <div class="d-grid">
-                                            <button data-repeater-delete type="submit" class="btn btn-primary">
+                                            <button id="fetchResultButton" data-repeater-delete type="submit" class="btn btn-primary">
                                                 <i class="bx bx-download"></i>
                                                 Fetch
                                             </button>
@@ -56,66 +58,29 @@
                         
                         <div class="row">
                             <div class="col-12">
-                                @if ($student && $period_id && $term_id && $grade_id)
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-striped table-nowrap mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col" class="text-center">
-                                                        Class
-                                                    </th>
-                                                    <th scope="col" class="text-center">
-                                                        Total Subjects
-                                                    </th>
+                                <div class="table-responsive">
+                                    <table id="result-data" class="table table-bordered table-striped table-nowrap mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="text-center">Name</th>
+                                                <th scope="col" class="text-center">
+                                                    Present Class
+                                                </th>
+                                                <th scope="col" class="text-center">
+                                                    Class Result
+                                                </th>
+                                                
+                                                <th scope="col" class="text-center" id="action">
+                                                    Action
+                                                </th>
+                                            </tr>
+                                        </thead>
 
-                                                    <th scope="col" class="text-center" id="action">
-                                                        Action
-                                                    </th>
-                                                    
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                <tr>
-                                                    <td class='text-center'>{{ $student->grade->title() }}</td>
-                                                    <td class='text-center'>
-                                                        <div class="btn-group dropend">
-                                                            <button type="button" class="btn dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                {{ $student->totalSubjects() }}
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                    
-                                                    <td class='d-flex justify-content-center align-items-center'>
-                                                        {{-- <button title="Click to view result" id="scratchCard" type="button" class="btn btn-sm btn-primary waves-effect waves-light" id="ajax-alert">
-                                                            <i class="fa fa-eye"></i>
-                                                        </button> --}}
-                                                        {{-- <a href="{{ route('result.primary.show', $user->student->id()) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}" title="Click to view result" class="btn btn-sm btn-primary waves-effect waves-light">
-                                                            <i class="fa fa-eye"></i>
-                                                        </a> --}}
-                                                        <form action="{{ route('result.exam.pdf') }}" method="POST">
-                                                            @csrf
-                                                            <input type="hidden" name="student_id" value="{{ $student->id() }}" />
-                                                            <input type="hidden" name="grade_id" value="{{ $student->grade->id() }}" />
-                                                            <input type="hidden" name="period_id" value="{{ $period_id }}" />
-                                                            <input type="hidden" name="term_id" value="{{ $term_id }}" />
-
-                                                            <button class="btn btn-sm btn-primary" type="submit">
-                                                                <i class="bx bxs-file-pdf"></i> Download PDF
-                                                            </button>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @elseif(!$student && $period_id && $term_id && $grade_id)
-                                    <div class="text-center">No result found!</div>
-                                @else
-                                    <div class="text-center">
-                                        <i class="bx bx-search"></i><span>Search for results!</span>
-                                    </div>
-                                @endif
+                                        <tbody>
+                                            
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     @else
@@ -186,6 +151,86 @@
                             })
                         },
                         allowOutsideClick: !1,
+                    });
+                });
+
+                $('#fetchResultForm').on('submit', function(e){
+                    e.preventDefault();
+                    var button = $('#fetchResultButton');
+                    toggleAble(button, true, 'Fetching...');
+
+                    var grade = $('#grade_id').val();
+                    var period = $('#period_id').val();
+                    var term = $('#term_id').val();
+                    var student = $('#student_id').val();
+
+                    $.ajax({
+                        type: 'GET',
+                        url: '{{ route("result.check.single.exam", ["student_id" => ":student_id" , "grade_id" => ":grade_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':student_id', student).replace(':grade_id', grade).replace(':period_id', period).replace(':term_id', term),
+                        dataType: 'json',
+                    }).done((response) => {
+                        toggleAble(button, false);
+                        var result = response.result;
+
+                        var html = '';
+                        if (response.grade_name === 'Playgroup') {
+                            html += '<tr>';
+                                html += '<td class="text-center">' + result.name + '</td>';
+                                html += '<td class="text-center">' + response.current_class + '</td>';
+                                html += '<td class="text-center">' + response.grade_name + '</td>';
+                                if(result.recorded_subjects > 0){
+                                    html += '<td>';
+                                    html += '<form action="{{ route('result.playgroup.pdf') }}" method="POST">';
+                                    html += '@csrf';
+                                    html += '<input type="hidden" name="student_id" value="' + result.id + '" />';
+                                    html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                                    html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                                    html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                                    html += '<button class="btn btn-sm btn-info" type="submit">';
+                                    html += '<i class="bx bxs-file-pdf"></i> Download PDF';
+                                    html += '</form>';
+                                    html += '</div>';
+                                    html += '</td>';
+                                }else{
+                                    html += '<td>';
+                                    html += '<p>No Results available</p>';
+                                    html += '</td>';
+                                }
+                            html += '</tr>';
+                        } else {
+                            html += '<tr>';
+                                html += '<td class="text-center">' + result.name + '</td>';
+                                html += '<td class="text-center">' + response.current_class + '</td>';
+                                html += '<td class="text-center">' + response.grade_name + '</td>';
+
+                                if(result.recorded_subjects > 0)
+                                {
+                                    html += '<td>';
+                                    html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
+                                    html += '@csrf';
+                                    html += '<input type="hidden" name="student_id" value="' + result.id + '" />';
+                                    html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                                    html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                                    html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                                    html += '<button class="btn btn-sm btn-info" type="submit">';
+                                    html += '<i class="bx bxs-file-pdf"></i> Download PDF';
+                                    html += '</form>';
+                                    html += '</div>';
+                                    html += '</td>';
+                                }else{
+                                    html += '<td>';
+                                    html += '<p>No Results available</p>';
+                                    html += '</td>';
+                                }
+                            html += '</tr>';
+                        }
+
+                        $('#result-data tbody').html(html);
+
+                    }).fail((error) => {
+                        toggleAble(button, false);
+                        toastr.error(error.responseJSON.message);
+                        console.log(error);
                     });
                 });
             })

@@ -75,9 +75,9 @@ class UserController extends Controller
                 }
                 $user->save();
           });
-          return response()->json(['status' => true, 'messege' => 'User created successfully'], 200);
+          return response()->json(['status' => true, 'message' => 'User created successfully'], 200);
        } catch (\Throwable $th) {
-            return response()->json(['status' => false, 'messege' => $th->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
        }
     }
     // profile-photos/SHjzZUK8XewhvwRkID1muK9ajLT5DUmTTcBytwf0.jpg

@@ -143,30 +143,17 @@ function calculateStudentPosition($studentIndex, $session, $term, $grade)
             return $result->getTotalScore();
         });
 
-        $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        if ($term  === '1') {
+            $totalScores = $firstTotalScores;
+        } elseif ($term  === '2') {
+            $totalScores = $firstTotalScores + $secondTotalScores / 2;
+        } elseif ($term  === '3') {
+            $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        }
+
         $studentTotalScores[$student->id()] = $totalScores;
     }
 
-    // Sort the students based on their total scores
-    // arsort($studentTotalScores);
-
-    // $studentPosition = null;
-    // $position = 0;
-    // $prevTotal = null;
-    // foreach ($studentTotalScores as $studentId => $total) {
-    //     $position++;
-    //     if ($prevTotal === null || $prevTotal !== $total) {
-    //         // If the total score is different from the previous one, update the position
-    //         $studentTotalScores[$studentId] = $position;
-    //     }
-    //     if ($studentId === $studentIndex) {
-    //         $studentPosition = $position;
-    //         break;
-    //     }
-    //     $prevTotal = $total;
-    // }
-
-    // return $studentPosition;
     arsort($studentTotalScores);
     $studentPosition = array_search($studentIndex, array_keys($studentTotalScores)) + 1;
 
@@ -276,25 +263,6 @@ function studentSubjectPositionInGrade($studentIndex, $session, $grade, $subject
         $studentTotalScores[$student->id()] = $total;
     }
 
-    // Sort the students based on their total scores
-    // arsort($studentTotalScores);
-
-    // $studentPosition = null;
-    // $position = 0;
-    // $prevTotal = null;
-    // foreach ($studentTotalScores as $studentId => $total) {
-    //     $position++;
-    //     if ($prevTotal === null || $prevTotal !== $total) {
-    //         // If the total score is different from the previous one, update the position
-    //         $studentTotalScores[$studentId] = $position;
-    //     }
-    //     if ($studentId === $studentIndex) {
-    //         $studentPosition = $position;
-    //         break;
-    //     }
-    //     $prevTotal = $total;
-    // }
-    // return $studentPosition;
     arsort($studentTotalScores);
     $studentPosition = array_search($studentIndex, array_keys($studentTotalScores)) + 1;
 
@@ -637,6 +605,35 @@ function publishExamState($student, $period, $term)
 
     if ($results->every(function ($item) {
         return $item->published;
+    })) {
+        return true;
+    }else{
+        return false;
+    }
+}
+
+function positionState($student, $period, $term)
+{
+    $result = Cognitive::where('student_uuid', $student)->where('period_id', $period)->where('term_id', $term)->first();
+
+    if($result){
+        if ($result->position_in_grade !== null && $result->position_in_class !== null){
+            return true;
+        }else{
+            return false;
+        }
+    }else{
+        return false;
+    }
+    
+}
+
+function positionGradeSubjectState($student, $period, $term)
+{
+    $results = PrimaryResult::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
+
+    if ($results->every(function ($item) {
+        return $item->position_in_class_subject !== null && $item->position_in_grade_subject !== null;
     })) {
         return true;
     }else{
@@ -1055,4 +1052,105 @@ if (!function_exists('userPermissions')) {
         }
         return $permissions;
     }
+}
+
+function generateStudentClassSubjectPosition($studentId, $session, $term, $subjectId, $grade)
+{
+    $studentsData = \App\Models\Student::with(['primaryResults' => function ($query) use ($session, $subjectId, $grade) {
+        $query->where('period_id', $session)
+            ->where('grade_id', $grade)
+            ->whereIn('term_id', [1, 2, 3])
+            ->where('subject_id', $subjectId);
+    }])->where('grade_id', $grade)->get();
+
+    $studentTotalScores = [];
+    foreach ($studentsData as $student) {
+        $firstTotalScores = $student->primaryResults->where('term_id', 1)->sum(function ($result) {
+            return $result->getTotalScore();
+        });
+
+        $secondTotalScores = $student->primaryResults->where('term_id', 2)->sum(function ($result) {
+            return $result->getTotalScore();
+        });
+
+        $thirdTotalScores = $student->primaryResults->where('term_id', 3)->sum(function ($result) {
+            return $result->getTotalScore();
+        });
+
+        if($term === '1'){
+            $totalScores = $firstTotalScores;
+        }elseif($term === '2'){
+            $totalScores = $firstTotalScores + $secondTotalScores / 2;
+        }else if ($term === '3'){
+            $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        }
+
+        $studentTotalScores[$student->id()] = $totalScores;
+    }
+
+    arsort($studentTotalScores);
+    $studentPosition = array_search($studentId, array_keys($studentTotalScores)) + 1;
+
+    $suffix = 'th';
+    if ($studentPosition % 10 === 1 && $studentPosition % 100 !== 11) {
+        $suffix = 'st';
+    } elseif ($studentPosition % 10 === 2 && $studentPosition % 100 !== 12) {
+        $suffix = 'nd';
+    } elseif ($studentPosition % 10 === 3 && $studentPosition % 100 !== 13) {
+        $suffix = 'rd';
+    }
+
+    $positionWithSuffix = $studentPosition . $suffix;
+    return $positionWithSuffix;
+}
+
+function generateStudentGradeSubjectPosition($studentId, $session, $term, $subjectId, $grade)
+{
+     $studentsData = Student::with(['primaryResults' => function ($query) use ($session, $subjectId) {
+        $query->where('period_id', $session)
+            ->where('term_id', [1, 2, 3])
+            ->where('subject_id', $subjectId);
+    }])->whereHas('grade', function ($query) use ($grade) {
+        $query->where('title', 'like', get_grade($grade) . '%');
+    })->get();
+
+    $studentTotalScores = [];
+    foreach ($studentsData as $student) {
+        $firstTotalScores = $student->primaryResults->where('term_id', 1)->sum(function ($result) {
+            return $result->getTotalScore();
+        });
+
+        $secondTotalScores = $student->primaryResults->where('term_id', 2)->sum(function ($result) {
+            return $result->getTotalScore();
+        });
+
+        $thirdTotalScores = $student->primaryResults->where('term_id', 3)->sum(function ($result) {
+            return $result->getTotalScore();
+        });
+
+        if($term === '1'){
+            $totalScores = $firstTotalScores;
+        }elseif($term === '2'){
+            $totalScores = $firstTotalScores + $secondTotalScores / 2;
+        }else if ($term === '3'){
+            $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        }
+
+        $studentTotalScores[$student->id()] = $totalScores;
+    }
+
+    arsort($studentTotalScores);
+    $studentPosition = array_search($studentId, array_keys($studentTotalScores)) + 1;
+
+    $suffix = 'th';
+    if ($studentPosition % 10 === 1 && $studentPosition % 100 !== 11) {
+        $suffix = 'st';
+    } elseif ($studentPosition % 10 === 2 && $studentPosition % 100 !== 12) {
+        $suffix = 'nd';
+    } elseif ($studentPosition % 10 === 3 && $studentPosition % 100 !== 13) {
+        $suffix = 'rd';
+    }
+
+    $positionWithSuffix = $studentPosition . $suffix;
+    return $positionWithSuffix;
 }

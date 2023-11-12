@@ -42,10 +42,16 @@ class Students extends Component
 
     public function getStudentsProperty()
     {
+        $ids = auth()->user()->gradeClassTeacher->pluck('id');
         return Student::when($this->gender, function($query, $gender) {
                 return $query->where('gender', $gender);
+        })->when($this->grade !== null, function($query) {
+            $query->whereHas('grade', function($query) {
+                $query->where('id', $this->grade);
+            });
+        }, function($query) use ($ids) {
+            $query->whereIn('grade_id', $ids);
         })
-        ->where('grade_id', auth()->user()->gradeClassTeacher[0]->id())
         ->search(trim($this->search))->loadLatest($this->per_page, $this->orderBy, $this->sortBy, $this->status, $this->gender);
     }
 

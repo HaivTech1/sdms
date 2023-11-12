@@ -13,6 +13,11 @@ class GradeController extends Controller
         $this->middleware(['auth', 'admin']);
     }
 
+    public function index()
+    {
+        return view('admin.grade.index');
+    }
+
     public function gradeStudents(Grade $grade)
     {
         try {

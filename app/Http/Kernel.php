@@ -46,6 +46,7 @@ class Kernel extends HttpKernel
             AuthenticateSession::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\AuthGates::class,
         ],
     ];
 

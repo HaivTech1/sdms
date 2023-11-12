@@ -58,14 +58,84 @@
                             @php
                                 $midterm = get_settings('midterm_format');
                                 $exam = get_settings('exam_format');
+                                $spanCount = count($midterm) + count($exam) + 1;
                             @endphp
 
-                            @if ($studentResults)
+                            @if ($studentResults && $subjects)
                                 <table id="tech-companies-1" class="table table-striped">
-                                   
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Student Name</th>
+                                            @foreach ($subjects as $subject)
+                                                <th colspan="{{ $spanCount }}" class="text-center">{{ $subject['title'] }}</th>
+                                            @endforeach
+                                            <th></th>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            @foreach ($subjects as $subject)
+                                                @foreach ($midterm as $key => $value)
+                                                    <th class="text-center" style="font-size: 10px">{{ $value['full_name'] }}</th>
+                                                @endforeach
+                                                @foreach ($exam as $key => $value)
+                                                    <th class="text-center" style="font-size: 10px">{{ $value['full_name'] }}</th>
+                                                @endforeach
+                                                <th class="text-center" style="font-size: 10px">Total</th>
+                                            @endforeach
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @foreach ($studentResults as $key => $student)
+                                           <tr>
+                                                <td>{{ $key+1 }}</td>
+                                                <td>{{ $student['student_name'] }}</td>
+                                                @foreach ($subjects as $subject)
+                                                    @php
+                                                        $subjectResult = null;
+                                                        foreach ($student['results'] as $result) {
+                                                            if ($result['subject_id'] == $subject['id']) {
+                                                                $subjectResult = $result;
+                                                                break;
+                                                            }
+                                                        }
+                                                    @endphp
+
+                                                    @foreach ($midterm as $midtermKey => $midtermValue)
+                                                        <td style="text-align: center">
+                                                            @if ($subjectResult && isset($subjectResult[$midtermKey]))
+                                                                {{ $subjectResult[$midtermKey] }}
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                    @endforeach
+                                                    @foreach ($exam as $examKey => $examValue)
+                                                        <td style="text-align: center">
+                                                            @if ($subjectResult && isset($subjectResult[$examKey]))
+                                                                {{ $subjectResult[$examKey] }}
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                    @endforeach
+
+                                                    {{-- <td style="text-align: center">
+                                                        @if ($subjectResult)
+                                                            {{ $subjectResult['exam'] }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td> --}}
+                                                    <td style="font-weight: 500; color: {{ exam100Color(calculateResult($subjectResult)) }}">{{ calculateResult($subjectResult) }}</td>
+                                                @endforeach
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
                                 </table>
                             @endif
-
                         </div>
                     </div>
                 </div>

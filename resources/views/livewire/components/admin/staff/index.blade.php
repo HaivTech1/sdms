@@ -542,30 +542,29 @@
                     processData: false,
                     dataType: 'json',
                 }).done((res) => {
-                    if(res.status === true) {
-                        toggleAble('#create_employee', false);
-                        toastr.success(res.message, 'Success!');
-                        $('.createEmployee').modal('toggle');
-                        setTimeout(function () {window.location.reload()}, 1000);
-                    }else{
-                        toggleAble('#create_employee', false);
-                        toastr.error(res.message, 'Failed!');
-                    }
+                    toggleAble('#create_employee', false);
+                    toastr.success(res.message, 'Success!');
+                    $('.createEmployee').modal('toggle');
+                    setTimeout(function () {window.location.reload()}, 1000);
                     resetForm('#employeeForm')
                 }).fail((err) => {
                     console.log(err);
                     toggleAble('#create_employee', false);
-                    let allErrors = Object.values(err.responseJSON.errors).map(el => (
-                            el = `<li>${el}</li>`
-                        )).reduce((next, prev) => ( next = prev + next ));
-
-                    const setErrors = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                            <ul>${allErrors}</ul>
-                                        </div>
-                                        `;
-
-                    $('.modalErrorr').html(setErrors);
-                    toastr.error(err.responseJSON.message, 'Failed!');
+                    const errorResponse = err.responseJSON;
+                    toastr.error(errorResponse.message, 'Failed!');
+                    if (errorResponse && errorResponse.errors) {
+                        const errors = errorResponse.errors;
+                        const allErrors = Object.values(errors).map(el => `<li>${el}</li>`).reduce((prev, next) => prev + next, '');
+                    
+                        const setErrors = `
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <ul>${allErrors}</ul>
+                            </div>
+                        `;
+                    
+                        $('.modalErrorr').html(setErrors);
+                    } else {
+                    }
                 });
         })
     </script>

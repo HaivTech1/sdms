@@ -42,8 +42,8 @@ class AttendanceController extends Controller
                 'id' => $user->id(),
                 'name' => $user->lastName() . ' ' . $user->firstName() . ' '. $user->otherName(),
                 'reg_no' => $user->user->code(),
-                'morning' => $attendance?->morning() === '1' ? true : false,
-                'afternoon' => $attendance?->afternoon() === '1' ? true : false,
+                // 'morning' => $attendance?->morning() === '1' ? true : false,
+                // 'afternoon' => $attendance?->afternoon() === '1' ? true : false,
             ];
         }
 
@@ -89,24 +89,22 @@ class AttendanceController extends Controller
 
     public function store_attendance(Request $request)
     {
-       
+        dd($request);
         try {
-            // $attendance = Attendance::findOrFail($request->attendance_id);
-            // $studentIds = $request->input('students', []);
-            // $attendance->students()->attach($studentIds);
-
             $attendanceId = $request->input('attendance_id');
             $grade = $request->input('grade');
-            $studentIds = $request->input('student');
+
+            $studentIds = $request->input('student_id');
             $morningAttendance = $request->input('morning');
             $afternoonAttendance = $request->input('afternoon');
 
-            foreach ($studentIds as $index => $studentId) {
+            foreach ($studentIds as $studentId) {
+                $morningValue = isset($morningAttendance[$studentId]) ? 1 : 0;
+                $afternoonValue = isset($afternoonAttendance[$studentId]) ? 1 : 0;
 
-                $check = AttendanceStudent::where('attendance_id', $attendanceId)->where('student_id', $studentId)->first();
-
-                $morningValue = isset($morningAttendance[$index]) ? 1 : 0;
-                $afternoonValue = isset($afternoonAttendance[$index]) ? 1 : 0;
+                $check = AttendanceStudent::where('attendance_id', $attendanceId)
+                    ->where('student_id', $studentId)
+                    ->first();
 
                 if ($check) {
                     $check->update([
@@ -124,9 +122,8 @@ class AttendanceController extends Controller
                         'afternoon' => $afternoonValue,
                     ]);
                 }
-                
             }
-            
+                
             return response()->json(['status' => true, 'message' => 'Attendance recorded successfully.'], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -151,6 +148,8 @@ class AttendanceController extends Controller
                 'afternoon' => $attendance?->afternoon() === '1' ? true : false,
             ];
         }
+
+        // dd($students);
 
         return response()->json([
             'students' => $students,

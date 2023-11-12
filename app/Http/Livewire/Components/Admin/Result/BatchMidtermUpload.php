@@ -9,6 +9,7 @@ use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\MidTerm;
+use App\Models\Student;
 
 class BatchMidtermUpload extends Component
 {
@@ -44,7 +45,11 @@ class BatchMidtermUpload extends Component
     {
         $this->grade_id = $this->grade_id ? $this->grade_id : '';
         $class = Grade::where('id', $this->grade_id)->first();
-        $this->students = $class->students->where('status', true)->sortBy('last_name');
+        $checkSubject = $this->subject_id;
+        $students = Student::where('grade_id', $class->id())->where('status', true)->whereHas('subjects', function ($query) use ($checkSubject) {
+            $query->where('id', $checkSubject);
+        })->get();
+        $this->students = $students->sortBy('last_name');
         $this->selectedGrade = $class;
     }
 

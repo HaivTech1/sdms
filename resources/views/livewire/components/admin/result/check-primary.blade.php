@@ -25,9 +25,9 @@
                                     <div>
                                         <button data-bs-toggle="modal" data-bs-target=".generateResultModal" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Generate Midterm Result</button>
                                     </div>
-                                    <div>
+                                    <!-- <div>
                                         <button data-bs-toggle="modal" data-bs-target=".setCummulative" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Set Cumulative</button>
-                                    </div>
+                                    </div> -->
                                 @endsuperadmin
                             </div>
                         <div class="mt-2">
@@ -352,19 +352,16 @@
 
                                     <div class="row">
                                         <div class="col-sm-12">
+                                            <x-form.label for="principal_comment" value="{{ __('Principal Comment') }}" />
                                             <textarea class="form-control" name="principal_comment" id="attendance_principal_comment" cols="5" rows="5" placeholder="Type in your comment here..."></textarea>
                                             <x-form.error for="principal_comment" />
                                         </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-sm-12">
+                                        <!-- <div class="col-sm-6">
+                                            <x-form.label for="promotion_comment" value="{{ __('Promotion Comment') }}" />
                                             <textarea class="form-control" name="promotion_comment" id="attendance_promotion_comment" cols="10" rows="5" placeholder="Type in your promotional comment here..."></textarea>
                                             <x-form.error for="promotion_comment" />
-                                        </div>
+                                        </div> -->
                                     </div>
-
-                                    
 
                                     <div class="modal-footer">
                                         <button id="submit_principal_comment" type="submit" class="btn btn-primary">Submit</button>
@@ -872,95 +869,112 @@
                 toggleAble(button, false);
                 var students = response.students;
                 var userPermissions = @json(userPermissions());
+                var templateType = @json(get_application_settings('result_template'));
 
                 var html = '';
                 $.each(students, function(index, student) {
                         html += '<tr>';
                         html += '<td class="text-center">' + student.name + '</td>';
                         html += '<td class="text-center">' + student.recorded_subjects + '</td>';
-                        html += '<td>';
 
-                        html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
-                       
-                       if (userPermissions.includes('result_comment')) {
-                            html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
-                       }
-
-                       if (response.grade_name === 'Playgroup') {
-
-                            html += '<button class="btn btn-sm btn-danger editPlayResult" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-edit"></i> Edit</button>';
-                            
-                            if (userPermissions.includes('result_show')) {
-                                html += '<a target="_blank" href="{{ route('result.playgroup.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                        if(student.recorded_subjects > 0)
+                        {
+                            html += '<td>';
+                            html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
+                            if (userPermissions.includes('result_comment')) {
+                                    html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
                             }
 
-                            if (userPermissions.includes('result_download')) {
-                                html += '<form action="{{ route('result.playgroup.pdf') }}" method="POST">';
-                                html += '@csrf';
-                                html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
-                                html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
-                                html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
-                                html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
-                                html += '<button class="btn btn-sm btn-info" type="submit">';
-                                html += '<i class="bx bxs-file-pdf"></i> PDF';
-                                html += '</button>';
-                                html += '</form>';
-                            }
+                            if (response.grade_name === 'Playgroup') {
+
+                                    html += '<button class="btn btn-sm btn-danger editPlayResult" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-edit"></i> Edit</button>';
+                                    
+                                    if (userPermissions.includes('result_show')) {
+                                        html += '<a target="_blank" href="{{ route('result.playgroup.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                                    }
+
+                                    if (userPermissions.includes('result_download')) {
+                                        html += '<form action="{{ route('result.playgroup.pdf') }}" method="POST">';
+                                        html += '@csrf';
+                                        html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                                        html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                                        html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                                        html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                                        html += '<button class="btn btn-sm btn-info" type="submit">';
+                                        html += '<i class="bx bxs-file-pdf"></i> PDF';
+                                        html += '</button>';
+                                        html += '</form>';
+                                    }
 
 
-                       }else{
-                            if (userPermissions.includes('result_show')) {
-                                html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
-                            }
-
-                            if (userPermissions.includes('result_download')) {
-                                html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
-                                html += '@csrf';
-                                html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
-                                html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
-                                html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
-                                html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
-                                html += '<button class="btn btn-sm btn-info" type="submit">';
-                                html += '<i class="bx bxs-file-pdf"></i> PDF';
-                                html += '</button>';
-                                html += '</form>';
-                            }
-                       }
-
-                        if (userPermissions.includes('affective_create')) {
-                            html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                            html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
-                            html += '</button>';
-                        }
-
-                        if (userPermissions.includes('affective_create')) {
-                            html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                            html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
-                            html += '</button>';
-                        }
-
-                        if (userPermissions.includes('principal_comment')) {
-                            html += '<button class="btn btn-sm btn-danger editPrincipalCom" data-period="' + response.period + '" data-term="' + response.term + '" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Principal Comment</button>';
-                        }
-
-                        if (userPermissions.includes('result_publish')) {
-                            if(student.publish_state){
-                                html += '<button type="button" class="btn btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                                html += '<span class="">Published</span>';
-                                html += '</button>';
                             }else{
-                                html += '<button type="button" class="btn btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                                html += '<span>Publish</span>';
-                                html += '</button>';
-                            }
-                        }
+                                    if(student.position_state && student.position_subject_state && templateType === 1){
+                                        if (userPermissions.includes('result_show')) {
+                                            html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                                        }
 
-                        if (userPermissions.includes('position_access')) {
-                            html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Cummulate Position</button>';
-                            html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Cummulate Single Position</button>';
+                                        if (userPermissions.includes('result_download')) {
+                                            html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
+                                            html += '@csrf';
+                                            html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                                            html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                                            html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                                            html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                                            html += '<button class="btn btn-sm btn-info" type="submit">';
+                                            html += '<i class="bx bxs-file-pdf"></i> PDF';
+                                            html += '</button>';
+                                            html += '</form>';
+                                        }
+                                    }
+                            }
+
+                                if (userPermissions.includes('affective_create')) {
+                                    html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                                    html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
+                                    html += '</button>';
+                                }
+
+                                if (userPermissions.includes('affective_create')) {
+                                    html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                                    html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
+                                    html += '</button>';
+                                }
+
+                                if (userPermissions.includes('principal_comment')) {
+                                    html += '<button class="btn btn-sm btn-danger editPrincipalCom" data-period="' + response.period + '" data-term="' + response.term + '" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Principal Comment</button>';
+                                }
+                                
+                                if(student.position_state && student.position_subject_state && templateType === 1){
+                                    if (userPermissions.includes('result_publish')) {
+                                        if(student.publish_state){
+                                            html += '<button type="button" class="btn btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                            html += '<span class="">Published</span>';
+                                            html += '</button>';
+                                        }else{
+                                            html += '<button type="button" class="btn btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                            html += '<span>Publish</span>';
+                                            html += '</button>';
+                                        }
+                                    }
+                                }
+                                
+                                
+                                if (userPermissions.includes('position_access')) {
+                                    if(student.position_state == false && templateType === 1){
+                                        html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Term Position</button>';
+                                    }
+
+                                    if(student.position_subject_state == false && templateType === 1){
+                                        html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Subject Grade Position</button>';
+                                    }
+                                }
+                            
+                            html += '</td>';
+                        }else{
+                            html += '<td>';
+                            html += '<p>No Results available</p>';
+                            html += '</td>';
                         }
-                        
-                        html += '</td>';
                         html += '</tr>';
                     });
 

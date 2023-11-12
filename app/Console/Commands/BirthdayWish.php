@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Traits\NotifiableParentsTrait;
 use Carbon\Carbon;
 use App\Models\Student;
 use Illuminate\Console\Command;
@@ -32,13 +33,7 @@ class BirthdayWish extends Command
                 $message = "<p> $name, as you turn $year today, we felicitate with you; wish you a happy birthday and many happy returns of thy day; filled with lots of love and fun. Do have a lovely new year. Cheers to a new age!</p>";
                 $subject = 'Happy Birthday to you';
 
-                if(isset($student->mother)){
-                    Mail::to($student->mother->email())->send(new BirthdayMail($message, $subject));
-                }elseif(isset($student->father)){
-                    Mail::to($student->father->email())->send(new BirthdayMail($message, $subject));
-                }else{
-                    Mail::to($student->guardian->email())->send(new BirthdayMail($message, $subject));
-                }
+                NotifiableParentsTrait::notifyParents($student, $message, $subject);
                 info("birthday wish sent"); 
             }
         }

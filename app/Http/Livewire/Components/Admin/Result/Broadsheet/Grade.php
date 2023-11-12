@@ -48,25 +48,6 @@ class Grade extends Component
             });
         })->get();
 
-        $getSubjects = $students[0]->subjects->toArray();
-        foreach ($getSubjects as $subject){
-            $this->subjects[] = $subject['title'];
-        }
-
-        $midtermResults = MidTerm::when($this->grade_id, function($query, $grade){
-            $query->whereHas('grade', function($query) use ($grade){
-                $query->where('id', $grade);
-            });
-        })->when($this->period_id, function($query, $period){
-            $query->whereHas('period', function ($query) use ($period){
-                $query->where('id', $period);
-            });
-        })->when($this->term_id, function($query, $term){
-            $query->whereHas('term', function ($query) use ($term){
-                $query->where('id', $term);
-            });
-        })->get();
-
         $examResults = PrimaryResult::when($this->grade_id, function($query, $grade){
             $query->whereHas('grade', function($query) use ($grade){
                 $query->where('id', $grade);
@@ -81,6 +62,14 @@ class Grade extends Component
             });
         })->get();
 
+        $getSubjects = $students[0]->subjects->toArray();
+        foreach ($getSubjects as $subject){
+            $this->subjects[] = [
+                'id' => $subject['id'],
+                'title' => $subject['title'],
+            ];
+        }
+
         $midtermFormat = get_settings('midterm_format');
         $examFormat = get_settings('exam_format');
 
@@ -93,32 +82,32 @@ class Grade extends Component
                 'results' => [],
             ];
 
-            $mergedResults = $midtermResults->merge($examResults);
-            
-            foreach ($mergedResults as $result) {
+            foreach ($examResults as $result) {
                 if ($result->student_id === $student->id()) {
-                    $subjectId = $result->subject->id();
-                    $subjectTitle = $result->subject->title();
+                    $subjectId = $result->subject->id;
+                    $subjectTitle = $result->subject->title;
 
-                    $studentResult['results'][$subjectTitle] = [
+                    $studentResult['results'][$subjectId] = [
                         'subject_id' => $subjectId,
                         'subject' => $subjectTitle,
                     ];
 
                     $resultItem = &$studentResult['results'][$subjectId];
                     
-                    if ($result instanceof Midterm) {
-                        if (is_array($midtermFormat)) {
-                            foreach ($midtermFormat as $midtermKey => $midtermValue) {
-                                if (isset($result->$midtermKey)) {
-                                    $resultItem[$midtermKey] = $result->$midtermKey;
-                                }
+                    if (is_array($midtermFormat)) {
+                        foreach ($midtermFormat as $midtermKey => $midtermValue) {
+                            if (isset($result->$midtermKey)) {
+                                $resultItem[$midtermKey] = $result->$midtermKey;
                             }
                         }
                     }
 
-                    if ($result instanceof PrimaryResult) {
-                        $resultItem['exam'] = $result->exam;
+                    if (is_array($examFormat)) {
+                        foreach ($examFormat as $examKey => $examValue) {
+                            if (isset($result->$examKey)) {
+                                $resultItem[$examKey] = $result->$examKey;
+                            }
+                        }
                     }
                 }
             }
@@ -126,7 +115,7 @@ class Grade extends Component
             $studentResults[] = $studentResult;
         }
 
-        dd($studentResults);
+        // dd($studentResults);
 
         $this->studentResults = $studentResults;
     }
