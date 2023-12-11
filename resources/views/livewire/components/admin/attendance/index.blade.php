@@ -80,9 +80,10 @@
                                                 {{ $attendance->markedAttendance->count() ?? '' }}
                                             </td>
                                             <td>
-                                                <button data-id="{{ $attendance->id() }}" data-class="{{ $attendance->grade->id() }}" class="btn btn-sm btn-success btn-rounded waves-effect waves-light mb-2 me-2 markAtt" data-bs-toggle="modal" data-bs-target=".addAttend">
+                                                <!-- <button data-id="{{ $attendance->id() }}" data-class="{{ $attendance->grade->id() }}" class="btn btn-sm btn-success btn-rounded waves-effect waves-light mb-2 me-2 markAtt" data-bs-toggle="modal" data-bs-target=".addAttend">
                                                     <i class="mdi mdi-plus me-1"></i> Mark Attendance
-                                                </button>
+                                                </button> -->
+                                                <a href="{{ route('attendance.classAttendance', $attendance) }}" class="btn btn-sm btn-success btn-rounded waves-effect waves-light mb-2 me-2"><i class="mdi mdi-plus me-1"></i> Mark Attendance</a>
                                                 <!-- <button data-id="{{ $attendance->id() }}" class="btn btn-sm btn-primary btn-rounded waves-effect waves-light mb-2 me-2 show" data-bs-toggle="modal" data-bs-target=".showAttendance"><i
                                                     class="mdi mdi-eye me-1"></i> View</button> -->
                                             </td>

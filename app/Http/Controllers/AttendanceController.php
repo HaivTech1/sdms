@@ -20,6 +20,25 @@ class AttendanceController extends Controller
         return view('admin.attendance.stat');
     }
 
+    public function classAttendance(Attendance $attendance)
+    {
+        $students = Student::where('grade_id', $attendance->grade_id)->orderBy('last_name')->get();
+        // ->whereNotIn('uuid', function ($query) use ($attendance) {
+        //     $query->select('student_id')
+        //         ->from('attendance_students')
+        //         ->where('attendance_id', $attendance->id())
+        //         ->where(function ($subquery) {
+        //             $subquery->where('morning', false)
+        //                     ->orWhere('afternoon', false);
+        //         });
+        // })
+
+        return view('admin.attendance.class_attendance', [
+            'attendance' => $attendance,
+            'students' => $students
+        ]);
+    }
+
 
     public function fetch(Request $request)
     {
@@ -89,41 +108,29 @@ class AttendanceController extends Controller
 
     public function store_attendance(Request $request)
     {
-        dd($request);
         try {
-            $attendanceId = $request->input('attendance_id');
-            $grade = $request->input('grade');
+            $attendance = Attendance::where('id', $request->attendance_id)->first();;
+            $grade = $attendance->grade;
+            $studentId = $request->student_id;
+            $type = $request->attendance_type;
+            $is_checked = $request->is_checked;
 
-            $studentIds = $request->input('student_id');
-            $morningAttendance = $request->input('morning');
-            $afternoonAttendance = $request->input('afternoon');
+            $check = AttendanceStudent::where('attendance_id', $attendance->id())->where('student_id', $studentId)->first();
 
-            foreach ($studentIds as $studentId) {
-                $morningValue = isset($morningAttendance[$studentId]) ? 1 : 0;
-                $afternoonValue = isset($afternoonAttendance[$studentId]) ? 1 : 0;
-
-                $check = AttendanceStudent::where('attendance_id', $attendanceId)
-                    ->where('student_id', $studentId)
-                    ->first();
-
-                if ($check) {
-                    $check->update([
-                        'morning' => $morningValue,
-                        'afternoon' => $afternoonValue,
-                    ]);
-                } else {
-                    AttendanceStudent::create([
-                        'attendance_id' => $attendanceId,
-                        'period_id' => period('id'),
-                        'term_id' => term('id'),
-                        'grade_id' => $grade,
-                        'student_id' => $studentId,
-                        'morning' => $morningValue,
-                        'afternoon' => $afternoonValue,
-                    ]);
-                }
+            if ($check) {
+                $check->update([
+                        $type => $is_checked,
+                ]);
+            } else {
+                AttendanceStudent::create([
+                    'attendance_id' => $attendance->id(),
+                    'period_id' => period('id'),
+                    'term_id' => term('id'),
+                    'grade_id' => $grade->id(),
+                    'student_id' => $studentId,
+                    $type => $is_checked,
+                ]);
             }
-                
             return response()->json(['status' => true, 'message' => 'Attendance recorded successfully.'], 200);
         } catch (\Throwable $th) {
             return response()->json([

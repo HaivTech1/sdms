@@ -284,6 +284,9 @@
                     toggleAble('#uploadResult', false)
                     toastr.success(res.message, 'Success!');
                     resetForm('#uploadPrimary');
+                    setTimeout(function(){
+                        window.location.reload();
+                    },1000);
                 }).fail((res) => {
                     toggleAble('#uploadResult', false)
                     console.log(res.responseJSON.message);

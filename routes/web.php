@@ -393,6 +393,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/stat', [AttendanceController::class, 'stat'])->name('stat');
             Route::get('/{id}', [AttendanceController::class, 'showAttendance']);
             Route::get('/students/fetch', [AttendanceController::class, 'fetch']);
+            Route::get('/class/{attendance}', [AttendanceController::class, 'classAttendance'])->name('classAttendance');
         });
 
         Route::group(['prefix' => 'check', 'as' => 'check.'], function () {

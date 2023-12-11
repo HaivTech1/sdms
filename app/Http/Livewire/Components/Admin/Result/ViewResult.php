@@ -30,11 +30,11 @@ class ViewResult extends Component
     public $average;
     public $psychomotors;
     public $affectives;
-    public $comment;
-    public $aggregate;
-    public $marksObtained;
     public $studentAttendance;
-    public $position;
+    public $aggregate;
+    public $gradeStudents;
+    public $marksObtained;
+    public $markObtainable;
 
     protected $queryString = [
         'grade_id' => ['except' => ''],
@@ -89,15 +89,17 @@ class ViewResult extends Component
 
         $first_term = 1;
         $second_term = 2;
+        $midtermFormat = get_settings('midterm_format');
+        $examFormat = get_settings('exam_format');
         
-        $first_term_cumm = Cummulative::where('term_id', $first_term)->where('student_uuid', $student->id())->where('period_id', $period->id())->get();
-        $second_term_cumm = Cummulative::where('term_id', $second_term)->where('student_uuid', $student->id())->where('period_id', $period->id())->get();
-        $studentResults = $student->primaryResults->where('term_id', $term->id())->where('period_id', $period->id());
+        $first_term_cumm = Cummulative::where('term_id', $first_term)->where('student_uuid', $student->id())->where('period_id', $period->id)->get();
+        $second_term_cumm = Cummulative::where('term_id', $second_term)->where('student_uuid', $student->id())->where('period_id', $period->id)->get();
+        $studentResults = $student->primaryResults->where('term_id', $term->id())->where('period_id', $period->id)->toArray();
 
         $newFirst = array();
         foreach ($first_term_cumm as $key => $value) {
             $newFirst[] = [
-                'first_term_cummulative' => $value->score,
+                'first_term' => $value->score,
                 'subject_id' => $value->subject_id,
                 'grade_id' => $value->grade_id,
                 'term_id' => $value->term_id,
@@ -108,7 +110,7 @@ class ViewResult extends Component
         $newSecond = array();
         foreach ($second_term_cumm as $key => $value) {
             $newSecond[] = [
-                'second_term_cummulative' => $value->score,
+                'second_term' => $value->score,
                 'subject_id' => $value->subject_id,
                 'grade_id' => $value->grade_id,
                 'term_id' => $value->term_id,
@@ -116,19 +118,36 @@ class ViewResult extends Component
             ];
         }
 
-        $newResult = array();
+        $newResult = [];
         foreach ($studentResults as $key => $value) {
-            $newResult[] = [
-                'ca1' => $value->ca1,
-                'ca2' => $value->ca2,
-                'ca3' => $value->ca3,
-                'pr' => $value->pr,
-                'ct' => $value->ca1 + $value->ca2 + $value->ca3 + $value->pr,
-                'exam' => $value->exam,
-                'total' => $value->ca1 + $value->ca2 + $value->ca3  + $value->pr + $value->exam,
-                'subject_id' => $value->subject->id(),
-                'subject' => $value->subject->title(),
+            $resultItem = [
+                'subject_id' => $value['subject']['id'],
+                'subject' => $value['subject']['title'],
+                'position_in_class_subject' => $value['position_in_class_subject'],
+                'position_in_grade_subject' => $value['position_in_grade_subject'],
             ];
+
+            if (is_array($midtermFormat)) {
+                foreach ($midtermFormat as $midtermKey => $midtermValue) {
+                    if (isset($value[$midtermKey])) {
+                        $resultItem[$midtermKey] = $value[$midtermKey];
+                    } else {
+                        $resultItem[$midtermKey] = "";
+                    }
+                }
+            }
+
+            if (is_array($examFormat)) {
+                foreach ($examFormat as $examKey => $examValue) {
+                    if (isset($value[$examKey])) {
+                        $resultItem[$examKey] = $value[$examKey];
+                    } else {
+                        $resultItem[$examKey] = "";
+                    }
+                }
+            }
+
+            $newResult[] = $resultItem;
         }
 
         $firstTermResult = $newResult;
@@ -142,43 +161,53 @@ class ViewResult extends Component
         }elseif($term->id() === '3'){
             $results = $thirdTermResult;
         }
-
-
-        $scores = [];
-
-        foreach ($results as $item) {
-            $total_score = $item['ca1'] + $item['ca1'] + $item['ca3'] + $item['pr'] + $item['exam'];
-            $subject_id = $item['subject_id'];
-            $scores[$subject_id] = $total_score; // calculate percentage score
-        }
-
-        $weakness_info = "Dear $student->first_name, you need to improve in the following subject(s):";
-        $comment = generate_comment($scores, $weakness_info, 0.56, 100, 'examination');
         
         $marksObtained = 0;
         $numSubjects = count($results);
         $grand = $numSubjects * 100;
 
         foreach($results as $result){
-            $total = $result['total'];
+            if ($term->id() === '2') {
+                $total = calculateResult($result) + $result['first_term'] / 2;
+            } elseif ($term->id() === '3') {
+                $total = secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2);
+            } else {
+                $total = calculateResult($result);
+            }
             $marksObtained += $total;
         }
+
+        $aggregate = $marksObtained / $grand * 100;
+
+        $studentGrade = get_grade($student->grade->title());
+        $gradeStudents = Student::whereHas('grade', function($query) use ($studentGrade){
+            $query->where('title', 'like', $studentGrade .'%');
+        })->count(); 
         
-        $aggregate = $marksObtained / $numSubjects;
-        $position = calculateStudentPosition($student->id(), new PrimaryResult(), $period->id(), $term->id(), $student->grade->id());
+        
+        usort($results, function ($a, $b) {
+            $mathematicsEnglish = ['Mathematics', 'English Language'];
+    
+            if (in_array($a['subject'], $mathematicsEnglish) && !in_array($b['subject'], $mathematicsEnglish)) {
+                return -1;
+            } elseif (!in_array($a['subject'], $mathematicsEnglish) && in_array($b['subject'], $mathematicsEnglish)) {
+                return 1;
+            } else {
+                return strcmp($a['subject'], $b['subject']);
+            }
+        });
 
         $this->results = $results;
         $this->student_data = $student;
         $this->psychomotors = $psychomotors;
         $this->affectives = $affectives;
-        $this->comment = $comment;
         $this->period_data = $period;
         $this->term_data = $term;
+        $this->gradeStudents = $gradeStudents;
         $this->aggregate = $aggregate;
-        $this->marksObtained = $marksObtained;
         $this->studentAttendance = $studentAttendance;
-        $this->position = $position;
-
+        $this->marksObtained = $marksObtained ;
+        $this->markObtainable = $grand;
     }
 
     private function custom_array_merge($newResult, $newFirst) {

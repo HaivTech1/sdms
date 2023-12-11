@@ -56,7 +56,7 @@
 
         .mainContainer {
             float: left;
-            width: 40%;
+            width: 35%;
         }
 
         .minorContainer {
@@ -165,15 +165,31 @@
                     <div class="result-item">
                         <b>Name:</b> <span>{{ ucfirst($student->lastName()) }} {{ ucfirst($student->firstName()) }} {{ ucfirst($student->otherName()) }}</span>
                     </div>
+                    <div class="result-item">
+                        <b>Class:</b>
+                        <span>{{ $student->grade->title()}}</span>
+                    </div>
+                    <div class="result-item">
+                        <b>Students in class:</b>
+                        <span>{{ $student->grade->students->count()}}</span>
+                    </div>
                     {{-- <div class="result-item">
                         <b>Admission No.:</b>
                         <span>{{ $student->user->code()}}</span>
                     </div> --}}
                 </div>
                 <div class="mainContainer">
+                   <div class="result-item">
+                        <b>No. of times school opened:</b>
+                        <span>{{ $studentAtendance->attendance_duration ?? 0 ?? ''}}</span>
+                    </div>
                     <div class="result-item">
-                        <b>Class:</b>
-                        <span>{{ $student->grade->title()}}</span>
+                        <b>No. of times present:</b>
+                        <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
+                    </div>
+                    <div class="result-item">
+                        <b>Attendance Average:</b>
+                        <span>{{ calculatePercentage($studentAttendance->attendance_duration ?? 0, $studentAttendance->attendance_present ?? 0, 100) ?? '' }}%</span>
                     </div>
 
                     {{-- <div class="result-item">
@@ -194,21 +210,9 @@
                 </div>
                 <div class="minorContainer">
                     <div class="result-item">
-                        <b>Students in class:</b>
-                        <span>{{ $student->grade->students->count()}}</span>
+                        <b>Next term resumes:</b>
+                        <span>{{ \Carbon\carbon::parse(get_settings('next_term_resume'))->format('d F, Y') ?? 'Not set'}}</span>
                     </div>
-                    {{-- <div class="result-item">
-                        <b>No. of times school opened:</b>
-                        <span>{{ $studentAtendance->attendance_duration ?? 0 ?? ''}}</span>
-                    </div>
-                    <div class="result-item">
-                        <b>No. of times present:</b>
-                        <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
-                    </div>
-                    <div class="result-item">
-                        <b>Attendance Average:</b>
-                        <span>{{ calculatePercentage($studentAttendance->attendance_duration ?? 0, $studentAttendance->attendance_present ?? 0, 100) ?? '' }}%</span>
-                    </div> --}}
                 </div>
             </div>
 

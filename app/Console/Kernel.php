@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:credentials')->daily();
         $schedule->command('birthday:wish')->daily();
         $schedule->command('news:status')->everyTenMinutes();
+        $schedule->command('grade:position')->everyFiveMinutes();
     }
     
     protected function commands()

@@ -870,6 +870,8 @@
                 var students = response.students;
                 var userPermissions = @json(userPermissions());
                 var templateType = @json(get_application_settings('result_template'));
+                var classPosition = @json(get_application_settings('class_position'));
+                var gradePosition = @json(get_application_settings('grade_position'));
 
                 var html = '';
                 $.each(students, function(index, student) {
@@ -908,7 +910,7 @@
 
 
                             }else{
-                                    if(student.position_state && student.position_subject_state && templateType === 1){
+                                    if(gradePosition == 0 || classPosition == 0){
                                         if (userPermissions.includes('result_show')) {
                                             html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
                                         }
@@ -925,7 +927,27 @@
                                             html += '</button>';
                                             html += '</form>';
                                         }
+                                    }else{
+                                        if(student.position_state && student.position_subject_state && templateType === 1){
+                                            if (userPermissions.includes('result_show')) {
+                                                html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                                            }
+
+                                            if (userPermissions.includes('result_download')) {
+                                                html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
+                                                html += '@csrf';
+                                                html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                                                html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                                                html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                                                html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                                                html += '<button class="btn btn-sm btn-info" type="submit">';
+                                                html += '<i class="bx bxs-file-pdf"></i> PDF';
+                                                html += '</button>';
+                                                html += '</form>';
+                                            }
+                                        }
                                     }
+                                    
                             }
 
                                 if (userPermissions.includes('affective_create')) {
@@ -960,12 +982,16 @@
                                 
                                 
                                 if (userPermissions.includes('position_access')) {
-                                    if(student.position_state == false && templateType === 1){
-                                        html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Term Position</button>';
+                                    if(gradePosition == 1){
+                                        if(student.position_state == false && templateType === 1){
+                                            html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Term Position</button>';
+                                        }
                                     }
 
-                                    if(student.position_subject_state == false && templateType === 1){
-                                        html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Subject Grade Position</button>';
+                                    if(classPosition == 1){
+                                        if(student.position_subject_state == false && templateType === 1){
+                                            html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Subject Grade Position</button>';
+                                        }
                                     }
                                 }
                             

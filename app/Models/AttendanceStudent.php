@@ -26,6 +26,11 @@ class AttendanceStudent extends Model
         'afternoon',
     ];
 
+    protected $casts = [
+        'morning'  => 'boolean',
+        'afternoon'  => 'boolean',
+    ];
+
     public function id(): string
     {
         return $this->id;

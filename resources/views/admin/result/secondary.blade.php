@@ -56,7 +56,7 @@
 
         .mainContainer {
             float: left;
-            width: 40%;
+            width: 35%;
         }
 
         .minorContainer {
@@ -165,15 +165,31 @@
                     <div class="result-item">
                         <b>Name:</b> <span>{{ ucfirst($student->lastName()) }} {{ ucfirst($student->firstName()) }} {{ ucfirst($student->otherName()) }}</span>
                     </div>
+                    <div class="result-item">
+                        <b>Class:</b>
+                        <span>{{ $student->grade->title()}}</span>
+                    </div>
+                    <div class="result-item">
+                        <b>Students in class:</b>
+                        <span>{{ $student->grade->students->count()}}</span>
+                    </div>
                     {{-- <div class="result-item">
                         <b>Admission No.:</b>
                         <span>{{ $student->user->code()}}</span>
                     </div> --}}
                 </div>
                 <div class="mainContainer">
+                   <div class="result-item">
+                        <b>No. of times school opened:</b>
+                        <span>{{ $studentAtendance->attendance_duration ?? 0 ?? ''}}</span>
+                    </div>
                     <div class="result-item">
-                        <b>Class:</b>
-                        <span>{{ $student->grade->title()}}</span>
+                        <b>No. of times present:</b>
+                        <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
+                    </div>
+                    <div class="result-item">
+                        <b>Attendance Average:</b>
+                        <span>{{ calculatePercentage($studentAttendance->attendance_duration ?? 0, $studentAttendance->attendance_present ?? 0, 100) ?? '' }}%</span>
                     </div>
 
                     {{-- <div class="result-item">
@@ -194,27 +210,19 @@
                 </div>
                 <div class="minorContainer">
                     <div class="result-item">
-                        <b>Students in class:</b>
-                        <span>{{ $student->grade->students->count()}}</span>
+                        <b>Next term resumes:</b>
+                        <span>{{ \Carbon\carbon::parse(get_settings('next_term_resume'))->format('d F, Y') ?? 'Not set'}}</span>
                     </div>
-                    {{-- <div class="result-item">
-                        <b>No. of times school opened:</b>
-                        <span>{{ $studentAtendance->attendance_duration ?? 0 ?? ''}}</span>
-                    </div>
-                    <div class="result-item">
-                        <b>No. of times present:</b>
-                        <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
-                    </div>
-                    <div class="result-item">
-                        <b>Attendance Average:</b>
-                        <span>{{ calculatePercentage($studentAttendance->attendance_duration ?? 0, $studentAttendance->attendance_present ?? 0, 100) ?? '' }}%</span>
-                    </div> --}}
                 </div>
             </div>
 
             <div>
                 <table class="result-table">
                     @php
+                        $classPositionAllow = get_application_settings('class_position');
+                        $gradePositionAllow = get_application_settings('class_position');
+                        $resultPosition = get_application_settings('result_position');
+
                         $midterm = get_settings('midterm_format');
                         $exam = get_settings('exam_format');
                         $remarkFormat = get_settings('exam_remark');
@@ -280,12 +288,16 @@
                                     Average cummulative
                                 </th>
                             @endif
+                            @if($classPositionAllow == 1)
                             <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
                                 Position 
                             </th>
+                            @endif
+                            @if($gradePositionAllow == 1)
                             <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
                                 Position in Grade
                             </th>
+                            @endif
                             <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
                             GRADE
                             </th>
@@ -344,24 +356,24 @@
                                         {{ calculateResult($result) }}</td>
 
                                     @if ($term->id() === '1')
-                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position_in_class_subject'] }}
-                                        </td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position_in_grade_subject'] }}
-                                        </td>
+                                        @if($classPositionAllow == 1)
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                {{ $result['position_in_class_subject'] }}
+                                            </td>
+                                        @endif
+                                        @if($gradePositionAllow == 1)
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                {{ $result['position_in_grade_subject'] }}
+                                            </td>
+                                        @endif
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
                                             {{ examGrade(calculateResult($result)) }}</td>
                                         <td
                                         style="font-size: 10px; width: 20%; font-weight: 500; text-align: center">
                                         {{ examRemark(calculateResult($result)) }}</td>
-                                        {{-- <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position'] }}
-                                        </td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position_in_grade'] }}
-                                        </td> --}}
+
+                                        
                                     @endif
 
                                     @if ($term->id() === '2')
@@ -375,12 +387,19 @@
                                             style="font-size: 10px; font-weight: 500; text-align: center">
                                             {{ divnum(sum($result['first_term'], calculateResult($result)), 2) }}
                                         </td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position_in_class_subject'] }}
-                                        </td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position_in_grade_subject'] }}
-                                        </td>
+
+                                        @if($classPositionAllow == 1)
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                {{ $result['position_in_class_subject'] }}
+                                            </td>
+                                        @endif
+
+                                        @if($gradePositionAllow == 1)
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                {{ $result['position_in_grade_subject'] }}
+                                            </td>
+                                        @endif
+
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
                                             {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
@@ -398,12 +417,19 @@
                                             {{ ceil(divnum(sum($result['first_term'], $result['second_term']), 2) + calculateResult($result))}}
                                         </td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">{{ ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)) }}</td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position_in_class_subject'] }}
-                                        </td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['position_in_grade_subject'] }}
-                                        </td>
+                                        
+                                        @if($classPositionAllow == 1)
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                {{ $result['position_in_class_subject'] }}
+                                            </td>
+                                        @endif
+
+                                        @if($gradePositionAllow == 1)
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                {{ $result['position_in_grade_subject'] }}
+                                            </td>
+                                        @endif
+
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
                                             {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
                                         </td>
@@ -431,8 +457,10 @@
 
             <div style="text-align: center; margin: 7px 0">
                 <div><b style="font-size: 14px; text-align: center">Aggregate:</b> <span style="font-size: 12px;">{{ round($aggregate)}}/100</span></div>
-                <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of {{ $student->grade->students->count() }} students</span></div>
-                <div><b style="font-size: 14px; text-align: center">Position in grade:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_grade ?? '' }} of {{ $gradeStudents }} students</span></div>
+                @if($resultPosition == 1)
+                    <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of {{ $student->grade->students->count() }} students</span></div>
+                    <div><b style="font-size: 14px; text-align: center">Position in grade:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_grade ?? '' }} of {{ $gradeStudents }} students</span></div>
+                @endif
             </div>
 
             <div class="majorContainer">

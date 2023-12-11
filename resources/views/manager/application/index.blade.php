@@ -576,7 +576,7 @@
                                             </thead>
                                             <tbody>
                                                 @foreach(\App\Models\Setting::all() as $setting)
-                                                    @if (!in_array($setting->key, ['mail_config', 'digital_payment', 'paystack', 'cash', 'over_ten', 'over_twenty', 'over_fourty', 'over_sixty', 'over_hundred', 'exam_grade', 'exam_remark', 'affective_domain', 'psychomotor_domain']) && $setting->value != 1 && $setting->value != 0)
+                                                    @if (!in_array($setting->key, ['mail_config', 'digital_payment', 'paystack', 'cash', 'over_ten', 'over_twenty', 'over_fourty', 'over_sixty', 'over_hundred', 'exam_grade', 'exam_remark', 'affective_domain', 'psychomotor_domain', 'next_term_resume']) && $setting->value != 1 && $setting->value != 0)
                                                         <?php $data = json_decode($setting->value, true); ?>
                                                         <tr>
                                                             <td>
@@ -775,7 +775,7 @@
                                 </div>
                             </div>
 
-                             <div class="card">
+                            <div class="card">
                                 <div class="card-body">
                                     <h1 class="card-title mt-2 mb-2">Affective and Psychomotor Domain</h1>
 
@@ -846,6 +846,15 @@
                                     </form>
                                 </div>
                             </div>
+
+                            @can('settings_create')
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h1 class="card-title mt-2 mb-2">General Settings</h1>
+                                        <livewire:components.admin.settings />
+                                    </div>
+                                </div>
+                            @endcan
                         </div>
                     </div>
                 </div>

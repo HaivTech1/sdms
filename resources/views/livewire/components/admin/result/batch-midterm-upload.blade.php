@@ -247,6 +247,9 @@
                         toggleAble('#submit_button', false);
                         toastr.success(res.message, 'Success!');
                         resetForm('#midFormSubmit');
+                        setTimeout(function(){
+                            window.location.reload();
+                        },1000);
                     }).fail((err) => {
                         toggleAble('#submit_button', false);
                         let allErrors = Object.values(err.responseJSON).map(el => (

@@ -732,7 +732,7 @@ function calculateResult($value)
     if (is_array($midtermFormat)) {
         foreach ($midtermFormat as $midtermKey => $midtermValue) {
             if (isset($value[$midtermKey])) {
-                $midtermTotal += $value[$midtermKey];
+                $midtermTotal += intval($value[$midtermKey]);
             }
         }
     }
@@ -740,7 +740,7 @@ function calculateResult($value)
     if (is_array($examFormat)) {
         foreach ($examFormat as $examKey => $examValue) {
             if (isset($value[$examKey])) {
-                $examTotal += $value[$examKey];
+                $examTotal += intval($value[$examKey]);
             }
         }
     }
@@ -1153,4 +1153,34 @@ function generateStudentGradeSubjectPosition($studentId, $session, $term, $subje
 
     $positionWithSuffix = $studentPosition . $suffix;
     return $positionWithSuffix;
+}
+
+function isAttendanceMarked($studentId, $attendanceId, $attendanceType) {
+   
+    $status =  \App\Models\AttendanceStudent::where('student_id', $studentId)
+        ->where('attendance_id', $attendanceId)
+        ->where($attendanceType, true)
+        ->exists();
+    
+    return $status;
+}
+
+function calculateTermAttendance($student, $period, $term)
+{
+    $student = Student::where('uuid', $student)->first();
+
+    $attendanceRecords = $student->dailyAttendance()
+        ->where('period_id', $period)
+        ->where('term_id', $term)
+        ->get();
+
+    $totalAttendance = $attendanceRecords->count();
+    $totalPresent = $attendanceRecords->where('morning', true)->where('afternoon', true)->count();
+    $attendance = [
+        'total_attendance' => $totalAttendance,
+        'total_present' => $totalPresent
+    ];
+    
+
+    return $totalAttendance > 0 ? $attendance : null;
 }

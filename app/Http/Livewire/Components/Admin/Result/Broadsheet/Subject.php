@@ -46,7 +46,7 @@ class Subject extends Component
             $query->whereHas('grade', function($query) use ($grade){
                 $query->where('id', $grade);
             });
-        })->get();
+        })->orderBy('last_name')->get();
 
         $midtermResults = MidTerm::when($this->grade_id, function($query, $grade){
             $query->whereHas('grade', function($query) use ($grade){

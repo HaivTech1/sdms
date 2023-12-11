@@ -54,7 +54,7 @@
 
             .mainContainer {
                 float: left;
-                width: 40%;
+                width: 30%;
             }
 
             .minorContainer {
@@ -231,7 +231,7 @@
                                                         <span>{{ $student_data->grade->title()}}</span>
                                                     </div>
                                                     <div class="result-item">
-                                                        <b>student_datas in class:</b>
+                                                        <b>Students in class:</b>
                                                         <span>{{ $student_data->grade->students->count()}}</span>
                                                     </div>
                                                 </div>
@@ -241,25 +241,29 @@
                                                     </div>
                                                     <div class="result-item">
                                                         <b>Mark obtainable:</b>
-                                                        <span>{{ $student_data->subjects->count() * 100 }}</span>
+                                                        <span>{{ $markObtainable }}</span>
                                                     </div>
                                                     <div class="result-item">
-                                                        <b>Mark obtained:</b>
+                                                        <b>Mark Obtained:</b>
                                                         <span class="s-avg grand_total"> {{ $marksObtained }}</span>
-                                                    </div>
-                                                    <div class="result-item">
-                                                        <b>Position in class:</b>
-                                                        <span>{!! $position !!}</span>
                                                     </div>
                                                 </div>
                                                 <div class="minorContainer">
                                                     <div class="result-item">
                                                         <b>No. of times school opened:</b>
+                                                        @if(calculateTermAttendance($student_data->id(), $period_data->id() , $term_data->id())['total_attendance'])
+                                                            {{ calculateTermAttendance($student_data->id(), $period_data->id() , $term_data->id()['total_attendance']) }}
+                                                        @else
                                                         <span>{{ $studentAtendance->attendance_duration ?? 0 ?? ''}}</span>
+                                                        @endif
                                                     </div>
                                                     <div class="result-item">
                                                         <b>No. of times present:</b>
-                                                        <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
+                                                        @if(calculateTermAttendance($student_data->id(), $period_data->id() , $term_data->id())['total_present'])
+                                                            {{ calculateTermAttendance($student_data->id(), $period_data->id() , $term_data->id()['total_present']) }}
+                                                        @else
+                                                            <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
+                                                        @endif
                                                     </div>
                                                     <div class="result-item">
                                                         <b>Attendance Average:</b>
@@ -301,189 +305,228 @@
                                             </div>
 
                                             <div>
-                                                @if ($term_data->id() === '1')
+                                                
                                                     <table class="result-table">
-                                                        <thead id="ch">
-                                                            <tr>
-                                                                <th colspan="11" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">COGNITIVE DOMAIN</th>
-                                                            </tr>
-                                                            <tr>
-                                                                <th style="width: 30%;">Subjects</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Activities</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">GRADE</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Remarks</th>
-                                                            </tr>
-                                                            <tr style="text-align: center">
-                                                                <th></th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">20</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">20</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">10</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">10</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">60</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">40</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">%</th>
-                                                                <th></th>
-                                                                <th style="width: 10%"></th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody style="">
-                                                            @foreach ($results as $result)
-                                                                <tr>
-                                                                    <td style="text-align: left; font-size: 10px">{{ $result['subject'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] ?? '' }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] ?? '' }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] ?? '' }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] ?? '' }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr']) }}"> {{ $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr']  }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] ?? '' }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] ?? '' }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student_data->grade->id(), $result['subject'], $term_data->id(), $period_data->id() ) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examGrade($result['total']) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examRemark($result['total']) }}</td>
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                @elseif($term_data->id() === '2')
-                                                    <table class="result-table">
-                                                        <thead id="ch">
-                                                            <tr>
-                                                                <th colspan="15" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">COGNITIVE DOMAIN</th>
-                                                            </tr>
-                                                            <tr>
-                                                                <th style="width: 30%;">Subjects</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Activities</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">PROJECT</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">EXAM</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">TOTAL</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">1st Term Score</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grand TOTAL</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Avg.</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">GRADE</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg.</th>
-                                                                <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">Remarks</th>
-                                                            </tr>
-                                                            </tr>
-                                                            <tr style="text-align: center">
-                                                                <th></th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">20</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">20</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">10</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">10</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">60</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">40</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">200</th>
-                                                                <th></th>
-                                                                <th></th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">%</th>
-                                                                <th></th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody style="">
-                                                            @foreach ($results as $result)
-                                                                @php
-                                                                    $total = $result['total'] + $result['first_term_cummulative'];
-                                                                @endphp
+                                                        @php
+                                                            $classPositionAllow = get_application_settings('class_position');
+                                                            $gradePositionAllow = get_application_settings('class_position');
+                                                            $resultPosition = get_application_settings('result_position');
 
-                                                                <tr>
-                                                                    <td style="text-align: left; font-size: 10px">{{ $result['subject'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr']) }}"> {{ $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr']  }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center;">{{ sum($result['total'], $result['first_term_cummulative']) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ divnum(sum($result['total'], $result['first_term_cummulative']), 2) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examGrade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student_data->grade->id(), $result['subject'], $term_data->id(), $period_data->id() ) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; width: 20%; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examRemark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                @elseif($term_data->id() === '3')
-                                                    <table class="result-table">
+                                                            $midterm = get_settings('midterm_format');
+                                                            $exam = get_settings('exam_format');
+                                                            $remarkFormat = get_settings('exam_remark');
+                                                            $gradingFormat = get_settings('exam_grade');
+
+                                                            $midtermTotal = 0;
+                                                            $examTotal = 0;
+
+                                                            if (is_array($midterm)) {
+                                                                foreach ($midterm as $key => $value) {
+                                                                    if (isset($value['mark'])) {
+                                                                        $midtermTotal += $value['mark'];
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            if (is_array($exam)) {
+                                                                foreach ($exam as $key => $value) {
+                                                                    if (isset($value['mark'])) {
+                                                                        $examTotal += $value['mark'];
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            $expectedTotal = $examTotal + $midtermTotal;
+                                                            $mapping = generate_mapping($gradingFormat, $remarkFormat);
+                                                        @endphp
+
                                                         <thead id="ch">
                                                             <tr>
-                                                                <th colspan="15" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">3. COGNITIVE DOMAIN</th>
-                                                            </tr>
-                                                            <tr>
-                                                                <th style="width: 20%;">Subjects</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">First Test</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Continuous Assessment </th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Activities</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Project</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Total</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Exam</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Total</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">1st TS</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">2nd TS</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grand Total</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Avg.</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Grade</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Class Avg.</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">Remarks</th>
-                                                            </tr>
-                                                            <tr style="text-align: center">
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"></th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">20</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">20</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">10</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">10</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">60</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">40</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">100</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">300</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">%</th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"></th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"></th>
-                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"></th>
+                                                                <th style="width: 40%; padding-left: 10px; text-align: left">Subjects</th>
+                                                                @foreach ($midterm as $key => $value)
+                                                                    <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                        {{ $value['full_name'] }}
+                                                                    </th>
+                                                                @endforeach
+                                                                @foreach ($exam as $key => $value)
+                                                                    <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">{{ $value['full_name'] }}</th>
+                                                                @endforeach
+                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                    Total 
+                                                                </th>
+                                                                @if ($term_data->id() === '2')
+                                                                    <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                        Brought Forward
+                                                                    </th>
+                                                                    <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                    Total cummulative
+                                                                    </th>
+                                                                    <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                    Average cummulative
+                                                                    </th>
+                                                                @endif
+
+                                                                @if ($term_data->id() === '3')
+                                                                    <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                        Brought Forward
+                                                                    </th>
+                                                                    <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                    cummulative
+                                                                    </th>
+                                                                    <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                        Average cummulative
+                                                                    </th>
+                                                                @endif
+                                                                @if($classPositionAllow == 1)
+                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                    Position 
+                                                                </th>
+                                                                @endif
+                                                                @if($gradePositionAllow == 1)
+                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                    Position in Grade
+                                                                </th>
+                                                                @endif
+                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
+                                                                GRADE
+                                                                </th>
+                                                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">REMARK</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody style="">
-                                                            @foreach ($results as $result)
-                                                                @php
-                                                                    $total = $result['total'] + $result['first_term_cummulative'] + $result['second_term_cummulative'];
-                                                                @endphp
+                                
+                                                        <tbody>
+                                                            <tr>
+                                                                
+                                                                @foreach ($results as $result)
+                                                                    <tr>
+                                                                        <td style="padding-left: 10px; font-weight: 500; width: 40%; text-align: left; font-size: 11px">{{ $result['subject'] }}</td>
+                                                                        @foreach ($midterm as $key => $value)
+                                                                            @if (isset($result[$key]))
+                                                                            <td
+                                                                                style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ $result[$key] }}</td>
+                                                                            @endif
+                                                                        @endforeach
+                                                                        @foreach ($exam as $key => $value)
+                                                                            @if (isset($result[$key]))
+                                                                            @php
+                                                                                $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
+                                                                            @endphp
+                                                                            <td
+                                                                                style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ $result[$key] }}</td>
+                                                                            @endif
+                                                                        @endforeach
+                                                                        <td
+                                                                            style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                            {{ calculateResult($result) }}</td>
 
-                                                                <tr>
-                                                                    <td style="text-align: left; font-size: 10px">{{ $result['subject'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca1']) }}">{{ $result['ca1'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam20Color($result['ca2']) }}">{{ $result['ca2'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['ca3']) }}">{{ $result['ca3'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam10Color($result['pr']) }}">{{ $result['pr'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam60Color($result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr']) }}"> {{ $result['ca1'] + $result['ca2'] + $result['ca3'] + $result['pr']  }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam40Color($result['exam']) }}">{{ $result['exam'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['first_term_cummulative']) }}">{{ $result['first_term_cummulative'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['second_term_cummulative']) }}">{{ $result['second_term_cummulative'] }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3)) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examGrade(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
-                                                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student_data->grade->id(), $result['subject'], $term_data->id(), $period_data->id() ) }}</td>
-                                                                    <td style="font-size: 8px; font-weight: 500; text-align: center; width: 20%">{{ examRemark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
-                                                                </tr>
-                                                            @endforeach
+                                                                        @if ($term_data->id() === '1')
+                                                                            @if($classPositionAllow == 1)
+                                                                                <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                    {{ $result['position_in_class_subject'] }}
+                                                                                </td>
+                                                                            @endif
+                                                                            @if($gradePositionAllow == 1)
+                                                                                <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                    {{ $result['position_in_grade_subject'] }}
+                                                                                </td>
+                                                                            @endif
+                                                                            <td
+                                                                                style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ examGrade(calculateResult($result)) }}</td>
+                                                                            <td
+                                                                            style="font-size: 10px; width: 20%; font-weight: 500; text-align: center">
+                                                                                {{ examRemark(calculateResult($result)) }}
+                                                                            </td>
+
+                                                                            
+                                                                        @endif
+
+                                                                        @if ($term_data->id() === '2')
+                                                                            <td
+                                                                                style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ $result['first_term'] }}</td>
+                                                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ sum($result['first_term'], calculateResult($result)) }}
+                                                                            </td>
+                                                                            <td
+                                                                                style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ divnum(sum($result['first_term'], calculateResult($result)), 2) }}
+                                                                            </td>
+
+                                                                            @if($classPositionAllow == 1)
+                                                                                <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                    {{ $result['position_in_class_subject'] }}
+                                                                                </td>
+                                                                            @endif
+
+                                                                            @if($gradePositionAllow == 1)
+                                                                                <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                    {{ $result['position_in_grade_subject'] }}
+                                                                                </td>
+                                                                            @endif
+
+                                                                            <td
+                                                                                style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
+                                                                            </td>
+                                                                            <td
+                                                                                style="font-size: 10px; font-weight: 500; width: 20%; text-align: center">
+                                                                                {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
+                                                                            </td>
+                                                                        @endif
+
+                                                                        @if ($term_data->id() === '3')
+                                                                            <td
+                                                                                style="font-size: 10px; font-weight: 500; text-align: center">{{ divnum(sum($result['first_term'], $result['second_term']), 2) }}</td>
+                                                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ ceil(divnum(sum($result['first_term'], $result['second_term']), 2) + calculateResult($result))}}
+                                                                            </td>
+                                                                            <td style="font-size: 10px; font-weight: 500; text-align: center">{{ ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)) }}</td>
+                                                                            
+                                                                            @if($classPositionAllow == 1)
+                                                                                <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                    {{ $result['position_in_class_subject'] }}
+                                                                                </td>
+                                                                            @endif
+
+                                                                            @if($gradePositionAllow == 1)
+                                                                                <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                    {{ $result['position_in_grade_subject'] }}
+                                                                                </td>
+                                                                            @endif
+
+                                                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                                                {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
+                                                                            </td>
+                                                                            <td style="font-size: 8px; font-weight: 500; width: 30%; text-align: center">
+                                                                                {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
+                                                                            </td>
+                                                                        @endif
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tr>
                                                         </tbody>
                                                     </table>
+                                            </div>
+
+                                            <div style="margin: 10px 0">
+                                                <div style="font-size: 8px; text-align: center">
+                                                    <span><b>Grading system</b>: </span>
+                                                    <span>
+                                                        @foreach($mapping as $key => $value)
+                                                            <strong>{{ strtoupper($key) }}</strong>:{{ $value }},
+                                                        @endforeach
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div style="text-align: center; margin: 7px 0">
+                                                <div><b style="font-size: 14px; text-align: center">Aggregate:</b> <span style="font-size: 12px;">{{ round($aggregate)}}/100</span></div>
+                                                @if($resultPosition == 1)
+                                                    <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of {{ $student_data->grade->students->count() }} students</span></div>
+                                                    <div><b style="font-size: 14px; text-align: center">Position in grade:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_grade ?? '' }} of {{ $gradeStudents }} students</span></div>
                                                 @endif
                                             </div>
 
@@ -678,13 +721,13 @@
                                                             </thead>
                                                             <tbody style="text-align: center">
                                                                 <tr>
-                                                                    <td colspan="5" style=""></td>
+                                                                    <td colspan="5"></td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <td colspan="5" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">OFFICE HELD</td>
+                                                                    <td colspan="5" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">Next Term Resumes</td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <td colspan="5" style=""></td>
+                                                                    <td colspan="5">{{ \Carbon\carbon::parse(get_settings('next_term_resume'))->format('d F, Y') ?? 'Not set'}}</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -692,15 +735,35 @@
                                                 </div>
                                             </div>
 
-                                            <div>
-                                                <div style="margin: 5px 0">
-                                                    <span style="font-weight: bold; font-size: 12px">
+                                            <div wire:ignore>
+                                                <div style="margin: 5px 0" class="cursor-pointer" 
+                                                    onClick="editPrincipalComment(this)" 
+                                                    data-student="{{ $student_data->id() }}"
+                                                    data-term="{{ $term_data->id() }}"
+                                                    data-period="{{ $period_data->id() }}"
+                                                >
+                                                    <span" style="font-weight: bold; font-size: 10px">
                                                         <b>Class Teacher's Remarks</b>: 
                                                     </span>
-                                                    <span style="font-size: 10px">{{ $studentAttendance?->comment() ?? 'No comment'}}</span>
+
+                                                    <b style="font-size: 12px">{{ $studentAttendance?->comment() ?? 'No comment'}}</b>
                                                 </div>
-                                                <div style="margin: 5px 0">
-                                                    <span style="font-weight: bold; font-size: 12px"><b>Principal's Remarks</b>: </span><span style="font-size: 10px">{{ $comment ?? 'No comment' }}</span>
+
+                                                <div style="margin: 5px 0" 
+                                                    class="cursor-pointer"
+                                                    id="editContainer"
+                                                    onClick="editPrincipalComment(this)"
+                                                    data-student="{{ $student_data->id() }}"
+                                                    data-term="{{ $term_data->id() }}"
+                                                    data-period="{{ $period_data->id() }}"
+                                                >
+                                                    <span style="font-weight: bold; font-size: 10px; cursor: pointer" class="cursor-pointer"><b>Principal's Remarks</b>: </span>
+                                                    <b style="font-size: 12px" id="commentPrincipalDisplay">{{ $studentAttendance?->pcomment() ?? '' }}</b>
+
+                                                    <x-form.input id="commentPrincipalInput" class="block w-full mt-1" type="text" style="display: none;" />
+                                                    <div class="d-flex">
+                                                        <button onclick="submitPrincipalComment()" class="btn btn-sm btn-success mt-1" id="commentPrincipalButton" style="display: none;"><i class="bx bx-check"></i></button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -714,4 +777,71 @@
             </div>
         </div>
     </div>
+
+    @section('scripts')
+        <script>
+            function editPrincipalComment(element){
+                var studentData = element.getAttribute('data-student');
+                var termData = element.getAttribute('data-term');
+                var periodData = element.getAttribute('data-period');
+
+                var inputField = document.getElementById('commentPrincipalInput');
+                var button = document.getElementById('commentPrincipalButton');
+
+                inputField.style.display = 'block';
+                button.style.display = 'block';
+
+                var commentDisplay = document.getElementById('commentPrincipalDisplay');
+                commentDisplay.style.display = 'none';
+
+                inputField.value = commentDisplay.innerText;
+
+                inputField.setAttribute('data-student', studentData);
+                inputField.setAttribute('data-term', termData);
+                inputField.setAttribute('data-period', periodData);
+
+            }
+            
+
+
+            function submitPrincipalComment() {
+                var studentData = document.getElementById('editContainer').getAttribute('data-student');
+                var termData = document.getElementById('editContainer').getAttribute('data-term');
+                var periodData = document.getElementById('editContainer').getAttribute('data-period');
+                var newComment = document.getElementById('commentPrincipalInput').value;
+
+                var button = document.getElementById('commentPrincipalButton');
+                var inputField = document.getElementById('commentPrincipalInput');
+                var commentDisplay = document.getElementById('commentPrincipalDisplay');
+
+                toggleAble(button, true, 'Submitting...');
+
+                var url = '{{ route('result.principal.comment.upload') }}';
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    url,
+                    data: {student_uuid: studentData, term_id: termData, period_id: periodData, principal_comment: newComment}
+                }).done((res) => {
+                    toggleAble(button, false);
+                    toastr.success(res.message, 'Success!');
+                    
+                    button.style.display = 'none';
+                    inputField.style.display = 'none';
+
+                    commentDisplay.style.display = 'block';
+                    commentDisplay.innerText = newComment;
+                }).fail((res) => {
+                    toggleAble(button, false);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                });
+            }
+        </script>
+    @endsection
 </div>

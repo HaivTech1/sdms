@@ -792,7 +792,6 @@ class ResultController extends Controller
                 } else {
                     $total = calculateResult($result);
                 }
-                // $total = secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2);
                 $marksObtained += $total;
             }
 
@@ -973,35 +972,34 @@ class ResultController extends Controller
         }else{
             try{
                 foreach ($request->student_id as $i => $studentId) {
+                    $check = MidTerm::where('period_id', $request->period_id)
+                        ->where('term_id', $request->term_id)
+                        ->where('grade_id', $request->grade_id)
+                        ->where('subject_id', $request->subject_id)
+                        ->where('student_id', $studentId)
+                        ->first();
 
-                    $check = MidTerm::where('period_id', $request->period_id)->where('term_id', $request->term_id)->where('grade_id', $request->grade_id)->where('subject_id', $request->subject_id)->where('student_id', $studentId)->first();
-                    
-                    if ($check) {
-                        $midtermData = [];
-                        $midtermData[$request->format] = $request->{$request->format}[$i];
-                        $check->update($midtermData);
-                    }else {
-                        $midtermFormat = get_settings('midterm_format');
+                    $midtermFormat = get_settings('midterm_format');
+                    $midtermData = [
+                        'period_id' => $request->period_id,
+                        'term_id' => $request->term_id,
+                        'grade_id' => $request->grade_id,
+                        'subject_id' => $request->subject_id,
+                        'student_id' => $studentId
+                    ];
 
-                        foreach ($request->student_id as $i => $studentId) {
-                            $midtermData = [
-                                'period_id' => $request->period_id,
-                                'term_id' => $request->term_id,
-                                'grade_id' => $request->grade_id,
-                                'subject_id' => $request->subject_id,
-                                'student_id' => $studentId
-                            ];
-                            
-                            foreach (array_keys($midtermFormat) as $key) {
-                                if (isset($request->{$key}[$i])) {
-                                    $midtermData[$key] = $request->{$key}[$i];
-                                }
-                            }
-                            
-                            $midterm = new MidTerm($midtermData);
-                            $midterm->authoredBy(auth()->user());
-                            $midterm->save();
+                    foreach (array_keys($midtermFormat) as $key) {
+                        if (isset($request->{$key}[$i])) {
+                            $midtermData[$key] = $request->{$key}[$i];
                         }
+                    }
+
+                    if ($check) {
+                        $check->update($midtermData);
+                    } else {
+                        $midterm = new MidTerm($midtermData);
+                        $midterm->authoredBy(auth()->user());
+                        $midterm->save();
                     }
                 }
 
@@ -1234,7 +1232,8 @@ class ResultController extends Controller
             try {
                 DB::transaction(function () use ($request) {
                     foreach ($request->student_id as $i => $student) {
-
+                        $student_data = Student::where('uuid', $student)->first();
+                        
                         $checkExam = PrimaryResult::where([
                             'period_id' => $request->period_id,
                             'term_id' => $request->term_id,
@@ -1256,7 +1255,7 @@ class ResultController extends Controller
 
                         if(!$checkExam){
                             if (!$midterm) {
-                                $name = $midterm->student->lastName() . ' ' . $midterm->student->firstName(). ' ' . $midterm->student->otherName();
+                                $name = $student_data->lastName() . ' ' . $student_data->firstName(). ' ' . $student_data->otherName();
                                 throw new \Exception("Please upload midterm score for  $name");
                             }else{
 
@@ -1272,8 +1271,6 @@ class ResultController extends Controller
                                     foreach ($midtermFormat as $key => $value) {
                                         if (isset($midterm->$key)) {
                                             $result->$key = $midterm->$key;
-                                        }else{
-                                            dd($midterm->$key);
                                         }
                                     }
                                 }
@@ -1311,25 +1308,29 @@ class ResultController extends Controller
                         }
                        
                     }
-
-                    //calculate the position of each student in the subject by class and grade
-                    $students = Student::where('grade_id', $request->grade_id)->get();
-                    $grade = Grade::findOrFail($request->grade_id);
                     
-                    
-                    foreach($students as $student){
-                        $checkResult = PrimaryResult::where([
-                            'period_id' => $request->period_id,
-                            'term_id' => $request->term_id,
-                            'grade_id' => $request->grade_id,
-                            'subject_id' => $request->subject_id,
-                            'student_id' => $student->id()
-                        ])->first();
+                    $positionAllow = get_application_settings('class_position');
 
-                        $checkResult->update([
-                            'position_in_class_subject' => generateStudentClassSubjectPosition($student->id(), $request->period_id,  $request->term_id, $request->subject_id, $request->grade_id),
-                            // 'position_in_grade_subject' => generateStudentGradeSubjectPosition($student->id(), $request->period_id,  $request->term_id, $request->subject_id, $grade->title())
-                        ]);
+                    if($positionAllow == 1){
+                        //calculate the position of each student in the subject by class and grade
+                        $students = Student::where('grade_id', $request->grade_id)->get();
+                        $grade = Grade::findOrFail($request->grade_id);
+                        
+                        
+                        foreach($students as $student){
+                            $checkResult = PrimaryResult::where([
+                                'period_id' => $request->period_id,
+                                'term_id' => $request->term_id,
+                                'grade_id' => $request->grade_id,
+                                'subject_id' => $request->subject_id,
+                                'student_id' => $student->id()
+                            ])->first();
+
+                            $checkResult->update([
+                                'position_in_class_subject' => generateStudentClassSubjectPosition($student->id(), $request->period_id,  $request->term_id, $request->subject_id, $request->grade_id),
+                                // 'position_in_grade_subject' => generateStudentGradeSubjectPosition($student->id(), $request->period_id,  $request->term_id, $request->subject_id, $grade->title())
+                            ]);
+                        }
                     }
                 });
                 return response()->json([
@@ -1338,9 +1339,10 @@ class ResultController extends Controller
                 ], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
+                info($e->getMessage());
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error creating result: ' . $e->getMessage(),
+                    'message' => 'There was an error creating result please try again! Reason: ' .$e->getMessage(),
                 ], 500);
             }
         }
@@ -1981,7 +1983,20 @@ class ResultController extends Controller
 
             $result = $student->midTermResults->where('period_id', $request->period_id)
             ->where('term_id',  $request->term_id)
-            ->where('grade_id',  $request->grade_id);
+            ->where('grade_id',  $request->grade_id)->all();
+
+
+            usort($result, function ($a, $b) {
+                $mathematicsEnglish = ['Mathematics', 'English Language'];
+        
+                if (in_array($a->subject->title(), $mathematicsEnglish) && !in_array($b->subject->title(), $mathematicsEnglish)) {
+                    return -1;
+                } elseif (!in_array($a->subject->title(), $mathematicsEnglish) && in_array($b->subject->title(), $mathematicsEnglish)) {
+                    return 1;
+                } else {
+                    return strcmp($a->subject->title(), $b->subject->title());
+                }
+            });
 
             $scores = [];
             foreach ($student->midTermResults as $item) {
@@ -2014,7 +2029,7 @@ class ResultController extends Controller
                 'buttons' => 'Okay',
                 'title' => 'Error generating result'
             ]);
-            return redirect()->back()->with($notifiction);
+            return redirect()->back()->with($notification);
         }
         
     }
