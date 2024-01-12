@@ -251,23 +251,15 @@
                                                 <div class="minorContainer">
                                                     <div class="result-item">
                                                         <b>No. of times school opened:</b>
-                                                        @if(calculateTermAttendance($student_data->id(), $period_data->id() , $term_data->id())['total_attendance'])
-                                                            {{ calculateTermAttendance($student_data->id(), $period_data->id() , $term_data->id()['total_attendance']) }}
-                                                        @else
-                                                        <span>{{ $studentAtendance->attendance_duration ?? 0 ?? ''}}</span>
-                                                        @endif
+                                                        <span>{{ get_settings('no_school_open') }}</span>
                                                     </div>
                                                     <div class="result-item">
                                                         <b>No. of times present:</b>
-                                                        @if(calculateTermAttendance($student_data->id(), $period_data->id() , $term_data->id())['total_present'])
-                                                            {{ calculateTermAttendance($student_data->id(), $period_data->id() , $term_data->id()['total_present']) }}
-                                                        @else
-                                                            <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
-                                                        @endif
+                                                        <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
                                                     </div>
                                                     <div class="result-item">
                                                         <b>Attendance Average:</b>
-                                                        <span>{{ number_format(calculatePercentage($studentAttendance->attendance_duration ?? 0, $studentAttendance->attendance_present ?? 0, 100), 1) ?? '' }}%</span>
+                                                        <span>{{  round(calculatePercentage($studentAttendance->attendance_present, get_settings('no_school_open'), 100)) ?? '' }}%</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -314,8 +306,9 @@
 
                                                             $midterm = get_settings('midterm_format');
                                                             $exam = get_settings('exam_format');
-                                                            $remarkFormat = get_settings('exam_remark');
-                                                            $gradingFormat = get_settings('exam_grade');
+
+                                                            $remarkFormat = \Illuminate\Support\Str::startsWith($student_data->grade->title, "SSS") ? get_settings('exam_remark') : get_settings('exam_remark_jun');
+                                                            $gradingFormat = \Illuminate\Support\Str::startsWith($student_data->grade->title, "SSS") ? get_settings('exam_grade') : get_settings('exam_grade_jun');
 
                                                             $midtermTotal = 0;
                                                             $examTotal = 0;
@@ -434,10 +427,10 @@
                                                                             @endif
                                                                             <td
                                                                                 style="font-size: 10px; font-weight: 500; text-align: center">
-                                                                                {{ examGrade(calculateResult($result)) }}</td>
+                                                                                {{ examGrade(calculateResult($result), $student_data->grade->title()) }}</td>
                                                                             <td
                                                                             style="font-size: 10px; width: 20%; font-weight: 500; text-align: center">
-                                                                                {{ examRemark(calculateResult($result)) }}
+                                                                                {{ examRemark(calculateResult($result), $student_data->grade->title()) }}
                                                                             </td>
 
                                                                             
@@ -469,11 +462,11 @@
 
                                                                             <td
                                                                                 style="font-size: 10px; font-weight: 500; text-align: center">
-                                                                                {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
+                                                                                {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2), $student_data->grade->title()) }}
                                                                             </td>
                                                                             <td
                                                                                 style="font-size: 10px; font-weight: 500; width: 20%; text-align: center">
-                                                                                {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
+                                                                                {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2), $student_data->grade->title()) }}
                                                                             </td>
                                                                         @endif
 
@@ -498,10 +491,10 @@
                                                                             @endif
 
                                                                             <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                                                                {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
+                                                                                {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $student_data->grade->title()) }}
                                                                             </td>
                                                                             <td style="font-size: 8px; font-weight: 500; width: 30%; text-align: center">
-                                                                                {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
+                                                                                {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $student_data->grade->title()) }}
                                                                             </td>
                                                                         @endif
                                                                     </tr>

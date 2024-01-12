@@ -1215,15 +1215,17 @@
                         method: 'GET',
                         url: '{{ route('result.student.principalComment', ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':student_id', id),
                     }).done((response) => {
+                        console.log(response)
                         toggleAble(button, false);
+
                         if(response.comment != undefined || response.comment != null || response.comment != []){
                             var comment = response.comment.principal_comment;
                             var promotion_comment = response.comment.promotion_comment;
-                            document.getElementById('attendance_principal_comment').value = comment;
-                            document.getElementById('attendance_promotion_comment').value = promotion_comment;
+                            document.getElementById('attendance_principal_comment').value = comment ?? '';
+                            // document.getElementById('attendance_promotion_comment').value = promotion_comment ?? '';
                         }else{
                             document.getElementById('attendance_principal_comment').value = '';
-                            document.getElementById('attendance_promotion_comment').value = '';
+                            // document.getElementById('attendance_promotion_comment').value = '';
                         }
 
                         document.getElementById("student_principal").value = id;
@@ -1405,10 +1407,6 @@
                     toastr.success(res.message, 'Success!');
                     resetForm('#createAffective');
                      $("#createAffectiveModal").modal('toggle');
-
-                    setTimeout(()=> {
-                        window.location.reload();
-                    }, 1000)
                 }).fail((res) => {
                     toastr.error(res.responseJSON.message, 'Failed!');
                     toggleAble('#affective_button', false);
@@ -1432,9 +1430,6 @@
                     resetForm('#createPsychomotor');
                     $("#createPsychomotorModal").modal('toggle');
 
-                    setTimeout(()=> {
-                        window.location.reload();
-                    }, 1000)
                 }).fail((res) => {
                     toastr.error(res.responseJSON.message, 'Failed!');
                     toggleAble('#psychomotor_button', false);

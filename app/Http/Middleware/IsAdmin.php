@@ -13,20 +13,15 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class IsAdmin
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     */
-
+   
      public function handle(Request $request, Closure $next, $guard = null)
      {
-         if (Auth::guard($guard)->user()->can(UserPolicy::ADMIN, User::class)) {
-             return $next($request);
-         }
+        $user = Auth::guard($guard)->user();
+
+        if ($user && $user->can(UserPolicy::ADMIN, User::class)) {
+            return $next($request);
+        }
  
-         throw new AdminException();
+        throw new AdminException();
      }
 }

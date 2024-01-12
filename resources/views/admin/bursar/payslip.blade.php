@@ -68,7 +68,7 @@
                                                     <tr>
                                                         <td>{{ $list['title'] }}</td>
                                                         <td>
-                                                            <x-form.input id="{{ $list['key'] }}" class="block mt-1 payslip-input" type="number" value="0" name="{{ $list['key'] }}" style="text-align: center" />
+                                                            <x-form.input id="{{ $list['key'] }}" class="block mt-1 payslip-input" type="text" value="0" name="{{ $list['key'] }}" style="text-align: center" />
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -80,51 +80,51 @@
                                     <div class="row">
                                         <div class="col-sm-6 mb-2">
                                             <label for="total">Gross Salary:</label>
-                                            <x-form.input type="number" class="block" name="total" id="total" style="text-align: center" readonly />
+                                            <x-form.input type="text" class="block" name="total" id="total" style="text-align: center" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="pension">+ 10% Pension</label>
-                                            <x-form.input type="number" class="block payslip-input" name="pension" id="pension" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="pension" id="pension" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="grossPension">Gross + Pension</label>
-                                            <x-form.input type="number" class="block" name="grossPension" id="grossPension" style="text-align: center" readonly />
+                                            <x-form.input type="text" class="block" name="grossPension" id="grossPension" style="text-align: center" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="pension10">- 10% Pension</label>
-                                            <x-form.input type="number" class="block payslip-input" name="pension10" id="pension10" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="pension10" id="pension10" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="pension8">- 8% Pension</label>
-                                            <x-form.input type="number" class="block payslip-input" name="pension8" id="pension8" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="pension8" id="pension8" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="paye">- PAYE</label>
-                                            <x-form.input type="number" class="block payslip-input" name="paye" id="paye" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="paye" id="paye" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="welfare">- Welfare</label>
-                                            <x-form.input type="number" class="block payslip-input" name="welfare" id="welfare" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="welfare" id="welfare" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="others">- Others</label>
-                                            <x-form.input type="number" class="block payslip-input" name="others" id="others" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="others" id="others" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="refund">- Loan Refund</label>
-                                            <x-form.input type="number" class="block payslip-input" name="refund" id="refund" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="refund" id="refund" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="contribution">- Coop Contribution</label>
-                                            <x-form.input type="number" class="block payslip-input" name="contribution" id="contribution" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="contribution" id="contribution" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="loan">- Coop Loan</label>
-                                            <x-form.input type="number" class="block payslip-input" name="loan" id="loan" style="text-align: center"  value="0" />
+                                            <x-form.input type="text" class="block payslip-input" name="loan" id="loan" style="text-align: center"  value="0" />
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <label for="net">Net Pay:</label>
-                                            <x-form.input type="number" class="block" name="net" id="net" style="text-align: center" readonly />
+                                            <x-form.input type="text" class="block" name="net" id="net" style="text-align: center" />
                                         </div>
                                     </div>
                                 </div>

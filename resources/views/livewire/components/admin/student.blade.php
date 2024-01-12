@@ -193,6 +193,9 @@
                                                 <livewire:components.edit-title :model='$student->user' field='reg_no' :key='$student->user->id()'/>
                                             </td>
                                             <td>
+                                                <div>
+                                                    <p>{{ $student->subjects->count() }}</p>
+                                                </div>
                                                 <div class="accordion" id="accordionExample">
                                                     <div class="accordion-item">
                                                         <h2 class="accordion-header" id="heading{{ $student->id() }}">

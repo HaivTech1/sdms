@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Traits\NotifiableParentsTrait;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\AssignmentRequest;
+use App\Policies\UserPolicy;
 
 class AssignmentController extends Controller
 {
@@ -22,7 +23,7 @@ class AssignmentController extends Controller
 
     public function index()
     {
-        $assignments = Assignment::whereAuthor_id(auth()->id())->paginate(5);
+        $assignments = auth()->user()->isTeacher() ? Assignment::whereAuthor_id(auth()->id())->paginate(20) : Assignment::paginate(20);
 
         return view('admin.assignment.index',[
             'grades' => Grade::all(),

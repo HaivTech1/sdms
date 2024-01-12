@@ -23,6 +23,8 @@ use App\Models\PrimaryResult;
 use App\Scopes\HasActiveScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
+use Illuminate\Container\Container;
 
 function application($key)
 {
@@ -173,7 +175,7 @@ function calculateStudentPosition($studentIndex, $session, $term, $grade)
 
 function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
 {
-    $studentsData = Student::with(['primaryResults' => function ($query) use ($session, $term) {
+    $studentsData = Student::with(['primaryResults' => function ($query) use ($session) {
         $query->where('period_id', $session)
             ->whereIn('term_id', [1, 2, 3]);
     }])->whereHas('grade', function ($query) use ($grade) {
@@ -194,30 +196,17 @@ function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
             return $result->getTotalScore();
         });
 
-        $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        if ($term  === '1') {
+            $totalScores = $firstTotalScores;
+        } elseif ($term  === '2') {
+            $totalScores = $firstTotalScores + $secondTotalScores / 2;
+        } elseif ($term  === '3') {
+            $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        }
+
         $studentTotalScores[$student->id()] = $totalScores;
     }
-
-    // Sort the students based on their total scores
-    // arsort($studentTotalScores);
-
-    // $studentPosition = null;
-    // $position = 0;
-    // $prevTotal = null;
-    // foreach ($studentTotalScores as $studentId => $total) {
-    //     $position++;
-    //     if ($prevTotal === null || $prevTotal !== $total) {
-    //         // If the total score is different from the previous one, update the position
-    //         $studentTotalScores[$studentId] = $position;
-    //     }
-    //     if ($studentId === $studentIndex) {
-    //         $studentPosition = $position;
-    //         break;
-    //     }
-    //     $prevTotal = $total;
-    // }
-
-    // return $studentPosition;
+    
     arsort($studentTotalScores);
     $studentPosition = array_search($studentIndex, array_keys($studentTotalScores)) + 1;
 
@@ -235,10 +224,10 @@ function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
 }
 
 
-function studentSubjectPositionInGrade($studentIndex, $session, $grade, $subjectId)
+function studentSubjectPositionInGrade($studentIndex, $session, $term, $grade, $subjectId)
 {
     // Fetch all students along with their primary results for the given session, grade, and subject
-    $studentsData = \App\Models\Student::with(['primaryResults' => function ($query) use ($session, $subjectId, $grade) {
+    $studentsData = Student::with(['primaryResults' => function ($query) use ($session, $subjectId, $grade) {
         $query->where('period_id', $session)
             ->where('grade_id', $grade)
             ->whereIn('term_id', [1, 2, 3])
@@ -259,8 +248,15 @@ function studentSubjectPositionInGrade($studentIndex, $session, $grade, $subject
             return $result->getTotalScore();
         });
 
-        $total = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
-        $studentTotalScores[$student->id()] = $total;
+        if ($term  === '1') {
+            $totalScores = $firstTotalScores;
+        } elseif ($term  === '2') {
+            $totalScores = $firstTotalScores + $secondTotalScores / 2;
+        } elseif ($term  === '3') {
+            $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        }
+
+        $studentTotalScores[$student->id()] = $totalScores;
     }
 
     arsort($studentTotalScores);
@@ -280,7 +276,7 @@ function studentSubjectPositionInGrade($studentIndex, $session, $grade, $subject
 }
 
 
-function calculateStudentGradeSubjectPosition($studentIndex, $session, $grade, $subjectId)
+function calculateStudentGradeSubjectPosition($studentIndex, $session, $term, $grade, $subjectId)
 {
     $studentsData = Student::with(['primaryResults' => function ($query) use ($session, $subjectId) {
         $query->where('period_id', $session)
@@ -304,30 +300,16 @@ function calculateStudentGradeSubjectPosition($studentIndex, $session, $grade, $
             return $result->getTotalScore();
         });
 
-        $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        if ($term  === '1') {
+            $totalScores = $firstTotalScores;
+        } elseif ($term  === '2') {
+            $totalScores = $firstTotalScores + $secondTotalScores / 2;
+        } elseif ($term  === '3') {
+            $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
+        }
+
         $studentTotalScores[$student->id()] = $totalScores;
     }
-
-    // Sort the students based on their total scores
-    // arsort($studentTotalScores);
-
-    // $studentPosition = null;
-    // $position = 0;
-    // $prevTotal = null;
-    // foreach ($studentTotalScores as $studentId => $total) {
-    //     $position++;
-    //     if ($prevTotal === null || $prevTotal !== $total) {
-    //         // If the total score is different from the previous one, update the position
-    //         $studentTotalScores[$studentId] = $position;
-    //     }
-    //     if ($studentId === $studentIndex) {
-    //         $studentPosition = $position;
-    //         break;
-    //     }
-    //     $prevTotal = $total;
-    // }
-
-    // return $studentPosition;
 
     arsort($studentTotalScores);
     $studentPosition = array_search($studentIndex, array_keys($studentTotalScores)) + 1;
@@ -345,72 +327,6 @@ function calculateStudentGradeSubjectPosition($studentIndex, $session, $grade, $
     return $positionWithSuffix;
 }
 
-
-// function calculateStudentSubjectPosition($studentId, $model, $session, $term, $grade, $subjectId)
-// {
-//     $results = $model::where([
-//         'period_id' => $session,
-//         'term_id' => $term,
-//         'grade_id' => $grade,
-//         'subject_id' => $subjectId
-//     ])->get();
-
-//     $studentTotalScores = [];
-
-//     foreach ($results as $result) {
-//         $totalScore = $result->getTotalScore();
-//         $studentTotalScores[$result->student_id] = $totalScore;
-//     }
-
-//     arsort($studentTotalScores);
-//     $studentPosition = array_search($studentId, array_keys($studentTotalScores)) + 1;
-
-//     $suffix = 'th';
-//     if ($studentPosition % 10 === 1 && $studentPosition % 100 !== 11) {
-//         $suffix = 'st';
-//     } elseif ($studentPosition % 10 === 2 && $studentPosition % 100 !== 12) {
-//         $suffix = 'nd';
-//     } elseif ($studentPosition % 10 === 3 && $studentPosition % 100 !== 13) {
-//         $suffix = 'rd';
-//     }
-
-//     $positionWithSuffix = $studentPosition . $suffix;
-//     return $positionWithSuffix;
-// }
-
-// function calculateStudentGradeSubjectPosition($studentId, $model, $session, $term, $grade, $subjectId)
-// {
-//     $studentGrade = get_grade($grade);
-//     $results = $model::where([
-//         'period_id' => $session,
-//         'term_id' => $term,
-//         'subject_id' => $subjectId
-//     ])->whereHas('grade', function($query) use ($studentGrade){
-//         $query->where('title', 'like', $studentGrade .'%');
-//     })->get();
-
-//     $studentTotalScores = [];
-
-//     foreach ($results as $result) {
-//         $totalScore = $result->getTotalScore();
-//         $studentTotalScores[$result->student_id] = $totalScore;
-//     }
-
-//     arsort($studentTotalScores);
-//     $studentPosition = array_search($studentId, array_keys($studentTotalScores)) + 1;
-
-//     $suffix = 'th';
-//     if ($studentPosition % 10 === 1 && $studentPosition % 100 !== 11) {
-//         $suffix = 'st';
-//     } elseif ($studentPosition % 10 === 2 && $studentPosition % 100 !== 12) {
-//         $suffix = 'nd';
-//     } elseif ($studentPosition % 10 === 3 && $studentPosition % 100 !== 13) {
-//         $suffix = 'rd';
-//     }
-
-//     $positionWithSuffix = $studentPosition . $suffix;
-//     return $positionWithSuffix;
-// }
 
 function calculateAdminGradePosition($studentTotalScores, $studentId)
 {
@@ -440,12 +356,22 @@ function secondary_average($first, $second, $third, $by)
     return ceil($twoResult);
 }
 
-function examRemark($remark)
+function examRemark($remark, $type)
 {
-    $data = get_settings('exam_remark');
+    $dataSec = get_settings('exam_remark');
+    $dataJun = get_settings('exam_remark_jun');
 
-    if ($data) {
-        foreach ($data as $key => $value) {
+    if (Str::startsWith($type, "SSS")) {
+        foreach ($dataSec as $key => $value) {
+            $from = (float)$value['from'];
+            $text = $value['text'];
+
+            if ($remark >= $key && $remark <= $from) {
+                return $text;
+            }
+        }
+    }else{
+        foreach ($dataJun as $key => $value) {
             $from = (float)$value['from'];
             $text = $value['text'];
 
@@ -456,16 +382,28 @@ function examRemark($remark)
     }
 }
 
-function examGrade($grade)
+function examGrade($grade, $type)
 {
-    $data = get_settings('exam_grade');
+    $dataSec = get_settings('exam_grade');
+    $dataJun = get_settings('exam_grade_jun');
 
-    foreach ($data as $key => $value) {
-        $from = (float)$value['from'];
-        $text = $value['text'];
+    if(Str::startsWith($type, "SSS")){
+        foreach ($dataSec as $key => $value) {
+            $from = (float) $value['from'];
+            $text = $value['text'];
 
-        if ($grade >= $key && $grade <= $from) {
-            return $text;
+            if ($grade >= $key && $grade <= $from) {
+                return $text;
+            }
+        }
+    }else {
+          foreach ($dataJun as $key => $value) {
+            $from = (float)$value['from'];
+            $text = $value['text'];
+
+            if ($grade >= $key && $grade <= $from) {
+                return $text;
+            }
         }
     }
 }
@@ -663,7 +601,7 @@ function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100, $type =
     $comments = [];
     foreach ($weak_subjects as $subject_id => $score) {
         $subject_name = Subject::find($subject_id)->title(); // assuming there is a title property on the Subject model
-        $comment = "Your score in $subject_name is low. Your percentage score is " . round(($score/$max_score)*100) . "%.";
+        $comment = " $subject_name, ";
 
         $comments[] = $comment;
     }
@@ -674,7 +612,7 @@ function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100, $type =
 
      // If there are weak subjects, concatenate the info string to the beginning of the comment
      if (!empty($weak_subjects)) {
-        $comment = $info . ' ' . $comment. ' your percentage score in '. $plural. ' below average.' . ' I look forward to a more excellent result from you!';
+        $comment = $info . ' ' . $comment. ' Your percentage score in '. $plural. ' below average.' . ' I look forward to a more excellent result from you!';
     }
 
     return $comment;
@@ -981,7 +919,7 @@ if (!function_exists('generate_mapping')) {
         $lastRemark = $remarkArray[$lastKey];
         $numb = $lastKey - 1;
         $range = "0-{$numb}";
-        $mapping['Fail'] = "{$range}:F";
+        // $mapping['Fail'] = "{$range}:F";
         return $mapping;
     }
 }
@@ -990,15 +928,14 @@ function get_grade($data)
 {
     $split = explode(' ', $data);
     $get = count($split);
-    if($get == 3){
-        $class =  $split[0] . ' ' . $split[1];
-    }else if($get == 2 ){
-        $class =  $split[0]. ' ' . $split[1];
-    }else if($get == 1){
-        $class = $split[0];
+
+    if ($get >= 2) {
+        return $split[0] . ' ' . $split[1];
+    } else if ($get == 1) {
+        return $split[0];
+    } else {
+        return $data;
     }
-    
-    return $class;
 }
 
 function promotedTo($grade)
@@ -1168,19 +1105,86 @@ function isAttendanceMarked($studentId, $attendanceId, $attendanceType) {
 function calculateTermAttendance($student, $period, $term)
 {
     $student = Student::where('uuid', $student)->first();
+    $attendance = \App\Models\Attendance::where('grade_id', $student->grade_id)
+        ->where('period_id', $period)
+        ->where('term_id', $term)->get();
 
     $attendanceRecords = $student->dailyAttendance()
         ->where('period_id', $period)
         ->where('term_id', $term)
         ->get();
 
-    $totalAttendance = $attendanceRecords->count();
     $totalPresent = $attendanceRecords->where('morning', true)->where('afternoon', true)->count();
+
     $attendance = [
-        'total_attendance' => $totalAttendance,
+        'total_attendance' => $attendance->count(),
         'total_present' => $totalPresent
     ];
     
 
-    return $totalAttendance > 0 ? $attendance : null;
+    return count($attendance) > 0 ? $attendance : null;
+}
+
+if (!function_exists('app')) {
+    function app($abstract = null, array $parameters = [])
+    {
+        if (is_null($abstract)) {
+            return Container::getInstance();
+        }
+
+        return Container::getInstance()->make($abstract, $parameters);
+    }
+}
+
+if (!function_exists('getAboutSetting')) {
+    function getAboutSetting($column_name)
+    {
+        $basic = About::whereColumn_name($column_name)->first();
+        if ($basic)
+            return $basic->value;
+    }
+}
+
+if (!function_exists('input_types')) {
+    function input_types(){
+        $types  =
+        [
+            [
+                "name" => "Text",
+                "id" => "1"
+            ],
+            [
+                "name" => "Textarea",
+                "id" => "2"
+            ],
+            [
+                "name" => "Select",
+                "id" => "3"
+            ],
+            [
+                "name" => "Radio",
+                "id" => "4"
+            ],
+            [
+                "name" => "Checkbox",
+                "id" => "5"
+            ],
+            [
+                "name" => "File",
+                "id" => "6"
+            ],
+        ];
+        return $types;
+    }
+}
+
+if(!function_exists('convertStringToArray')){
+    function convertStringToArray($data){
+        $parsed = [];
+        $items = explode(',', $data);
+        foreach ($items as $item) {
+            $parsed[] = $item;
+        }
+        return $parsed;
+    }
 }

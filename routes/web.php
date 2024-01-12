@@ -1,9 +1,6 @@
 <?php
 
-use App\Models\Club;
 use App\Models\Grade;
-use App\Models\House;
-use App\Models\Schedule;
 use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FeeController;
@@ -71,22 +68,6 @@ use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController;
 use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController;
 use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/registration', function () {
-    return view('registration',[
-        'grades' => Grade::all(),
-    ]);
-});
-
-Route::get('/storage-link', function () {
-    $targetFolder = storage_path('app/public');
-    $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
-    symlink($targetFolder, $linkFolder);
-});
 
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
 Route::post('/update/password', [UserController::class, 'updatePassword'])->name('update.password');
@@ -208,8 +189,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/subjects/{id}', [StudentController::class, 'subjects'])->name('subjects');
             Route::delete('/{student}/subject/{subject}', [StudentController::class, 'deleteAssignedSubject'])->name('assignedSubject.delete');
             Route::post('/upload/passport', [StudentController::class, 'upload']);
-
             Route::post('/download/pdf', [StudentController::class, 'studentDownloadPdf'])->name('download-pdf');
+
+            Route::get('/cognitive/students/{period}/{term}', [StudentController::class, 'cognitiveStudents'])->name('cognitives');
+            Route::get('/psychomotor/students/{period}/{term}', [StudentController::class, 'psychomotorStudents'])->name('psychomotors');
         });
 
         Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -255,6 +238,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/psychomotor/get', [ResultController::class, 'psychomotor'])->name('psychomotor.get');
             Route::post('/psychomotor/upload', [ResultController::class, 'psychomotorUpload'])->name('psychomotor.upload');
             Route::post('/cognitive/upload', [ResultController::class, 'cognitiveUpload'])->name('cognitive.upload');
+            
+            Route::post('/batch/cognitive/upload', [ResultController::class, 'batchCognitiveUpload'])->name('batchcognitive');
+            Route::post('/batch/psychomotor/upload', [ResultController::class, 'batchPsychomotorUpload'])->name('batchPsychomotor');
 
             Route::get('/affective/get', [ResultController::class, 'affective'])->name('affective.get');
             Route::post('/affective/upload', [ResultController::class, 'affectiveUpload'])->name('affective.upload');
@@ -331,6 +317,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/update/position/score/grade', [ResultController::class, 'generateGradePositionScore'])->name('calculate.student.position');
             Route::get('/sync/position/student/{student_id}/{period_id}/{term_id}', [ResultController::class, 'syncStudentPosition'])->name('student.sync.position');
             Route::get('/single/position/student/{student_id}/{period_id}/{term_id}', [ResultController::class, 'syncStudentSinglePosition'])->name('student.sync.single.position');
+
+            Route::group(['prefix' => 'cas', 'as' => 'cas.'], function () {
+                Route::get('/comment', [ResultController::class, 'classComment'])->name('comment');
+                Route::get('/affective', [ResultController::class, 'classAffective'])->name('affective');
+                Route::get('/psychomotor', [ResultController::class, 'classPsychomotor'])->name('psychomotor');
+            });
         });
         
         Route::group(['prefix' => 'fee', 'as' => 'fee.'], function () {
@@ -338,6 +330,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/', [FeeController::class, 'store'])->name('store');
             Route::get('show/{student}', [FeeController::class, 'show'])->name('show');
             Route::get('edit/{student}', [FeeController::class, 'edit'])->name('edit');
+            Route::get('delete/{fee}/{item}', [FeeController::class, 'deleteFee'])->name('deleteFee');
             Route::get('create', [FeeController::class, 'create'])->name('create');
             Route::put('/{student}', [FeeController::class, 'update'])->name('update');
             Route::post('/update', [FeeController::class, 'update'])->name('updateFee');

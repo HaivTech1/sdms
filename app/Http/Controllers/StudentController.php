@@ -11,8 +11,8 @@ use App\Models\Mother;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Schedule;
+use App\Models\Cognitive;
 use App\Services\SaveCode;
-use App\Jobs\CreateStudent;
 use App\Jobs\UpdateStudent;
 use Illuminate\Http\Request;
 use App\Models\PrimaryResult;
@@ -21,10 +21,7 @@ use App\Services\SaveImageService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\RegistrationRequest;
 use App\Http\Requests\StoreStudentRequest;
-use App\Http\Requests\UpdateStudentRequest;
 use PDF;
 
 class StudentController extends Controller
@@ -51,12 +48,11 @@ class StudentController extends Controller
      */
     public function create()
     {
-        return view('admin.student.create',[
+        return view('admin.student.create', [
             'grades' => Grade::all(),
             'houses' => House::all(),
             'clubs' => Club::all(),
             'schedules' => Schedule::all(),
-            // 'subjects' => Subject::orderBy('name')->get()
         ]);
     }
 
@@ -140,18 +136,6 @@ class StudentController extends Controller
             DB::rollback();
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
-        // // dd($request);
-        
-        // $this->dispatchSync(CreateStudent::fromRequest($request));
-
-        // $notification = array(
-        //     'messege' => 'Student Created Successfully',
-        //     'alert-type' => 'success',
-        //     'button' => 'Okay!',
-        //     'title' => 'Success'
-        // );
-
-        // return redirect()->route('student.index')->with($notification);
     }
 
     /**
@@ -231,6 +215,28 @@ class StudentController extends Controller
         $class = $request->input('class');
         $students = Student::where('grade_id', $class)->get();
         return response()->json($students);
+    }
+
+    public function cognitiveStudents($period, $term)
+    {
+        $data = Cognitive::where([
+            'period_id' => $period,
+            'term_id' => $term,
+        ])->get();
+
+        $cognitives = [];
+        foreach ($data as $value){
+            $cognitives[] = [
+                'student_id' => $value->student_uuid,
+                'comment' => $value->comment,
+                'present' => $value->attendance_present
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'cognitives' => count($data) > 0 ? $cognitives : [],
+        ]);
     }
 
     public function getPerformanceByStudent(Request $request)

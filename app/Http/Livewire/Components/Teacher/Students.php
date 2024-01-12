@@ -20,7 +20,7 @@ class Students extends Component
     public $search = '';
     public $gender = '';
     public $sortBy = 'asc';
-    public $orderBy = 'first_name';
+    public $orderBy = 'last_name';
     public $grade = '';
     public $student_details;
     public $status = '';

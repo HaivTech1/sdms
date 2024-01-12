@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use PDF;
 use Excel;
 use App\Models\Term;
-use App\Models\Week;
 use App\Models\Event;
 use App\Models\Grade;
 use App\Models\Period;
@@ -16,30 +15,22 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Affective;
 use App\Models\Cognitive;
-use App\Jobs\CreateResult;
-use App\Events\ResultEvent;
 use App\Imports\ExamImport;
 use App\Models\Cummulative;
 use App\Models\Psychomotor;
 use Illuminate\Http\Request;
-use App\Mail\SendMidtermMail;
 use App\Models\PrimaryResult;
 use App\Imports\MidtermImport;
-use App\Jobs\MidTermResultJob;
-use App\Policies\ResultPolicy;
+use App\Policies\UserPolicy;
 use App\Models\PlaygroupResult;
 use App\Jobs\CreateSingleResult;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use App\Traits\NotifiableParentsTrait;
 use App\Exports\MidtermResultDataExport;
-use App\Http\Requests\StoreResultRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
-use App\Http\Requests\UpdateResultRequest;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ResultController extends Controller
 {
@@ -123,6 +114,78 @@ class ResultController extends Controller
     public function classBroadsheet()
     {
         return view('admin.result.classBroadsheet');
+    }
+
+    public function classComment()
+    {
+        $grades = UserPolicy::ADMIN ? Grade::all() : auth()->user()->gradeClassTeacher;
+        return view('admin.result.class_comment',[
+            'grades' => $grades,
+            'periods' => Period::all(),
+            'terms' => Term::all(),
+        ]);
+    }
+
+    public function classAffective()
+    {
+        return view('admin.result.class_affective');
+    }
+
+    public function classPsychomotor()
+    {
+        $grades = UserPolicy::ADMIN ? Grade::all() : auth()->user()->gradeClassTeacher;
+        return view('admin.result.class_psychomotor',[
+            'grades' => $grades,
+            'periods' => Period::all(),
+            'terms' => Term::all(),
+        ]);
+    }
+
+    public function batchPsychomotorUpload(Request $request)
+    {
+        try{
+
+            $students = $request->students;
+
+            foreach ($students as $i => $student){
+
+                $check = Psychomotor::where([
+                    'period_id' => $request->period_id,
+                    'term_id' => $request->term_id,
+                    'student_uuid' => $student,
+                ])->first();  
+
+                if($check){
+
+                    $check->update([
+                        'title' => $request->title[$i] ?? $check->title,
+                        'rate' => $request->rate[$i] ?? $check->rate,
+                    ]);
+
+                } else{
+                    $psychomotor = new Psychomotor([
+                        'title' => $request->title[$i],
+                        'rate' => $request->rate[$i],
+                        'period_id'     => $request->period_id,
+                        'term_id'       => $request->term_id,
+                        'student_uuid'        => $request->student_uuid,
+                    ]);
+                    $psychomotor->save();
+                }
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data uploaded successfully'
+            ], 200);
+
+        } catch(\Throwable $th){
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     public function playgroupUpload()
@@ -663,6 +726,16 @@ class ResultController extends Controller
             }
         });
 
+        foreach ($results as $item) {
+            $total_score = $item['first_test'] + $item['second_test'] + $item['exam'];
+            $subject_id = $item['subject_id'];
+            $scores[$subject_id] = $total_score;
+        }
+
+
+        $weakness_info = "Dear $student->first_name, based on your current term score, you need to improve in the following subject(s):";
+        $comment = generate_comment($scores, $weakness_info, 0.5, 100);
+
         return view('admin.result.secondary',[
             'student' => $student,
             'period' => $period,
@@ -672,7 +745,8 @@ class ResultController extends Controller
             'results' => $results,
             'studentAttendance' => $studentAttendance,
             'gradeStudents' => $gradeStudents,
-            'aggregate' => $aggregate
+            'aggregate' => $aggregate,
+            'comment' => $comment
         ]);
         
     }
@@ -814,6 +888,16 @@ class ResultController extends Controller
                     return strcmp($a['subject'], $b['subject']);
                 }
             });
+
+            foreach ($results as $item) {
+                $total_score = $item['first_test'] + $item['second_test'] + $item['exam'];
+                $subject_id = $item['subject_id'];
+                $scores[$subject_id] = $total_score;
+            }
+
+
+            $weakness_info = "Dear $student->first_name, based on your current term score, you need to improve in the following subject(s):";
+            $comment = generate_comment($scores, $weakness_info, 0.5, 100);
             
             $filename = "{$student->last_name}_{$student->first_name}_{$student->other_name}_result.pdf";
 
@@ -826,7 +910,8 @@ class ResultController extends Controller
                 'results' => $results,
                 'studentAttendance' => $studentAttendance,
                 'gradeStudents' => $gradeStudents,
-                'aggregate' => $aggregate
+                'aggregate' => $aggregate,
+                'comment' => $comment
             ]);
 
             return $pdf->download($filename);
@@ -900,10 +985,7 @@ class ResultController extends Controller
 
         if ($validator->fails())
         {
-            return response()->json([
-                'success' => 'false',
-                'message'  => $validator->message()->all(),
-            ], 400);
+            return response()->json(error_processor($validator));
         }else{
             try{
                 $check = MidTerm::where('period_id', $request->period_id)
@@ -965,10 +1047,7 @@ class ResultController extends Controller
 
         if ($validator->fails())
         {
-            return response()->json([
-                'success' => 'false',
-                'message'  => $validator->message()->all(),
-            ], 400);
+            return response()->json(error_processor($validator));
         }else{
             try{
                 foreach ($request->student_id as $i => $studentId) {
@@ -1597,13 +1676,13 @@ class ResultController extends Controller
             try {
                 if($check){
                     $check->update([
-                        'attendance_duration' => $request->attendance_duration,
-                        'attendance_present' => $request->attendance_present,
-                        'comment' => $request->comment,
-                        'principal_comment' => $request->principal_comment,
-                        'period_id'     => $request->period_id,
-                        'term_id'       => $request->term_id,
-                        'student_uuid'        => $request->student_uuid,
+                        'attendance_duration' => $request->attendance_duration ?? $check->attendance_duration,
+                        'attendance_present' => $request->attendance_present ?? $check->attendance_present,
+                        'comment' => $request->comment ?? $check->comment,
+                        'principal_comment' => $request->principal_comment ?? $check->principal_comment,
+                        'period_id' => $request->period_id ?? $check->period_id,
+                        'term_id' => $request->term_id ?? $check->term_id,
+                        'student_uuid' => $request->student_uuid ?? $check->student_uuid,
                     ]);
                 }else{
                     $cognitive = new Cognitive([
@@ -1623,6 +1702,53 @@ class ResultController extends Controller
                 return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
             }
          
+    }
+
+    public function batchCognitiveUpload(Request $request)
+    {
+        try{
+
+            $students = $request->students;
+
+            foreach ($students as $i => $student){
+
+                $check = Cognitive::where([
+                    'period_id' => $request->period_id,
+                    'term_id' => $request->term_id,
+                    'student_uuid' => $student,
+                ])->first();  
+
+                if($check){
+
+                    $check->update([
+                        'comment' => $request->comments[$i] ?? $check->comment,
+                        'attendance_present' => $request->attendances[$i] ?? $check->attendance_present,
+                    ]);
+
+                } else{
+                    $cog =  new Cognitive([
+                        'student_uuid' => $student,
+                        'comment' => $request->comments[$i],
+                        'attendance_present' => $request->attendances[$i],
+                        'period_id' => $request->period_id,
+                        'term_id' => $request->term_id,
+                    ]);
+                    $cog->save();
+                }
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data uploaded successfully'
+            ], 200);
+
+        } catch(\Throwable $th){
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     public function primaryPublish(Request $request)
@@ -1871,9 +1997,10 @@ class ResultController extends Controller
                                         foreach ($midtermFormat as $key => $value) {
                                             if (isset($midtermResult->$key)) {
                                                 $examResult->$key = $midtermResult->$key;
+                                                // $examResult['position_in_class_subject'] = generateStudentClassSubjectPosition($student->id(), $period,  $term, $subjectId, $grade);
+                                                // $examResult['position_in_class_subject'] = generateStudentGradeSubjectPosition($student->id(), $period, $term, $subjectId, $grade->title());
                                             }
                                         }
-            
                                         $examResult->save();
                                     }
                                 }
@@ -3062,8 +3189,8 @@ class ResultController extends Controller
                         $updateData[] = [
                             'student_id' => $student->id(),
                             'subject_id' => $result->subject_id,
-                            'position_in_class_subject' => studentSubjectPositionInGrade($student->id(), $period, $student->grade->id(), $result->subject_id),
-                            'position_in_grade_subject' => calculateStudentGradeSubjectPosition($student->id(), $period, $student->grade->title(), $result->subject_id),
+                            'position_in_class_subject' => studentSubjectPositionInGrade($student->id(), $period, $term, $student->grade->id(), $result->subject_id),
+                            'position_in_grade_subject' => calculateStudentGradeSubjectPosition($student->id(), $period, $term, $student->grade->title(), $result->subject_id),
                         ];
                     }
                 }
@@ -3216,8 +3343,8 @@ class ResultController extends Controller
                 $updateData[] = [
                     'student_id' => $studentsData->id(),
                     'subject_id' => $result->subject_id,
-                    // 'position_in_class_subject' => studentSubjectPositionInGrade($studentsData->id(), $period, $studentsData->grade->id(), $result->subject_id),
-                    'position_in_grade_subject' => generateStudentGradeSubjectPosition($studentsData->id(), $period,  $term_id, $result->subject_id, $studentsData->grade->title()) 
+                    'position_in_class_subject' => studentSubjectPositionInGrade($studentsData->id(), $period, $term, $studentsData->grade->id(), $result->subject_id),
+                    'position_in_grade_subject' => generateStudentGradeSubjectPosition($studentsData->id(), $period,  $term, $result->subject_id, $studentsData->grade->title()) 
                 ];
             }
 
@@ -3232,7 +3359,7 @@ class ResultController extends Controller
         
                 if ($updating) {
                     $updating->update([
-                        // 'position_in_class_subject' => $data['position_in_class_subject'],
+                        'position_in_class_subject' => $data['position_in_class_subject'],
                         'position_in_grade_subject' => $data['position_in_grade_subject'],
                     ]);
                 }

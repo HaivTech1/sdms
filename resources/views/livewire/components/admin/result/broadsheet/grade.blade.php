@@ -106,27 +106,27 @@
                                                     @foreach ($midterm as $midtermKey => $midtermValue)
                                                         <td style="text-align: center">
                                                             @if ($subjectResult && isset($subjectResult[$midtermKey]))
-                                                                {{ $subjectResult[$midtermKey] }}
+                                                                <p style="color: {{ exam20Color($subjectResult[$midtermKey]) }}">{{ $subjectResult[$midtermKey] }}</p>
                                                             @else
-                                                                -
+                                                                0
                                                             @endif
                                                         </td>
                                                     @endforeach
                                                     @foreach ($exam as $examKey => $examValue)
                                                         <td style="text-align: center">
                                                             @if ($subjectResult && isset($subjectResult[$examKey]))
-                                                                {{ $subjectResult[$examKey] }}
+                                                                <p style="color: {{ exam60Color($subjectResult[$examKey]) }}">{{ $subjectResult[$examKey] }}</p>
                                                             @else
-                                                                -
+                                                                0
                                                             @endif
                                                         </td>
                                                     @endforeach
 
                                                     {{-- <td style="text-align: center">
                                                         @if ($subjectResult)
-                                                            {{ $subjectResult['exam'] }}
+                                                            <p style="color: {{ exam200Color($subjectResult['exam']) }}">{{ $subjectResult['exam'] }}</p>
                                                         @else
-                                                            -
+                                                            0
                                                         @endif
                                                     </td> --}}
                                                     <td style="font-weight: 500; color: {{ exam100Color(calculateResult($subjectResult)) }}">{{ calculateResult($subjectResult) }}</td>

@@ -105,8 +105,8 @@
 <script>
     $(document).ready(function() {
         toastr.options = {
-            "positionClass": "toast-top-right",
-            "progressBar": true
+            "positionClass": "toast-bottom-left",
+            "progressBar": false
         }
 
         window.addEventListener('success', event => {

@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @section('title', $student->last_name." | Exam Result Page")
+    <link href="{{ asset('css/toastr.min.css') }}" rel="stylesheet">
+
     <style>
         #body_content {
             position: relative;
@@ -129,6 +132,39 @@
             {{-- padding: 5px 0; --}}
             text-orientation: mixed;
         }
+
+        #commentPrincipalInput {
+            width: 100%;
+            height: 45px;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border: none;
+            outline: none; 
+            padding: 15px 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #commentPrincipalButton {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #3498db; /* Change to your desired background color */
+            color: #fff; /* Change to your desired text color */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a shadow */
+            transition: background-color 0.3s ease; /* Add a smooth transition for background color */
+
+            /* Hover state */
+            &:hover {
+                background-color: #2980b9; /* Change to your desired hover background color */
+            }
+        }
+
     </style>
 </head>
 <body style="padding: 0 250px">
@@ -181,7 +217,7 @@
                 <div class="mainContainer">
                    <div class="result-item">
                         <b>No. of times school opened:</b>
-                        <span>{{ $studentAtendance->attendance_duration ?? 0 ?? ''}}</span>
+                        <span>{{ get_settings('no_school_open') }}</span>
                     </div>
                     <div class="result-item">
                         <b>No. of times present:</b>
@@ -189,7 +225,7 @@
                     </div>
                     <div class="result-item">
                         <b>Attendance Average:</b>
-                        <span>{{ calculatePercentage($studentAttendance->attendance_duration ?? 0, $studentAttendance->attendance_present ?? 0, 100) ?? '' }}%</span>
+                        <span>{{ round(calculatePercentage($studentAttendance->attendance_present, get_settings('no_school_open'), 100)) }}%</span>
                     </div>
 
                     {{-- <div class="result-item">
@@ -225,8 +261,9 @@
 
                         $midterm = get_settings('midterm_format');
                         $exam = get_settings('exam_format');
-                        $remarkFormat = get_settings('exam_remark');
-                        $gradingFormat = get_settings('exam_grade');
+                        
+                        $remarkFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_remark') : get_settings('exam_remark_jun');
+                        $gradingFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_grade') : get_settings('exam_grade_jun');
 
                         $midtermTotal = 0;
                         $examTotal = 0;
@@ -368,10 +405,10 @@
                                         @endif
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(calculateResult($result)) }}</td>
+                                            {{ examGrade(calculateResult($result), $student->grade->title()) }}</td>
                                         <td
                                         style="font-size: 10px; width: 20%; font-weight: 500; text-align: center">
-                                        {{ examRemark(calculateResult($result)) }}</td>
+                                        {{ examRemark(calculateResult($result), $student->grade->title()) }}</td>
 
                                         
                                     @endif
@@ -402,11 +439,11 @@
 
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
+                                            {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2), $student->grade->title()) }}
                                         </td>
                                         <td
                                             style="font-size: 10px; font-weight: 500; width: 20%; text-align: center">
-                                            {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2)) }}
+                                            {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2), $student->grade->title()) }}
                                         </td>
                                     @endif
 
@@ -431,10 +468,10 @@
                                         @endif
 
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
+                                            {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $student->grade->title()) }}
                                         </td>
                                         <td style="font-size: 8px; font-weight: 500; width: 30%; text-align: center">
-                                            {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))) }}
+                                            {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $student->grade->title()) }}
                                         </td>
                                     @endif
                                 </tr>
@@ -574,10 +611,98 @@
                 </span>
                 <b style="font-size: 12px">{{ $studentAttendance?->comment() ?? 'No comment'}}</b>
             </div>
-            <div style="margin: 5px 0">
-                <span style="font-weight: bold; font-size: 10px"><b>Principal's Remarks</b>: </span><b style="font-size: 12px">{{ $studentAttendance?->pcomment() ?? '' }}</b>
+            <div style="margin: 5px 0"
+                id="editContainer"
+                onClick="editPrincipalComment(this)"
+                data-student="{{ $student->id() }}"
+                data-term="{{ $term->id() }}"
+                data-period="{{ $period->id() }}"
+            >
+                <span style="font-weight: bold; font-size: 10px">
+                <b>Principal's Remarks</b>: </span>
+
+                <b style="font-size: 12px" id="commentPrincipalDisplay">{{ $studentAttendance?->pcomment() ?? $comment }}</b>
+
+                <input id="commentPrincipalInput" class="" type="text" style="display: none;" />
+
+                <div class="d-flex" style="margin-top: 3px">
+                    <button onclick="submitPrincipalComment()" class="btn btn-sm btn-success mt-1" id="commentPrincipalButton" style="display: none;">Submit</button>
+                </div>
             </div>
         </div>
     </div>
 </body>
+
+<script src="{{ asset('js/functions.js') }}"></script>
+<script src="{{ asset('libs/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('js/toastr.min.js') }}"></script>
+
+<script>
+    function editPrincipalComment(element){
+        var studentData = element.getAttribute('data-student');
+        var termData = element.getAttribute('data-term');
+        var periodData = element.getAttribute('data-period');
+
+        var inputField = document.getElementById('commentPrincipalInput');
+        var button = document.getElementById('commentPrincipalButton');
+
+        inputField.style.display = 'block';
+        button.style.display = 'block';
+
+        var commentDisplay = document.getElementById('commentPrincipalDisplay');
+        commentDisplay.style.display = 'none';
+
+        inputField.value = commentDisplay.innerText;
+
+        inputField.setAttribute('data-student', studentData);
+        inputField.setAttribute('data-term', termData);
+        inputField.setAttribute('data-period', periodData);
+
+    }
+
+    function submitPrincipalComment() {
+        var studentData = document.getElementById('editContainer').getAttribute('data-student');
+        var termData = document.getElementById('editContainer').getAttribute('data-term');
+        var periodData = document.getElementById('editContainer').getAttribute('data-period');
+        var newComment = document.getElementById('commentPrincipalInput').value;
+
+        var button = document.getElementById('commentPrincipalButton');
+        var inputField = document.getElementById('commentPrincipalInput');
+        var commentDisplay = document.getElementById('commentPrincipalDisplay');
+
+        toggleAble(button, true, 'Submitting...');
+
+        var url = '{{ route('result.principal.comment.upload') }}';
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+        });
+
+        const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
+
+        $.ajax({
+            type: 'POST',
+            url,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            data: {student_uuid: studentData, term_id: termData, period_id: periodData, principal_comment: newComment}
+        }).done((res) => {
+            toggleAble(button, false);
+            toastr.success(res.message, 'Success!');
+            
+            button.style.display = 'none';
+            inputField.style.display = 'none';
+
+            commentDisplay.style.display = 'block';
+            commentDisplay.innerText = newComment;
+        }).fail((res) => {
+            toggleAble(button, false);
+            toastr.error(res.responseJSON.message, 'Failed!');
+        });
+    }
+</script>
 </html>

@@ -4,23 +4,45 @@
        <x-partials.head />
     </head>
 
-    <body>
+    <body class="home-style4">
+
+        <!-- <div id="loader" class="loader">
+            <div class="loader-container">
+                <div class='loader-icon'>
+                    <img src="{{ URL::asset('storage/' .application('image')) }}" alt="logo">
+                </div>
+            </div>
+        </div> -->
+
         <x-partials.nav/>
 
-        @if (isset($header))
-            <header class="mx-6 mt-6 text-gray-600 shadow bg-theme-blue-100">
-                <div class="px-4 py-6 wrapper">
-                    {{ $header }}
+       <div class="main-content">
+            @if (isset($header))
+                <div class="rs-breadcrumbs breadcrumbs-overlay">
+                    <div class="breadcrumbs-img">
+                        <img src="{{ asset('storage/'.getAboutSetting('header_image')) }}" alt="Breadcrumb" style="height: 300px;">
+                    </div>
+                    <div class="breadcrumbs-text white-color">
+                        <h1 class="page-title">{{ $header }}</h1>
+                        <ul>
+                            <li>
+                                <a class="active" href="{{ url('/') }}">{{ application('name') }}</a>
+                            </li>
+                            <li>{{ $header }}</li>
+                        </ul>
+                    </div>
                 </div>
-            </header>
-        @endif
+            @endif
 
-        {{ $slot }}
+            {{ $slot }}
+       </div>
+
 
         <x-partials.footer />
 
-        <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
-        @bukScripts
+        <div id="scrollUp">
+            <i class="fa fa-angle-up"></i>
+        </div>
         <x-partials.script />
     </body>
 </html>

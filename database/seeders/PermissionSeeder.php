@@ -271,6 +271,10 @@ class PermissionSeeder extends Seeder
                 'id' => '64',
                 'title' => 'result_comment'
             ],
+            [
+                'id' => '65',
+                'title' => 'class_setting'
+            ]
         ];
 
         Permission::insert($permissions);

@@ -103,6 +103,27 @@ class FeeController extends Controller
         }
     }
 
+    public function deleteFee($fee, $item){
+       try{
+            $fee = FeeDetail::where([
+                'fee_id' => $fee,
+                'id' => $item
+            ])->first();
+
+            $fee->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Item deleted successfully from fee!',
+            ], 200);
+
+       }catch(\Throwable $th){
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+       }
+    }
     public function update(Request $request)
     {
         try {

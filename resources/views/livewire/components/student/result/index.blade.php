@@ -56,22 +56,21 @@
                             </div>
                         </form>
                         
-                        <div class="row">
+                        <div class="row mt-4">
                             <div class="col-12">
                                 <div class="table-responsive">
                                     <table id="result-data" class="table table-bordered table-striped table-nowrap mb-0">
                                         <thead>
                                             <tr>
+                                                <th scope="col" class="text-center" id="action">
+                                                    Action
+                                                </th>
                                                 <th scope="col" class="text-center">Name</th>
                                                 <th scope="col" class="text-center">
                                                     Present Class
                                                 </th>
                                                 <th scope="col" class="text-center">
                                                     Class Result
-                                                </th>
-                                                
-                                                <th scope="col" class="text-center" id="action">
-                                                    Action
                                                 </th>
                                             </tr>
                                         </thead>
@@ -171,6 +170,7 @@
                     }).done((response) => {
                         toggleAble(button, false);
                         var result = response.result;
+                        toastr.success('Congratulations! Result is available. Please click on the download Result to download.', 'Success');
 
                         var html = '';
                         if (response.grade_name === 'Playgroup') {
@@ -199,10 +199,6 @@
                             html += '</tr>';
                         } else {
                             html += '<tr>';
-                                html += '<td class="text-center">' + result.name + '</td>';
-                                html += '<td class="text-center">' + response.current_class + '</td>';
-                                html += '<td class="text-center">' + response.grade_name + '</td>';
-
                                 if(result.recorded_subjects > 0)
                                 {
                                     html += '<td>';
@@ -213,7 +209,7 @@
                                     html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
                                     html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
                                     html += '<button class="btn btn-sm btn-info" type="submit">';
-                                    html += '<i class="bx bxs-file-pdf"></i> Download PDF';
+                                    html += '<i class="bx bxs-file-pdf"></i> Download Result';
                                     html += '</form>';
                                     html += '</div>';
                                     html += '</td>';
@@ -222,6 +218,10 @@
                                     html += '<p>No Results available</p>';
                                     html += '</td>';
                                 }
+
+                                html += '<td class="text-center">' + result.name + '</td>';
+                                html += '<td class="text-center">' + response.current_class + '</td>';
+                                html += '<td class="text-center">' + response.grade_name + '</td>';
                             html += '</tr>';
                         }
 

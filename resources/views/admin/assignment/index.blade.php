@@ -1,4 +1,4 @@
-<x-app-layout>
+ mt-4<x-app-layout>
     @section('title', application('name')." | Create Assignment Page")
         <x-slot name="header">
             <h4 class="mb-sm-0 font-size-18">Assignment</h4>
@@ -67,12 +67,13 @@
                             @endforeach
                         </tbody>
                     </table>
+                    
+                     {{ $assignments->links('pagination::bootstrap-4')}}
                 </div>
             </div>
-            {{ $assignments->links('pagination::custom-pagination')}}
         </div>
 
-        <div class="col-md-12">
+        <div class="col-md-12 mt-4">
             <div class="card">
                 <div class="card-body">
 

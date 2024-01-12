@@ -337,7 +337,7 @@
                     if (index == details.length - 1) {
                         table += "<td><button type='button' name='add' id='add' class='btn btn-success'><i class='bx bx-plus'></i></button></td>";
                     } else {
-                        table += "<td><button type='button' name='remove' class='btn btn-danger'><i class='bx bx-minus'></i></button></td>";
+                        table += `<td><button data-fee="${id}" data-id="${detail['id']}" type='button' name='remove' class='btn btn-danger'><i class='bx bx-minus'></i></button></td>`;
                     }
                     table += "</tr>";
                 });
@@ -358,7 +358,21 @@
 
 
                 $(document).on("click", "#dynamicTable button[name='remove']", function() {
-                    $(this).closest("tr").remove();
+                    var button = $(this);
+                    var deleteId = $(this).data('id');
+                    var feeId = $(this).data('fee');
+                    toggleAble(button, true);
+
+                    $.ajax({
+                        method: "get",
+                        url: "{{ route('fee.deleteFee', ['fee' => 'fee_id', 'item' => 'item_id'])}}".replace('fee_id', feeId).replace('item_id', deleteId),
+                    }).done((res) => {
+                        toggleAble(this, false);
+                        toastr.success(res.message);
+                        $(this).closest("tr").remove();
+                    }).fail((error) => {
+                        toastr.error(error.messageJSON.message);
+                    });
                 });
 
                 document.getElementById("fee").value=id;

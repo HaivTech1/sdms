@@ -190,22 +190,17 @@
                 let loan = parseFloat(document.getElementById("loan").value);
                 let grossPension = 0;
 
-                // loop through each input field and add its value to the total
                 inputs.forEach(function(input) {
-                    // check if the input field has id "pension"
                     if (input.id !== "pension" && input.id !== "pension10" && input.id !== "pension8" && input.id !== "paye" && input.id !== "welfare" && input.id !== "others" && input.id !== "refund" && input.id !== "contribution" && input.id !== "loan") {
                         total += parseFloat(input.value);
                     }
                 });
 
-                // add the total and pension values together to calculate the gross pension
                 grossPension = total + pension;
 
-                // update the value of the "grossPension" input field with the new gross pension value
                 document.getElementById("grossPension").value = grossPension.toFixed(2);
             }
 
-            // add an event listener to the "pension" input field to call the updateGrossPension function when it's changed
             let pensionInput = document.getElementById("pension");
             pensionInput.addEventListener("change", updateGrossPension);
 
