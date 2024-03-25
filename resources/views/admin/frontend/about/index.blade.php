@@ -15,7 +15,7 @@
             <div class="col-sm-8">
                 <div class="search-box me-2 mb-2 d-inline-block">
                     <div class="position-relative">
-                        <input type="text" class="form-control" placeholder="Search..." id="input-search">
+                        <input type="text" class="form-control input_type" placeholder="Search..." id="input-search">
                         <i class="bx bx-search-alt search-icon"></i>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                                  <div class="col-sm-6 mb-3 type_textarea" style="display: none">
                                     <x-form.label for="value" value="Value" />
                                     <textarea id="value summernote" class="form-control value"
-                                        :value="old('value')" id="value"></textarea>
+                                        :value="old('value')" name="value"></textarea>
                                 </div>
 
                             </div>
@@ -220,7 +220,13 @@
             });
 
             $('.edit_about_setting').on('blur', function() {
-              var updatedValue = $(this)[0].files[0] || $(this).val();
+                var updatedValue;
+
+                if ($(this).is(':file')) {
+                    updatedValue = $(this)[0].files[0];
+                } else {
+                    updatedValue = $(this).val();
+                }
 
                 if (!updatedValue) {
                     return;
@@ -229,12 +235,7 @@
                 var dataKey = $(this).data('key');
                 let formData = new FormData();
                 formData.append('key', dataKey);
-
-                if (updatedValue instanceof File) {
-                    formData.append('value', updatedValue);
-                } else {
-                    formData.append('value', updatedValue);
-                }
+                formData.append('value', updatedValue);
 
                 $.ajax({
                     url: "{{ route('admin.about.update') }}",
@@ -251,6 +252,7 @@
                     }
                 });
             });
+
 
             $("#input-search").on("keyup", function () {
                 var searchValue = $(this).val().toLowerCase();

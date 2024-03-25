@@ -8,10 +8,9 @@ use App\Models\Period;
 use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Mail\SendMidtermMail;
 use App\Scopes\HasActiveScope;
-use Illuminate\Support\Facades\Mail;
 use App\Traits\NotifiableParentsTrait;
+use App\Traits\NumberBroadcast;
 use App\Models\Student as ClientStudent;
 
 class Student extends Component
@@ -137,11 +136,23 @@ class Student extends Component
         try {
             $student = ClientStudent::withoutGlobalScope(new HasActiveScope)->where('uuid', $student)->first();
             $idNumber = $student->user->code();
-            $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
-            $message = "<p>Your child: $name login credentials are: Id Number: ".$idNumber." and password: password123 or password1234</p>";
+            $name = $student->last_name." ".$student->first_name. " ".$student->other_name;
+            $message = "<p>Your child: $name login credential is: Id Number: ".$idNumber." and password: password123 or password1234</p>";
             $subject = 'Portal Login Credentials';
 
-            NotifiableParentsTrait::notifyParents($student, $message, $subject);
+            $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\Your child: $name login credential is: \\ \\*Id Number:* ".$idNumber." \\*Password:* password123 or password1234 \\ \\Kind Regards, \\Management.";
+            
+            try {
+                NotifiableParentsTrait::notifyParents($student, $message, $subject);
+            } catch (\Throwable $th) {
+                info($th->getMessage());
+            }
+
+            try {
+                NumberBroadcast::notify($student, $watMessage);
+            } catch (\Throwable $th) {
+               info($th->getMessage());
+            }
             
             $this->dispatchBrowserEvent('success', ['message' => 'Credentials have been sent successfully!']);
         } catch (\Throwable $th) {
@@ -155,11 +166,23 @@ class Student extends Component
             $students = ClientStudent::withoutGlobalScope(new HasActiveScope)->whereIn('uuid', $this->selectedRows)->get();
             foreach ($students as $student) {
                 $idNumber = $student->user->code();
-                $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+                $name = $student->last_name." ".$student->first_name. " ".$student->other_name;
                 $message = "<p>Your child: $name login credentials are: Id Number: ".$idNumber." and password: password123 or password1234</p>";
                 $subject = 'Portal Login Credentials';
 
-                NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\Your child: $name login credential is: \\ \\*Id Number:* ".$idNumber." \\*Password:* password123 or password1234 \\ \\Kind Regards, \\Management.";
+            
+                try {
+                    NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                } catch (\Throwable $th) {
+                    info($th->getMessage());
+                }
+
+                try {
+                    NumberBroadcast::notify($student, $watMessage);
+                } catch (\Throwable $th) {
+                info($th->getMessage());
+                }
             }
             $this->dispatchBrowserEvent('success', ['message' => 'Credentials have been sent successfully!']);
             $this->reset(['selectedRows', 'selectPageRows']);

@@ -149,7 +149,7 @@
                     var comment = initialData.find(cognitive => cognitive.student_id === student['id']);
                     tableRows += `
                         <tr>
-                            <td class="text-center" style="width: 35%;">
+                            <td class="" style="width: 35%;">
                                 ${student['name']}
                                 <input type="hidden" class="form-control" id="student-${student['id']}" name="students[]" value="${student['id']}" />
                             </td>

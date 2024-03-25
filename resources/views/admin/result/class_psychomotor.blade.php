@@ -48,16 +48,6 @@
                                         </select>
                                         <x-form.error for="term_id" />
                                     </div>
-
-                                    <div class="col-lg-3">
-                                        <select class="form-control" id="type" name="type">
-                                            <option value=''>Select type</option>
-                                            @foreach ($terms as $term)
-                                            <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                            @endforeach
-                                        </select>
-                                        <x-form.error for="term_id" />
-                                    </div>
                                     
                                     <div class="col-lg-3">
                                         <div class="d-flex justify-content-center align-item-center">
@@ -82,13 +72,14 @@
                                 <div class="table-responsive">
                                     <table id="comment-data" class="table table-bordered table-striped table-nowrap mb-0">
                                         <thead>
+                                            @php
+                                                $psychomotors = get_settings('psychomotor_domain');
+                                            @endphp
                                             <tr>
-                                                <th class="text-center">Name of Student</th>
-                                                <th class="text-center">5</th>
-                                                <th class="text-center">4</th>
-                                                <th class="text-center">3</th>
-                                                <th class="text-center">2</th>
-                                                <th class="text-center">1</th>
+                                                <th class="text-center"  style="width: 300px">Name of Student</th>
+                                                @foreach ($psychomotors as $key => $psychomotor)
+                                                    <th class="text-center">{{ $key+1 }}</th>
+                                                @endforeach
                                             </tr>
                                         </thead>
 
@@ -97,7 +88,12 @@
                                         </tbody>
                                     </table>
                                     
-                                    <div class="d-flex mt-2">
+                                    <div id="noPsychoList" class="my-2 text-center d-none">
+                                        <p class="text-danger">The following student's psychomotor domain has not been computed</p>
+                                        <p class="listNoPsycho"></p>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-center mt-2">
                                         <button type="submit" id="submitComment" class="btn btn-success rounded-pill px-4">Save</button>
                                     </div>
                                 </div>
@@ -151,24 +147,37 @@
                 });
             });
 
-            function displayPsychomotor(data, initialData){
+            function displayPsychomotor(students, initialData){
                 var tableRows = '';
+                var listPsychomotors = @json(get_settings('psychomotor_domain'));
 
-                data.forEach(function(student) {
+                students.forEach(function(student) {
 
-                    var psycho = initialData.find(psycho => psycho.student_id === student['id']);
+                    var psychomotorsList = '';
+                    listPsychomotors.forEach(function(domain, index) {
+                        var radioButtons = '';
+
+                        for (var i = 1; i <= 5; i++) {
+                            var psycho = initialData.find(psycho => psycho.student_id === student['id'] && psycho.title.trim() == domain.trim());
+                            var isChecked = psycho && psycho.value == i ? 'checked' : '';
+
+                            radioButtons += `
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="checkbox-${student['id']}-${index + 1}-${i}-${domain}" name="psychomotors[${student['id']}][${domain}][]" value="${i}" ${isChecked} />
+                                    <label class="form-check-label" for="checkbox-${student['id']}-${index + 1}-${i}">${i}</label>
+                                </div>
+                            `;
+                        }
+                        psychomotorsList += `<td>${domain}${radioButtons}</td>`;
+                    });
 
                     tableRows += `
                         <tr>
-                            <td class="text-center">
+                            <td class="text-left" style="width: 300px">
                                 ${student['name']}
                                 <input type="hidden" class="form-control" id="student-${student['id']}" name="students[]" value="${student['id']}" />
                             </td>
-                            <td>
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="checkbox-${student['id']}" name="psychomotors[]" value="5" ${psycho ? 'checked' : ''} />
-                                </div>
-                            </td>
+                            ${psychomotorsList}
                         </tr>
                     `;
                 });
@@ -183,7 +192,7 @@
                 toggleAble(button, true, 'Updating...');
 
                 var data = $(this).serializeArray();
-                var url = "{{ route('result.batchcognitive') }}";
+                var url = "{{ route('result.batchPsychomotor') }}";
 
                 $.ajax({
                     url,
@@ -193,6 +202,24 @@
                     toggleAble(button, false);
                     toastr.success(response.message);
                     resetForm('#commentForm');
+                    var no_psychomotor_count = response.no_psychomotor.count;
+                    var no_psychomotor = response.no_psychomotor.data;
+
+                    var listRow = '';
+                    if (no_psychomotor_count > 0) {
+                        no_psychomotor.forEach(function(name, index) {
+                            listRow += (index < no_psychomotor_count - 1) ? `${name}, ` : `${name}.`;
+                        });
+                        $('#noPsychoList .listNoPsycho').html(listRow);
+                        $('#noPsychoList').removeClass('d-none'); 
+                    } else {
+                        $('#noPsychoList').addClass('d-none');
+                    }
+
+                    setTimeout(() => {
+                        $('#noPsychoList').addClass('d-none');
+                    }, 10000);
+
                 }).fail((error) => {
                     toggleAble(button, false);
                     toastr.error(error.responseJSON.message);

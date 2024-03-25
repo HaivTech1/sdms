@@ -31,6 +31,7 @@ use App\Traits\NotifiableParentsTrait;
 use App\Exports\MidtermResultDataExport;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
+use App\Traits\NumberBroadcast;
 
 class ResultController extends Controller
 {
@@ -128,7 +129,12 @@ class ResultController extends Controller
 
     public function classAffective()
     {
-        return view('admin.result.class_affective');
+        $grades = UserPolicy::ADMIN ? Grade::all() : auth()->user()->gradeClassTeacher;
+        return view('admin.result.class_affective', [
+            'grades' => $grades,
+            'periods' => Period::all(),
+            'terms' => Term::all(),
+        ]);
     }
 
     public function classPsychomotor()
@@ -144,39 +150,134 @@ class ResultController extends Controller
     public function batchPsychomotorUpload(Request $request)
     {
         try{
-
             $students = $request->students;
+            $studentsWithoutPsychomotorData = [];
+            $namesOfStudentsWithoutPsychomotorData = [];
 
-            foreach ($students as $i => $student){
+            foreach ($students as $studentUuid){
 
-                $check = Psychomotor::where([
-                    'period_id' => $request->period_id,
-                    'term_id' => $request->term_id,
-                    'student_uuid' => $student,
-                ])->first();  
-
-                if($check){
-
-                    $check->update([
-                        'title' => $request->title[$i] ?? $check->title,
-                        'rate' => $request->rate[$i] ?? $check->rate,
-                    ]);
-
-                } else{
-                    $psychomotor = new Psychomotor([
-                        'title' => $request->title[$i],
-                        'rate' => $request->rate[$i],
-                        'period_id'     => $request->period_id,
-                        'term_id'       => $request->term_id,
-                        'student_uuid'        => $request->student_uuid,
-                    ]);
-                    $psychomotor->save();
+                if (!isset($request->psychomotors[$studentUuid])) {
+                    $studentsWithoutPsychomotorData[] = $studentUuid;
+                    continue;
                 }
+
+                $studentPsychomotors = $request->psychomotors[$studentUuid];
+                foreach ($studentPsychomotors as $key => $value) {
+
+                    $title = trim($key);
+
+                    $check = Psychomotor::where([
+                        'title' => $title,
+                        'period_id' => $request->period_id,
+                        'term_id' => $request->term_id,
+                        'student_uuid' => $studentUuid,
+                    ])->first();  
+
+                    if($check){
+                        $check->update([
+                            'title' => $title,
+                            'rate' => $value[0],
+                        ]);
+                    } else{
+                        $psychomotor = new Psychomotor([
+                            'title' => $title,
+                            'rate' => $value[0],
+                            'period_id'     => $request->period_id,
+                            'term_id'       => $request->term_id,
+                            'student_uuid'        => $studentUuid,
+                        ]);
+                        $psychomotor->save();
+                    }
+                }
+            }
+
+            if (!empty($studentsWithoutPsychomotorData)) {
+                $namesOfStudentsWithoutPsychomotorData = Student::whereIn('uuid', $studentsWithoutPsychomotorData)
+                    ->get()
+                    ->map(function ($student) {
+                        return $student->fullName();
+                    })
+                    ->toArray();
             }
 
             return response()->json([
                 'status' => true,
-                'message' => 'Data uploaded successfully'
+                'message' => 'Psychomotor uploaded successfully',
+                'no_psychomotor' => [
+                    'count' => count($namesOfStudentsWithoutPsychomotorData),
+                    'data' => $namesOfStudentsWithoutPsychomotorData
+                ],
+            ], 200);
+
+        } catch(\Throwable $th){
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function batchAffectiveUpload(Request $request)
+    {
+        try{
+            $students = $request->students;
+            $studentsWithoutAffectiveData = [];
+            $namesOfStudentsWithoutAffectiveData = [];
+
+            foreach ($students as $studentUuid){
+
+                if (!isset($request->affectives[$studentUuid])) {
+                    $studentsWithoutAffectiveData[] = $studentUuid;
+                    continue;
+                }
+
+                $studentAffectives = $request->affectives[$studentUuid];
+                foreach ($studentAffectives as $key => $value) {
+
+                    $title = trim($key);
+
+                    $check = Affective::where([
+                        'title' => $title,
+                        'period_id' => $request->period_id,
+                        'term_id' => $request->term_id,
+                        'student_uuid' => $studentUuid,
+                    ])->first();  
+
+                    if($check){
+                        $check->update([
+                            'title' => $title,
+                            'rate' => $value[0],
+                        ]);
+                    } else{
+                        $affective = new Affective([
+                            'title' => $title,
+                            'rate' => $value[0],
+                            'period_id'     => $request->period_id,
+                            'term_id'       => $request->term_id,
+                            'student_uuid'        => $studentUuid,
+                        ]);
+                        $affective->save();
+                    }
+                }
+            }
+
+            if (!empty($studentsWithoutAffectiveData)) {
+                $namesOfStudentsWithoutAffectiveData = Student::whereIn('uuid', $studentsWithoutAffectiveData)
+                    ->get()
+                    ->map(function ($student) {
+                        return $student->fullName();
+                    })
+                    ->toArray();
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Affective uploaded successfully',
+                'no_affective' => [
+                    'count' => count($namesOfStudentsWithoutAffectiveData),
+                    'data' => $namesOfStudentsWithoutAffectiveData
+                ],
             ], 200);
 
         } catch(\Throwable $th){
@@ -722,12 +823,12 @@ class ResultController extends Controller
             } elseif (!in_array($a['subject'], $mathematicsEnglish) && in_array($b['subject'], $mathematicsEnglish)) {
                 return 1;
             } else {
-                return strcmp($a['subject'], $b['subject']);
+                return strcasecmp($a['subject'], $b['subject']);
             }
         });
 
         foreach ($results as $item) {
-            $total_score = $item['first_test'] + $item['second_test'] + $item['exam'];
+            $total_score = $item['ca1'] + $item['ca2'] + $item['exam'];
             $subject_id = $item['subject_id'];
             $scores[$subject_id] = $total_score;
         }
@@ -885,12 +986,12 @@ class ResultController extends Controller
                 } elseif (!in_array($a['subject'], $mathematicsEnglish) && in_array($b['subject'], $mathematicsEnglish)) {
                     return 1;
                 } else {
-                    return strcmp($a['subject'], $b['subject']);
+                    return strcasecmp($a['subject'], $b['subject']);
                 }
             });
 
             foreach ($results as $item) {
-                $total_score = $item['first_test'] + $item['second_test'] + $item['exam'];
+                $total_score = $item['ca1'] + $item['ca2'] + $item['exam'];
                 $subject_id = $item['subject_id'];
                 $scores[$subject_id] = $total_score;
             }
@@ -939,7 +1040,7 @@ class ResultController extends Controller
         $scores = [];
 
         foreach ($result as $item) {
-            $total_score = $item->first_test + $item->second_test;
+            $total_score = $item->ca1 + $item->ca2;
             $subject_id = $item->subject_id;
             $scores[$subject_id] = $total_score;
         }
@@ -1760,14 +1861,25 @@ class ResultController extends Controller
                 $idNumber = $student->user->code();
                 $password = 'password123';
                 $name = $student->last_name." ".$student->first_name. " ".$student->other_name;
-                $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+                $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . "/result to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
                 $subject = 'Evaluation Report Sheet';
         
                 foreach($results as $result){
                     $result->update(['published' => true]);
                 }
                 
-                NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                try {
+                    NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                } catch (\Throwable $th) {
+                    info($th->getMessage());
+                }
+
+                try {
+                    $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\$name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with this credential: \\Id Number: ".$idNumber." \\Password: ".$password." or password1234 \\ \\Kind Regards, \\Management.";
+                    NumberBroadcast::notify($student, $watMessage);
+                } catch (\Throwable $th) {
+                    info($th->getMessage());
+                }
         
                 $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
         
@@ -1821,14 +1933,25 @@ class ResultController extends Controller
                 $idNumber = $student->user->code();
                 $password = 'password123';
                 $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
-                $message = "<p> $name's mid term result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+                $message = "<p> $name's midterm result is now available on his/her portal. Please visit the school's website on " . application('website') . "/result/view/midterm to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
                 $subject = 'Mid-term result';
         
                 foreach($results as $result){
                     $result->update(['published' => true]);
                 }
 
-                NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                try {
+                    NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                } catch (\Throwable $th) {
+                    info($th->getMessage());
+                }
+                
+                try {
+                    $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\$name's midterm result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with this credential: \\Id Number: ".$idNumber." \\Password: ".$password." or password1234 \\ \\Kind Regards, \\Management.";
+                    NumberBroadcast::notify($student, $watMessage);
+                } catch (\Throwable $th) {
+                    info($th->getMessage());
+                }
             });
 
             return response()->json(['status' => true, 'message' => 'Result made available successfully! And email sent to parent.' ], 200);
@@ -2054,7 +2177,7 @@ class ResultController extends Controller
             $scores = [];
 
             foreach ($student->midTermResults as $item) {
-                $total_score = $item->first_test + $item->second_test;
+                $total_score = $item->ca1 + $item->ca2;
                 $subject_id = $item->subject_id;
                 $scores[$subject_id] = $total_score;
             }
@@ -2121,13 +2244,13 @@ class ResultController extends Controller
                 } elseif (!in_array($a->subject->title(), $mathematicsEnglish) && in_array($b->subject->title(), $mathematicsEnglish)) {
                     return 1;
                 } else {
-                    return strcmp($a->subject->title(), $b->subject->title());
+                    return strcasecmp($a->subject->title(), $b->subject->title());
                 }
             });
 
             $scores = [];
             foreach ($student->midTermResults as $item) {
-                $total_score = $item->first_test + $item->second_test;
+                $total_score = $item->ca1 + $item->ca2;
                 $subject_id = $item->subject_id;
                 $scores[$subject_id] = $total_score;
             }

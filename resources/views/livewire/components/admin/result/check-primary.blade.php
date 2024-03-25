@@ -6,79 +6,100 @@
             <div class="card">
                 <div class="card-body">
                     <div class="card-header">
-                            <div class="d-flex gap-2">
-                                @admin
-                                    <div>
-                                        <button data-bs-toggle="modal" data-bs-target=".refreshResultModal" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Reset Midterm Result</button>
-                                    </div>
-                                 @endadmin
-                                <div class="">
-                                    <button class="btn btn-sm btn-secondary" 
-                                        data-bs-toggle="modal"
-                                        data-bs-target=".excelResultModal" 
-                                    >
-                                        <i class="bx bxs-file-doc"></i> 
-                                        Upload Excel Result
-                                    </button>
-                                </div>
-                                @superadmin
-                                    <div>
-                                        <button data-bs-toggle="modal" data-bs-target=".generateResultModal" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Generate Midterm Result</button>
-                                    </div>
-                                    <!-- <div>
-                                        <button data-bs-toggle="modal" data-bs-target=".setCummulative" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Set Cumulative</button>
-                                    </div> -->
-                                @endsuperadmin
-                            </div>
-                        <div class="mt-2">
-                            <form id="fetchResultForm">
-                                <div class="row">
-                                    <div class="col-lg-3">
-                                        <select class="form-control" id="grade_id" name="grade_id">
-                                            <option value=''>Class</option>
-                                            @foreach ($grades as $grade)
-                                            <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="col-lg-3">
-                                        <select class="form-control" id="period_id" name="period_id">
-                                            <option value=''>Select Session</option>
-                                            @foreach ($periods as $period)
-                                            <option value="{{  $period->id() }}">{{ $period->title() }}</option>
-                                            @endforeach
-                                        </select>
-                                        <x-form.error for="period_id" />
-                                    </div>
-
-                                    <div class="col-lg-3">
-                                        <select class="form-control" id="term_id" name="term_id">
-                                            <option value=''>Select Term</option>
-                                            @foreach ($terms as $term)
-                                            <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                            @endforeach
-                                        </select>
-                                        <x-form.error for="term_id" />
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <div class="d-flex justify-content-center align-item-center">
-                                            <button type="submit" id="fetchResultButton" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
-                                                <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
-                                            </button>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="d-flex gap-2">
+                                    @admin
+                                        <div>
+                                            <button class="btn btn-sm btn-primary" data-grade="" data-period="" data-term="" style="display:none" id="publishSelected"><i class="bx bx-publsih"></i> Publish Results</button>
                                         </div>
+                                        <div>
+                                            <button data-bs-toggle="modal" data-bs-target=".refreshResultModal" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Reset Midterm Result</button>
+                                        </div>
+                                    @endadmin
+                                    <!-- <div class="">
+                                        <button class="btn btn-sm btn-secondary" 
+                                            data-bs-toggle="modal"
+                                            data-bs-target=".excelResultModal" 
+                                        >
+                                            <i class="bx bxs-file-doc"></i> 
+                                            Upload Excel Result
+                                        </button>
+                                    </div> -->
+                                    @superadmin
+                                        <!-- <div>
+                                            <button data-bs-toggle="modal" data-bs-target=".generateResultModal" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Generate Midterm Result</button>
+                                        </div> -->
+                                        <!-- <div>
+                                            <button data-bs-toggle="modal" data-bs-target=".setCummulative" class="btn btn-sm btn-primary"><i class="bx bx-cog"></i> Set Cumulative</button>
+                                        </div> -->
+                                    @endsuperadmin
+                                </div>
+                                <div class="mt-2">
+                                    <form id="fetchResultForm">
+                                        <div class="row">
+                                            <div class="col-lg-3">
+                                                <select class="form-control" id="grade_id" name="grade_id">
+                                                    <option value=''>Class</option>
+                                                    @foreach ($grades as $grade)
+                                                    <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="col-lg-3">
+                                                <select class="form-control" id="period_id" name="period_id">
+                                                    <option value=''>Select Session</option>
+                                                    @foreach ($periods as $period)
+                                                    <option value="{{  $period->id() }}">{{ $period->title() }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <x-form.error for="period_id" />
+                                            </div>
+
+                                            <div class="col-lg-3">
+                                                <select class="form-control" id="term_id" name="term_id">
+                                                    <option value=''>Select Term</option>
+                                                    @foreach ($terms as $term)
+                                                    <option value="{{  $term->id() }}">{{ $term->title() }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <x-form.error for="term_id" />
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <div class="d-flex justify-content-center align-item-center">
+                                                    <button type="submit" id="fetchResultButton" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
+                                                        <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-3">
+                                <div class="search-box me-2 mb-2">
+                                    <div class="position-relative">
+                                        <input type="text" class="form-control" placeholder="Search student..." id="input-search">
+                                        <i class="bx bx-search-alt search-icon"></i>
                                     </div>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-12 py-4">
                             <div class="table-responsive">
-                                <table id="result-data" class="table table-bordered table-striped table-nowrap mb-0">
-                                    <thead>
+                                <table id="result-data" class="table search-table table-bordered table-striped table-nowrap mb-0">
+                                    <thead class="table-light header-item">
                                         <tr>
+                                            <th style="width: 20px;" class="align-middle">
+                                                <div class="form-check font-size-16">
+                                                    <input class="form-check-input" type="checkbox" id="checkAll">
+                                                    <label class="form-check-label" for="checkAll"></label>
+                                                </div>
+                                            </th>
                                             <th scope="col" class="text-center">Name of Student</th>
                                             <th scope="col" class="text-center">
                                                 Recorded Subjects
@@ -90,120 +111,9 @@
                                         </tr>
                                     </thead>
 
-                                    <tbody>
+                                    <tbody class="search-row">
                                         
                                     </tbody>
-
-                                    {{-- <tbody wire:ignore>
-                                        @foreach ($students as $student)
-                                        <tr>
-                                            <td class='text-center'>{{ $student->firstName() }} {{ $student->lastName() }}</td>
-                                            <td class='text-center'>
-                                                {{ $student->primaryResults->where('term_id', $term_id)->where('period_id', $period_id)->count() }}
-                                            </td>
-                                            @php
-                                                $comments = \App\Models\Cognitive::where([
-                                                    'student_uuid' => $student->id(),
-                                                    'term_id' => $term_id,
-                                                    'period_id' => $period_id
-                                                ])->first()
-                                            @endphp
-                                            
-                                            <td class='d-flex justify-content-center align-items-center gap-2'>
-                                                
-                                                <button 
-                                                    wire:key="{{ $student->id() }}"
-                                                    type="button"
-                                                    class="btn btn-sm btn-secondary recorded"
-                                                    data-student="{{ $student->id() }}"
-                                                    data-grade="{{ $grade_id }}"
-                                                    data-period="{{ $period_id }}"
-                                                    data-term="{{ $term_id }}"
-                                                >
-                                                    <i class="fa fa-cogs"></i> View Recorded
-                                                </button>
-                                                <button 
-                                                            wire:key="{{ $student->id() }}"
-                                                            type="button"
-                                                            wire:ignore class="btn btn-sm btn-info editCom"
-                                                            data-id="{{$student->id()}}" 
-                                                            data-term="{{$term_id}}"
-                                                            data-period="{{$period_id}}"
-                                                            data-total="{{$comments->attendance_duration ?? ''}}"
-                                                            data-present="{{$comments->attendance_present ?? ''}}"
-                                                            data-comment="{{$comments->comment ?? ''}}"
-                                                    >
-                                                        Comment
-                                                </button>
-                                                @if (affectives($student, $term_id, $period_id) === false)
-                                                    <button 
-                                                        wire:key="{{ $student->id() }}"
-                                                        type="button" class="btn btn-sm btn-secondary uploadAffective" 
-                                                        data-student="{{ $student->id() }}"
-                                                        data-period="{{ $period_id }}"
-                                                        data-term="{{ $term_id }}"
-                                                    >
-                                                        <i class="fas fa-compress-arrows-alt"></i>
-                                                        Affective
-                                                    </button>
-                                                @endif
-                                                @if (psychomotors($student, $term_id, $period_id) === false)
-                                                    <button 
-                                                        wire:key="{{ $student->id() }}"
-                                                        type="button" 
-                                                        class="btn btn-sm btn-secondary uploadPsychomotor"
-                                                        data-student="{{ $student->id() }}"
-                                                        data-period="{{ $period_id }}"
-                                                        data-term="{{ $term_id }}"
-                                                    >
-                                                        <i class="fas fa-compress-arrows-alt"></i>
-                                                        Psychomotor
-                                                    </button>
-                                                @endif
-                                                <a class="btn btn-sm btn-success" href="{{ route('result.primary.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Click to view result">
-                                                    <i class="bx bx-show"></i>
-                                                    Show
-                                                </a>
-                                                @admin
-                                                    @if (publishExamState($student->id(), $period_id, $term_id))
-                                                        <div class="d-flex gap-2">
-                                                            <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                <span class="badge bg-success"><i class="bx bx-upload"></i> Published</span>
-                                                            </button>
-                                                            <form action="{{ route('result.exam.pdf') }}" method="POST">
-                                                                @csrf
-
-                                                                <input type="hidden" name="student_id" value="{{ $student->id() }}" />
-                                                                <input type="hidden" name="grade_id" value="{{ $student->grade->id() }}" />
-                                                                <input type="hidden" name="period_id" value="{{ $period_id }}" />
-                                                                <input type="hidden" name="term_id" value="{{ $term_id }}" />
-
-                                                                <button class="btn btn-sm btn-info" type="submit">
-                                                                    <i class="bx bxs-file-pdf"></i> PDF
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    @else
-                                                        <button type="button" class="btn btn-sm btn-primary" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                            <i class="bx bx-upload"></i> Publish
-                                                        </button>
-                                                    @endif
-                                                    <button 
-                                                        wire:key="{{ $student->id() }}"
-                                                        type="button" 
-                                                        class="btn btn-sm btn-danger"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#deleteResultModal"
-                                                        wire:click="deleteResult('{{ $student->id() }}')">
-                                                        <i class="bx bx-trash"></i>
-                                                    </button>
-                                                @endadmin
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody> --}}
                                 </table>
                             </div>
                         </div>
@@ -861,6 +771,10 @@
             var period = $('#period_id').val();
             var term = $('#term_id').val();
 
+            $('#publishSelected').data('period', period);
+            $('#publishSelected').data('term', term);
+            $('#publishSelected').data('grade', grade);
+
             $.ajax({
                 url: '{{ route("result.check.exam", ["period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':grade_id', grade),
                 type: 'GET',
@@ -875,48 +789,33 @@
 
                 var html = '';
                 $.each(students, function(index, student) {
-                        html += '<tr>';
-                        html += '<td class="text-center">' + student.name + '</td>';
-                        html += '<td class="text-center">' + student.recorded_subjects + '</td>';
+                        html += '<tr class="search-items">';
+                            html += '<td class="text-center">';
+                            html += '<div class="form-check">';
+                            html += '<input type="checkbox" class="form-check-input actionCheck" id="' + student.id + '" name="ids[]" value="' + student.id + '" />';
+                            html += '</div>';
+                            html += '</td>';
+                            html += '<td class="">' + student.name + '</td>';
+                            html += '<td class="text-center">' + student.recorded_subjects + '</td>';
 
-                        if(student.recorded_subjects > 0)
-                        {
-                            html += '<td>';
-                            html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
-                            if (userPermissions.includes('result_comment')) {
-                                    html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
-                            }
+                            if(student.recorded_subjects > 0)
+                            {
+                                html += '<td>';
+                                html += '<button class="btn btn-sm btn-secondary recorded" data-grade="'+response.grade+'" data-period="'+response.period+'" data-term="'+response.term+'" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
+                                // if (userPermissions.includes('result_comment')) {
+                                //         html += '<button class="btn btn-sm btn-info editCom" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Comment</button>';
+                                // }
 
-                            if (response.grade_name === 'Playgroup') {
+                                if (response.grade_name === 'Playgroup') {
 
-                                    html += '<button class="btn btn-sm btn-danger editPlayResult" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-edit"></i> Edit</button>';
-                                    
-                                    if (userPermissions.includes('result_show')) {
-                                        html += '<a target="_blank" href="{{ route('result.playgroup.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
-                                    }
-
-                                    if (userPermissions.includes('result_download')) {
-                                        html += '<form action="{{ route('result.playgroup.pdf') }}" method="POST">';
-                                        html += '@csrf';
-                                        html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
-                                        html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
-                                        html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
-                                        html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
-                                        html += '<button class="btn btn-sm btn-info" type="submit">';
-                                        html += '<i class="bx bxs-file-pdf"></i> PDF';
-                                        html += '</button>';
-                                        html += '</form>';
-                                    }
-
-
-                            }else{
-                                    if(gradePosition == 0 || classPosition == 0){
+                                        html += '<button class="btn btn-sm btn-danger editPlayResult" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '"><i class="bx bx-edit"></i> Edit</button>';
+                                        
                                         if (userPermissions.includes('result_show')) {
-                                            html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                                            html += '<a target="_blank" href="{{ route('result.playgroup.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
                                         }
 
                                         if (userPermissions.includes('result_download')) {
-                                            html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
+                                            html += '<form action="{{ route('result.playgroup.pdf') }}" method="POST">';
                                             html += '@csrf';
                                             html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
                                             html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
@@ -927,8 +826,10 @@
                                             html += '</button>';
                                             html += '</form>';
                                         }
-                                    }else{
-                                        if(student.position_state && student.position_subject_state && templateType === 1){
+
+
+                                }else{
+                                        if(gradePosition == 0 || classPosition == 0){
                                             if (userPermissions.includes('result_show')) {
                                                 html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
                                             }
@@ -945,58 +846,76 @@
                                                 html += '</button>';
                                                 html += '</form>';
                                             }
+                                        }else{
+                                            if(student.position_state && student.position_subject_state && templateType === 1){
+                                                if (userPermissions.includes('result_show')) {
+                                                    html += '<a target="_blank" href="{{ route('result.primary.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                                                }
+
+                                                if (userPermissions.includes('result_download')) {
+                                                    html += '<form action="{{ route('result.exam.pdf') }}" method="POST">';
+                                                    html += '@csrf';
+                                                    html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
+                                                    html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
+                                                    html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
+                                                    html += '<input type="hidden" name="term_id" value="' + response.term + '" />';
+                                                    html += '<button class="btn btn-sm btn-info" type="submit">';
+                                                    html += '<i class="bx bxs-file-pdf"></i> PDF';
+                                                    html += '</button>';
+                                                    html += '</form>';
+                                                }
+                                            }
+                                        }
+                                        
+                                }
+
+                                    // if (userPermissions.includes('affective_create')) {
+                                    //     html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                                    //     html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
+                                    //     html += '</button>';
+                                    // }
+
+                                    // if (userPermissions.includes('affective_create')) {
+                                    //     html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
+                                    //     html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
+                                    //     html += '</button>';
+                                    // }
+
+                                    if (userPermissions.includes('principal_comment')) {
+                                        html += '<button class="btn btn-sm btn-danger editPrincipalCom" data-period="' + response.period + '" data-term="' + response.term + '" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Principal Comment</button>';
+                                    }
+                                    
+                                    if(student.position_state && student.position_subject_state && templateType === 1){
+                                        if (userPermissions.includes('result_publish')) {
+                                            if(student.publish_state){
+                                                html += '<button type="button" class="btn btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                                html += '<span class="">Published</span>';
+                                                html += '</button>';
+                                            }else{
+                                                html += '<button type="button" class="btn btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                                html += '<span>Publish</span>';
+                                                html += '</button>';
+                                            }
                                         }
                                     }
                                     
-                            }
+                                    
+                                    if (userPermissions.includes('position_access')) {
+                                        if(gradePosition == 1){
+                                            if(student.position_state == false && templateType === 1){
+                                                html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Term Position</button>';
+                                            }
+                                        }
 
-                                if (userPermissions.includes('affective_create')) {
-                                    html += '<button class="btn btn-sm btn-secondary uploadAffective" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                                    html += '<i class="fas fa-compress-arrows-alt"></i> Affective';
-                                    html += '</button>';
-                                }
-
-                                if (userPermissions.includes('affective_create')) {
-                                    html += '<button class="btn btn-sm btn-secondary uploadPsychomotor gap-2" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '">';
-                                    html += '<i class="fas fa-compress-arrows-alt"></i> Psychomotor';
-                                    html += '</button>';
-                                }
-
-                                if (userPermissions.includes('principal_comment')) {
-                                    html += '<button class="btn btn-sm btn-danger editPrincipalCom" data-period="' + response.period + '" data-term="' + response.term + '" data-id="' + student.id + '" target="_blank"><i class="bx bx-conversation"></i> Principal Comment</button>';
-                                }
-                                
-                                if(student.position_state && student.position_subject_state && templateType === 1){
-                                    if (userPermissions.includes('result_publish')) {
-                                        if(student.publish_state){
-                                            html += '<button type="button" class="btn btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                                            html += '<span class="">Published</span>';
-                                            html += '</button>';
-                                        }else{
-                                            html += '<button type="button" class="btn btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
-                                            html += '<span>Publish</span>';
-                                            html += '</button>';
+                                        if(classPosition == 1){
+                                            if(student.position_subject_state == false && templateType === 1){
+                                                html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Subject Grade Position</button>';
+                                            }
                                         }
                                     }
-                                }
                                 
-                                
-                                if (userPermissions.includes('position_access')) {
-                                    if(gradePosition == 1){
-                                        if(student.position_state == false && templateType === 1){
-                                            html += '<button class="btn btn-sm btn-danger studentPositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Term Position</button>';
-                                        }
-                                    }
-
-                                    if(classPosition == 1){
-                                        if(student.position_subject_state == false && templateType === 1){
-                                            html += '<button class="btn btn-sm btn-danger studentSinglePositionSync" data-period="'+response.period+'" data-term="'+response.term+'" data-id="' + student.id + '" target="_blank"><i class="bx bx-cog"></i> Subject Grade Position</button>';
-                                        }
-                                    }
-                                }
-                            
-                            html += '</td>';
-                        }else{
+                                html += '</td>';
+                            }else{
                             html += '<td>';
                             html += '<p>No Results available</p>';
                             html += '</td>';
@@ -1554,7 +1473,12 @@
     </script>
 
     <script>
-       
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+        });
+
         $(document).on('click', '.remove', function(e) {
             e.preventDefault();
             var button = $(this);
@@ -1872,6 +1796,49 @@
                 }
             });
         });
+
+        $('#publishSelected').on('click', function(){
+            var button = $(this);
+            toggleAble(button, true, 'Publishing...');
+
+            var selectedStudents = [];
+            $('input[name="ids[]"]:checked').each(function() {
+                var id = $(this).val();
+                selectedStudents.push({
+                    id: id,
+                });
+            });
+
+            var studentsIds = JSON.stringify(selectedStudents);
+            var period_id = $(this).data('period');
+            var term_id = $(this).data('term');
+            var grade_id = $(this).data('grade');
+
+            var postData = {
+                studentsIds: studentsIds,
+                period_id: period_id,
+                term_id: term_id,
+                grade_id: grade_id
+            };
+
+            var url = "{{ route('admin.result.multipleExamPublish') }}";
+
+            $.ajax({
+                method: "POST",
+                url,
+                data: postData
+            }).done((res) => {
+                    toggleAble(button, false);
+                    toastr.success(res.message, 'Success!');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500);
+            }).fail((err) => {
+                toggleAble(button, false);
+                toastr.error(err.responseJSON.message, 'Failed!');
+            });
+        });
+
     </script>
     @endsection
 

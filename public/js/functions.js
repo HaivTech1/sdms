@@ -1,3 +1,4 @@
+
 const resetForm = (element) => {
     $(element).trigger("reset");
 };

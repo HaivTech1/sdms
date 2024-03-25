@@ -33,62 +33,7 @@
                     </div>
 
                     <div class='row'>
-
-                        <div class='col-sm-8'>
-                            <div class="table-responsive">
-                                <table class="table align-middle table-nowrap table-check">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width: 20px;" class="align-middle">
-                                                <div class="form-check font-size-16">
-                                                    <input class="form-check-input" type="checkbox" id="checkAll"
-                                                        wire:model="selectPageRows">
-                                                    <label class="form-check-label" for="checkAll"></label>
-                                                </div>
-                                            </th>
-                                            <th class="align-middle">#</th>
-                                            <th class="align-middle"> Title</th>
-                                            <th class="align-middle"> Status</th>
-                                            <th class="align-middle">Sub class</th>
-                                            <th class="align-middle">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($grades as $key => $grade)
-                                        <tr>
-                                            <td>
-                                                <div class="form-check font-size-16">
-                                                    <input class="form-check-input" value="{{ $grade->id() }}"
-                                                        type="checkbox" id="{{ $grade->id() }}" wire:model="selectedRows">
-                                                    <label class="form-check-label" for="{{ $grade->id() }}"></label>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <a href="javascript: void(0);"
-                                                    class="text-body fw-bold">{{ $key+1 }}</a>
-                                            </td>
-                                            <td>
-                                                <livewire:components.edit-title :model='$grade' field='title' :key='$grade->id()'/>
-                                            </td>
-                                            <td>
-                                                <livewire:components.toggle-button :model='$grade' field='status' :key='$grade->id()'/>
-                                            </td>
-                                            <td>
-                                                {{ $grade->SubGrade->count() }}
-                                            </td>
-                                            <td>
-                                                <button type="button"  class="btn btn-primary waves-effect waves-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Click to show class details" wire:click="GradeDetails({{ $grade->id() }})" class="dropdown-item">
-                                                    <i class="fa fa-eye"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            {{ $grades->links('pagination::custom-pagination')}}
-                        </div>
-                        <div class='col-sm-4'>
+                        <div class='col-sm-12'>
                             <form wire:submit.prevent="createGrade">
                                 <div class="hstack gap-3">
                                     <input class="form-control me-auto" wire:model.defer="title" placeholder="Add your class here..."
@@ -201,10 +146,65 @@
                                                 <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Close</button>
                                                 <button type="button" class="btn btn-primary waves-effect waves-light">Save changes</button>
                                             </div>
-                                        </div><!-- /.modal-content -->
+                                        </div>
                                     </div>
                                 </div>
                             @endif
+                        </div>
+
+                        <div class='col-sm-12 mt-4'>
+                            <div class="table-responsive">
+                                <table class="table align-middle table-nowrap table-check">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 20px;" class="align-middle">
+                                                <div class="form-check font-size-16">
+                                                    <input class="form-check-input" type="checkbox" id="checkAll"
+                                                        wire:model="selectPageRows">
+                                                    <label class="form-check-label" for="checkAll"></label>
+                                                </div>
+                                            </th>
+                                            <th class="align-middle">#</th>
+                                            <th class="align-middle"> Title</th>
+                                            <th class="align-middle"> Status</th>
+                                            <th class="align-middle">No. of students</th>
+                                            <th class="align-middle">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($grades as $key => $grade)
+                                        <tr>
+                                            <td>
+                                                <div class="form-check font-size-16">
+                                                    <input class="form-check-input" value="{{ $grade->id() }}"
+                                                        type="checkbox" id="{{ $grade->id() }}" wire:model="selectedRows">
+                                                    <label class="form-check-label" for="{{ $grade->id() }}"></label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <a href="javascript: void(0);"
+                                                    class="text-body fw-bold">{{ $key+1 }}</a>
+                                            </td>
+                                            <td>
+                                                <livewire:components.edit-title :model='$grade' field='title' :key='$grade->id()'/>
+                                            </td>
+                                            <td>
+                                                <livewire:components.toggle-button :model='$grade' field='status' :key='$grade->id()'/>
+                                            </td>
+                                            <td>
+                                                {{ $grade->students->count() }}
+                                            </td>
+                                            <td>
+                                                <button type="button"  class="btn btn-primary waves-effect waves-light" data-bs-toggle="tooltip" data-bs-placement="right" title="Click to show class details" wire:click="GradeDetails({{ $grade->id() }})" class="dropdown-item">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ $grades->links('pagination::custom-pagination')}}
                         </div>
                     </div>
                 </div>

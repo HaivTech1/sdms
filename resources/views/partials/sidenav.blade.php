@@ -165,7 +165,7 @@
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="bx bxl-whatsapp"></i>
-                        <span key="t-ecommerce">Whatsapp Bot Management</span>
+                        <span key="t-ecommerce">Bot Management</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="{{ route('admin.whatsapp.messages') }}" key="t-add-product">Sent Messages</a></li>

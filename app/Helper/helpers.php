@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\WhatsAppNotify;
 use App\NullAbout;
 use App\Models\Fee;
 use App\NullBanner;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Http;
 
 function application($key)
 {
@@ -838,7 +840,6 @@ if (! function_exists('translate')) {
                 $result = trans('messages.' . $key, $replace);
             }
         } catch (\Exception $exception) {
-            info($exception);
             $result = trans('messages.' . $key, $replace);
         }
 
@@ -1186,5 +1187,50 @@ if(!function_exists('convertStringToArray')){
             $parsed[] = $item;
         }
         return $parsed;
+    }
+}
+
+if (!function_exists('sendWaMessage')) {
+    function sendWaMessage($receiver, $msg)
+    {
+        $token = env('IMPRESSION_TOKEN');
+        $device = env('IMPRESSION_SENDER');
+        $url = env('IMPRESSION_URL').'/api/message/send/single';
+        $tries = 0;
+        $data = [
+            'device' => $device,
+            'message' => $msg,
+            'contact' => $receiver,
+        ];
+
+        do {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => "Bearer $token",
+            ])->post($url, $data);
+
+            if ($response->failed()) {
+                info('HTTP error');
+            } else {
+                $json = $response->json();
+                return $json;
+            }
+
+            $tries++;
+        } while ($tries < 3);
+        info('Failed after multiple attempts');
+        return null;
+    }
+}
+
+if (!function_exists('ApiResponse')) {
+    function ApiResponse($statusCode, $response)
+    {
+        $status = ($statusCode == 200) ? true : (($statusCode == 500) ? false : ($statusCode == 199 ? "warning" : "unknown"));
+        return [
+            "status" => $status,
+            "statusCode" => $statusCode,
+            "message" => $response
+        ];
     }
 }

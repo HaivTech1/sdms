@@ -122,7 +122,7 @@ class Student extends Authenticatable
 
     public function fullName(): ?string
     {
-        return (string) $this->first_name . ' ' . $this->last_name;
+        return (string) $this->last_name . ' ' . $this->first_name . ' ' . $this->other_name;
     }
 
     public function code(): string

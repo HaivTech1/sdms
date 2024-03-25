@@ -12,8 +12,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('database:backup')->daily();
-        $schedule->command('send:credentials')->daily();
+        // $schedule->command('send:credentials')->daily();
         $schedule->command('birthday:wish')->daily();
+        $schedule->command('schedule:birthday')->everyFiveMinutes();
+        $schedule->command('schedule:event')->everyFiveMinutes();
         $schedule->command('news:status')->everyTenMinutes();
         $schedule->command('grade:position')->everyFiveMinutes();
     }

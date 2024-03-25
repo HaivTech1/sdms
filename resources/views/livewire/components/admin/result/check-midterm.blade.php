@@ -5,78 +5,98 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="">
-                        <button class="btn btn-sm btn-secondary" 
-                            data-bs-toggle="modal"
-                            data-bs-target=".excelResultModal" 
-                        >
-                            <i class="bx bxs-file-doc"></i> 
-                            Upload Excel Result
-                        </button>
-                        <button class="btn btn-sm btn-secondary" 
-                            data-bs-toggle="modal"
-                            data-bs-target=".excelResultDownloadModal" 
-                        >
-                            <i class="bx bxs-file-doc"></i> 
-                            Download Excel Result
-                        </button>
-                        {{-- <button class="btn btn-sm btn-danger" 
-                            data-bs-toggle="modal"
-                            data-bs-target=".generatePdfResultModal" 
-                        >
-                            <i class="bx bxs-file-pdf"></i> 
-                            Generate PDF Result
-                        </button> --}}
-                    </div>
-                    <div class="mt-2">
-                        <form id="fetchResultForm">
-                            <div class="row">
-                                <div class="col-lg-3">
-                                    <select class="form-control" id="grade_id" name="grade_id">
-                                        <option value=''>Class</option>
-                                        @foreach ($grades as $grade)
-                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                
-                                <div class="col-lg-3">
-                                    <select class="form-control" id="period_id" name="period_id">
-                                        <option value=''>Select Session</option>
-                                        @foreach ($periods as $period)
-                                        <option value="{{  $period->id() }}">{{ $period->title() }}</option>
-                                        @endforeach
-                                    </select>
-                                    <x-form.error for="period_id" />
-                                </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="">
+                                <!-- <button class="btn btn-sm btn-secondary" 
+                                    data-bs-toggle="modal"
+                                    data-bs-target=".excelResultModal" 
+                                >
+                                    <i class="bx bxs-file-doc"></i> 
+                                    Upload Excel Result
+                                </button> -->
+                                <!-- <button class="btn btn-sm btn-secondary" 
+                                    data-bs-toggle="modal"
+                                    data-bs-target=".excelResultDownloadModal" 
+                                >
+                                    <i class="bx bxs-file-doc"></i> 
+                                    Download Excel Result
+                                </button> -->
+                                <button class="btn btn-sm btn-primary" data-grade="" data-period="" data-term="" style="display:none" id="publishSelected"><i class="bx bx-publsih"></i> Publish Results</button>
+                                {{-- <button class="btn btn-sm btn-danger" 
+                                    data-bs-toggle="modal"
+                                    data-bs-target=".generatePdfResultModal" 
+                                >
+                                    <i class="bx bxs-file-pdf"></i> 
+                                    Generate PDF Result
+                                </button> --}}
+                            </div>
+                            <div class="mt-2">
+                                <form id="fetchResultForm">
+                                    <div class="row">
+                                        <div class="col-lg-3">
+                                            <select class="form-control" id="grade_id" name="grade_id">
+                                                <option value=''>Class</option>
+                                                @foreach ($grades as $grade)
+                                                <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-lg-3">
+                                            <select class="form-control" id="period_id" name="period_id">
+                                                <option value=''>Select Session</option>
+                                                @foreach ($periods as $period)
+                                                <option value="{{  $period->id() }}">{{ $period->title() }}</option>
+                                                @endforeach
+                                            </select>
+                                            <x-form.error for="period_id" />
+                                        </div>
 
-                                <div class="col-lg-3">
-                                    <select class="form-control" id="term_id" name="term_id">
-                                        <option value=''>Select Term</option>
-                                        @foreach ($terms as $term)
-                                        <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                        @endforeach
-                                    </select>
-                                    <x-form.error for="term_id" />
-                                </div>
-                                <div class="col-lg-3">
-                                    <div class="d-flex justify-content-center align-item-center">
-                                        <button type="submit" id="fetchResultButton" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
-                                            <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
-                                        </button>
+                                        <div class="col-lg-3">
+                                            <select class="form-control" id="term_id" name="term_id">
+                                                <option value=''>Select Term</option>
+                                                @foreach ($terms as $term)
+                                                <option value="{{  $term->id() }}">{{ $term->title() }}</option>
+                                                @endforeach
+                                            </select>
+                                            <x-form.error for="term_id" />
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="d-flex justify-content-center align-item-center">
+                                                <button type="submit" id="fetchResultButton" class="btn btn-primary waves-effect waves-light d-flex justify-content-center align-items-center gap-2">
+                                                    <i class="bx bx-search-alt" style="background-color: white; color: blue; border-radius: 50%; padding: 3px"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-12 mt-3">
+                            <div class="search-box me-2 mb-2">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" placeholder="Search student..." id="input-search">
+                                    <i class="bx bx-search-alt search-icon"></i>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body" wire:ignore>
                     <div class="row">
                         <div class="col-sm-12 py-4">
                                 <div class="table-responsive">
-                                    <table id="result-data" class="table table-bordered table-striped table-nowrap mb-0">
-                                        <thead>
+                                    <table id="result-data" class="table search-table table-bordered table-striped table-nowrap mb-0">
+                                        <thead class="table-light header-item">
                                             <tr>
+                                                <th style="width: 20px;" class="align-middle">
+                                                    <div class="form-check font-size-16">
+                                                        <input class="form-check-input" type="checkbox" id="checkAll">
+                                                        <label class="form-check-label" for="checkAll"></label>
+                                                    </div>
+                                                </th>
                                                 <th scope="col" class="text-center">Name of Student</th>
                                                 <th scope="col" class="text-center">
                                                     Recorded Subjects
@@ -89,79 +109,11 @@
                                             </tr>
                                         </thead>
 
-                                        <tbody>
+                                        <tbody class="search-row">
                                         
                                         </tbody>
-
-                                        {{-- <tbody>
-                                            @forelse ($students as $student)
-                                                @if ($student->midTermResults->where('grade_id', $student->grade->id())->where('term_id', $term_id)->where('period_id', $period_id)->count())
-                                                    <tr>
-                                                        <td class='text-center'>{{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}</td>
-                                                        <td class='text-center'>
-                                                            {{ $student->midTermResults->where('grade_id', $student->grade->id())->where('term_id', $term_id)->where('period_id', $period_id)->count() }}
-                                                        </td>
-                                                        
-                                                        <td class='d-flex justify-content-center align-items-center gap-2'>
-                                                            <button 
-                                                                wire:key='{{ $student->id() }}'
-                                                                class="btn btn-sm btn-secondary recorded"
-                                                                data-student="{{ $student->id() }}"
-                                                                data-grade="{{ $grade_id }}"
-                                                                data-period="{{ $period_id }}"
-                                                                data-term="{{ $term_id }}"
-                                                            >
-                                                                <i class="fa fa-cogs"></i> View Recorded
-                                                            </button>
-
-                                                            <a href="{{ route('result.midterm.show', $student) }}?grade_id={{$grade_id}}&period_id={{$period_id}}&term_id={{$term_id}}"
-                                                                type="button"
-                                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                title="Click to view result"
-                                                                class="btn btn-sm btn-success"
-                                                                >
-                                                                <i class="fa fa-eye"></i> View Result
-                                                            </a>
-                                                            @admin
-                                                                @if (publishMidState($student->id(), $period_id, $term_id))
-                                                                    <div class="d-flex gap-2">
-                                                                        <button type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                            <span class="badge bg-success">Published</span>
-                                                                        </button>
-                                                                        <form action="{{ route('result.midterm.pdf') }}" method="POST">
-                                                                            @csrf
-
-                                                                            <input type="hidden" name="student_id" value="{{ $student->id() }}" />
-                                                                            <input type="hidden" name="grade_id" value="{{ $student->grade->id() }}" />
-                                                                            <input type="hidden" name="period_id" value="{{ $period_id }}" />
-                                                                            <input type="hidden" name="term_id" value="{{ $term_id }}" />
-
-                                                                            <button class="btn btn-sm btn-info" type="submit">
-                                                                                <i class="bx bxs-file-pdf"></i> PDF
-                                                                            </button>
-                                                                        </form>
-                                                                    </div>
-                                                                @else
-                                                                    <button class="btn btn-sm btn-primary" type="button" id='cummulative{{ $student->id() }}' onClick="publish('{{ $student->id() }}, {{ $period_id }}, {{ $term_id }}, {{ $grade_id }}')">
-                                                                        <i class="mdi mdi-upload d-block font-size-16"></i> Publish
-                                                                    </button>
-                                                                @endif
-                                                            @endadmin
-                                                        </td>
-                                                    </tr>
-                                                @endif
-                                            @empty
-                                                <div class="noresult py-2">
-                                                    <div class="text-center">
-                                                        <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop" colors="primary:#405189,secondary:#0ab39c" style="width:75px;height:75px"></lord-icon>
-                                                        <h5 class="mt-2">Sorry! No Result Found</h5>
-                                                    </div>
-                                                </div>
-                                            @endforelse
-                                        </tbody> --}}
                                     </table>
                                 </div>
-                                {{-- {{ $students->links('pagination::custom-pagination')}} --}}
                         </div>
                     </div>
                 </div>
@@ -505,6 +457,11 @@
 
     @section('scripts')
         <script>
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            });
 
             $('#fetchResultForm').on('submit', function(e){
                 e.preventDefault();
@@ -514,6 +471,10 @@
                 var grade = $('#grade_id').val();
                 var period = $('#period_id').val();
                 var term = $('#term_id').val();
+
+                $('#publishSelected').data('period', period);
+                $('#publishSelected').data('term', term);
+                $('#publishSelected').data('grade', grade);
 
                 $.ajax({
                     url: '{{ route("result.check.midterm", ["period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':grade_id', grade),
@@ -526,8 +487,13 @@
 
                     var html = '';
                     $.each(students, function(index, student) {
-                        html += '<tr>';
-                        html += '<td class="text-center">' + student.name + '</td>';
+                        html += '<tr class="search-items">';
+                            html += '<td class="text-center">';
+                            html += '<div class="form-check">';
+                            html += '<input type="checkbox" class="form-check-input actionCheck" id="' + student.id + '" name="ids[]" value="' + student.id + '" />';
+                            html += '</div>';
+                            html += '</td>';
+                        html += '<td class="">' + student.name + '</td>';
                         html += '<td class="text-center">' + student.recorded_subjects + '</td>';
                         if(student.recorded_subjects > 0)
                         {
@@ -1023,6 +989,48 @@
                     toggleAble('#generatePDF'+student_id, false);
                 });
             }
+
+            $('#publishSelected').on('click', function(){
+                var button = $(this);
+                toggleAble(button, true, 'Publishing...');
+
+                var selectedStudents = [];
+                $('input[name="ids[]"]:checked').each(function() {
+                    var id = $(this).val();
+                    selectedStudents.push({
+                        id: id,
+                    });
+                });
+
+                var studentsIds = JSON.stringify(selectedStudents);
+                var period_id = $(this).data('period');
+                var term_id = $(this).data('term');
+                var grade_id = $(this).data('grade');
+
+                var postData = {
+                    studentsIds: studentsIds,
+                    period_id: period_id,
+                    term_id: term_id,
+                    grade_id: grade_id
+                };
+
+                var url = "{{ route('admin.result.multipleMidtermPublish') }}";
+
+                $.ajax({
+                    method: "POST",
+                    url,
+                    data: postData
+                }).done((res) => {
+                        toggleAble(button, false);
+                        toastr.success(res.message, 'Success!');
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1500);
+                }).fail((err) => {
+                toggleAble(button, false);
+                toastr.error(err.responseJSON.message, 'Failed!');
+            });
+        });
         </script>
     @endsection
 

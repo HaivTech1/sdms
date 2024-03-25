@@ -291,6 +291,29 @@
     }
 </script>
 
+<script>
+    $('#checkAll').change(function () {
+        var isChecked = $(this).prop('checked');
+        $('.actionCheck').prop('checked', isChecked);
+        $('#publishSelected').toggle($('.actionCheck:checked').length > 0);
+    });
+
+    $('.actionCheck').change(function () {
+        $('#publishSelected').toggle($('.actionCheck:checked').length > 0);
+        $('#checkAll').prop('checked', $('.actionCheck:checked').length === $('.actionCheck').length);
+    });
+
+    $("#input-search").on("keyup", function () {
+        var rex = new RegExp($(this).val(), "i");
+        $(".search-table .search-items:not(.header-item)").hide();
+        $(".search-table .search-items:not(.header-item)")
+            .filter(function () {
+                return rex.test($(this).text());
+            })
+        .show();
+    });
+</script>
+
 @stack('modals')
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
 <script src="{{ asset('js/alpine.js') }}" defer></script>

@@ -28,7 +28,7 @@ class StudentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'])->except(['assignSubject', 'subject', 'getPerformanceByStudent']);
+        $this->middleware(['auth', 'admin'])->except(['assignSubject', 'subject', 'getPerformanceByStudent', 'cognitiveStudents', 'psychomotorStudents', 'affectiveStudents']);
     }
     
     /**
@@ -217,28 +217,6 @@ class StudentController extends Controller
         return response()->json($students);
     }
 
-    public function cognitiveStudents($period, $term)
-    {
-        $data = Cognitive::where([
-            'period_id' => $period,
-            'term_id' => $term,
-        ])->get();
-
-        $cognitives = [];
-        foreach ($data as $value){
-            $cognitives[] = [
-                'student_id' => $value->student_uuid,
-                'comment' => $value->comment,
-                'present' => $value->attendance_present
-            ];
-        }
-
-        return response()->json([
-            'status' => true,
-            'cognitives' => count($data) > 0 ? $cognitives : [],
-        ]);
-    }
-
     public function getPerformanceByStudent(Request $request)
     {
         $class_id = $request->input('classId');
@@ -381,5 +359,71 @@ class StudentController extends Controller
         $pdf->loadView('generate.student_list', ['students' => $students, 'grade' => $grade]);
 
         return $pdf->download('student_list.pdf');
+    }
+
+    public function cognitiveStudents($period, $term)
+    {
+        $data = Cognitive::where([
+            'period_id' => $period,
+            'term_id' => $term,
+        ])->get();
+
+        $cognitives = [];
+        foreach ($data as $value){
+            $cognitives[] = [
+                'student_id' => $value->student_uuid,
+                'comment' => $value->comment,
+                'present' => $value->attendance_present
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'cognitives' => count($data) > 0 ? $cognitives : [],
+        ]);
+    }
+
+    public function psychomotorStudents($period, $term)
+    {
+        $data = \App\Models\Psychomotor::where([
+            'period_id' => $period,
+            'term_id' => $term,
+        ])->get();
+
+        $psychomotors = [];
+        foreach ($data as $value){
+            $psychomotors[] = [
+                'student_id' => $value->student_uuid,
+                'title' => $value->title,
+                'value' => $value->rate,
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'psychomotors' => count($data) > 0 ? $psychomotors : [],
+        ]);
+    }
+
+    public function affectiveStudents($period, $term)
+    {
+        $data = \App\Models\Affective::where([
+            'period_id' => $period,
+            'term_id' => $term,
+        ])->get();
+
+        $affectives = [];
+        foreach ($data as $value){
+            $affectives[] = [
+                'student_id' => $value->student_uuid,
+                'title' => $value->title,
+                'value' => $value->rate,
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'affectives' => count($data) > 0 ? $affectives : [],
+        ]);
     }
 }

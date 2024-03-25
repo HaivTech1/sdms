@@ -50,12 +50,12 @@ class Event extends Model
 
     public function start(): string
     {
-        return $this->start;
+        return $this->start->format('d-m-Y');
     }
 
     public function end(): string
     {
-        return $this->end;
+        return $this->end->format('d-m-Y');
     }
 
     public function period()

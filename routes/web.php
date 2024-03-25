@@ -193,6 +193,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             Route::get('/cognitive/students/{period}/{term}', [StudentController::class, 'cognitiveStudents'])->name('cognitives');
             Route::get('/psychomotor/students/{period}/{term}', [StudentController::class, 'psychomotorStudents'])->name('psychomotors');
+            Route::get('/affective/students/{period}/{term}', [StudentController::class, 'affectiveStudents'])->name('affectives');
         });
 
         Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -207,7 +208,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::group(['prefix' => 'result', 'as' => 'result.'], function () {
             Route::get('/', [ResultController::class, 'index'])->name('index')->middleware('student');
-            Route::get('/all/midterm', [ResultController::class, 'midtermIndex'])->name('midtermIndex')->middleware('student');
+            Route::get('/view/midterm', [ResultController::class, 'midtermIndex'])->name('midtermIndex')->middleware('student');
             Route::get('/view/results', [ResultController::class, 'viewResults'])->name('view.results');
 
             Route::post('/', [ResultController::class, 'batchExamUpload'])->name('store');
@@ -238,9 +239,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/psychomotor/get', [ResultController::class, 'psychomotor'])->name('psychomotor.get');
             Route::post('/psychomotor/upload', [ResultController::class, 'psychomotorUpload'])->name('psychomotor.upload');
             Route::post('/cognitive/upload', [ResultController::class, 'cognitiveUpload'])->name('cognitive.upload');
-            
-            Route::post('/batch/cognitive/upload', [ResultController::class, 'batchCognitiveUpload'])->name('batchcognitive');
-            Route::post('/batch/psychomotor/upload', [ResultController::class, 'batchPsychomotorUpload'])->name('batchPsychomotor');
 
             Route::get('/affective/get', [ResultController::class, 'affective'])->name('affective.get');
             Route::post('/affective/upload', [ResultController::class, 'affectiveUpload'])->name('affective.upload');
@@ -317,6 +315,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/update/position/score/grade', [ResultController::class, 'generateGradePositionScore'])->name('calculate.student.position');
             Route::get('/sync/position/student/{student_id}/{period_id}/{term_id}', [ResultController::class, 'syncStudentPosition'])->name('student.sync.position');
             Route::get('/single/position/student/{student_id}/{period_id}/{term_id}', [ResultController::class, 'syncStudentSinglePosition'])->name('student.sync.single.position');
+
+            Route::post('/batch/cognitive/upload', [ResultController::class, 'batchCognitiveUpload'])->name('batchcognitive');
+            Route::post('/batch/psychomotor/upload', [ResultController::class, 'batchPsychomotorUpload'])->name('batchPsychomotor');
+            Route::post('/batch/affective/upload', [ResultController::class, 'batchAffectiveUpload'])->name('batchAffective');
 
             Route::group(['prefix' => 'cas', 'as' => 'cas.'], function () {
                 Route::get('/comment', [ResultController::class, 'classComment'])->name('comment');

@@ -72,7 +72,11 @@ class AboutController extends Controller
             ], 200);
 
         } catch (\Throwable $th) {
-            return response()->json(error_processor(500, $th->getMessage()), 500);
+            info($th->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'There was an error updating record! Please try again',
+            ], 500);
         }
     }
     

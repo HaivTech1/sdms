@@ -70,15 +70,15 @@ class HomeController extends Controller
             });
         }
 
-        if (!Schema::hasTable('student_reviews')) {
-            Schema::create('student_reviews', function (Blueprint $table) {
-                $table->id();
-                $table->string('name')->nullable();
-                $table->enum('rating',[1, 2, 3, 4, 5])->default(5);
-                $table->text('content')->nullable();
-                $table->timestamps();
-            });
-        }
+        // if (!Schema::hasTable('student_reviews')) {
+        //     Schema::create('student_reviews', function (Blueprint $table) {
+        //         $table->id();
+        //         $table->string('name')->nullable();
+        //         $table->enum('rating',[1, 2, 3, 4, 5])->default(5);
+        //         $table->text('content')->nullable();
+        //         $table->timestamps();
+        //     });
+        // }
 
         if (!Schema::hasTable('parent_reviews')) {
             Schema::create('parent_reviews', function (Blueprint $table) {
@@ -105,5 +105,36 @@ class HomeController extends Controller
                 $table->timestamps();
             });
         }
+
+        if (!Schema::hasTable('scheduled_birthdays')) {
+            Schema::create('scheduled_birthdays', function (Blueprint $table) {
+                $table->id();
+                $table->foreignUuid('student_id')->references('uuid')->on('students')->onDelete('cascade');
+                $table->string('date')->nullable();
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasTable('scheduled_event')) {
+            Schema::create('scheduled_event', function (Blueprint $table) {
+                $table->id();
+                $table->foreignUuid('student_id')->references('uuid')->on('students')->onDelete('cascade');
+                $table->integer('event_id')->nullable();
+                $table->timestamps();
+            });
+        }
+        
+        if (!Schema::hasColumn('mid_terms', 'deleted_at')) {
+            Schema::table('mid_terms', function (Blueprint $table) {
+                $table->timestamp('deleted_at')->after('updated_at')->nullable();
+            });
+        }
+
+        if (!Schema::hasColumn('primary_results', 'deleted_at')) {
+            Schema::table('primary_results', function (Blueprint $table) {
+                $table->timestamp('deleted_at')->nullable();
+            });
+        }
+
     }
 }

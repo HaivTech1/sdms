@@ -73,10 +73,10 @@
                                         <li class="menu-item">
                                             <a href="{{ url('/gallery') }}">Gallery</a>
                                         </li>
-                                        <!-- <li class="menu-item">
-                                            <a href="{{ url('/shop') }}">Shop</a>
-                                        </li> -->
-                                        @auth
+                                        <li class="menu-item">
+                                            <a href="{{ url('registration') }}">Admission</a>
+                                        </li>
+                                        @guest
                                             <li class="menu-item mobile-menu">
                                                 <a href="{{ route('dashboard') }}">Portal</a>
                                             </li>
@@ -84,7 +84,7 @@
                                             <li class="menu-item mobile-menu">
                                                 <a href="{{ route('login') }}">Login</a>
                                             </li>
-                                        @endauth
+                                        @endguest
                                     </ul>
                                 </nav> 
                             </div>

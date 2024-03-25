@@ -86,7 +86,7 @@ class CreatePost implements ShouldQueue
     {
         $post = new Post([
             'title'             => $this->title,
-            'description'              => $this->description,
+            'description'       => $this->description,
             'type'              => $this->type,
             'photo_credit_text' => $this->photoCreditText,
             'photo_credit_link' => $this->photoCreditLink,

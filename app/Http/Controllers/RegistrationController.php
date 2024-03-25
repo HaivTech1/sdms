@@ -94,11 +94,21 @@ class RegistrationController extends Controller
                 $student->save();
                 $message = "<p>A new student registration form has just been completed! Please visit the school's portal for review.</p>";
                 $subject = 'New Student Registration';
-    
+                $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\A new student registration form has just been completed! Please visit the school's portal for review.";
                 $admins = User::whereType(2)->get();
     
                 foreach($admins as $admin){
-                    Mail::to($admin->email())->send(new SendNewRegistrationMail($message, $subject));
+                    try {
+                        Mail::to($admin->email())->send(new SendNewRegistrationMail($message, $subject));
+                    } catch (\Throwable $th) {
+                       info($th->getMessage());
+                    }
+                    
+                    try {
+                        sendWaMessage($admin->phone_number, $watMessage);
+                    } catch (\Throwable $th) {
+                        info($th->getMessage());
+                    }
                 }
             });
             return response()->json(['status' => true, 'message' => 'Registration completed successfully!'], 200);
@@ -253,6 +263,7 @@ class RegistrationController extends Controller
                 }
                 
                 $student->schedules()->sync(1);
+                $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
                 $message = "<p>
                     We are pleased to inform your that your child: 
                     " . $registration->first_name. " " .$registration->last_name.
@@ -262,8 +273,28 @@ class RegistrationController extends Controller
                     Baptisimal Card photocopy (Catholics only) with latest school report (if applicable).'
                     </p>";
                 $subject = 'Admission Status from ' . application('name');
-
+                        
                 Mail::to($registration->mother_email)->send(new SendAdmissionMail($message, $subject));
+
+                try {
+                    $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\
+                    We are pleased to inform you that your child: 
+                    " . $student->first_name. " " .$student->last_name. " " .$student->other_name.
+                    " has been granted admission into " .$student->grade->title(). 
+                    ". \\Proceed to the school to make necessary payments and the following douments:. 
+                    \\ \\ 1. A copy of your child's birth certificate (photocopy) and/or '
+                    Baptisimal Card photocopy (Catholics only) \\2.Last term school report sheet from previous school.";
+                    
+                    if ($father) {
+                        sendWaMessage($father->phone, $watMessage);
+                    } 
+
+                    if ($mother) {
+                        sendWaMessage($mother->phone, $watMessage);
+                    }
+                } catch (\Throwable $th) {
+                    info($th->getMessage());
+                }
 
                 return response()->json([
                     'status' => true,
@@ -387,6 +418,27 @@ class RegistrationController extends Controller
                         $subject = 'Admission Status from ' . application('name');
         
                         Mail::to($value->mother_email)->send(new SendAdmissionMail($message, $subject));
+
+                        try {
+                            $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\
+                            We are pleased to inform you that your child: 
+                            " . $student->first_name. " " .$student->last_name. " " .$student->other_name.
+                            " has been granted admission into " .$student->grade->title(). 
+                            ". \\Proceed to the school to make necessary payments and the following douments:. 
+                            \\ \\ 1. A copy of your child's birth certificate (photocopy) and/or '
+                            Baptisimal Card photocopy (Catholics only) \\2.Last term school report sheet from previous school.";
+                            
+                            if ($father) {
+                                sendWaMessage($father->phone, $watMessage);
+                            } 
+
+                            if ($mother) {
+                                sendWaMessage($mother->phone, $watMessage);
+                            }
+                        } catch (\Throwable $th) {
+                            info($th->getMessage());
+                        }
+
                 }
             }
             return response()->json([

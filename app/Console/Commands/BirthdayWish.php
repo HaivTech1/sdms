@@ -33,8 +33,12 @@ class BirthdayWish extends Command
                 $message = "<p> $name, as you turn $year today, we felicitate with you; wish you a happy birthday and many happy returns of thy day; filled with lots of love and fun. Do have a lovely new year. Cheers to a new age!</p>";
                 $subject = 'Happy Birthday to you';
 
-                NotifiableParentsTrait::notifyParents($student, $message, $subject);
-                info("birthday wish sent"); 
+                try {
+                    NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                    info("birthday wish sent"); 
+                } catch (\Throwable $th) {
+                    info("Email birthday failed: " . $th->getMessage());
+                }
             }
         }
     }

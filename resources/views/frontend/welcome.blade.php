@@ -195,7 +195,7 @@
                 <div class="col-lg-4">
                     <div class="gallery-part">
                         <div class="gallery-img">
-                            <img src="{{ asset('frontend/'. getAboutSetting('home_tuition_image')) }}" alt="">
+                            <img src="{{ asset('storage/'. getAboutSetting('home_tuition_image')) }}" alt="">
                                 <div class="content-part">
                                     <h2 class="title">Tuition Fee</h2>
                                 </div>

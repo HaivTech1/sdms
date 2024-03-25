@@ -95,12 +95,17 @@ class Create extends Component
 
     public function render()
     {
+        $user = auth()->user();
         return view('livewire.components.admin.result.create', [
             'results' => $this->results,
             'grades' => Grade::all(),
             'periods' => Period::all(),
             'terms' => Term::all(),
-            'subjects' => Subject::all(),
+            'subjects' => Subject::when(!$user->isAdmin() && !$user->isSuperAdmin(), function ($query) use ($user) {
+                $query->whereHas('teachers', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            })->get(),
         ]);
     }
 }
