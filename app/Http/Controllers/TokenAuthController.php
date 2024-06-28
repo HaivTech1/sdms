@@ -17,14 +17,14 @@ class TokenAuthController extends Controller
 
             $request->validate(
                 [
-                    'email'       => 'required|email',
-                    'password'    => 'required',
+                    'email' => 'required|email',
+                    'password' => 'required',
                 ]
             );
 
             $user = User::where('email', $request->email)->first();
 
-            if (! $user || ! Hash::check($request->password, $user->password)) {
+            if (!$user || !Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages(
                     [
                         'email' => ['The provided credentials are incorrect.'],
@@ -32,13 +32,27 @@ class TokenAuthController extends Controller
                 );
             }
 
+            $accessToken = $user->api_token;
+            if (!$accessToken) {
+                $token = $user->createToken(application('name'))->plainTextToken;
+                try {
+                    $user->api_token = $token;
+                    $user->save();
+                    $accessToken = $user->api_token;
+                } catch (\Exception $e) {
+                    //
+                }
+            } else {
+                $accessToken = $user->api_token;
+            }
+
             return response()->json([
-                'status'  => true,
-                'user'    => new UserResource($user),
-                'token'   => $user->createToken(application('name'))->plainTextToken,
+                'status' => true,
+                'user' => new UserResource($user),
+                'token' => $accessToken,
                 'message' => 'Authorization successful!',
             ], 200);
-            
+
         } catch (ValidationException $th) {
             return response()->json([
                 'status' => false,

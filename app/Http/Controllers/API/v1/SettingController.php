@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\API\v1;
 
-use App\Models\Term;
-use App\Models\Grade;
-use App\Models\Period;
-use App\Models\Subject;
-use App\Models\Application;
+use App\Models\{
+    Term,
+    User,
+    Grade,
+    Period,
+    Subject,
+    Application,
+    Permission,
+    Role
+};
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\v1\TermResource;
@@ -31,37 +36,37 @@ class SettingController extends Controller
     public function grade()
     {
         $data = Grade::all();
-        $grades  = GradeResource::collection($data);
+        $grades = GradeResource::collection($data);
         return response()->json(['status' => 200, 'grades' => $grades], 200);
     }
 
     public function session()
     {
         $data = Period::all();
-        $sessions  = SessionResource::collection($data);
+        $sessions = SessionResource::collection($data);
         return response()->json(['status' => 200, 'sessions' => $sessions], 200);
     }
 
     public function term()
     {
         $data = Term::all();
-        $terms  = TermResource::collection($data);
+        $terms = TermResource::collection($data);
         return response()->json(['status' => 200, 'terms' => $terms], 200);
     }
 
     public function subject()
     {
         $data = Subject::all();
-        $subjects  = SubjectResource::collection($data);
+        $subjects = SubjectResource::collection($data);
         return response()->json(['status' => 200, 'subjects' => $subjects], 200);
     }
 
     public function midtermFormat()
     {
-        try{
+        try {
             $midterm = get_settings('midterm_format');
             return response()->json(['midterm' => $midterm], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -74,11 +79,62 @@ class SettingController extends Controller
         try {
             $exam = get_settings('exam_format');
             return response()->json(['exam' => $exam], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function getSiteRoles()
+    {
+        try {
+
+            $roles = Role::all();
+
+            return response()->json([
+                'status' => true,
+                'roles' => $roles,
+                'count' => count($roles)
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json(ApiResponse(500, "There was an error fetching the roles."), 500);
+        }
+    }
+
+    public function getSitePermissions()
+    {
+        try {
+            $permissions = Permission::all();
+            return response()->json([
+                'status' => true,
+                'permissions' => $permissions,
+                'count' => count($permissions)
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json(ApiResponse(500, "There was an error fetching the permissions."), 500);
+        }
+    }
+
+    public function getRolePermissions($id)
+    {
+        try {
+
+            $user = User::where('id', $id)->first();
+            $permissions = $user->roles[0]->permissions;
+
+            return response()->json([
+                'status' => true,
+                'role_permissions' => $permissions,
+                'count' => count($permissions)
+            ], 200);
+
+        } catch (\Throwable $th) {
+            info($th->getMessage());
+            return response()->json(ApiResponse(500, "There was an error fetching the role permissions."), 500);
         }
     }
 }

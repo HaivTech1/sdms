@@ -9,20 +9,30 @@ use App\Scopes\HasActiveScope;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\v1\StudentResource;
+use App\Http\Resources\v1\StudentCollection;
 
 class StudentController extends Controller
 {
     public function index(Request $request)
     {
         try {
-            
-            $newArray = Student::withoutGlobalScope(new HasActiveScope)
-                ->with(['grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'])
-                ->get();
+            $grade = $request->query('grade_id');
+            $page = $request->query('page', 1);
+            $perPage = $request->query('per_page', 200);
 
-            $students = StudentResource::collection($newArray);
-            return response()->json(['status' => true, 'students' => $students], 200);
+            $query = Student::query();
+
+            if ($grade) {
+                $query->where('grade_id', $grade);
+            }
+
+            $data = $query->withoutGlobalScope(new HasActiveScope)->paginate($perPage, ['*'], 'page', $page);
+
+            return (new StudentCollection($data))->response()
+                ->setStatusCode(200);
+
         } catch (\Throwable $th) {
+            info($th);
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
 
@@ -40,30 +50,44 @@ class StudentController extends Controller
             $level = $request->level;
             $gender = $request->gender;
             $user = auth()->user();
-        
+
             if ($user->isSuperAdmin() || $user->isAdmin()) {
                 $studentsQuery = Student::withoutGlobalScope(new HasActiveScope)->with([
-                    'grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'
+                    'grade',
+                    'house',
+                    'club',
+                    'mother',
+                    'father',
+                    'guardian',
+                    'subjects',
+                    'payments'
                 ]);
             } else {
                 $grade = auth()->user()->gradeClassTeacher;
                 $studentsQuery = $grade->students()->with([
-                    'grade', 'house', 'club', 'mother', 'father', 'guardian', 'subjects', 'payments'
+                    'grade',
+                    'house',
+                    'club',
+                    'mother',
+                    'father',
+                    'guardian',
+                    'subjects',
+                    'payments'
                 ]);
             }
-        
+
             $studentsQuery->when($level, function ($query, $level) {
                 return $query->where('grade_id', $level);
             })->when($gender, function ($query, $gender) {
                 return $query->where('gender', $gender);
             });
-        
+
             $students = StudentResource::collection($studentsQuery->get());
             return response()->json(['status' => true, 'students' => $students], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
-        
+
     }
 
     public function toggleStudent(Request $request)
@@ -94,8 +118,8 @@ class StudentController extends Controller
 
     public function assignSubjects(Request $request)
     {
-       try {
-            DB::transaction( function () use ($request) {
+        try {
+            DB::transaction(function () use ($request) {
                 $students = $request->students;
                 $subjectIds = $request->subjects;
 
@@ -109,13 +133,13 @@ class StudentController extends Controller
                 'status' => true,
                 'message' => 'Subjects synchronized successfully for the students'
             ], 200);
-       } catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             DB::rollback();
             return response()->json([
                 'status' => false,
                 'message' => $th->getMessage(),
             ], 500);
-       }
+        }
     }
 
     public function deleteSubject($id, $student)
@@ -131,6 +155,6 @@ class StudentController extends Controller
         }
     }
 
-    
+
 }
 // 504F4F

@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SendMidtermMail extends Mailable
+class SendMidtermMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -35,12 +35,12 @@ class SendMidtermMail extends Mailable
      */
     public function build()
     {
-        return $this->from(application('email').'', ucwords(application('name')))
-                    ->subject($this->subject)
-                    ->with([
-                        'message' => $this->message,
-                      ])
-                      ->replyTo(application('email'))
-                    ->markdown('emails.messaging.mid_term_mail');
+        return $this->from(application('email') . '', ucwords(application('name')))
+            ->subject($this->subject)
+            ->with([
+                'message' => $this->message,
+            ])
+            ->replyTo(application('email'))
+            ->markdown('emails.messaging.mid_term_mail');
     }
 }

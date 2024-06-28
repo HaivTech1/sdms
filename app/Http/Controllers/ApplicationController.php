@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Models\Application;
+use App\Models\TermSetting;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\TestEmailSender;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Validator;
 
 class ApplicationController extends Controller
 {
@@ -17,7 +19,7 @@ class ApplicationController extends Controller
     {
         $this->middleware(['auth', 'admin']);
     }
-    
+
     public function index()
     {
         return view('manager.application.index');
@@ -25,9 +27,11 @@ class ApplicationController extends Controller
 
     public function mail_config(Request $request)
     {
-        Setting::updateOrInsert(['key' => 'mail_config'],[
+        Setting::updateOrInsert(
+            ['key' => 'mail_config'],
+            [
                 'value' => json_encode([
-                    "status" => $request['status']??0,
+                    "status" => $request['status'] ?? 0,
                     "name" => $request['name'],
                     "host" => $request['host'],
                     "driver" => $request['driver'],
@@ -50,8 +54,8 @@ class ApplicationController extends Controller
             $payment = Setting::where('key', 'cash')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'cash',
-                    'value'      => json_encode([
+                    'key' => 'cash',
+                    'value' => json_encode([
                         'status' => $request['status'],
                     ]),
                     'created_at' => now(),
@@ -59,8 +63,8 @@ class ApplicationController extends Controller
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'cash'])->update([
-                    'key'        => 'cash',
-                    'value'      => json_encode([
+                    'key' => 'cash',
+                    'value' => json_encode([
                         'status' => $request['status'],
                     ]),
                     'updated_at' => now(),
@@ -70,8 +74,8 @@ class ApplicationController extends Controller
             $payment = Setting::where('key', 'digital_payment')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'digital_payment',
-                    'value'      => json_encode([
+                    'key' => 'digital_payment',
+                    'value' => json_encode([
                         'status' => $request['status'],
                     ]),
                     'created_at' => now(),
@@ -79,8 +83,8 @@ class ApplicationController extends Controller
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'digital_payment'])->update([
-                    'key'        => 'digital_payment',
-                    'value'      => json_encode([
+                    'key' => 'digital_payment',
+                    'value' => json_encode([
                         'status' => $request['status'],
                     ]),
                     'updated_at' => now(),
@@ -90,10 +94,10 @@ class ApplicationController extends Controller
             $payment = Setting::where('key', 'ssl_commerz_payment')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'ssl_commerz_payment',
-                    'value'      => json_encode([
-                        'status'         => 1,
-                        'store_id'       => '',
+                    'key' => 'ssl_commerz_payment',
+                    'value' => json_encode([
+                        'status' => 1,
+                        'store_id' => '',
                         'store_password' => '',
                     ]),
                     'created_at' => now(),
@@ -101,10 +105,10 @@ class ApplicationController extends Controller
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'ssl_commerz_payment'])->update([
-                    'key'        => 'ssl_commerz_payment',
-                    'value'      => json_encode([
-                        'status'         => $request['status'],
-                        'store_id'       => $request['store_id'],
+                    'key' => 'ssl_commerz_payment',
+                    'value' => json_encode([
+                        'status' => $request['status'],
+                        'store_id' => $request['store_id'],
                         'store_password' => $request['store_password'],
                     ]),
                     'updated_at' => now(),
@@ -114,10 +118,10 @@ class ApplicationController extends Controller
             $payment = Setting::where('key', 'razor_pay')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'razor_pay',
-                    'value'      => json_encode([
-                        'status'       => 1,
-                        'razor_key'    => '',
+                    'key' => 'razor_pay',
+                    'value' => json_encode([
+                        'status' => 1,
+                        'razor_key' => '',
                         'razor_secret' => '',
                     ]),
                     'created_at' => now(),
@@ -125,10 +129,10 @@ class ApplicationController extends Controller
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'razor_pay'])->update([
-                    'key'        => 'razor_pay',
-                    'value'      => json_encode([
-                        'status'       => $request['status'],
-                        'razor_key'    => $request['razor_key'],
+                    'key' => 'razor_pay',
+                    'value' => json_encode([
+                        'status' => $request['status'],
+                        'razor_key' => $request['razor_key'],
                         'razor_secret' => $request['razor_secret'],
                     ]),
                     'updated_at' => now(),
@@ -138,22 +142,22 @@ class ApplicationController extends Controller
             $payment = Setting::where('key', 'paypal')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'paypal',
-                    'value'      => json_encode([
-                        'status'           => 1,
+                    'key' => 'paypal',
+                    'value' => json_encode([
+                        'status' => 1,
                         'paypal_client_id' => '',
-                        'paypal_secret'    => '',
+                        'paypal_secret' => '',
                     ]),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'paypal'])->update([
-                    'key'        => 'paypal',
-                    'value'      => json_encode([
-                        'status'           => $request['status'],
+                    'key' => 'paypal',
+                    'value' => json_encode([
+                        'status' => $request['status'],
                         'paypal_client_id' => $request['paypal_client_id'],
-                        'paypal_secret'    => $request['paypal_secret'],
+                        'paypal_secret' => $request['paypal_secret'],
                     ]),
                     'updated_at' => now(),
                 ]);
@@ -162,10 +166,10 @@ class ApplicationController extends Controller
             $payment = Setting::where('key', 'stripe')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'stripe',
-                    'value'      => json_encode([
-                        'status'        => 1,
-                        'api_key'       => '',
+                    'key' => 'stripe',
+                    'value' => json_encode([
+                        'status' => 1,
+                        'api_key' => '',
                         'published_key' => '',
                     ]),
                     'created_at' => now(),
@@ -173,10 +177,10 @@ class ApplicationController extends Controller
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'stripe'])->update([
-                    'key'        => 'stripe',
-                    'value'      => json_encode([
-                        'status'        => $request['status'],
-                        'api_key'       => $request['api_key'],
+                    'key' => 'stripe',
+                    'value' => json_encode([
+                        'status' => $request['status'],
+                        'api_key' => $request['api_key'],
                         'published_key' => $request['published_key'],
                     ]),
                     'updated_at' => now(),
@@ -187,10 +191,10 @@ class ApplicationController extends Controller
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
 
-                    'key'        => 'senang_pay',
-                    'value'      => json_encode([
-                        'status'        => 1,
-                        'secret_key'    => '',
+                    'key' => 'senang_pay',
+                    'value' => json_encode([
+                        'status' => 1,
+                        'secret_key' => '',
                         'published_key' => '',
                         'merchant_id' => '',
                     ]),
@@ -199,10 +203,10 @@ class ApplicationController extends Controller
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'senang_pay'])->update([
-                    'key'        => 'senang_pay',
-                    'value'      => json_encode([
-                        'status'        => $request['status'],
-                        'secret_key'    => $request['secret_key'],
+                    'key' => 'senang_pay',
+                    'value' => json_encode([
+                        'status' => $request['status'],
+                        'secret_key' => $request['secret_key'],
                         'published_key' => $request['publish_key'],
                         'merchant_id' => $request['merchant_id'],
                     ]),
@@ -213,12 +217,12 @@ class ApplicationController extends Controller
             $payment = Setting::where('key', 'paystack')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'paystack',
-                    'value'      => json_encode([
-                        'status'        => 1,
-                        'publicKey'     => '',
-                        'secretKey'     => '',
-                        'paymentUrl'    => '',
+                    'key' => 'paystack',
+                    'value' => json_encode([
+                        'status' => 1,
+                        'publicKey' => '',
+                        'secretKey' => '',
+                        'paymentUrl' => '',
                         'merchantEmail' => '',
                     ]),
                     'created_at' => now(),
@@ -226,12 +230,12 @@ class ApplicationController extends Controller
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'paystack'])->update([
-                    'key'        => 'paystack',
-                    'value'      => json_encode([
-                        'status'        => $request['status'],
-                        'publicKey'     => $request['publicKey'],
-                        'secretKey'     => $request['secretKey'],
-                        'paymentUrl'    => $request['paymentUrl'],
+                    'key' => 'paystack',
+                    'value' => json_encode([
+                        'status' => $request['status'],
+                        'publicKey' => $request['publicKey'],
+                        'secretKey' => $request['secretKey'],
+                        'paymentUrl' => $request['paymentUrl'],
                         'merchantEmail' => $request['merchantEmail'],
                     ]),
                     'updated_at' => now(),
@@ -241,24 +245,24 @@ class ApplicationController extends Controller
             $payment = Setting::where('key', 'flutterwave')->first();
             if (isset($payment) == false) {
                 DB::table('settings')->insert([
-                    'key'        => 'flutterwave',
-                    'value'      => json_encode([
-                        'status'        => 1,
-                        'public_key'     => '',
-                        'secret_key'     => '',
-                        'hash'    => '',
+                    'key' => 'flutterwave',
+                    'value' => json_encode([
+                        'status' => 1,
+                        'public_key' => '',
+                        'secret_key' => '',
+                        'hash' => '',
                     ]),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             } else {
                 DB::table('settings')->where(['key' => 'flutterwave'])->update([
-                    'key'        => 'flutterwave',
-                    'value'      => json_encode([
-                        'status'        => $request['status'],
-                        'public_key'     => $request['public_key'],
-                        'secret_key'     => $request['secret_key'],
-                        'hash'    => $request['hash'],
+                    'key' => 'flutterwave',
+                    'value' => json_encode([
+                        'status' => $request['status'],
+                        'public_key' => $request['public_key'],
+                        'secret_key' => $request['secret_key'],
+                        'hash' => $request['hash'],
                     ]),
                     'updated_at' => now(),
                 ]);
@@ -267,10 +271,10 @@ class ApplicationController extends Controller
             $payment = Setting::updateOrInsert(
                 ['key' => 'mercadopago'],
                 [
-                    'value'      => json_encode([
-                        'status'        => $request['status'],
-                        'public_key'     => $request['public_key'],
-                        'access_token'     => $request['access_token'],
+                    'value' => json_encode([
+                        'status' => $request['status'],
+                        'public_key' => $request['public_key'],
+                        'access_token' => $request['access_token'],
                     ]),
                     'updated_at' => now()
                 ]
@@ -329,84 +333,86 @@ class ApplicationController extends Controller
             ]);
         }
 
-        $notification = array([
-            'messege' => 'Payment updated successfully!',
-            'alert-type' => 'success',
-            'button' => 'Okay!',
-            'title' => 'Successful'
-        ]);
+        $notification = array(
+            [
+                'messege' => 'Payment updated successfully!',
+                'alert-type' => 'success',
+                'button' => 'Okay!',
+                'title' => 'Successful'
+            ]
+        );
 
-        return redirect()->back()->with($notification); 
+        return redirect()->back()->with($notification);
     }
 
-     //Send Mail
-     public function send_mail(Request $request)
-     {
-         $response_flag = 0;
-         try {
-             Mail::to($request->email)->send(new TestEmailSender());
-             $response_flag = 1;
-         } catch (\Exception $exception) {
-             info($exception);
-             $response_flag = 2;
-         }
- 
-         return response()->json(['status' => true, 'message' => 'Mail sent successfully!'], 200);
-     }
+    //Send Mail
+    public function send_mail(Request $request)
+    {
+        $response_flag = 0;
+        try {
+            Mail::to($request->email)->send(new TestEmailSender());
+            $response_flag = 1;
+        } catch (\Exception $exception) {
+            info($exception);
+            $response_flag = 2;
+        }
 
-     public function maintenance_mode()
-     {
-         $maintenance_mode = Setting::where('key', 'maintenance_mode')->first();
-         if (isset($maintenance_mode) == false) {
-             DB::table('settings')->insert([
-                 'key' => 'maintenance_mode',
-                 'value' => 1,
-                 'created_at' => now(),
-                 'updated_at' => now(),
-             ]);
-         } else {
-             DB::table('settings')->where(['key' => 'maintenance_mode'])->update([
-                 'key' => 'maintenance_mode',
-                 'value' => $maintenance_mode->value == 1 ? 0 : 1,
-                 'updated_at' => now(),
-             ]);
-         }
- 
-         if (isset($maintenance_mode) && $maintenance_mode->value) {
+        return response()->json(['status' => true, 'message' => 'Mail sent successfully!'], 200);
+    }
+
+    public function maintenance_mode()
+    {
+        $maintenance_mode = Setting::where('key', 'maintenance_mode')->first();
+        if (isset($maintenance_mode) == false) {
+            DB::table('settings')->insert([
+                'key' => 'maintenance_mode',
+                'value' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('settings')->where(['key' => 'maintenance_mode'])->update([
+                'key' => 'maintenance_mode',
+                'value' => $maintenance_mode->value == 1 ? 0 : 1,
+                'updated_at' => now(),
+            ]);
+        }
+
+        if (isset($maintenance_mode) && $maintenance_mode->value) {
             Artisan::call('up');
-             return response()->json(['message' => 'Maintenance is off.'], 200);
-         }
+            return response()->json(['message' => 'Maintenance is off.'], 200);
+        }
 
-         Artisan::call('down');
-         return response()->json(['message' => 'Maintenance is on.'], 200);
-     }
+        Artisan::call('down');
+        return response()->json(['message' => 'Maintenance is on.'], 200);
+    }
 
-     public function update_notification(Request $request)
-     {
+    public function update_notification(Request $request)
+    {
         $field = key($request->all());
         $value = $request->input($field);
 
-        $notification = Setting::where('key', ''.$field)->first();
+        $notification = Setting::where('key', '' . $field)->first();
         if (isset($notification) == false) {
-             DB::table('settings')->insert([
-                 'key' => ''.$field,
-                 'value' => $value,
-             ]);
+            DB::table('settings')->insert([
+                'key' => '' . $field,
+                'value' => $value,
+            ]);
         } else {
-             DB::table('settings')->where(['key' => ''.$field])->update([
-                 'key' => ''.$field,
-                 'value' => $value,
-             ]);
+            DB::table('settings')->where(['key' => '' . $field])->update([
+                'key' => '' . $field,
+                'value' => $value,
+            ]);
         }
 
         // Separate the field name and capitalize the first word
         $fieldParts = explode('_', $field);
         $fieldName = Str::ucfirst($fieldParts[0]) . ' ' . Str::ucfirst($fieldParts[1]);
- 
+
         if (isset($notification) && $notification->value) {
-            return response()->json(['message' => $fieldName.' is off.'], 200);
+            return response()->json(['message' => $fieldName . ' is off.'], 200);
         }
-        return response()->json(['message' => $fieldName.' is on.'], 200);
+        return response()->json(['message' => $fieldName . ' is on.'], 200);
     }
 
     public function format(Request $request)
@@ -536,4 +542,67 @@ class ApplicationController extends Controller
         }
     }
 
+
+    public function termSetting(Request $request)
+    {
+        try {
+            // $data = $request->all();
+            // $validatedData = Validator::make($data, [
+            //     'resumption_date' => 'required',
+            //     'vacation_date' => 'required',
+            //     'no_school_opened' => 'required',
+            //     'next_term_resumption' => 'required',
+            // ]);
+
+            // if ($validatedData->fails()) {
+            //     $error = "";
+            //     foreach ($validatedData->errors()->all() as $key => $value) {
+            //         $error .= $value;
+            //     }
+            //     return response()->json(['status' => false, 'message' => $error], 500);
+            // }
+
+            $check = TermSetting::where('term_id', $request->term_id)->where('period_id', $request->period_id)->first();
+
+            if (!$check) {
+                $setting = new TermSetting([
+                    'term_id' => $request->term_id,
+                    'period_id' => $request->period_id,
+                    'resumption_date' => $request->resumption_date,
+                    'vacation_date' => $request->vacation_date,
+                    'no_school_opened' => $request->no_school_opened,
+                    'next_term_resumption' => $request->next_term_resumption
+                ]);
+                $setting->save();
+
+                return response()->json(['status' => true, 'message' => "Setting created successfully"], 201);
+            } else {
+                $data = [];
+
+                if (isset($request->resumption_date)) {
+                    $data['resumption_date'] = $request->resumption_date;
+                }
+
+                if (isset($request->vacation_date)) {
+                    $data['vacation_date'] = $request->vacation_date;
+                }
+
+                if (isset($request->no_school_opened)) {
+                    $data['no_school_opened'] = $request->no_school_opened;
+                }
+
+                if (isset($request->next_term_resumption)) {
+                    $data['next_term_resumption'] = $request->next_term_resumption;
+                }
+
+                $check->update($data);
+
+                return response()->json(['status' => true, 'message' => "Setting updated successfully"], 200);
+            }
+
+        } catch (\Exception $e) {
+            info('Term setting error: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => "Sorry, There was an error creating the setting."], 500);
+        }
+    }
 }

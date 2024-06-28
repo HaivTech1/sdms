@@ -895,7 +895,7 @@
                                                 html += '<button type="button" class="btn btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
                                                 html += '<span>Publish</span>';
                                                 html += '</button>';
-                                            }
+                                            } 
                                         }
                                     }
                                     

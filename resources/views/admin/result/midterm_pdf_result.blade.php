@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    @section('title', $student->last_name." | Mid Term Result Page")
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    @section('title', $student->last_name . " | Mid Term Result Page")
     <style>
+        .page-break {
+            page-break-after: always;
+        }
         .header {
             display: table;
             width: 100%;
@@ -12,7 +17,7 @@
         .header-item {
             display: table-cell;
             vertical-align: middle;
-            text-align: center;    
+            text-align: center;
         }
 
         .header-item:first-child {
@@ -72,24 +77,21 @@
             transform: rotate(270deg);
             writing-mode: vertical-rl;
             white-space: nowrap;
-            {{-- font-size: 8px !important; --}}
-            {{-- font-weight: bold; --}}
             vertical-align: middle;
-            {{-- font-weight: 900; --}}
-            {{-- width: 70px; --}}
             transform-origin: bottom right;
-            {{-- padding: 5px 0; --}}
             text-orientation: mixed;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <div class="header-item">
-            <img src="{{ public_path('storage/'.application('image')) }}" width="100" height="90" alt="Profile Image">
+            <img src="{{ public_path('storage/' . application('image')) }}" width="100" height="90" alt="Profile Image">
         </div>
         <div class="header-item">
-            <div style="font-weight: bold; text-align: center; text-transform: uppercase">{{ application('name') }}</div>
+            <div style="font-weight: bold; text-align: center; text-transform: uppercase">{{ application('name') }}
+            </div>
             <div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif">
                 {{ application('address') }}
             </div>
@@ -98,19 +100,23 @@
             </div>
         </div>
         <div class="header-item">
-            <img src="{{ public_path('storage/'.$student->user->image()) }}" width="100" height="90" alt="{{ $student->last_name }}">
+            <img src="{{ public_path('storage/' . $student->user->image()) }}" width="100" height="90"
+                alt="{{ $student->last_name }}">
         </div>
     </div>
 
     <div style="margin: 10px 0">
-        <div style="font-weight: bold; text-align: center; text-transform: uppercase">Mid-Term Evaluation Report Sheet</div>
-        <div style="font-weight: bold; text-align: center; text-transform: uppercase">{{ $term->title() }} {{ $period->title() }} Academic Session</div>
+        <div style="font-weight: bold; text-align: center; text-transform: uppercase">Mid-Term Evaluation Report Sheet
+        </div>
+        <div style="font-weight: bold; text-align: center; text-transform: uppercase">{{ $term->title() }}
+            {{ $period->title() }} Academic Session</div>
     </div>
 
     <div class="majorContainer">
         <div class="mainContainer">
             <div class="result-item">
-                <b>Name:</b> <span>{{ ucfirst($student->lastName()) }} {{ ucfirst($student->firstName()) }} {{ ucfirst($student->otherName()) }}</span>
+                <b>Name:</b> <span>{{ ucfirst($student->lastName()) }} {{ ucfirst($student->firstName()) }}
+                    {{ ucfirst($student->otherName()) }}</span>
             </div>
             <div class="result-item">
                 <b>Admission No.:</b>
@@ -130,34 +136,31 @@
                 <b>Age:</b>
                 <span>
                     @php
-                        $year = Carbon\Carbon::parse($student->dob())->age
+$year = Carbon\Carbon::parse($student->dob())->age
                     @endphp
                     {{$year}}
                 </span>
             </div>
-           
+
         </div>
     </div>
 
-   <div>
+    <div>
         <table class="result-table">
             @php
-                $midterm = get_settings('midterm_format');
-                $midtermTotal = 0;
+$midterm = get_settings('midterm_format');
+$midtermTotal = 0;
 
-                if (is_array($midterm)) {
-                    foreach ($midterm as $key => $value) {
-                        if (isset($value['mark'])) {
-                            $midtermTotal += $value['mark'];
-                        }
-                    }
-                }
+if (is_array($midterm)) {
+    foreach ($midterm as $key => $value) {
+        if (isset($value['mark'])) {
+            $midtermTotal += $value['mark'];
+        }
+    }
+}
             @endphp
 
             <thead>
-                {{-- <tr>
-                    <th colspan="{{ count($midterm) + 3 }}" style="background-color: rgba(37, 41, 88, 0.7); margin: 4px 20px; color: #ffffff; font-weight: 500">COGNITIVE DOMAIN</th>
-                </tr> --}}
                 <tr>
                     <th style="width: 50%; padding-left: 10px; text-align: left">Subjects</th>
                     @foreach ($midterm as $key => $value)
@@ -165,27 +168,27 @@
                             {{ $value['full_name'] }}
                         </th>
                     @endforeach
-                    <th  style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">
+                    <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">
                         Total
                     </th>
-                    <th  style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">
-                       Percentage
+                    <th style="width: 5%; font-size: 10px; font-weight: 500; text-align: center">
+                        Percentage
                     </th>
                 </tr>
             </thead>
             <tbody>
                 @php
-                    $totalSum = 0;
+$totalSum = 0;
                 @endphp
                 <tr style="text-align: center; color: green;">
                     <td style="width: 50%"></td>
                     @foreach ($midterm as $key => $value)
-                        <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">
-                            {{ $value['mark'] }}
-                            @php
-                                $totalSum += $value['mark'];
-                            @endphp
-                        </td>
+                                        <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">
+                                            {{ $value['mark'] }}
+                                            @php
+    $totalSum += $value['mark'];
+                                            @endphp
+                                        </td>
                     @endforeach
                     <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">{{ $totalSum }}</td>
                     <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">100%</td>
@@ -194,26 +197,31 @@
                     @foreach ($results as $result)
                         <tr>
                             @if($result->subject->title() != null)
-                                <td style="padding-left: 10px; width: 50%; text-align: left; font-size: 10px">{{ $result->subject->title() }}</td>
+                                <td style="padding-left: 10px; width: 50%; text-align: left; font-size: 10px">
+                                    {{ $result->subject->title() }}</td>
                             @endif
                             @foreach ($midterm as $key => $value)
                                 @if (isset($result[$key]))
-                                    <td style="font-size: 10px; font-weight: 400; text-align: center; color: {{ exam20Color($result[$key]) }}">{{ $result[$key] }}</td>
+                                    <td
+                                        style="font-size: 10px; font-weight: 400; text-align: center; color: {{ exam20Color($result[$key]) }}">
+                                        {{ $result[$key] }}</td>
                                 @else
                                     <td>-</td>
                                 @endif
                             @endforeach
                             <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->total() }}</td>
-                            <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum($result->total() * 100, $totalSum))}}</td>
+                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                {{ round(divnum($result->total() * 100, $totalSum))}}</td>
                         </tr>
                     @endforeach
                 </tr>
             </tbody>
         </table>
-   </div>
+    </div>
 
-    <div style="margin: 5px 0">
+    <div style="margin: 5px 0" class="page-break">
         <span style="font-weight: bold; font-size: 15px">Principal's Remark: </span><span>{{ $comment }}</span>
     </div>
 </body>
+
 </html>

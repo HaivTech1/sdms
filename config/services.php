@@ -30,9 +30,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
     'comments' => [
-        'max'   => env('MAX_LEVEL_COMMENTS'),
+        'max' => env('MAX_LEVEL_COMMENTS'),
     ],
     'replies' => [
-        'max'   => env('MAX_REPLIES_TO_COMMENT'),
-    ]
+        'max' => env('MAX_REPLIES_TO_COMMENT'),
+    ],
+
+    'impression' => [
+        'sender' => env('IMPRESSION_SENDER'),
+        'token' => env('IMPRESSION_TOKEN'),
+    ],
 ];

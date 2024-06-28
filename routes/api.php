@@ -5,28 +5,36 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Resources\v1\UserResource;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TokenAuthController;
-use App\Http\Controllers\API\v1\AgentController;
-use App\Http\Controllers\API\v1\StaffController;
-use App\Http\Controllers\API\v1\ResultController;
-use App\Http\Controllers\API\v1\SettingController;
-use App\Http\Controllers\API\v1\StudentController;
-use App\Http\Controllers\API\v1\AttendanceController;
-use App\Http\Controllers\API\v1\RegistrationController;
+use App\Http\Controllers\API\v1\{
+    StaffController,
+    ResultController,
+    SettingController,
+    StudentController,
+    AttendanceController,
+    RegistrationController
+};
+
+use App\Http\Controllers\ResultController as WebResultController;
 use App\Http\Controllers\OtherBrowserSessionsController;
 
-Route::middleware('guest')->group(function () {
-      $limiter = config('fortify.limiters.login');
+Route::middleware('guest')->group(
+    function () {
+        $limiter = config('fortify.limiters.login');
 
-      Route::post('/auth/login', [TokenAuthController::class, 'store'])->middleware(
-          array_filter([$limiter ? 'throttle:' . $limiter : null])
-      );
-  }
+        Route::post('/auth/login', [TokenAuthController::class, 'store'])->middleware(
+            array_filter([$limiter ? 'throttle:' . $limiter : null])
+        );
+    }
 );
+
+Route::get('get-site-roles', [SettingController::class, 'getSiteRoles']);
+Route::get('get-site-permissions', [SettingController::class, 'getSitePermissions']);
+Route::get('get-role-permissions/{id}', [SettingController::class, 'getRolePermissions']);
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 
     //users
-    Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    Route::get('/user', function (Request $request) {
         return new UserResource($request->user());
     });
 
@@ -39,13 +47,13 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     Route::put('/profile/update/image/{id}', [UserController::class, 'updateImage']);
 
     Route::group(['prefix' => 'settings', 'namespace' => 'Settings'], function () {
-      Route::get('/', [SettingController::class, 'index']);
-      Route::get('/levels/all', [SettingController::class, 'grade']);
-      Route::get('/sessions/all', [SettingController::class, 'session']);
-      Route::get('/terms/all', [SettingController::class, 'term']);
-      Route::get('/subjects/all', [SettingController::class, 'subject']);
-      Route::get('/midterm/format', [SettingController::class, 'midtermFormat']);
-      Route::get('/exam/format', [SettingController::class, 'examFormat']);
+        Route::get('/', [SettingController::class, 'index']);
+        Route::get('/levels/all', [SettingController::class, 'grade']);
+        Route::get('/sessions/all', [SettingController::class, 'session']);
+        Route::get('/terms/all', [SettingController::class, 'term']);
+        Route::get('/subjects/all', [SettingController::class, 'subject']);
+        Route::get('/midterm/format', [SettingController::class, 'midtermFormat']);
+        Route::get('/exam/format', [SettingController::class, 'examFormat']);
     });
 
     Route::group(['prefix' => 'staffs', 'namespace' => 'Staffs'], function () {
@@ -84,10 +92,16 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/student/{id}/delete/{attendance}', [AttendanceController::class, 'deleteStudent']);
         Route::post('/mark', [AttendanceController::class, 'mark_attendance']);
         Route::get('/stat', [AttendanceController::class, 'stat_search']);
-    }); 
+    });
 
     Route::group(['prefix' => 'result', 'namespace' => 'Result'], function () {
         Route::get('/', [ResultController::class, 'index']);
         Route::post('/upload', [ResultController::class, 'store']);
+        Route::get('show/{student_id}/{period_id}/{term_id}', [ResultController::class, 'show'])->name('show');
     });
-}); 
+
+    Route::group(['prefix' => 'webresults', 'namespace' => 'Webresults'], function () {
+        Route::get('/fetch/exam/{student_id}/{period_id}/{term_id}/{grade_id}', [WebResultController::class, 'examFetch'])->name('fetch.exam');
+        Route::get('exam/check/{grade_id}/{period_id}/{term_id}', [WebResultController::class, 'checkExam'])->name('check.exam');
+    });
+});

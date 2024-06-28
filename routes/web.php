@@ -87,7 +87,7 @@ Route::get('/payment/receipt/{payment}', [PaymentController::class, 'receipt'])-
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware('maintenance')->group(function () {
-    
+
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         Route::post('/subject/download/pdf', [SubjectController::class, 'subjectDownloadPdf'])->name('subject.download-pdf');
         Route::post('/subject/download/excel', [SubjectController::class, 'subjectDownloadExcel'])->name('subject.download-excel');
@@ -109,7 +109,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
 
         Route::resource('permission', PermissionController::class);
-        
+
         Route::group(['prefix' => 'role', 'as' => 'role.'], function () {
             Route::get('/', [RoleController::class, 'index'])->name('index');
             Route::get('/destroy', [RoleController::class, 'destroy'])->name('destroy');
@@ -126,8 +126,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/student/edit/{id}', [TeacherController::class, 'edit']);
             Route::post('/student/update', [TeacherController::class, 'update'])->name('student.update');
             Route::get('/subject/{id}', [TeacherController::class, 'showSubject']);
-            Route::get('/subject/{subjectId}/teacher/{teacherId}', [TeacherController::class, 'removeSubject']); 
-            Route::get('/grade/{gradeId}/teacher/{teacherId}', [TeacherController::class, 'removeGrade']); 
+            Route::get('/subject/{subjectId}/teacher/{teacherId}', [TeacherController::class, 'removeSubject']);
+            Route::get('/grade/{gradeId}/teacher/{teacherId}', [TeacherController::class, 'removeGrade']);
         });
 
         Route::group(['prefix' => 'driver', 'as' => 'driver.'], function () {
@@ -156,13 +156,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/verify-payment', [PaymentController::class, 'verifyPayment']);
         });
 
-        Route::resource('setting',ApplicationController::class);
+        Route::resource('setting', ApplicationController::class);
 
-        Route::resource('period',PeriodController::class);
-        Route::resource('grade',GradeController::class);
+        Route::resource('period', PeriodController::class);
+        Route::resource('grade', GradeController::class);
         Route::resource('subgrade', SubGradeController::class);
-        Route::resource('subject',SubjectController::class);
-        Route::resource('term',TermController::class);
+        Route::resource('subject', SubjectController::class);
+        Route::resource('term', TermController::class);
         Route::resource('house', HouseController::class);
         Route::resource('club', ClubController::class);
 
@@ -212,7 +212,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/view/results', [ResultController::class, 'viewResults'])->name('view.results');
 
             Route::post('/', [ResultController::class, 'batchExamUpload'])->name('store');
-            
+
             Route::get('primary/show/{student}', [ResultController::class, 'primaryShow'])->name('primary.show');
             Route::get('midterm/show/{student}', [ResultController::class, 'midtermShow'])->name('midterm.show');
             Route::get('show/{student}', [ResultController::class, 'show'])->name('show');
@@ -224,10 +224,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             Route::get('/midterm/upload', [ResultController::class, 'midTermUpload'])->name('midterm.upload');
             Route::get('/batch/midterm/upload', [ResultController::class, 'batchMidtermUpload'])->name('batch.midterm.upload');
-            
+
             Route::post('/store/midterm/score', [ResultController::class, 'storeMidTerm'])->name('upload.midterm.score');
             Route::post('/batch/store/midterm/score', [ResultController::class, 'storeBatchMidterm'])->name('upload.batch.midterm.score');
-            
+
 
             Route::get('/single/secondary', [ResultController::class, 'secondaryUpload'])->name('secondary.upload');
             Route::post('/store/Single/Secondary/Upload', [ResultController::class, 'storeSecondaryUpload'])->name('storeSingleSecondaryUpload');
@@ -301,12 +301,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/statistic/generate/subject/{grade_id}/{period_id}/{subject_id}', [ResultController::class, 'getHighestScoreBySubject'])->name('statistic.subject.generate');
 
             Route::get('/statistic/generate/class/{grade_id}/{period_id}', [ResultController::class, 'classResultStatistic'])->name('statistic.class.generate');
-            
+
             Route::post('/download/subject/statistic', [ResultController::class, 'downloadSubjectStatistic'])->name('download.subject.statistic');
             Route::post('/download/grade/statistic', [ResultController::class, 'downloadGradeStatistic'])->name('download.grade.statistic');
             Route::post('/download/class/statistic', [ResultController::class, 'downloadClassStatistic'])->name('download.class.statistic');
 
-           
+
             Route::get('playgroup/show/{student}', [ResultController::class, 'playgroupShow'])->name('playgroup.show');
             Route::post('/pdf/playgroup/generate', [ResultController::class, 'generateSinglePlaygroupPDF'])->name('playgroup.pdf');
 
@@ -326,7 +326,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::get('/psychomotor', [ResultController::class, 'classPsychomotor'])->name('psychomotor');
             });
         });
-        
+
         Route::group(['prefix' => 'fee', 'as' => 'fee.'], function () {
             Route::get('/', [FeeController::class, 'index'])->name('index');
             Route::post('/', [FeeController::class, 'store'])->name('store');
@@ -384,7 +384,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/', [AttendanceController::class, 'index'])->name('index');
             Route::post('/', [AttendanceController::class, 'store'])->name('store');
             Route::post('/mark', [AttendanceController::class, 'store_attendance'])->name('mark');
-            Route::get('/{attendanceId}/student/{studentId}', [AttendanceController::class, 'removeStudent']); 
+            Route::get('/{attendanceId}/student/{studentId}', [AttendanceController::class, 'removeStudent']);
             Route::get('/stat', [AttendanceController::class, 'stat'])->name('stat');
             Route::get('/{id}', [AttendanceController::class, 'showAttendance']);
             Route::get('/students/fetch', [AttendanceController::class, 'fetch']);
@@ -404,7 +404,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
 
         Route::get('/get/banks', [OptionsController::class, 'banks'])->name('banks');
-        
+
         Route::group(['prefix' => 'messaging', 'as' => 'messaging.'], function () {
             Route::get('/email', [MessagingController::class, 'indexEmail'])->name('email');
             Route::post('/messaging/email/send', [MessagingController::class, 'sendEmail'])->name('sendMail');
@@ -428,7 +428,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('finger_device/destroy', [BiometricDeviceController::class, 'massDestroy'])->name('finger_device.massDestroy');
         Route::get('finger_device/{fingerDevice}/employees/add', [BiometricDeviceController::class, 'addEmployee'])->name('finger_device.add.employee');
         Route::get('finger_device/{fingerDevice}/get/attendance', [BiometricDeviceController::class, 'getAttendance'])->name('finger_device.get.attendance');
-        
+
         // Temp Clear Attendance route
         Route::get('finger_device/clear/attendance', function () {
             $midnight = \Carbon\Carbon::createFromTime(23, 50, 00);
@@ -476,7 +476,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/sync/parent/all', [RegistrationController::class, 'syncAll']);
         Route::get('/pending/registration', [RegistrationController::class, 'pending'])->name('pending.registration');
 
-
         Route::group(['prefix' => 'upload', 'as' => 'upload.'], function () {
             Route::get('/', [FrontendController::class, 'uploadSignature'])->name('uploadSignature');
             Route::post('/', [FrontendController::class, 'uploadSignaturePost']);
@@ -513,6 +512,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/color/format', [ApplicationController::class, 'color']);
         Route::post('/grade/format', [ApplicationController::class, 'grade']);
         Route::post('/affective/domain', [ApplicationController::class, 'domain']);
+        Route::post('/create/term/setting', [ApplicationController::class, 'termSetting'])->name('termSetting');
     });
 
     Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
@@ -533,8 +533,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 });
 
-Route::group(['prefix' => 'teams', 'namespace' => 'Teamwork'], function()
-{
+Route::group(['prefix' => 'teams', 'namespace' => 'Teamwork'], function () {
     Route::get('/', [App\Http\Controllers\Teamwork\TeamController::class, 'index'])->name('teams.index');
     Route::get('create', [App\Http\Controllers\Teamwork\TeamController::class, 'create'])->name('teams.create');
     Route::post('teams', [App\Http\Controllers\Teamwork\TeamController::class, 'store'])->name('teams.store');
@@ -557,11 +556,11 @@ Route::group(['middleware' => config('fortify.middleware', ['web'])], function (
     // Authentication...
     if ($enableViews) {
         Route::get('/login', [LoginController::class, 'showLoginForm'])
-            ->middleware(['guest:'.config('fortify.guard')])
+            ->middleware(['guest:' . config('fortify.guard')])
             ->name('login');
         Route::get('/student/login', [LoginController::class, 'showStudentLoginForm'])
-        ->middleware(['guest:'.config('fortify.guard')])
-        ->name('student/login');
+            ->middleware(['guest:' . config('fortify.guard')])
+            ->name('student/login');
     }
 
     $limiter = config('fortify.limiters.login');
@@ -570,8 +569,8 @@ Route::group(['middleware' => config('fortify.middleware', ['web'])], function (
 
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
         ->middleware(array_filter([
-            'guest:'.config('fortify.guard'),
-            $limiter ? 'throttle:'.$limiter : null,
+            'guest:' . config('fortify.guard'),
+            $limiter ? 'throttle:' . $limiter : null,
         ]));
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
@@ -581,20 +580,20 @@ Route::group(['middleware' => config('fortify.middleware', ['web'])], function (
     if (Features::enabled(Features::resetPasswords())) {
         if ($enableViews) {
             Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
-                ->middleware(['guest:'.config('fortify.guard')])
+                ->middleware(['guest:' . config('fortify.guard')])
                 ->name('password.request');
 
             Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])
-                ->middleware(['guest:'.config('fortify.guard')])
+                ->middleware(['guest:' . config('fortify.guard')])
                 ->name('password.reset');
         }
 
         Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-            ->middleware(['guest:'.config('fortify.guard')])
+            ->middleware(['guest:' . config('fortify.guard')])
             ->name('password.email');
 
         Route::post('/reset-password', [NewPasswordController::class, 'store'])
-            ->middleware(['guest:'.config('fortify.guard')])
+            ->middleware(['guest:' . config('fortify.guard')])
             ->name('password.update');
     }
 
@@ -602,76 +601,76 @@ Route::group(['middleware' => config('fortify.middleware', ['web'])], function (
     if (Features::enabled(Features::registration())) {
         if ($enableViews) {
             Route::get('/register', [RegisteredUserController::class, 'create'])
-                ->middleware(['guest:'.config('fortify.guard')])
+                ->middleware(['guest:' . config('fortify.guard')])
                 ->name('register');
         }
 
         Route::post('/register', [RegisteredUserController::class, 'store'])
-            ->middleware(['guest:'.config('fortify.guard')]);
+            ->middleware(['guest:' . config('fortify.guard')]);
     }
 
     // Email Verification...
     if (Features::enabled(Features::emailVerification())) {
         if ($enableViews) {
             Route::get('/email/verify', [EmailVerificationPromptController::class, '__invoke'])
-                ->middleware([config('fortify.auth_middleware', 'auth').':'.config('fortify.guard')])
+                ->middleware([config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard')])
                 ->name('verification.notice');
         }
 
         Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
-            ->middleware([config('fortify.auth_middleware', 'auth').':'.config('fortify.guard'), 'signed', 'throttle:'.$verificationLimiter])
+            ->middleware([config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard'), 'signed', 'throttle:' . $verificationLimiter])
             ->name('verification.verify');
 
         Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-            ->middleware([config('fortify.auth_middleware', 'auth').':'.config('fortify.guard'), 'throttle:'.$verificationLimiter])
+            ->middleware([config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard'), 'throttle:' . $verificationLimiter])
             ->name('verification.send');
     }
 
     // Profile Information...
     if (Features::enabled(Features::updateProfileInformation())) {
         Route::put('/user/profile-information', [ProfileInformationController::class, 'update'])
-            ->middleware([config('fortify.auth_middleware', 'auth').':'.config('fortify.guard')])
+            ->middleware([config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard')])
             ->name('user-profile-information.update');
     }
 
     // Passwords...
     if (Features::enabled(Features::updatePasswords())) {
         Route::put('/user/password', [PasswordController::class, 'update'])
-            ->middleware([config('fortify.auth_middleware', 'auth').':'.config('fortify.guard')])
+            ->middleware([config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard')])
             ->name('user-password.update');
     }
 
     // Password Confirmation...
     if ($enableViews) {
         Route::get('/user/confirm-password', [ConfirmablePasswordController::class, 'show'])
-            ->middleware([config('fortify.auth_middleware', 'auth').':'.config('fortify.guard')]);
+            ->middleware([config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard')]);
     }
 
     Route::get('/user/confirmed-password-status', [ConfirmedPasswordStatusController::class, 'show'])
-        ->middleware([config('fortify.auth_middleware', 'auth').':'.config('fortify.guard')])
+        ->middleware([config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard')])
         ->name('password.confirmation');
 
     Route::post('/user/confirm-password', [ConfirmablePasswordController::class, 'store'])
-        ->middleware([config('fortify.auth_middleware', 'auth').':'.config('fortify.guard')])
+        ->middleware([config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard')])
         ->name('password.confirm');
 
     // Two Factor Authentication...
     if (Features::enabled(Features::twoFactorAuthentication())) {
         if ($enableViews) {
             Route::get('/two-factor-challenge', [TwoFactorAuthenticatedSessionController::class, 'create'])
-                ->middleware(['guest:'.config('fortify.guard')])
+                ->middleware(['guest:' . config('fortify.guard')])
                 ->name('two-factor.login');
         }
 
         Route::post('/two-factor-challenge', [TwoFactorAuthenticatedSessionController::class, 'store'])
             ->middleware(array_filter([
-                'guest:'.config('fortify.guard'),
-                $twoFactorLimiter ? 'throttle:'.$twoFactorLimiter : null,
+                'guest:' . config('fortify.guard'),
+                $twoFactorLimiter ? 'throttle:' . $twoFactorLimiter : null,
             ]));
 
         $twoFactorMiddleware = Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')
-            ? [config('fortify.auth_middleware', 'auth').':'.config('fortify.guard'), 'password.confirm']
-            : [config('fortify.auth_middleware', 'auth').':'.config('fortify.guard')];
+            ? [config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard'), 'password.confirm']
+            : [config('fortify.auth_middleware', 'auth') . ':' . config('fortify.guard')];
 
         Route::post('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'store'])
             ->middleware($twoFactorMiddleware)

@@ -28,34 +28,82 @@ use Illuminate\Support\Str;
 use Illuminate\Container\Container;
 use Illuminate\Support\Facades\Http;
 
+if (!function_exists('sendWaMessage')) {
+    function sendWaMessage($receiver, $message, $mediaurl = null)
+    {
+        try {
+            $apiurl = 'https://impression.com.ng/api/message/send/single';
+            $token = config('services.impression.token');
+            $device = config('services.impression.sender');
+
+            $syntaxMessage = "{business.name}\\{business.address}\\{business.phone_number}\\{add.date} {add.time}\\ \\$message\\ \\Thanks,\\*{business.name}*";
+
+            try {
+                $request = [
+                    'contact' => $receiver,
+                    'message' => $syntaxMessage,
+                    "device" => $device,
+                ];
+
+                if (isset($mediaurl)) {
+                    $file_path = realpath($mediaurl);
+                    $file_contents = file_get_contents($file_path);
+                    $request['type'] = 'document';
+
+                    $response = Http::attach(
+                        'media',
+                        $file_contents,
+                        'file.xlsx'
+                    )->withHeaders([
+                                'Authorization' => 'Bearer ' . $token
+                            ])->post($apiurl, $request);
+                } else {
+                    $response = Http::withHeaders([
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Bearer ' . $token
+                    ])->post($apiurl, $request);
+
+                }
+
+            } catch (\Exception $e) {
+                info("Failed: " . $e->getMessage());
+                $res[] = [
+                    'message' => $e->getMessage(),
+                ];
+            }
+        } catch (\Exception $e) {
+            info("Failed: " . $e->getMessage());
+        }
+    }
+}
 function application($key)
 {
-        $application = Application::first() ?? NullApplication::make();
+    $application = Application::first() ?? NullApplication::make();
 
-        if ($application) {
+    if ($application) {
 
-            return $application->{$key};
-        }
+        return $application->{$key};
+    }
 }
 
 function banner($key)
 {
-        $banner = Banner::first() ?? NullBanner::make();
+    $banner = Banner::first() ?? NullBanner::make();
 
-        if ($banner) {
+    if ($banner) {
 
-            return $banner->{$key};
-        }
+        return $banner->{$key};
+    }
 }
 
 function about($key)
 {
-        $about = About::first() ?? NullAbout::make();
+    $about = About::first() ?? NullAbout::make();
 
-        if ($about) {
+    if ($about) {
 
-            return $about->{$key};
-        }
+        return $about->{$key};
+    }
 }
 
 function term($key)
@@ -104,7 +152,7 @@ function calculatePercentage($value, $total, $percentage)
 //         $totalScore = $result->getTotalScore();
 //         $studentTotalScores[$result->student_id] = $totalScore;
 //     }
-    
+
 //     arsort($studentTotalScores);
 //     $sortedStudentIds = array_keys($studentTotalScores);
 //     $studentPosition = array_search($studentId, $sortedStudentIds);
@@ -129,9 +177,11 @@ function calculatePercentage($value, $total, $percentage)
 
 function calculateStudentPosition($studentIndex, $session, $term, $grade)
 {
-    $studentsData = \App\Models\Student::with(['primaryResults' => function ($query) use ($session, $term) {
-        $query->where('period_id', $session);
-    }])->where('grade_id', $grade)->get();
+    $studentsData = \App\Models\Student::with([
+        'primaryResults' => function ($query) use ($session, $term) {
+            $query->where('period_id', $session);
+        }
+    ])->where('grade_id', $grade)->get();
 
     $studentTotalScores = [];
     foreach ($studentsData as $student) {
@@ -147,11 +197,11 @@ function calculateStudentPosition($studentIndex, $session, $term, $grade)
             return $result->getTotalScore();
         });
 
-        if ($term  === '1') {
+        if ($term === '1') {
             $totalScores = $firstTotalScores;
-        } elseif ($term  === '2') {
+        } elseif ($term === '2') {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        } elseif ($term  === '3') {
+        } elseif ($term === '3') {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
@@ -177,10 +227,12 @@ function calculateStudentPosition($studentIndex, $session, $term, $grade)
 
 function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
 {
-    $studentsData = Student::with(['primaryResults' => function ($query) use ($session) {
-        $query->where('period_id', $session)
-            ->whereIn('term_id', [1, 2, 3]);
-    }])->whereHas('grade', function ($query) use ($grade) {
+    $studentsData = Student::with([
+        'primaryResults' => function ($query) use ($session) {
+            $query->where('period_id', $session)
+                ->whereIn('term_id', [1, 2, 3]);
+        }
+    ])->whereHas('grade', function ($query) use ($grade) {
         $query->where('title', 'like', get_grade($grade) . '%');
     })->get();
 
@@ -198,17 +250,17 @@ function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
             return $result->getTotalScore();
         });
 
-        if ($term  === '1') {
+        if ($term === '1') {
             $totalScores = $firstTotalScores;
-        } elseif ($term  === '2') {
+        } elseif ($term === '2') {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        } elseif ($term  === '3') {
+        } elseif ($term === '3') {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
         $studentTotalScores[$student->id()] = $totalScores;
     }
-    
+
     arsort($studentTotalScores);
     $studentPosition = array_search($studentIndex, array_keys($studentTotalScores)) + 1;
 
@@ -229,12 +281,14 @@ function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
 function studentSubjectPositionInGrade($studentIndex, $session, $term, $grade, $subjectId)
 {
     // Fetch all students along with their primary results for the given session, grade, and subject
-    $studentsData = Student::with(['primaryResults' => function ($query) use ($session, $subjectId, $grade) {
-        $query->where('period_id', $session)
-            ->where('grade_id', $grade)
-            ->whereIn('term_id', [1, 2, 3])
-            ->where('subject_id', $subjectId);
-    }])->where('grade_id', $grade)->get();
+    $studentsData = Student::with([
+        'primaryResults' => function ($query) use ($session, $subjectId, $grade) {
+            $query->where('period_id', $session)
+                ->where('grade_id', $grade)
+                ->whereIn('term_id', [1, 2, 3])
+                ->where('subject_id', $subjectId);
+        }
+    ])->where('grade_id', $grade)->get();
 
     $studentTotalScores = [];
     foreach ($studentsData as $student) {
@@ -250,11 +304,11 @@ function studentSubjectPositionInGrade($studentIndex, $session, $term, $grade, $
             return $result->getTotalScore();
         });
 
-        if ($term  === '1') {
+        if ($term === '1') {
             $totalScores = $firstTotalScores;
-        } elseif ($term  === '2') {
+        } elseif ($term === '2') {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        } elseif ($term  === '3') {
+        } elseif ($term === '3') {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
@@ -280,11 +334,13 @@ function studentSubjectPositionInGrade($studentIndex, $session, $term, $grade, $
 
 function calculateStudentGradeSubjectPosition($studentIndex, $session, $term, $grade, $subjectId)
 {
-    $studentsData = Student::with(['primaryResults' => function ($query) use ($session, $subjectId) {
-        $query->where('period_id', $session)
-            ->whereIn('term_id', [1, 2, 3])
-            ->where('subject_id', $subjectId);
-    }])->whereHas('grade', function ($query) use ($grade) {
+    $studentsData = Student::with([
+        'primaryResults' => function ($query) use ($session, $subjectId) {
+            $query->where('period_id', $session)
+                ->whereIn('term_id', [1, 2, 3])
+                ->where('subject_id', $subjectId);
+        }
+    ])->whereHas('grade', function ($query) use ($grade) {
         $query->where('title', 'like', get_grade($grade) . '%');
     })->get();
 
@@ -302,11 +358,11 @@ function calculateStudentGradeSubjectPosition($studentIndex, $session, $term, $g
             return $result->getTotalScore();
         });
 
-        if ($term  === '1') {
+        if ($term === '1') {
             $totalScores = $firstTotalScores;
-        } elseif ($term  === '2') {
+        } elseif ($term === '2') {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        } elseif ($term  === '3') {
+        } elseif ($term === '3') {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
@@ -365,16 +421,16 @@ function examRemark($remark, $type)
 
     if (Str::startsWith($type, "SSS")) {
         foreach ($dataSec as $key => $value) {
-            $from = (float)$value['from'];
+            $from = (float) $value['from'];
             $text = $value['text'];
 
             if ($remark >= $key && $remark <= $from) {
                 return $text;
             }
         }
-    }else{
+    } else {
         foreach ($dataJun as $key => $value) {
-            $from = (float)$value['from'];
+            $from = (float) $value['from'];
             $text = $value['text'];
 
             if ($remark >= $key && $remark <= $from) {
@@ -389,7 +445,7 @@ function examGrade($grade, $type)
     $dataSec = get_settings('exam_grade');
     $dataJun = get_settings('exam_grade_jun');
 
-    if(Str::startsWith($type, "SSS")){
+    if (Str::startsWith($type, "SSS")) {
         foreach ($dataSec as $key => $value) {
             $from = (float) $value['from'];
             $text = $value['text'];
@@ -398,9 +454,9 @@ function examGrade($grade, $type)
                 return $text;
             }
         }
-    }else {
-          foreach ($dataJun as $key => $value) {
-            $from = (float)$value['from'];
+    } else {
+        foreach ($dataJun as $key => $value) {
+            $from = (float) $value['from'];
             $text = $value['text'];
 
             if ($grade >= $key && $grade <= $from) {
@@ -415,7 +471,7 @@ function exam10Color($grade)
     $data = get_settings('over_ten');
 
     foreach ($data as $key => $value) {
-        $from = (float)$value['from'];
+        $from = (float) $value['from'];
         $color = $value['color'];
 
         if ($grade >= $key && $grade <= $from) {
@@ -431,7 +487,7 @@ function exam20Color($grade)
     $data = get_settings('over_twenty');
 
     foreach ($data as $key => $value) {
-        $from = (float)$value['from'];
+        $from = (float) $value['from'];
         $color = $value['color'];
 
         if ($grade >= $key && $grade <= $from) {
@@ -447,7 +503,7 @@ function exam40Color($grade)
     $data = get_settings('over_fourty');
 
     foreach ($data as $key => $value) {
-        $from = (float)$value['from'];
+        $from = (float) $value['from'];
         $color = $value['color'];
 
         if ($grade >= $key && $grade <= $from) {
@@ -463,7 +519,7 @@ function exam60Color($grade)
     $data = get_settings('over_sixty');
 
     foreach ($data as $key => $value) {
-        $from = (float)$value['from'];
+        $from = (float) $value['from'];
         $color = $value['color'];
 
         if ($grade >= $key && $grade <= $from) {
@@ -479,7 +535,7 @@ function exam100Color($grade)
     $data = get_settings('over_hundred');
 
     foreach ($data as $key => $value) {
-        $from = (float)$value['from'];
+        $from = (float) $value['from'];
         $color = $value['color'];
 
         if ($grade >= $key && $grade <= $from) {
@@ -530,11 +586,13 @@ function publishMidState($student, $period, $term)
 {
     $results = MidTerm::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
 
-    if ($results->every(function ($item) {
-        return $item->published;
-    })) {
+    if (
+        $results->every(function ($item) {
+            return $item->published;
+        })
+    ) {
         return true;
-    }else{
+    } else {
         return false;
     }
 }
@@ -543,11 +601,13 @@ function publishExamState($student, $period, $term)
 {
     $results = PrimaryResult::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
 
-    if ($results->every(function ($item) {
-        return $item->published;
-    })) {
+    if (
+        $results->every(function ($item) {
+            return $item->published;
+        })
+    ) {
         return true;
-    }else{
+    } else {
         return false;
     }
 }
@@ -556,27 +616,29 @@ function positionState($student, $period, $term)
 {
     $result = Cognitive::where('student_uuid', $student)->where('period_id', $period)->where('term_id', $term)->first();
 
-    if($result){
-        if ($result->position_in_grade !== null && $result->position_in_class !== null){
+    if ($result) {
+        if ($result->position_in_grade !== null && $result->position_in_class !== null) {
             return true;
-        }else{
+        } else {
             return false;
         }
-    }else{
+    } else {
         return false;
     }
-    
+
 }
 
 function positionGradeSubjectState($student, $period, $term)
 {
     $results = PrimaryResult::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
 
-    if ($results->every(function ($item) {
-        return $item->position_in_class_subject !== null && $item->position_in_grade_subject !== null;
-    })) {
+    if (
+        $results->every(function ($item) {
+            return $item->position_in_class_subject !== null && $item->position_in_grade_subject !== null;
+        })
+    ) {
         return true;
-    }else{
+    } else {
         return false;
     }
 }
@@ -612,9 +674,9 @@ function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100, $type =
     $comment = implode(' ', $comments);
     $plural = count($comments) > 1 ? "these subjects are" : "this subject is";
 
-     // If there are weak subjects, concatenate the info string to the beginning of the comment
-     if (!empty($weak_subjects)) {
-        $comment = $info . ' ' . $comment. ' Your percentage score in '. $plural. ' below average.' . ' I look forward to a more excellent result from you!';
+    // If there are weak subjects, concatenate the info string to the beginning of the comment
+    if (!empty($weak_subjects)) {
+        $comment = $info . ' ' . $comment . ' Your percentage score in ' . $plural . ' below average.' . ' I look forward to a more excellent result from you!';
     }
 
     return $comment;
@@ -628,20 +690,20 @@ function class_average($grade, $subject, $term, $period)
     $exam = get_settings('exam_format');
 
     $results = PrimaryResult::where('grade_id', $grade)
-                 ->where('term_id', $term)
-                 ->where('period_id', $period)
-                 ->where('subject_id', $subject->id())
-                 ->groupBy('student_id')
-                 ->get([
-                    'student_id',
-                    DB::raw('SUM(' . generateColumnSumExpression($midterm) . ' + ' . generateColumnSumExpression($exam) . ') as total_score')
-                ]);
+        ->where('term_id', $term)
+        ->where('period_id', $period)
+        ->where('subject_id', $subject->id())
+        ->groupBy('student_id')
+        ->get([
+            'student_id',
+            DB::raw('SUM(' . generateColumnSumExpression($midterm) . ' + ' . generateColumnSumExpression($exam) . ') as total_score')
+        ]);
 
     $total_score = 0;
     foreach ($results as $result) {
         $total_score += $result->total_score;
     }
-    
+
     $average = $total_score / count($students);
 
     return ceil($average);
@@ -665,7 +727,7 @@ function calculateResult($value)
 {
     $midtermFormat = get_settings('midterm_format');
     $examFormat = get_settings('exam_format');
-    
+
     $midtermTotal = 0;
     $examTotal = 0;
 
@@ -692,13 +754,13 @@ function payslipList()
 {
     $array = [
         '1' => ['key' => 'basic', 'value' => 'basic', 'title' => 'Basic'],
-        '2' => ['key' => 'rent', 'value' => 'rent' , 'title' => 'Rent'],
-        '3' => ['key' => 'transport', 'value' => 'transport' , 'title' => 'Transport'],
-        '4' => ['key' => 'utility', 'value' => 'utility' , 'title' => 'Utility'],
-        '5' => ['key' => 'meal', 'value' => 'meal' , 'title' => 'Meal'],
-        '6' => ['key' => 'medical', 'value' => 'medical' , 'title' => 'Medical'],
-        '7' => ['key' => 'dressing', 'value' => 'dressing' , 'title' => 'Dressing'],
-        '8' => ['key' => 'allowance', 'value' => 'allowance' , 'title' => 'Allowance'],
+        '2' => ['key' => 'rent', 'value' => 'rent', 'title' => 'Rent'],
+        '3' => ['key' => 'transport', 'value' => 'transport', 'title' => 'Transport'],
+        '4' => ['key' => 'utility', 'value' => 'utility', 'title' => 'Utility'],
+        '5' => ['key' => 'meal', 'value' => 'meal', 'title' => 'Meal'],
+        '6' => ['key' => 'medical', 'value' => 'medical', 'title' => 'Medical'],
+        '7' => ['key' => 'dressing', 'value' => 'dressing', 'title' => 'Dressing'],
+        '8' => ['key' => 'allowance', 'value' => 'allowance', 'title' => 'Allowance'],
     ];
 
     return $array;
@@ -730,11 +792,14 @@ function env_update($key, $value)
 {
     $path = base_path('.env');
     if (file_exists($path)) {
-        file_put_contents($path, str_replace(
-            $key . '=' . env($key),
-            $key . '=' . $value,
-            file_get_contents($path)
-        ));
+        file_put_contents(
+            $path,
+            str_replace(
+                $key . '=' . env($key),
+                $key . '=' . $value,
+                file_get_contents($path)
+            )
+        );
     }
 }
 
@@ -742,11 +807,14 @@ function env_key_replace($key_from, $key_to, $value)
 {
     $path = base_path('.env');
     if (file_exists($path)) {
-        file_put_contents($path, str_replace(
-            $key_from . '=' . env($key_from),
-            $key_to . '=' . $value,
-            file_get_contents($path)
-        ));
+        file_put_contents(
+            $path,
+            str_replace(
+                $key_from . '=' . env($key_from),
+                $key_to . '=' . $value,
+                file_get_contents($path)
+            )
+        );
     }
 }
 
@@ -756,8 +824,10 @@ function remove_dir($dir)
         $objects = scandir($dir);
         foreach ($objects as $object) {
             if ($object != "." && $object != "..") {
-                if (filetype($dir . "/" . $object) == "dir") Helpers::remove_dir($dir . "/" . $object);
-                else unlink($dir . "/" . $object);
+                if (filetype($dir . "/" . $object) == "dir")
+                    Helpers::remove_dir($dir . "/" . $object);
+                else
+                    unlink($dir . "/" . $object);
             }
         }
         reset($objects);
@@ -796,7 +866,7 @@ function setEnvironmentValue($envKey, $envValue)
 
 function insert_business_settings_key($key, $value = null)
 {
-    $data =  Setting::where('key', $key)->first();
+    $data = Setting::where('key', $key)->first();
     if (!$data) {
         DB::table('business_settings')->updateOrInsert(['key' => $key], [
             'value' => $value,
@@ -817,18 +887,18 @@ function default_lang()
     return 'en';
 }
 
-if (! function_exists('translate')) {
+if (!function_exists('translate')) {
     function translate($key, $replace = [])
     {
-        if(strpos($key, 'validation.') === 0 || strpos($key, 'passwords.') === 0 || strpos($key, 'pagination.') === 0 || strpos($key, 'order_texts.') === 0) {
+        if (strpos($key, 'validation.') === 0 || strpos($key, 'passwords.') === 0 || strpos($key, 'pagination.') === 0 || strpos($key, 'order_texts.') === 0) {
             return trans($key, $replace);
         }
-        
-        $key = strpos($key, 'messages.') === 0?substr($key,9):$key;
+
+        $key = strpos($key, 'messages.') === 0 ? substr($key, 9) : $key;
         $local = default_lang();
         App::setLocale($local);
         try {
-            $lang_array = include(base_path('resources/lang/' . $local . '/messages.php'));
+            $lang_array = include (base_path('resources/lang/' . $local . '/messages.php'));
             $processed_key = ucfirst(str_replace('_', ' ', remove_invalid_charcaters($key)));
 
             if (!array_key_exists($key, $lang_array)) {
@@ -857,15 +927,16 @@ function mode()
 {
     $result = get_settings('maintenance_mode');
 
-    if($result === 1){
+    if ($result === 1) {
         return true;
-    }else{
+    } else {
         return false;
     }
 }
 
 if (!function_exists('hasPaidFullFee')) {
-    function hasPaidFullFee($user, $gradeId) {
+    function hasPaidFullFee($user, $gradeId)
+    {
         $getFee = Fee::where([
             'grade_id' => $gradeId,
             'type' => $user->student->type,
@@ -887,7 +958,8 @@ if (!function_exists('hasPaidFullFee')) {
     }
 }
 
-function getFormat($string) {
+function getFormat($string)
+{
     $values = explode(',', $string);
     return $values;
 }
@@ -900,7 +972,7 @@ function colorArray()
         'blue' => '#0000ff',
         'green' => '#00FF00',
     ];
-    
+
     return $data;
 }
 
@@ -944,13 +1016,13 @@ function promotedTo($grade)
     $current = \App\Models\Grade::where('id', $grade)->first();
     $parts = explode(' ', $current->title());
 
-    if(count($parts) === 3 && $parts[0] === 'Primary'){
+    if (count($parts) === 3 && $parts[0] === 'Primary') {
         $currentNumber = intval($parts[1]);
         $nextNumber = $currentNumber + 1;
 
-       return $nextClassTitle = "$parts[0] {$nextNumber}"; 
-    }else{
-         $class = \App\Models\Grade::where('id', $grade)->first();
+        return $nextClassTitle = "$parts[0] {$nextNumber}";
+    } else {
+        $class = \App\Models\Grade::where('id', $grade)->first();
         $hierachy = [
             'Playgroup',
             'Preparatory',
@@ -958,7 +1030,7 @@ function promotedTo($grade)
             'Transition'
         ];
 
-        $currentIndex = array_search($class->title(), $hierachy); 
+        $currentIndex = array_search($class->title(), $hierachy);
 
         if ($currentIndex !== false && isset($hierachy[$currentIndex + 1])) {
             $nextClassTitle = $hierarchy[$currentIndex + 1];
@@ -969,19 +1041,22 @@ function promotedTo($grade)
 }
 
 if (!function_exists('calculateTotalAmount')) {
-    function calculateTotalAmount($payments) {
+    function calculateTotalAmount($payments)
+    {
         return $payments?->amount ?? 0;
     }
 }
 
 if (!function_exists('calculateTripBalance')) {
-    function calculateTripBalance($payments) {
+    function calculateTripBalance($payments)
+    {
         return $payments?->balance ?? 0;
     }
 }
 
 if (!function_exists('userPermissions')) {
-    function userPermissions() {
+    function userPermissions()
+    {
         $permissions = array();
         $roles = Auth::user()->roles;
         foreach ($roles as $role) {
@@ -994,12 +1069,14 @@ if (!function_exists('userPermissions')) {
 
 function generateStudentClassSubjectPosition($studentId, $session, $term, $subjectId, $grade)
 {
-    $studentsData = \App\Models\Student::with(['primaryResults' => function ($query) use ($session, $subjectId, $grade) {
-        $query->where('period_id', $session)
-            ->where('grade_id', $grade)
-            ->whereIn('term_id', [1, 2, 3])
-            ->where('subject_id', $subjectId);
-    }])->where('grade_id', $grade)->get();
+    $studentsData = \App\Models\Student::with([
+        'primaryResults' => function ($query) use ($session, $subjectId, $grade) {
+            $query->where('period_id', $session)
+                ->where('grade_id', $grade)
+                ->whereIn('term_id', [1, 2, 3])
+                ->where('subject_id', $subjectId);
+        }
+    ])->where('grade_id', $grade)->get();
 
     $studentTotalScores = [];
     foreach ($studentsData as $student) {
@@ -1015,11 +1092,11 @@ function generateStudentClassSubjectPosition($studentId, $session, $term, $subje
             return $result->getTotalScore();
         });
 
-        if($term === '1'){
+        if ($term === '1') {
             $totalScores = $firstTotalScores;
-        }elseif($term === '2'){
+        } elseif ($term === '2') {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        }else if ($term === '3'){
+        } else if ($term === '3') {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
@@ -1044,11 +1121,13 @@ function generateStudentClassSubjectPosition($studentId, $session, $term, $subje
 
 function generateStudentGradeSubjectPosition($studentId, $session, $term, $subjectId, $grade)
 {
-     $studentsData = Student::with(['primaryResults' => function ($query) use ($session, $subjectId) {
-        $query->where('period_id', $session)
-            ->where('term_id', [1, 2, 3])
-            ->where('subject_id', $subjectId);
-    }])->whereHas('grade', function ($query) use ($grade) {
+    $studentsData = Student::with([
+        'primaryResults' => function ($query) use ($session, $subjectId) {
+            $query->where('period_id', $session)
+                ->where('term_id', [1, 2, 3])
+                ->where('subject_id', $subjectId);
+        }
+    ])->whereHas('grade', function ($query) use ($grade) {
         $query->where('title', 'like', get_grade($grade) . '%');
     })->get();
 
@@ -1066,11 +1145,11 @@ function generateStudentGradeSubjectPosition($studentId, $session, $term, $subje
             return $result->getTotalScore();
         });
 
-        if($term === '1'){
+        if ($term === '1') {
             $totalScores = $firstTotalScores;
-        }elseif($term === '2'){
+        } elseif ($term === '2') {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        }else if ($term === '3'){
+        } else if ($term === '3') {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
@@ -1093,13 +1172,14 @@ function generateStudentGradeSubjectPosition($studentId, $session, $term, $subje
     return $positionWithSuffix;
 }
 
-function isAttendanceMarked($studentId, $attendanceId, $attendanceType) {
-   
-    $status =  \App\Models\AttendanceStudent::where('student_id', $studentId)
+function isAttendanceMarked($studentId, $attendanceId, $attendanceType)
+{
+
+    $status = \App\Models\AttendanceStudent::where('student_id', $studentId)
         ->where('attendance_id', $attendanceId)
         ->where($attendanceType, true)
         ->exists();
-    
+
     return $status;
 }
 
@@ -1121,7 +1201,7 @@ function calculateTermAttendance($student, $period, $term)
         'total_attendance' => $attendance->count(),
         'total_present' => $totalPresent
     ];
-    
+
 
     return count($attendance) > 0 ? $attendance : null;
 }
@@ -1147,79 +1227,48 @@ if (!function_exists('getAboutSetting')) {
 }
 
 if (!function_exists('input_types')) {
-    function input_types(){
-        $types  =
-        [
+    function input_types()
+    {
+        $types =
             [
-                "name" => "Text",
-                "id" => "1"
-            ],
-            [
-                "name" => "Textarea",
-                "id" => "2"
-            ],
-            [
-                "name" => "Select",
-                "id" => "3"
-            ],
-            [
-                "name" => "Radio",
-                "id" => "4"
-            ],
-            [
-                "name" => "Checkbox",
-                "id" => "5"
-            ],
-            [
-                "name" => "File",
-                "id" => "6"
-            ],
-        ];
+                [
+                    "name" => "Text",
+                    "id" => "1"
+                ],
+                [
+                    "name" => "Textarea",
+                    "id" => "2"
+                ],
+                [
+                    "name" => "Select",
+                    "id" => "3"
+                ],
+                [
+                    "name" => "Radio",
+                    "id" => "4"
+                ],
+                [
+                    "name" => "Checkbox",
+                    "id" => "5"
+                ],
+                [
+                    "name" => "File",
+                    "id" => "6"
+                ],
+            ];
         return $types;
     }
 }
 
-if(!function_exists('convertStringToArray')){
-    function convertStringToArray($data){
+if (!function_exists('convertStringToArray')) {
+    function convertStringToArray($data)
+    {
         $parsed = [];
         $items = explode(',', $data);
         foreach ($items as $item) {
             $parsed[] = $item;
         }
         return $parsed;
-    }
-}
-
-if (!function_exists('sendWaMessage')) {
-    function sendWaMessage($receiver, $msg)
-    {
-        $token = env('IMPRESSION_TOKEN');
-        $device = env('IMPRESSION_SENDER');
-        $url = env('IMPRESSION_URL').'/api/message/send/single';
-        $tries = 0;
-        $data = [
-            'device' => $device,
-            'message' => $msg,
-            'contact' => $receiver,
-        ];
-
-        do {
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => "Bearer $token",
-            ])->post($url, $data);
-
-            if ($response->failed()) {
-                info('HTTP error');
-            } else {
-                $json = $response->json();
-                return $json;
-            }
-
-            $tries++;
-        } while ($tries < 3);
-        info('Failed after multiple attempts');
-        return null;
     }
 }
 
@@ -1234,3 +1283,13 @@ if (!function_exists('ApiResponse')) {
         ];
     }
 }
+
+if (!function_exists('termSetting')) {
+    function termSetting(int $term_id, int $period_id)
+    {
+        $setting = \App\Models\TermSetting::where('term_id', $term_id)->where('period_id', $period_id)->first();
+        return $setting;
+    }
+}
+
+

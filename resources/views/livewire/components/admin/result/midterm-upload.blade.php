@@ -18,15 +18,17 @@
                                     </div>
 
                                     <div class="col-lg-3 mt-2">
-                                        <select class="form-control select2" wire:model="student_id">
-                                            <option value=''>Select Student</option>
-                                            @foreach ($students as $student)
-                                            <option value="{{  $student->id() }}">
-                                                {{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}
-                                            </option>
-                                            @endforeach
-                                            <x-form.error for="student_id" />
-                                        </select>
+                                        @if (isset($students))
+                                            <select class="form-control select2" wire:model="student_id">
+                                                <option value=''>Select Student</option>
+                                                @foreach ($students as $student)
+                                                <option value="{{  $student->id() }}">
+                                                    {{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}
+                                                </option>
+                                                @endforeach
+                                                <x-form.error for="student_id" />
+                                            </select>
+                                        @endif
                                     </div>
 
                                     <div class="col-lg-2 mt-2">
@@ -312,13 +314,8 @@
                     url,
                     data
                 }).done((res) => {
-                    if(res.status) {
-                        toggleAble('#submit_button', false);
-                        toastr.success(res.message, 'Success!');
-                    }else{
-                        toggleAble('#submit_button', false);
-                        toastr.error(res.message, 'Failed!');
-                    }
+                    toggleAble('#submit_button', false);
+                    toastr.success(res.message, 'Success!');
                     resetForm('#midFormSubmit');
                     setTimeout(function(){
                         window.location.reload();

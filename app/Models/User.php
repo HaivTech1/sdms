@@ -26,7 +26,7 @@ class User extends Authenticatable
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
-    use UserHasTeams; 
+    use UserHasTeams;
     use HasPoints;
     use HasFollows;
     use ModelHelpers;
@@ -52,14 +52,23 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Week::class);
     }
-    
+
     /**
      * The attributes that are mass assignable.
      *
      * @var string[]
      */
     protected $fillable = [
-        'title', 'name', 'email', 'reg_no', 'type', 'password', 'phone_number', 'isAvailable', 'pincode'
+        'title',
+        'name',
+        'api_token',
+        'email',
+        'reg_no',
+        'type',
+        'password',
+        'phone_number',
+        'isAvailable',
+        'pincode'
     ];
 
     /**
@@ -208,7 +217,7 @@ class User extends Authenticatable
     public function scopeSearch($query, $term)
     {
         $term = "%$term%";
-        return $query->where(function($query) use ($term) {
+        return $query->where(function ($query) use ($term) {
             $query->where('name', 'like', $term);
         });
     }

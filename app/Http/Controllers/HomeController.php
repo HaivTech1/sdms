@@ -26,14 +26,14 @@ class HomeController extends Controller
 
         $news = News::get();
         $studentsData = DB::table('students')
-                ->select(DB::raw('year(created_at) as year'), DB::raw('count(*) as total'))
-                ->groupBy(DB::raw('year(created_at)'))
-                ->get();
+            ->select(DB::raw('year(created_at) as year'), DB::raw('count(*) as total'))
+            ->groupBy(DB::raw('year(created_at)'))
+            ->get();
 
         // $balance_amount = $this->getPaystackBalance();
 
         if ($user->isSuperAdmin() || $user->isAdmin() || $user->isBursal()) {
-            return view('dashboard',[
+            return view('dashboard', [
                 'user' => $user,
                 'session' => $session,
                 'term' => $term,
@@ -44,15 +44,15 @@ class HomeController extends Controller
                 'sessions' => $thesessions,
                 // 'balance' => $balance_amount,
             ]);
-        }elseif($user->isTeacher()){
-            return view('dashboard/teacher',[
+        } elseif ($user->isTeacher()) {
+            return view('dashboard/teacher', [
                 'user' => $user,
                 'session' => $session,
                 'term' => $term,
                 'events' => $news
             ]);
-        }elseif($user->isStudent()){
-            return view('dashboard/student',[
+        } elseif ($user->isStudent()) {
+            return view('dashboard/student', [
                 'user' => $user,
                 'session' => $session,
                 'term' => $term,

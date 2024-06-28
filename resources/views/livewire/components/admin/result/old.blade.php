@@ -118,6 +118,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                            {{-- {{ $students->links('pagination::custom-pagination')}} --}}
                         </div>
                     </div>
                 </div>
@@ -352,7 +353,7 @@
                     <div class="row">
                         <div class="card">
                             <div class="card-header">
-                                <button data-student-id="" class="btn btn-sm btn-secondary addResult"><i
+                                <button data-student-id="" class="btn btn-sm btn-primary addResult"><i
                                         class="bx bx-plus"></i> Add Result</button>
                             </div>
                         </div>
@@ -398,7 +399,7 @@
                     <input type="number" id="scoreInput" class="form-control">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="saveScoreBtn">Save</button>
                 </div>
             </div>
@@ -467,11 +468,6 @@
 
     @section('scripts')
     <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-        });
 
         $('#fetchResultForm').on('submit', function (e) {
             e.preventDefault();
@@ -486,6 +482,7 @@
             $('#publishSelected').data('term', term);
             $('#publishSelected').data('grade', grade);
 
+
             $.ajax({
                 url: '{{ route("result.check.midterm", ["period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':grade_id', grade),
                 type: 'GET',
@@ -497,6 +494,7 @@
 
                 var html = '';
                 $.each(students, function (index, student) {
+
                     html += '<tr class="search-items">';
                     html += '<td class="text-center">';
                     html += '<div class="form-check">';
@@ -506,12 +504,12 @@
                     html += '<td class="">' + student.name + '</td>';
                     html += '<td class="text-center">' + student.recorded_subjects + '</td>';
                     if (student.recorded_subjects > 0) {
+
                         html += '<td>';
-                        html += '<button class="btn btn-sm btn-secondary recorded" data-grade="' + response.grade + '" data-period="' + response.period + '" data-term="' + response.term + '" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
+                        html += '<button class="btn btn-sm btn-primary recorded" data-grade="' + response.grade + '" data-period="' + response.period + '" data-term="' + response.term + '" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
                         if (userPermissions.includes('result_show')) {
                             html += '<a target="_blank" href="{{ route('result.midterm.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
                         }
-
                         if (userPermissions.includes('result_publish')) {
                             if (student.publish_state) {
                                 html += '<button type="button" class="btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
@@ -523,7 +521,6 @@
                                 html += '</button>';
                             }
                         }
-
                         if (userPermissions.includes('result_download')) {
                             html += '<form action="{{ route('result.midterm.pdf') }}" method="POST">';
                             html += '@csrf';
@@ -546,6 +543,7 @@
                 });
 
                 $('#result-data tbody').html(html);
+
                 $('.recorded').on('click', function () {
                     var button = $(this);
                     toggleAble(button, true)
@@ -694,7 +692,7 @@
 
         $(document).ready(function () {
             $('.midterm-input').prop('disabled', true);
-            $('#progress-bar').css('display', 'none');
+            { { --$('#progress-bar').css('display', 'none'); --} }
 
             $('#format-select').on('change', function () {
                 var selectedFormat = $(this).val();
@@ -754,11 +752,6 @@
                             toggleAble(button, false);
                             Swal.fire('Deleted!', response.message, 'success');
                             row.remove();
-                            {
-                                setTimeout(function () {
-                                    window.location.reload();
-                                }, 1000)
-                            }
                         },
                         error: function (response) {
                             toggleAble(button, false);
@@ -874,8 +867,8 @@
                         dataType: 'json',
                     }).done((res) => {
                         toggleAble(button, false);
-                        resetForm('#excelResultUpload')
-                        $('.excelResultModal').modal('toggle');
+                        { { --resetForm('#excelResultUpload') --} }
+                        { { --$('.excelResultModal').modal('toggle'); --} }
                         Swal.fire('Uploaded!', res.message, 'success');
                     }).fail((err) => {
                         console.log(err);
@@ -947,9 +940,9 @@
                     toggleAble(button, false);
                     progressBar.css('width', '100%');
                     progressBar.text('100%');
+
                     {
                         var downloadLinks = response.downloadLinks;
-                        console.log(downloadLinks);
                         var downloadLinksList = $('#downloadLinksList');
                         downloadLinksList.empty();
 
@@ -968,39 +961,6 @@
                 });
             });
         });
-
-        function extractProgressValue(response) {
-            console.log(response);
-            // Extract the progress value from the response using a regular expression or any other method
-            // Parse the progress value and return it as a number
-            // If the progress value cannot be extracted, return null
-            // Example:
-            // var progress = response.match(/Progress: (\d+)/);
-            // return progress ? parseFloat(progress[1]) : null;
-            // Modify this function according to your response structure and extraction method
-        }
-
-        function generatePDF(student) {
-            var data = student.split(",");
-            var student_id = data[0];
-            var period_id = data[1];
-            var term_id = data[2];
-            var grade_id = data[3];
-            toggleAble('#generatePDF' + student_id, true);
-
-            $.ajax({
-                url: '{{ route('result.midterm.pdf') }}' ,
-                method: 'GET',
-                data: { student_id, period_id, term_id, grade_id }
-            }).done((res) => {
-                toggleAble('#generatePDF' + student_id, false);
-                toastr.success(res.message, 'Success!');
-            }).fail((res) => {
-                console.log(res.responseJSON.message);
-                toastr.error(res.responseJSON.message, 'Failed!');
-                toggleAble('#generatePDF' + student_id, false);
-            });
-        }
 
         $('#publishSelected').on('click', function () {
             var button = $(this);
@@ -1042,6 +1002,39 @@
                 toggleAble(button, false);
                 toastr.error(err.responseJSON.message, 'Failed!');
             });
+
+            function extractProgressValue(response) {
+                console.log(response);
+                // Extract the progress value from the response using a regular expression or any other method
+                // Parse the progress value and return it as a number
+                // If the progress value cannot be extracted, return null
+                // Example:
+                // var progress = response.match(/Progress: (\d+)/);
+                // return progress ? parseFloat(progress[1]) : null;
+                // Modify this function according to your response structure and extraction method
+            }
+
+            function generatePDF(student) {
+                var data = student.split(",");
+                var student_id = data[0];
+                var period_id = data[1];
+                var term_id = data[2];
+                var grade_id = data[3];
+                toggleAble('#generatePDF' + student_id, true);
+
+                $.ajax({
+                    url: '{{ route('result.midterm.pdf') }}' ,
+                    method: 'GET',
+                    data: { student_id, period_id, term_id, grade_id }
+                }).done((res) => {
+                    toggleAble('#generatePDF' + student_id, false);
+                    toastr.success(res.message, 'Success!');
+                }).fail((res) => {
+                    console.log(res.responseJSON.message);
+                    toastr.error(res.responseJSON.message, 'Failed!');
+                    toggleAble('#generatePDF' + student_id, false);
+                });
+            }
         });
     </script>
     @endsection

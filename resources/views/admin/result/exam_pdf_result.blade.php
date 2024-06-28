@@ -181,7 +181,7 @@
                 <div class="mainContainer">
                    <div class="result-item">
                         <b>No. of times school opened:</b>
-                        <span>{{ get_settings('no_school_open') }}</span>
+                        <span>{{ $termSetting->no_school_opened }}</span>
                     </div>
                     <div class="result-item">
                         <b>No. of times present:</b>
@@ -189,7 +189,7 @@
                     </div>
                     <div class="result-item">
                         <b>Attendance Average:</b>
-                        <span>{{ round(calculatePercentage($studentAttendance->attendance_present, get_settings('no_school_open'), 100)) }}%</span>
+                        <span>{{ round(calculatePercentage($studentAttendance->attendance_present, $termSetting->no_school_opened, 100)) }}%</span>
                     </div>
 
                     {{-- <div class="result-item">
@@ -211,7 +211,7 @@
                 <div class="minorContainer">
                     <div class="result-item">
                         <b>Next term resumes:</b>
-                        <span>{{ \Carbon\carbon::parse(get_settings('next_term_resume'))->format('d F, Y') ?? 'Not set'}}</span>
+                        <span>{{ $termSetting->next_term_resumption->format('d-M-Y') ?? '-----'}}</span>
                     </div>
                 </div>
             </div>

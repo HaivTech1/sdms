@@ -26,7 +26,7 @@ class HomeController extends Controller
         $title = "Gallery";
 
         $images = Gallery::where('status', true)->inRandomOrder()->get();
-        return view('frontend.gallery',[
+        return view('frontend.gallery', [
             'title' => $title,
             'images' => $images
         ]);
@@ -35,8 +35,8 @@ class HomeController extends Controller
     public function about()
     {
         $title = "About";
-        
-        return view('frontend.about',[
+
+        return view('frontend.about', [
             'title' => $title,
         ]);
     }
@@ -44,7 +44,7 @@ class HomeController extends Controller
     public function registration()
     {
         $title = "Admission";
-        return view('frontend.registration',[
+        return view('frontend.registration', [
             'grades' => Grade::all(),
             'title' => $title,
         ]);
@@ -53,7 +53,7 @@ class HomeController extends Controller
     public function shop()
     {
         $title = "Shop";
-        return view('frontend.shop',[
+        return view('frontend.shop', [
             'title' => $title,
         ]);
     }
@@ -84,7 +84,7 @@ class HomeController extends Controller
             Schema::create('parent_reviews', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->nullable();
-                $table->enum('rating',[1, 2, 3, 4, 5])->default(5);
+                $table->enum('rating', [1, 2, 3, 4, 5])->default(5);
                 $table->text('content')->nullable();
                 $table->timestamps();
             });
@@ -95,7 +95,7 @@ class HomeController extends Controller
                 $table->id();
                 $table->string('name')->nullable();
                 $table->text('description')->nullable();
-                $table->enum('input_type',['text','password','email','textarea','select','radio','checkbox','file'])->nullable();
+                $table->enum('input_type', ['text', 'password', 'email', 'textarea', 'select', 'radio', 'checkbox', 'file'])->nullable();
                 $table->string('column_name')->nullable();
                 $table->text('value')->nullable();
                 $table->string('input_option')->nullable();
@@ -123,7 +123,7 @@ class HomeController extends Controller
                 $table->timestamps();
             });
         }
-        
+
         if (!Schema::hasColumn('mid_terms', 'deleted_at')) {
             Schema::table('mid_terms', function (Blueprint $table) {
                 $table->timestamp('deleted_at')->after('updated_at')->nullable();
@@ -136,5 +136,17 @@ class HomeController extends Controller
             });
         }
 
+        if (!Schema::hasTable('term_settings')) {
+            Schema::create('term_settings', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
+                $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');
+                $table->date('resumption_date');
+                $table->date('vacation_date');
+                $table->date('next_term_resumption');
+                $table->integer('no_school_opened');
+                $table->timestamps();
+            });
+        }
     }
 }

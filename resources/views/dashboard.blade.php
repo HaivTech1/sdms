@@ -10,45 +10,46 @@
     </x-slot>
 
     {{-- @php
-        $results = \App\Models\MidTerm::where('grade_id', 5)->select('subject_id', 'entry_1', 'entry_2', 'first_test', 'ca', 'project')->get();
-        $labels = $results->pluck('subject_id')->unique()->values()->toArray(); // array of unique subject IDs
+    $results = \App\Models\MidTerm::where('grade_id', 5)->select('subject_id', 'entry_1', 'entry_2', 'first_test', 'ca',
+    'project')->get();
+    $labels = $results->pluck('subject_id')->unique()->values()->toArray(); // array of unique subject IDs
 
-        $datasets = [];
-        $datasets[] = [
-            'label' => 'First Entry',
-            'data' => $results->pluck('entry_1')->toArray(),
-            'backgroundColor' => 'rgba(255, 99, 132, 0.2)', // set a color for the dataset
-            'borderColor' => 'rgba(255, 99, 132, 1)', // set the border color
-            'borderWidth' => 1 // set the border width
-        ];
-        $datasets[] = [
-            'label' => 'Second Entry',
-            'data' => $results->pluck('entry_2')->toArray(),
-            'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
-            'borderColor' => 'rgba(54, 162, 235, 1)',
-            'borderWidth' => 1
-        ];
-        $datasets[] = [
-            'label' => 'First Test',
-            'data' => $results->pluck('first_test')->toArray(),
-            'backgroundColor' => 'rgba(255, 206, 86, 0.2)',
-            'borderColor' => 'rgba(255, 206, 86, 1)',
-            'borderWidth' => 1
-        ];
-        $datasets[] = [
-            'label' => 'Continuous Assessment',
-            'data' => $results->pluck('ca')->toArray(),
-            'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-            'borderColor' => 'rgba(75, 192, 192, 1)',
-            'borderWidth' => 1
-        ];
-        $datasets[] = [
-            'label' => 'Project',
-            'data' => $results->pluck('project')->toArray(),
-            'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-            'borderColor' => 'rgba(75, 192, 192, 1)',
-            'borderWidth' => 1
-        ];
+    $datasets = [];
+    $datasets[] = [
+    'label' => 'First Entry',
+    'data' => $results->pluck('entry_1')->toArray(),
+    'backgroundColor' => 'rgba(255, 99, 132, 0.2)', // set a color for the dataset
+    'borderColor' => 'rgba(255, 99, 132, 1)', // set the border color
+    'borderWidth' => 1 // set the border width
+    ];
+    $datasets[] = [
+    'label' => 'Second Entry',
+    'data' => $results->pluck('entry_2')->toArray(),
+    'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+    'borderColor' => 'rgba(54, 162, 235, 1)',
+    'borderWidth' => 1
+    ];
+    $datasets[] = [
+    'label' => 'First Test',
+    'data' => $results->pluck('first_test')->toArray(),
+    'backgroundColor' => 'rgba(255, 206, 86, 0.2)',
+    'borderColor' => 'rgba(255, 206, 86, 1)',
+    'borderWidth' => 1
+    ];
+    $datasets[] = [
+    'label' => 'Continuous Assessment',
+    'data' => $results->pluck('ca')->toArray(),
+    'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+    'borderColor' => 'rgba(75, 192, 192, 1)',
+    'borderWidth' => 1
+    ];
+    $datasets[] = [
+    'label' => 'Project',
+    'data' => $results->pluck('project')->toArray(),
+    'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+    'borderColor' => 'rgba(75, 192, 192, 1)',
+    'borderWidth' => 1
+    ];
 
     @endphp --}}
 
@@ -74,11 +75,13 @@
                             <div class="row">
                                 <div class="col-sm-6 col-lg-8">
                                     <div class="avatar-md profile-user-wid">
-                                        <img src="{{ asset('storage/'.$user->image()) }}" alt="" class="img-thumbnail rounded-circle avatar-sm">
+                                        <img src="{{ asset('storage/' . $user->image()) }}" alt=""
+                                            class="img-thumbnail rounded-circle avatar-sm">
                                     </div>
                                     <div>
                                         <h5><span class="badge badge-soft-info">Name:</span> {{  $user->name() }}</h5>
-                                        <p class="text-muted mb-1"><span class="badge badge-soft-info">Reg No.:</span> {{ $user->code() }}</p>
+                                        <p class="text-muted mb-1"><span class="badge badge-soft-info">Reg No.:</span>
+                                            {{ $user->code() }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -90,34 +93,38 @@
                         $news = \App\Models\News::all();
                         $hairstyles = \App\Models\Hairstyle::all();
                     @endphp
-                    <button type="button" class="btn btn-primary waves-effect waves-light" 
-                    data-bs-toggle="modal" data-bs-target=".newsModal">Create school news ({{ $news->count() }})</button>
-                    <button type="button" class="btn btn-success waves-effect waves-light" 
-                    data-bs-toggle="modal" data-bs-target=".hairstyleModal">Create Hairstyle ({{ $hairstyles->count() }})</button>
+                    <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
+                        data-bs-target=".newsModal">Create school news ({{ $news->count() }})</button>
+                    <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal"
+                        data-bs-target=".hairstyleModal">Create Hairstyle ({{ $hairstyles->count() }})</button>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-8">
-             <div class="row">
+            <div class="row">
                 <div class="col-lg-12">
                     <div class="p-4">
                         <p style="font-weight: bold; font-size: 20px">{{ application('name') }}</p>
                         <div class="mt-2">
                             <div class="onoffswitch3">
-                                <input type="checkbox" name="onoffswitch3" class="onoffswitch3-checkbox" id="myonoffswitch3" checked>
+                                <input type="checkbox" name="onoffswitch3" class="onoffswitch3-checkbox"
+                                    id="myonoffswitch3" checked>
                                 <label class="onoffswitch3-label" for="myonoffswitch3">
                                     <span class="onoffswitch3-inner">
                                         <span class="onoffswitch3-active">
                                             <marquee class="scroll-text">
                                                 @foreach($events as $event)
-                                                    <span>{{ $event->title()}}: {{ strip_tags($event->description())}}</span> 
-                                                    <span class="bx bx-caret-right"></span> 
+                                                    <span>{{ $event->title()}}:
+                                                        {{ strip_tags($event->description())}}</span>
+                                                    <span class="bx bx-caret-right"></span>
                                                 @endforeach
                                             </marquee>
-                                            <span class="onoffswitch3-switch">BREAKING NEWS <span class="bx bx-x"></span></span>
+                                            <span class="onoffswitch3-switch">BREAKING NEWS <span
+                                                    class="bx bx-x"></span></span>
                                         </span>
-                                        <span class="onoffswitch3-inactive"><span class="onoffswitch3-switch">SHOW BREAKING NEWS</span></span>
+                                        <span class="onoffswitch3-inactive"><span class="onoffswitch3-switch">SHOW
+                                                BREAKING NEWS</span></span>
                                     </span>
                                 </label>
                             </div>
@@ -130,37 +137,77 @@
                 {{-- <x-card.slot title="Paystack Balance" amount="$balance" iconClass="bx bx-money"></x-card.slot> --}}
             </div>
             @endbursal
-            
+
             @admin
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-lg-4 align-self-center">
-                                        <div class="text-lg-center mt-4 mt-lg-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    @php
+                                        $term_setting = termSetting(term('id'), period('id'))
+                                    @endphp
+
+                                    <div>
+                                        @if($term_setting)
                                             <div class="row">
-                                                <div class="col-sm-6">
+                                                <div class="col-sm-2">
                                                     <div>
                                                         <p class="text-muted text-truncate mb-2">Session</p>
-                                                        <h5 class="mb-0">{{ $session?->title() ?? 'Not set'}}</h5>
+                                                        <h5 class="mb-0">{{ $term_setting?->term?->title }}</h5>
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-6">
+                                                <div class="col-sm-2">
                                                     <div>
                                                         <p class="text-muted text-truncate mb-2">Term</p>
-                                                        <h5 class="mb-0">{{ $term?->title() ?? 'Not set'}}</h5>
+                                                        <h5 class="mb-0">{{ $term_setting->period->title }}</h5>
                                                     </div>
                                                 </div>
-                                                
+
+                                                <div class="col-sm-2">
+                                                    <div>
+                                                        <p class="text-muted text-truncate mb-2">Resumption Date</p>
+                                                        <h5 class="mb-0">
+                                                            {{ $term_setting?->resumption_date?->format('d-M-Y') }}
+                                                        </h5>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2">
+                                                    <div>
+                                                        <p class="text-muted text-truncate mb-2">Vacation Date</p>
+                                                        <h5 class="mb-0">
+                                                            {{ $term_setting?->vacation_date?->format('d-M-Y') }}
+                                                        </h5>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2">
+                                                    <button type="button" class="btn btn-sm btn-danger"
+                                                        data-bs-toggle="modal" data-bs-target=".settingModal">Edit
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @else
+                                            <div class="alert customize-alert alert-dismissible rounded-pill border-danger text-danger fade show d-flex align-items-center px-2"
+                                                role="alert">
+                                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                                    data-bs-target=".settingModal">Set
+                                                </button>
+                                                <div class="d-flex align-items-center font-medium me-3 me-md-0">
+                                                    <i class="ti ti-info-circle fs-5 me-2 text-danger"></i>
+                                                    Current Term setting not set yet. Please attend to this!!!
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
             @endadmin
         </div>
     </div>
@@ -169,7 +216,7 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                     <div class="card-header">
+                    <div class="card-header">
                         <div class="my-2 text-center">
                             <h1 class="card-title">Students ranking per class</h1>
                         </div>
@@ -181,7 +228,7 @@
                                     <select class="form-control" id="grade-select" name="class_id">
                                         <option value="">Select Class</option>
                                         @foreach($grades as $class)
-                                            <option value="{{ $class->id }}">{{ $class->title() }}</option>
+                                        <option value="{{ $class->id }}">{{ $class->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -190,7 +237,7 @@
                                     <select class="form-control" id="term" name="term">
                                         <option value="">Select Term</option>
                                         @foreach($terms as $term)
-                                            <option value="{{ $term->id() }}">{{ $term->title() }}</option>
+                                        <option value="{{ $term->id() }}">{{ $term->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -199,7 +246,7 @@
                                     <select class="form-control" id="session" name="session">
                                         <option value="">Select Session</option>
                                         @foreach($sessions as $session)
-                                            <option value="{{ $session->id() }}">{{ $session->title() }}</option>
+                                        <option value="{{ $session->id() }}">{{ $session->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -211,17 +258,17 @@
                             </div>
                         </form>
                     </div>
-                   <canvas id="ranking"></canvas>
+                    <canvas id="ranking"></canvas>
                 </div>
             </div>
         </div>
     </div> --}}
-{{-- 
+    {{--
     <div class="row">
         <div class="col-sm-6">
             <div class="card">
                 <div class="card-body">
-                     <div class="card-header">
+                    <div class="card-header">
                         <div class="my-2 text-center">
                             <h1 class="card-title">Student's performance in all subjects</h1>
                         </div>
@@ -233,7 +280,7 @@
                                     <select class="form-control" id="class-select" name="class_id">
                                         <option value="">Select Class</option>
                                         @foreach($grades as $class)
-                                            <option value="{{ $class->id }}">{{ $class->title() }}</option>
+                                        <option value="{{ $class->id }}">{{ $class->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -248,7 +295,7 @@
                                     <select class="form-control" id="term-select" name="term">
                                         <option value="">Select Term</option>
                                         @foreach($terms as $term)
-                                            <option value="{{ $term->id() }}">{{ $term->title() }}</option>
+                                        <option value="{{ $term->id() }}">{{ $term->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -257,7 +304,7 @@
                                     <select class="form-control" id="session-select" name="session">
                                         <option value="">Select Session</option>
                                         @foreach($sessions as $session)
-                                            <option value="{{ $session->id() }}">{{ $session->title() }}</option>
+                                        <option value="{{ $session->id() }}">{{ $session->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -269,14 +316,14 @@
                             </div>
                         </form>
                     </div>
-                   <canvas id="resultChat"></canvas>
+                    <canvas id="resultChat"></canvas>
                 </div>
             </div>
         </div>
         <div class="col-sm-6">
             <div class="card">
                 <div class="card-body">
-                  <canvas id="studentsChart"></canvas>
+                    <canvas id="studentsChart"></canvas>
                 </div>
             </div>
         </div>
@@ -301,17 +348,21 @@
                             </div>
                             <div class="col-sm-12 mb-3">
                                 <x-form.label for="description" value="{{ __('Content') }}" />
-                                        <textarea class="form-control" name="description" id="summernote">{{ old('content') }}</textarea>
+                                <textarea class="form-control" name="description"
+                                    id="summernote">{{ old('content') }}</textarea>
                                 <x-form.error for="description" />
                             </div>
                             <div class="col-sm-12 mb-3">
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="status" checked>
-                                    <label class="form-check-label" for="flexSwitchCheckChecked">Make news public</label>
+                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked"
+                                        name="status" checked>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Make news
+                                        public</label>
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
-                                <button id="newBtn" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
+                                <button id="newBtn" type="submit"
+                                    class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
                             </div>
                         </div>
                     </form>
@@ -328,7 +379,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="hairstyleForm" action="{{ route('hairstyle.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="hairstyleForm" action="{{ route('hairstyle.store') }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-sm-12 mb-3">
@@ -346,35 +398,120 @@
                             <div class="row mb-3">
                                 <div class="col-sm-4">
                                     <label for="side_view_input" class="form-label">Side View:</label>
-                                    <input type="file" id="side_view_input" class="form-control" name="side_view" accept="image/*" onchange="previewImage('side_view_input', 'side_view_preview')">
+                                    <input type="file" id="side_view_input" class="form-control" name="side_view"
+                                        accept="image/*"
+                                        onchange="previewImage('side_view_input', 'side_view_preview')">
                                     <div style="display: flex; justify-content: center; margin-top: 5px">
-                                        <img id="side_view_preview" src="#" alt="Side view preview" style="display:none; max-width: 100px; max-height: 100px;">
+                                        <img id="side_view_preview" src="#" alt="Side view preview"
+                                            style="display:none; max-width: 100px; max-height: 100px;">
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="front_view_input" class="form-label">Front View:</label>
-                                    <input type="file" id="front_view_input" class="form-control" name="front_view" accept="image/*" onchange="previewImage('front_view_input', 'front_view_preview')">
+                                    <input type="file" id="front_view_input" class="form-control" name="front_view"
+                                        accept="image/*"
+                                        onchange="previewImage('front_view_input', 'front_view_preview')">
                                     <div style="display: flex; justify-content: center; margin-top: 5px">
-                                        <img id="front_view_preview" src="#" alt="Front view preview" style="display:none; max-width: 100px; max-height: 100px;">
+                                        <img id="front_view_preview" src="#" alt="Front view preview"
+                                            style="display:none; max-width: 100px; max-height: 100px;">
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="back_view_input" class="form-label">Back View:</label>
-                                    <input type="file" id="back_view_input" class="form-control" name="back_view" accept="image/*" onchange="previewImage('back_view_input', 'back_view_preview')">
+                                    <input type="file" id="back_view_input" class="form-control" name="back_view"
+                                        accept="image/*"
+                                        onchange="previewImage('back_view_input', 'back_view_preview')">
                                     <div style="display: flex; justify-content: center; margin-top: 5px">
-                                        <img id="back_view_preview" src="#" alt="Back view preview" style="display:none; max-width: 100px; max-height: 100px;">
+                                        <img id="back_view_preview" src="#" alt="Back view preview"
+                                            style="display:none; max-width: 100px; max-height: 100px;">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-sm-12 mb-3">
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="status" checked>
+                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked"
+                                        name="status" checked>
                                     <label class="form-check-label" for="flexSwitchCheckChecked">Activate</label>
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
-                                <button id="createHair" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
+                                <button id="createHair" type="submit"
+                                    class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade settingModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Set term settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="settingTermForm" action="{{ route('appSetting.termSetting') }}" method="POST">
+                        @csrf
+                        <div class="row">
+                            @php
+                                $terms = \App\Models\Term::all();
+                                $sessions = \App\Models\Period::all();
+                            @endphp
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="term_id" value="{{ __('Term') }}" />
+                                <select class="form-control select2" name="term_id">
+                                    <option value="">Select</option>
+                                    @foreach($terms as $term)
+                                        <option value="{{ $term->id }}">{{ $term->title }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="period_id" value="{{ __('Session') }}" />
+                                <select class="form-control select2" name="period_id">
+                                    <option value="">Select</option>
+                                    @foreach($sessions as $session)
+                                        <option value="{{ $session->id }}">{{ $session->title }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="no_school_opened" value="{{ __('No. of time school Opened') }}" />
+                                <x-form.input id="no_school_opened" class="block w-full mt-1" type="number"
+                                    name="no_school_opened" :value="old('no_school_opened')" id="no_school_opened"
+                                    autofocus />
+                                <x-form.error for="no_school_opened" />
+                            </div>
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="resumption_date" value="{{ __('Resumption Date') }}" />
+                                <x-form.input id="resumption_date" class="block w-full mt-1" type="date"
+                                    name="resumption_date" :value="old('resumption_date')" id="resumption_date"
+                                    autofocus />
+                                <x-form.error for="resumption_date" />
+                            </div>
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="vacation_date" value="{{ __('Vacation Date') }}" />
+                                <x-form.input id="vacation_date" class="block w-full mt-1" type="date"
+                                    name="vacation_date" :value="old('vacation_date')" id="vacation_date" autofocus />
+                                <x-form.error for="vacation_date" />
+                            </div>
+                            <div class="col-sm-12 mb-3">
+                                <x-form.label for="next_term_resumption"
+                                    value="{{ __('Next Term Resumption Date') }}" />
+                                <x-form.input id="next_term_resumption" class="block w-full mt-1" type="date"
+                                    name="next_term_resumption" :value="old('next_term_resumption')"
+                                    id="next_term_resumption" autofocus />
+                                <x-form.error for="next_term_resumption" />
+                            </div>
+                            <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
+                                <button id="settingTermBtn" type="submit"
+                                    class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
                             </div>
                         </div>
                     </form>
@@ -385,306 +522,336 @@
 
     @section('scripts')
 
-         <script>
-            $(document).ready(function() {
-                // Populate student dropdown based on class selection
-                $('#class-select').on('change', function() {
-                    var classId = $(this).val();
-                    $.ajax({
-                        url: '/student/students-by-class',
-                        method: 'GET',
-                        data: {class: classId},
-                    }).done((data) => {
-                        $('#student-select').empty();
-                        $.each(data, function(index, student) {
-                            $('#student-select').append('<option value="' + student.uuid + '">' + student.last_name + ' ' + student.first_name + ' ' + student.other_name + '</option>');
-                        });
-                    }).fail((err) => {
-                        toastr.error(err.responseJSON.message, 'Failed!');
+    <script>
+        $(document).ready(function () {
+            // Populate student dropdown based on class selection
+            $('#class-select').on('change', function () {
+                var classId = $(this).val();
+                $.ajax({
+                    url: '/student/students-by-class',
+                    method: 'GET',
+                    data: { class: classId },
+                }).done((data) => {
+                    $('#student-select').empty();
+                    $.each(data, function (index, student) {
+                        $('#student-select').append('<option value="' + student.uuid + '">' + student.last_name + ' ' + student.first_name + ' ' + student.other_name + '</option>');
                     });
+                }).fail((err) => {
+                    toastr.error(err.responseJSON.message, 'Failed!');
                 });
-
-                // Update chart based on student selection
-                $(document).on('submit', '#performance', function(e) {
-                    var existingChart = Chart.getChart("resultChat");
-
-                    e.preventDefault();
-
-                    toggleAble('#submit', true, 'Fetching...');
-                    var classId = $('#class-select').val();
-                    var studentId = $('#student-select').val();
-                    var term = $('#term-select').val();
-                    var session = $('#session-select').val();
-                    $.ajax({
-                        url: '/student/performance-by-student',
-                        method: 'GET',
-                        data: {classId: classId, studentId: studentId, term: term, session: session},
-                    }).done((data) => {
-                        toggleAble('#submit', false);
-
-                            var subjects = [];
-                            var scores = [];
-
-                            $.each(data, function(index, result) {
-                                var totalScore = result.ca1 + result.ca2 + result.project + result.exam;
-                                subjects.push(result.subject);
-                                scores.push(totalScore);
-                            });
-
-                            if (existingChart) {
-                                existingChart.destroy();
-                            }
-
-                            var chartData = {
-                                labels: subjects,
-                                datasets: [
-                                    {
-                                        label: 'Total Score',
-                                        data: scores,
-                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                        borderColor: 'rgba(255, 99, 132, 1)',
-                                        borderWidth: 1
-                                    }
-                                ]
-                            };
-
-                            var ctx = $('#resultChat');
-                            var chart = new Chart(ctx, {
-                                type: 'bar',
-                                data: chartData,
-                                options: {
-                                    scales: {
-                                        yAxes: [{
-                                            ticks: {
-                                                beginAtZero: true
-                                            }
-                                        }]
-                                    }
-                                }
-                            });
-                    }).fail((err) => {
-                        toggleAble('#submit', false);
-                        console.log(err);
-                        toastr.error(err.responseJSON.message, 'Failed!');
-                    });
-                });
-
-                 $(document).on('submit', '#news', function(e) {
-                    e.preventDefault();
-                    toggleAble('#newBtn', true, 'Creating...');
-
-                    var url = $(this).attr('action');
-                    var data = $(this).serializeArray();
-                    var method = $(this).attr('method');
-                    
-                    $.ajax({
-                        url,
-                        method,
-                        data
-                    }).done((res) => {
-                        if(res.status === true) {
-                            toggleAble('#newBtn', false);
-                            toastr.success(res.message, 'Success!');
-                            resetForm('#news')
-                            $('.newsModal').modal('toggle');
-                        }
-                    }).fail((err) => {
-                        toggleAble('#newBtn', false);
-                        console.log(err);
-                        toastr.error(err.responseJSON.message, 'Failed!');
-                    });
-                });
-
-            });
-        </script>
-
-        <script>
-
-            var audio = document.getElementById("myAudio");
-
-            function playAudio() {
-                audio.play();
-            }
-
-            function pauseAudio() {
-                audio.pause();
-            }
-
-            @if(auth()->check() && auth()->user()->isAdmin() || auth()->check() && auth()->user()->isSuperAdmin())
-                setInterval(function () {
-                    $.get({
-                        url: '{{ route('pending.registration') }}',
-                        dataType: 'json',
-                        success: function (response) {
-                            if(response.status){
-                                let data = response.data;
-                                new_registration = data.new_registration;
-                                if (new_registration > 0) {
-                                    playAudio();
-                                    $('#popup-modal').appendTo("body").modal('show');
-                                }
-                            }
-                        },
-                    });
-                }, 10000);
-            @endif
-            
-            function check_registration() {
-                window.location.href = "/index/registration";
-            }
-        </script>
-
-        <script>
-            var studentsData = {!! json_encode($studentsData) !!};
-
-            var years = [];
-            var totals = [];
-
-            studentsData.forEach(function(item) {
-                years.push(item.year);
-                totals.push(item.total);
             });
 
-            var ctx = document.getElementById('studentsChart').getContext('2d');
-            var studentsChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Total Students per Year',
-                        data: totals,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                               
-                            }
-                        }]
-                    }
-                }
-            });
-        </script>
-        
-        <script>
-              $(document).on('submit', '#rankingForm', function(e) {
+            // Update chart based on student selection
+            $(document).on('submit', '#performance', function (e) {
+                var existingChart = Chart.getChart("resultChat");
 
-                    e.preventDefault();
-                    var existingRanking = Chart.getChart("ranking");
-
-                    toggleAble('#rankingBtn', true, 'Fetching...');
-
-                    var classId = $('#grade-select').val();
-                    var term = $('#term').val();
-                    var session = $('#session').val();
-
-                    $.ajax({
-                        url: '/student/class-ranking-student',
-                        method: 'GET',
-                        data: {classId: classId, term: term, session: session},
-                    }).done((response) => {
-                        if(response.status){
-                            toggleAble('#rankingBtn', false);
-
-                            var labels = [];
-                            var data = [];
-
-                            response.data.forEach(function(result) {
-                                labels.push(result.name);
-                                data.push(result.score);
-                            });
-
-                            if (existingRanking) {
-                                existingRanking.destroy();
-                            }
-
-                            var ctx = document.getElementById('ranking').getContext('2d');
-                            var myChart = new Chart(ctx, {
-                                type: 'line',
-                                data: {
-                                    labels: labels,
-                                    datasets: [{
-                                        label: 'Total Score',
-                                        data: data,
-                                        borderColor: 'rgb(75, 192, 192)',
-                                        fill: false
-                                    }]
-                                },
-                                options: {
-                                    scales: {
-                                        yAxes: [{
-                                            ticks: {
-                                                beginAtZero: true
-                                            }
-                                        }]
-                                    }
-                                }
-                            });
-
-                        }
-                    }).fail((err) => {
-                        console.log(err);
-                        toggleAble('#rankingBtn', false);
-                        toastr.error(err.responseJSON.message, 'Failed!');
-                    });
-                });
-        </script>
-
-        <script>
-            function previewImage(inputId, previewId) {
-                const input = document.getElementById(inputId);
-                const preview = document.getElementById(previewId);
-
-                if (input.files && input.files[0]) {
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        preview.setAttribute('src', e.target.result);
-                        preview.style.display = 'block';
-                    }
-
-                    reader.readAsDataURL(input.files[0]);
-                } else {
-                    preview.setAttribute('src', '#');
-                    preview.style.display = 'none';
-                }
-            }
-        </script>
-
-        {{-- <script>
-            $('#hairstyleForm').on('submit', function(e){
                 e.preventDefault();
-                toggleAble('#createHair', true, 'Creating...');
+
+                toggleAble('#submit', true, 'Fetching...');
+                var classId = $('#class-select').val();
+                var studentId = $('#student-select').val();
+                var term = $('#term-select').val();
+                var session = $('#session-select').val();
+                $.ajax({
+                    url: '/student/performance-by-student',
+                    method: 'GET',
+                    data: { classId: classId, studentId: studentId, term: term, session: session },
+                }).done((data) => {
+                    toggleAble('#submit', false);
+
+                    var subjects = [];
+                    var scores = [];
+
+                    $.each(data, function (index, result) {
+                        var totalScore = result.ca1 + result.ca2 + result.project + result.exam;
+                        subjects.push(result.subject);
+                        scores.push(totalScore);
+                    });
+
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+
+                    var chartData = {
+                        labels: subjects,
+                        datasets: [
+                            {
+                                label: 'Total Score',
+                                data: scores,
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    };
+
+                    var ctx = $('#resultChat');
+                    var chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: chartData,
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                }).fail((err) => {
+                    toggleAble('#submit', false);
+                    console.log(err);
+                    toastr.error(err.responseJSON.message, 'Failed!');
+                });
+            });
+
+            $(document).on('submit', '#news', function (e) {
+                e.preventDefault();
+                toggleAble('#newBtn', true, 'Creating...');
 
                 var url = $(this).attr('action');
-                let formData = new FormData($('#hairstyleForm')[0]);
+                var data = $(this).serializeArray();
                 var method = $(this).attr('method');
 
                 $.ajax({
                     url,
                     method,
-                    data: formData,
-                }).done((response) => {
-                    if(response.status){
-                        toggleAble('#createHair', false);
-                        toastr.success(response.message, 'Success!');
-                        resetForm('#hairstyleForm')
-                        $('.hairstyleModal').modal('toggle');
-
-                        setTimeout(function(){
-                            window.location.reload();
-                        }, 1000);
+                    data
+                }).done((res) => {
+                    if (res.status === true) {
+                        toggleAble('#newBtn', false);
+                        toastr.success(res.message, 'Success!');
+                        resetForm('#news')
+                        $('.newsModal').modal('toggle');
                     }
                 }).fail((err) => {
+                    toggleAble('#newBtn', false);
                     console.log(err);
-                    toggleAble('#createHair', false);
                     toastr.error(err.responseJSON.message, 'Failed!');
                 });
-            })
-        </script> --}}
+            });
+
+            $(document).on('submit', '#settingTermForm', function (e) {
+                e.preventDefault();
+                toggleAble('#settingTermBtn', true, 'Creating...');
+
+                var url = $(this).attr('action');
+                var data = $(this).serializeArray();
+                var method = $(this).attr('method');
+
+                $.ajax({
+                    url,
+                    method,
+                    data
+                }).done((res) => {
+                    if (res.status === true) {
+                        toggleAble('#settingTermBtn', false);
+                        toastr.success(res.message, 'Success!');
+                        resetForm('#news')
+                        $('.settingModal').modal('toggle');
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                }).fail((err) => {
+                    toggleAble('#settingTermBtn', false);
+                    toastr.error(err.responseJSON.message, 'Failed!');
+                });
+            });
+
+        });
+    </script>
+
+    <script>
+
+        var audio = document.getElementById("myAudio");
+
+        function playAudio() {
+            audio.play();
+        }
+
+        function pauseAudio() {
+            audio.pause();
+        }
+
+        @if(auth()->check() && auth()->user()->isAdmin() || auth()->check() && auth()->user()->isSuperAdmin())
+            setInterval(function () {
+                $.get({
+                    url: '{{ route('pending.registration') }}',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status) {
+                            let data = response.data;
+                            new_registration = data.new_registration;
+                            if (new_registration > 0) {
+                                playAudio();
+                                $('#popup-modal').appendTo("body").modal('show');
+                            }
+                        }
+                    },
+                });
+            }, 10000);
+        @endif
+
+        function check_registration() {
+            window.location.href = "/index/registration";
+        }
+    </script>
+
+    <script>
+        var studentsData = {!! json_encode($studentsData) !!};
+
+        var years = [];
+        var totals = [];
+
+        studentsData.forEach(function (item) {
+            years.push(item.year);
+            totals.push(item.total);
+        });
+
+        var ctx = document.getElementById('studentsChart').getContext('2d');
+        var studentsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: 'Total Students per Year',
+                    data: totals,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+
+    <script>
+        $(document).on('submit', '#rankingForm', function (e) {
+
+            e.preventDefault();
+            var existingRanking = Chart.getChart("ranking");
+
+            toggleAble('#rankingBtn', true, 'Fetching...');
+
+            var classId = $('#grade-select').val();
+            var term = $('#term').val();
+            var session = $('#session').val();
+
+            $.ajax({
+                url: '/student/class-ranking-student',
+                method: 'GET',
+                data: { classId: classId, term: term, session: session },
+            }).done((response) => {
+                if (response.status) {
+                    toggleAble('#rankingBtn', false);
+
+                    var labels = [];
+                    var data = [];
+
+                    response.data.forEach(function (result) {
+                        labels.push(result.name);
+                        data.push(result.score);
+                    });
+
+                    if (existingRanking) {
+                        existingRanking.destroy();
+                    }
+
+                    var ctx = document.getElementById('ranking').getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total Score',
+                                data: data,
+                                borderColor: 'rgb(75, 192, 192)',
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+
+                }
+            }).fail((err) => {
+                console.log(err);
+                toggleAble('#rankingBtn', false);
+                toastr.error(err.responseJSON.message, 'Failed!');
+            });
+        });
+    </script>
+
+    <script>
+        function previewImage(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.setAttribute('src', e.target.result);
+                    preview.style.display = 'block';
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.setAttribute('src', '#');
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+
+    {{--
+    <script>
+        $('#hairstyleForm').on('submit', function (e) {
+            e.preventDefault();
+            toggleAble('#createHair', true, 'Creating...');
+
+            var url = $(this).attr('action');
+            let formData = new FormData($('#hairstyleForm')[0]);
+            var method = $(this).attr('method');
+
+            $.ajax({
+                url,
+                method,
+                data: formData,
+            }).done((response) => {
+                if (response.status) {
+                    toggleAble('#createHair', false);
+                    toastr.success(response.message, 'Success!');
+                    resetForm('#hairstyleForm')
+                    $('.hairstyleModal').modal('toggle');
+
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000);
+                }
+            }).fail((err) => {
+                console.log(err);
+                toggleAble('#createHair', false);
+                toastr.error(err.responseJSON.message, 'Failed!');
+            });
+        })
+    </script> --}}
     @endsection
 </x-app-layout>
