@@ -217,7 +217,7 @@
             </div>
 
             <div>
-                <table class="result-table">
+            <table class="result-table">
                     @php
                         $midterm = get_settings('midterm_format');
                         $exam = get_settings('exam_format');

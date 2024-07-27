@@ -12,29 +12,27 @@
         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
             <div x-data="{photoName: null, photoPreview: null}" class="col-span-6 sm:col-span-4">
                 <!-- Profile Photo File Input -->
-                <input type="file" class="hidden"
-                            wire:model="photo"
-                            x-ref="photo"
-                            x-on:change="
-                                    photoName = $refs.photo.files[0].name;
-                                    const reader = new FileReader();
-                                    reader.onload = (e) => {
-                                        photoPreview = e.target.result;
-                                    };
-                                    reader.readAsDataURL($refs.photo.files[0]);
-                            " />
+                <input type="file" class="hidden" wire:model="photo" x-ref="photo" x-on:change="
+                                            photoName = $refs.photo.files[0].name;
+                                            const reader = new FileReader();
+                                            reader.onload = (e) => {
+                                                photoPreview = e.target.result;
+                                            };
+                                            reader.readAsDataURL($refs.photo.files[0]);
+                                    " />
 
                 <x-jet-label for="photo" value="{{ __('Photo') }}" />
 
                 <!-- Current Profile Photo -->
                 <div class="mt-2" x-show="! photoPreview">
-                    <img src="{{ asset('storage/'.$this->user->profile_photo_path )}}" alt="{{ $this->user->name }}" class="rounded-full h-20 w-20 object-cover">
+                    <img src="{{ asset('storage/' . $this->user->profile_photo_path)}}" alt="{{ $this->user->name }}"
+                        class="rounded-full h-20 w-20 object-cover">
                 </div>
 
                 <!-- New Profile Photo Preview -->
                 <div class="mt-2" x-show="photoPreview" style="display: none;">
                     <span class="block rounded-full w-20 h-20 bg-cover bg-no-repeat bg-center"
-                          x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
+                        x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
                     </span>
                 </div>
 
@@ -55,7 +53,8 @@
         <!-- first_name -->
         <div class="col-span-6 sm:col-span-4">
             <x-jet-label for="first_name" value="{{ __('First name') }}" />
-            <x-jet-input id="first_name" type="text" class="mt-1 block w-full" wire:model.defer="state.first_name" autocomplete="first_name" />
+            <x-jet-input id="first_name" type="text" class="mt-1 block w-full" wire:model.defer="state.first_name"
+                autocomplete="first_name" />
             <x-jet-input-error for="first_name" class="mt-2" />
         </div>
 
@@ -66,7 +65,7 @@
             <x-jet-input-error for="last_name" class="mt-2" />
         </div>
 
-         <!-- other_name -->
+        <!-- other_name -->
         <div class="col-span-6 sm:col-span-4">
             <x-jet-label for="other_name" value="{{ __('Other Name') }}" />
             <x-jet-input id="other_name" type="text" class="mt-1 block w-full" wire:model.defer="state.other_name" />
@@ -95,7 +94,8 @@
                 $date = new \DateTime($student->dob);
             @endphp
 
-            <x-jet-input id="dob" type="date" class="mt-1 block w-full" wire:model.defer="state.dob" wire:ignore value="{{ $date->format('Y-m-d')  }}" />
+            <x-jet-input id="dob" type="date" class="mt-1 block w-full" wire:model.defer="state.dob" wire:ignore
+                value="{{ $date->format('Y-m-d')  }}" />
         </div>
 
         <div class="col-span-6 sm:col-span-4">

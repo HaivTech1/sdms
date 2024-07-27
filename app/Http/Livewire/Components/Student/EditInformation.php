@@ -30,13 +30,13 @@ class EditInformation extends Component
     {
 
         $this->student->update([
-            'first_name'         => $this->state['first_name'],
-            'last_name'         => $this->state['last_name'],
-            'other_name'         => $this->state['other_name'],
-            'gender'         => $this->state['gender'],
-            'dob'         => $this->state['dob'],
-            'house_id'         => $this->state['house_id'],
-            'club_id'         => $this->state['club_id'],
+            'first_name' => $this->state['first_name'],
+            'last_name' => $this->state['last_name'],
+            'other_name' => $this->state['other_name'],
+            'gender' => $this->state['gender'],
+            'dob' => $this->state['dob'],
+            'house_id' => $this->state['house_id'],
+            'club_id' => $this->state['club_id'],
         ]);
 
         $this->user->update([
