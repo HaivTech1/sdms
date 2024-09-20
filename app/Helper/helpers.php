@@ -76,6 +76,7 @@ if (!function_exists('sendWaMessage')) {
         }
     }
 }
+
 function application($key)
 {
     $application = Application::first() ?? NullApplication::make();
