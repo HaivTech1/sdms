@@ -148,7 +148,7 @@
                                     <td>
                                         <div>
                                             <img class="rounded-circle avatar-xs"
-                                                src="{{ asset('storage/'.$teacher->image()) }}"
+                                                src="{{ asset('storage/' . $teacher->image()) }}"
                                                 alt="{{ $teacher->name() }}">
                                         </div>
                                     </td>
@@ -164,22 +164,35 @@
                                             :key='$teacher->id()' />
                                     </td>
                                     <td>
-                                        <div class="accordion" id="accordionExample">
+                                        <ul class="list-group">
+                                            @foreach ($teacher->roles as $role)
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>{{ $role->title() }}</div>
+                                                    <button type="button" class="btn btn-sm btn-danger delete-role" data-user-id="{{ $teacher->id() }}"
+                                                        data-role-id="{{ $role->id() }}">
+                                                        <i class="bx bx-x"></i>
+                                                    </button>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <div class="accordion" id="accordionExamplegrade">
                                             <div class="accordion-item">
-                                                <h2 class="accordion-header" id="heading{{ $teacher->id() }}">
-                                                    <button class="accordion-button fw-medium" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $teacher->id() }}" aria-expanded="true" aria-controls="collapse{{ $teacher->id() }}">
-                                                        Click to expand
+                                                <h2 class="accordion-header" id="headinggrade{{ $teacher->id() }}">
+                                                    <button class="accordion-button fw-medium" type="button" data-bs-toggle="collapse"
+                                                        data-bs-target="#collapsegrade{{ $teacher->id() }}" aria-expanded="true"
+                                                        aria-controls="collapsegrade{{ $teacher->id() }}">
+                                                        Expand Classes
                                                     </button>
                                                 </h2>
-                                                <div id="collapse{{ $teacher->id() }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $teacher->id() }}" data-bs-parent="#accordionExample">
+                                                <div id="collapsegrade{{ $teacher->id() }}" class="accordion-collapse collapse"
+                                                    aria-labelledby="headinggrade{{ $teacher->id() }}" data-bs-parent="#accordionExamplegrade">
                                                     <div class="accordion-body">
                                                         <ul class="list-group">
-                                                            @foreach ($teacher->roles as $role)
+                                                            @forelse ($teacher->gradeClassTeacher as $grade)
                                                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                    <div>{{ $role->title() }}</div>
-                                                                    <button type="button" class="btn btn-sm btn-danger delete-role"  data-user-id="{{ $teacher->id() }}" data-role-id="{{ $role->id() }}">
-                                                                        <i class="bx bx-x"></i>
-                                                                    </button>
+                                                                    {{ $grade->title() }}
                                                                 </li>
                                                             @endforeach
                                                         </ul>
@@ -189,18 +202,26 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @forelse ($teacher->gradeClassTeacher as $grade)
-                                            <span class="badge badge-soft-primary">{{ $grade->title() }}</span>
-                                        @empty
-                                            <span class="badge badge-soft-danger">Assign Class</span>
-                                        @endforelse
-                                    </td>
-                                    <td>
-                                        @forelse ($teacher->assignedSubjects as $assignedSubjects)
-                                            <span class="badge badge-soft-primary">{{ $assignedSubjects->title() }}</span>
-                                        @empty
-                                            <span class="badge badge-soft-danger">Assign Subjects</span>
-                                        @endforelse
+                                        <div class="accordion" id="accordionExample">
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="headingsubject{{ $teacher->id() }}">
+                                                    <button class="accordion-button fw-medium" type="button" data-bs-toggle="collapse" data-bs-target="#collapsesubject{{ $teacher->id() }}" aria-expanded="true" aria-controls="collapsesubject{{ $teacher->id() }}">
+                                                        Expand Subjects
+                                                    </button>
+                                                </h2>
+                                                <div id="collapsesubject{{ $teacher->id() }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $teacher->id() }}" data-bs-parent="#accordionExample">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-group">
+                                                            @forelse ($teacher->assignedSubjects as $assignedSubjects)
+                                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                    {{ $assignedSubjects->title() }}
+                                                            </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         <div class="dropdown">
@@ -208,19 +229,18 @@
                                                 <i class="bx bx-dots-horizontal-rounded"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
+                                                <button data-id="{{ $teacher->id() }}" class="dropdown-item show"><i
+                                                    class="mdi mdi-eye me-1"></i> View
+                                                </button>
                                                 <button class="dropdown-item" type="button" value="{{ $teacher->id() }}" data-class="" id="assignClass">
                                                     <i class="fas fa-compress-arrows-alt"></i> Assign Class
                                                 </button>
                                                 <button class="dropdown-item assignSubject" type="button" data-id="{{ $teacher->id() }}" id="assignSubject">
                                                     <i class="fas fa-compress-arrows-alt"></i> Assign Subject
                                                 </button>
-                                                <button data-id="{{ $teacher->id() }}" class="dropdown-item show"><i
-                                                    class="mdi mdi-eye me-1"></i> View
-                                                </button>
                                                 <button class="dropdown-item" type="button" id="changePassword" data-user="{{ $teacher->id() }}">
                                                     <i class="fas fa-compress-arrows-alt"></i> Update Password
                                                 </button>
-
                                                 <button class="dropdown-item" type="button" id="assignRole" data-id="{{ $teacher->id() }}">
                                                     <i class="fas fa-compress-arrows-alt"></i> Assign Role Privilege
                                                 </button>
@@ -465,7 +485,7 @@
                         $.each(subjects, function(index, subject) {
                             html += '<tr>';
                             html += '<td>' + subject.title + '</td>';
-                            html += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove" data-id="' + subject.id + '">Remove</button></td>';
+                            html += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove" data-id="' + subject.id + '" data-teacher="' + teacherId + '">Remove</button></td>';
                             html += '</tr>';
                         });
 
@@ -473,7 +493,7 @@
                         $.each(grades, function(index, grade) {
                             template += '<tr>';
                             template += '<td>' + grade.title + '</td>';
-                            template += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove_grade" data-id="' + grade.id + '">Remove</button></td>';
+                            template += '<td><button class="btn btn-sm btn-danger btn-rounded waves-effect waves-light mb-2 me-2 remove_grade" data-id="' + grade.id + '" data-teacher="' + teacherId + '">Remove</button></td>';
                             template += '</tr>';
                         });
 
@@ -494,7 +514,7 @@
                 toggleAble(button, true);
 
                 var subjectId = $(this).data('id');
-                var teacherId = $('#selected_teacher_id').val();
+                var teacherId = $(this).data('teacher');
                 var row = $(this).closest('tr');
 
                 $.ajax({
@@ -504,9 +524,6 @@
                         toggleAble(button, false);
                         toastr.success(response.message);
                         row.remove();
-                        setTimeout(function(){
-                            window.location.reload();
-                        },1000)
                     },
                     error: function(response) {
                         toggleAble(button, false);
@@ -521,7 +538,7 @@
                 toggleAble(button, true);
 
                 var gradeId = $(this).data('id');
-                var teacherId = $('#selected_teacher_id').val();
+                var teacherId = $(this).data('teacher');
                 var row = $(this).closest('tr');
 
                 $.ajax({
@@ -531,13 +548,9 @@
                         toggleAble(button, false);
                         toastr.success(response.message);
                         row.remove();
-                        setTimeout(function(){
-                            window.location.reload();
-                        },1000)
                     },
                     error: function(response) {
                         toggleAble(button, false);
-                        console.log(response.responseJSON.message);
                     }
                 });
             });
