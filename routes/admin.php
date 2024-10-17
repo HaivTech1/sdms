@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\WhatsappController;
 use App\Http\Controllers\Admin\ResultController;
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\RegistrationController;
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
@@ -43,6 +45,18 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::group(['prefix' => 'result', 'as' => 'result.'], function () {
             Route::post('/multiple/exam/publish', [ResultController::class, 'multipleExamPublish'])->name('multipleExamPublish');
             Route::post('/multiple/midterm/publish', [ResultController::class, 'multipleMidtermPublish'])->name('multipleMidtermPublish');
+        });
+
+        Route::group(['prefix' => 'registration', 'as' => 'registration.'], function () {
+            Route::post('/accept', [RegistrationController::class, 'accept'])->name('accept');
+            Route::post('/accept/all', [RegistrationController::class, 'acceptAll'])->name('acceptAll');
+            Route::post('/delete/all', [RegistrationController::class, 'deleteAll'])->name('deleteAll');
+        });
+
+
+        Route::group(['prefix' => 'period', 'as' => 'period.'], function () {
+            Route::get('/setting', [ApplicationController::class, 'setting'])->name('setting');
+            Route::post('/setting/deleteAll', [ApplicationController::class, 'deleteAll'])->name('setting.deleteAll');
         });
 
     });

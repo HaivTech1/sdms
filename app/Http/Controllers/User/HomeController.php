@@ -148,5 +148,12 @@ class HomeController extends Controller
                 $table->timestamps();
             });
         }
+
+        if (!Schema::hasColumn('term_settings', 'class_count')) {
+            Schema::table('term_settings', function (Blueprint $table) {
+                $table->json('class_count')->nullable()->after('no_school_opened');
+            });
+        }
+
     }
 }

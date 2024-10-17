@@ -8,6 +8,9 @@ use App\Models\TermSetting;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Mail\TestEmailSender;
+use App\Models\Grade;
+use App\Models\Period;
+use App\Models\Term;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Artisan;
@@ -571,7 +574,8 @@ class ApplicationController extends Controller
                     'resumption_date' => $request->resumption_date,
                     'vacation_date' => $request->vacation_date,
                     'no_school_opened' => $request->no_school_opened,
-                    'next_term_resumption' => $request->next_term_resumption
+                    'next_term_resumption' => $request->next_term_resumption,
+                    'class_count' => $request->class_count,
                 ]);
                 $setting->save();
 
@@ -595,6 +599,10 @@ class ApplicationController extends Controller
                     $data['next_term_resumption'] = $request->next_term_resumption;
                 }
 
+                if (isset($request->class_count)) {
+                    $data['class_count'] = $request->class_count;
+                }
+
                 $check->update($data);
 
                 return response()->json(['status' => true, 'message' => "Setting updated successfully"], 200);
@@ -603,6 +611,39 @@ class ApplicationController extends Controller
         } catch (\Exception $e) {
             info('Term setting error: ' . $e->getMessage());
             return response()->json(['status' => false, 'message' => "Sorry, There was an error creating the setting."], 500);
+        }
+    }
+
+    public function setting()
+    {
+        $sessions = Period::all();
+        $terms = Term::all();
+        $grades = Grade::all();
+        $settings = TermSetting::paginate(10);
+
+        return view('admin.setting.index',[
+            'settings' =>  $settings,
+            'sessions' => $sessions,
+            'terms' => $terms,
+            'grades' => $grades
+        ]);
+    }
+
+    public function deleteAll(Request $request)
+    {
+        try {
+            $ids = $request->input('ids');
+            $settings = TermSetting::whereIn('id', $ids)->get();
+
+            foreach ($settings as $setting) {
+                $setting->delete();
+            }
+
+            return response()->json(['status' => true, 'message' => "Setting Deleted successfully!"], 200);
+
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json(['status' => false, 'message' => "There was an error deleting the settings"], 400);
         }
     }
 }

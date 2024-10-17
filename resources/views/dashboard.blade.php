@@ -182,12 +182,6 @@
                                                         </h5>
                                                     </div>
                                                 </div>
-
-                                                <div class="col-sm-2">
-                                                    <button type="button" class="btn btn-sm btn-danger"
-                                                        data-bs-toggle="modal" data-bs-target=".settingModal">Edit
-                                                    </button>
-                                                </div>
                                             </div>
                                         @else
                                             <div class="alert customize-alert alert-dismissible rounded-pill border-danger text-danger fade show d-flex align-items-center px-2"
@@ -437,80 +431,6 @@
                             </div>
                             <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
                                 <button id="createHair" type="submit"
-                                    class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade settingModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Set term settings</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="settingTermForm" action="{{ route('appSetting.termSetting') }}" method="POST">
-                        @csrf
-                        <div class="row">
-                            @php
-                                $terms = \App\Models\Term::all();
-                                $sessions = \App\Models\Period::all();
-                            @endphp
-                            <div class="col-sm-12 mb-3">
-                                <x-form.label for="term_id" value="{{ __('Term') }}" />
-                                <select class="form-control select2" name="term_id">
-                                    <option value="">Select</option>
-                                    @foreach($terms as $term)
-                                        <option value="{{ $term->id }}">{{ $term->title }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-sm-12 mb-3">
-                                <x-form.label for="period_id" value="{{ __('Session') }}" />
-                                <select class="form-control select2" name="period_id">
-                                    <option value="">Select</option>
-                                    @foreach($sessions as $session)
-                                        <option value="{{ $session->id }}">{{ $session->title }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-sm-12 mb-3">
-                                <x-form.label for="no_school_opened" value="{{ __('No. of time school Opened') }}" />
-                                <x-form.input id="no_school_opened" class="block w-full mt-1" type="number"
-                                    name="no_school_opened" :value="old('no_school_opened')" id="no_school_opened"
-                                    autofocus />
-                                <x-form.error for="no_school_opened" />
-                            </div>
-                            <div class="col-sm-12 mb-3">
-                                <x-form.label for="resumption_date" value="{{ __('Resumption Date') }}" />
-                                <x-form.input id="resumption_date" class="block w-full mt-1" type="date"
-                                    name="resumption_date" :value="old('resumption_date')" id="resumption_date"
-                                    autofocus />
-                                <x-form.error for="resumption_date" />
-                            </div>
-                            <div class="col-sm-12 mb-3">
-                                <x-form.label for="vacation_date" value="{{ __('Vacation Date') }}" />
-                                <x-form.input id="vacation_date" class="block w-full mt-1" type="date"
-                                    name="vacation_date" :value="old('vacation_date')" id="vacation_date" autofocus />
-                                <x-form.error for="vacation_date" />
-                            </div>
-                            <div class="col-sm-12 mb-3">
-                                <x-form.label for="next_term_resumption"
-                                    value="{{ __('Next Term Resumption Date') }}" />
-                                <x-form.input id="next_term_resumption" class="block w-full mt-1" type="date"
-                                    name="next_term_resumption" :value="old('next_term_resumption')"
-                                    id="next_term_resumption" autofocus />
-                                <x-form.error for="next_term_resumption" />
-                            </div>
-                            <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
-                                <button id="settingTermBtn" type="submit"
                                     class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
                             </div>
                         </div>

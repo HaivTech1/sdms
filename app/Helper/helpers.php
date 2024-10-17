@@ -1293,4 +1293,25 @@ if (!function_exists('termSetting')) {
     }
 }
 
+if (!function_exists('getGradesWithStudentCount')) {
+
+    function getGradesWithStudentCount($gradesData)
+    {
+        $result = [];
+
+        foreach ($gradesData as $gradeId => $studentCount) {
+            $grade = \App\Models\Grade::find($gradeId);
+
+            if ($grade) {
+                $result[] = [
+                    'grade_name' => $grade->title, 
+                    'student_count' => $studentCount[0]
+                ];
+            }
+        }
+
+        return $result;
+    }
+}
+
 

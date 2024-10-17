@@ -16,13 +16,15 @@ class TermSetting extends Model
         'resumption_date',
         'vacation_date',
         'no_school_opened',
-        'next_term_resumption'
+        'next_term_resumption',
+        'class_count'
     ];
 
     protected $casts = [
         'resumption_date' => 'date',
         'vacation_date' => 'date',
         'next_term_resumption' => 'date',
+        'class_count' => 'array',
     ];
 
     public function term(): BelongsTo

@@ -2,35 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Father;
-use App\Models\Mother;
-use App\Models\Student;
-use App\Models\Guardian;
+use App\Models\{
+    User,
+    Grade,
+    Father,
+    Mother,
+    Student,
+    Guardian,
+    Registration
+};
 use App\Services\SaveCode;
-use App\Models\Registration;
+use App\Traits\NotifiableParentsTrait;
 use Illuminate\Http\Request;
 use App\Scopes\HasActiveScope;
 use App\Mail\SendAdmissionMail;
-use App\Services\SaveImageService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendNewRegistrationMail;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\RegistrationRequest;
+use Carbon\Carbon;
 
 class RegistrationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin.registration.index');
+        $gender = $request->query('gender');
+        $grade_id = $request->query('grade_id');
+        $status = $request->query('status');
+
+        // Start a new query without the global scope
+        $query = Registration::withoutGlobalScope(new HasActiveScope)->newQuery();
+
+        // Apply filters based on query parameters
+        if (!empty($gender)) {
+            $query->where('gender', $gender);
+        }
+
+        if (!empty($grade_id)) {
+            $query->where('grade_id', $grade_id);
+        }
+
+        if (!empty($status)) {
+            $query->where('status', $status);
+        }
+
+        // Get the filtered registrations with pagination
+        $registrations = $query->orderBy('created_at', 'desc')->paginate(2);
+
+        // Fetch grades and other registration statistics
+        $grades = Grade::all();
+        $todayRegistrations = Registration::withoutGlobalScope(new HasActiveScope)
+            ->whereDate('created_at', Carbon::today())
+            ->get();
+
+        $admittedRegistrations = Registration::withoutGlobalScope(new HasActiveScope)
+            ->where('status', true)
+            ->get();
+
+        $unadmittedRegistrations = Registration::withoutGlobalScope(new HasActiveScope)
+            ->where('status', false)
+            ->get();
+
+        // Return the view with data
+        return view('admin.registration.index', [
+            'registrations' => $registrations,
+            'grades' => $grades,
+            'todayRegistrations' => $todayRegistrations,
+            'admittedRegistrations' => $admittedRegistrations,
+            'unadmittedRegistrations' => $unadmittedRegistrations
+        ]);
     }
+
 
     public function show($id)
     {
@@ -174,7 +218,7 @@ class RegistrationController extends Controller
         try {
             if ($registration->update(['status' => true])) {
 
-                $randomNumbers;
+                $randomNumbers = "";
 
                 for ($i = 0; $i < 4; $i++) {
                     $randomNumbers = rand(0, 9999);
@@ -308,16 +352,13 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
-
     public function acceptAll(Request $request)
     {
         try {
-            $selected = $request->input('selected');
-            $array = explode(",", $selected);
-            
-            $registrations = Registration::withoutGlobalScope(new HasActiveScope)->whereIn('id', $array)->get();
+            $ids =  $request->input('ids');
+            $registrations = Registration::withoutGlobalScope(new HasActiveScope)->whereIn('id', $ids)->get();
 
-            $randomNumbers;
+            $randomNumbers = "";
 
             for ($i = 0; $i < 4; $i++) {
                 $randomNumbers = rand(0, 9999);
@@ -330,7 +371,7 @@ class RegistrationController extends Controller
                             'name' => $value->lastName(). ' '. $value->firstName(). ' '. $value->otherName(),
                             'email' => $value->lastName(). $value->firstName().$randomNumbers.'@gmail.com',
                             'phone_number' => '',
-                            'password' => Hash::make('password1234'),
+                            'password' => Hash::make('password123'),
                             'type' => '4'
                         ]);
                 
@@ -338,109 +379,89 @@ class RegistrationController extends Controller
                         $user->reg_no = $code;
                         $user->profile_photo_path = $value->image;
                         $user->save();
-                
+
                         $student = new Student([
-                            'first_name'  => $value->first_name,
-                            'last_name'  => $value->last_name,
-                            'other_name'  => $value->other_name,
-                            'gender'  => $value->gender,
-                            'dob'  => $value->dob,
-                            'nationality'  => $value->nationality,
-                            'state_of_origin'  => $value->state_of_origin,
-                            'local_government'  => $value->local_government,
-                            'address'  => $value->address,
-                            'prev_school'  => $value->prev_school,
-                            'prev_class'  => $value->prev_class,
-                            'medical_history'  => $value->medical_history,
-                            'allergics'  => $value->allergics,
-                            'religion'  => $value->religion,
-                            'denomination'  => $value->denomination,
-                            'blood_group'  => $value->blood_group,
-                            'genotype'  => $value->genotype,
-                            'speech_development'  => $value->speech_development,
-                            'sight'  => $value->sight,
-                            'grade_id'  => $value->grade_id,
-                            'house_id'  => 1,
-                            'club_id'  => 1,
+                            'first_name' => $value->first_name,
+                            'last_name' => $value->last_name,
+                            'other_name' => $value->other_name,
+                            'gender' => $value->gender,
+                            'dob' => $value->dob,
+                            'nationality' => $value->nationality,
+                            'state_of_origin' => $value->state_of_origin,
+                            'local_government' => $value->local_government,
+                            'address' => $value->address,
+                            'prev_school' => $value->prev_school,
+                            'prev_class' => $value->prev_class,
+                            'medical_history' => $value->medical_history,
+                            'allergics' => $value->allergics,
+                            'religion' => $value->religion,
+                            'denomination' => $value->denomination,
+                            'blood_group' => $value->blood_group,
+                            'genotype' => $value->genotype,
+                            'speech_development' => $value->speech_development,
+                            'sight' => $value->sight,
+                            'grade_id' => $value->grade_id,
+                            'house_id' => 1,
+                            'club_id' => 1,
                             'user_id' => $user->id()
                         ]);
-        
+
                         $student->authoredBy(auth()->user());
                         $student->save();
 
-                        if($value->father_name !== null){
+                        if ($value->father_name !== null) {
                             $father = new Father([
-                                'student_uuid'  => $student->id(),
-                                'name'  => $value->father_name,
-                                'email' =>  $value->father_email,
-                                'phone' =>  $value->father_phone,
-                                'occupation'  => $value->father_occupation,
-                                'office_address' =>  $value->father_office_address,
+                                'student_uuid' => $student->id(),
+                                'name' => $value->father_name,
+                                'email' => $value->father_email,
+                                'phone' => $value->father_phone,
+                                'occupation' => $value->father_occupation,
+                                'office_address' => $value->father_office_address,
                             ]);
                             $father->save();
                         }
 
-                        if($value->mother_name !== null){
+                        if ($value->mother_name !== null) {
                             $mother = new Mother([
-                                'student_uuid'  => $student->id(),
-                                'fname'  => $value->mother_name,
-                                'email' =>  $value->mother_email,
-                                'phone' =>  $value->mother_phone,
-                                'occupation'  => $value->mother_occupation,
-                                'office_address' =>  $value->mother_office_address,
+                                'student_uuid' => $student->id(),
+                                'fname' => $value->mother_name,
+                                'email' => $value->mother_email,
+                                'phone' => $value->mother_phone,
+                                'occupation' => $value->mother_occupation,
+                                'office_address' => $value->mother_office_address,
                             ]);
                             $mother->save();
                         }
 
-                        if($value->guardian_full_name !== null){
+                        if ($value->guardian_full_name !== null) {
                             $guardian = new Guardian([
-                                'student_id'  => $student->id(),
-                                'full_name'  => $value->guardian_full_name,
-                                'email' =>  $value->guardian_email,
-                                'phone_number' =>  $value->guardian_phone_number,
-                                'occupation'  => $value->guardian_occupation,
-                                'office_address' =>  $value->guardian_office_address,
-                                'home_address' =>  $value->guardian_home_address,
-                                'relationship' =>  $value->guardian_relationship,
+                                'student_id' => $student->id(),
+                                'full_name' => $value->guardian_full_name,
+                                'email' => $value->guardian_email,
+                                'phone_number' => $value->guardian_phone_number,
+                                'occupation' => $value->guardian_occupation,
+                                'office_address' => $value->guardian_office_address,
+                                'home_address' => $value->guardian_home_address,
+                                'relationship' => $value->guardian_relationship,
                             ]);
                             $guardian->save();
                         }
-                        
+
                         $student->schedules()->sync(1);
                         $message = "<p>
-                            We are pleased to inform your that your child: 
-                            " . $value->first_name. " " .$value->last_name.
-                            " has been granted admission into " .$value->grade->title(). 
+                                    We are pleased to inform your that your child: 
+                                    " . $value->first_name . " " . $value->last_name .
+                            " has been granted admission into " . $value->grade->title() .
                             ". Proceed to the school to make necessary payments so as to retain this admission. 
-                            Please hold a copy of your child's birth certificate (photocopy) and/or '
-                            Baptisimal Card photocopy (Catholics only) with latest school report (if applicable).'
-                            </p>";
+                                    Please hold a copy of your child's birth certificate (photocopy) and/or '
+                                    Baptisimal Card photocopy (Catholics only) with latest school report (if applicable).'
+                                    </p>";
                         $subject = 'Admission Status from ' . application('name');
-        
-                        Mail::to($value->mother_email)->send(new SendAdmissionMail($message, $subject));
 
-                        try {
-                            $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\
-                            We are pleased to inform you that your child: 
-                            " . $student->first_name. " " .$student->last_name. " " .$student->other_name.
-                            " has been granted admission into " .$student->grade->title(). 
-                            ". \\Proceed to the school to make necessary payments and the following douments:. 
-                            \\ \\ 1. A copy of your child's birth certificate (photocopy) and/or '
-                            Baptisimal Card photocopy (Catholics only) \\2.Last term school report sheet from previous school.";
-                            
-                            if ($father) {
-                                sendWaMessage($father->phone, $watMessage);
-                            } 
-
-                            if ($mother) {
-                                sendWaMessage($mother->phone, $watMessage);
-                            }
-                        } catch (\Throwable $th) {
-                            info($th->getMessage());
-                        }
-
+                        // NotifiableParentsTrait::notifyParents($student, $message, $subject);
                 }
             }
+
             return response()->json([
                 'status' => true,
                 'message' => "Students admitted successfully!",
@@ -452,7 +473,6 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
-
     public function syncParent()
     {
         try{
@@ -494,7 +514,6 @@ class RegistrationController extends Controller
             ],);
         }
     }
-
     public function resyncParent($id)
     {
         $student = Student::withoutGlobalScope(new HasActiveScope)->where('uuid', $id)->first();
@@ -552,7 +571,6 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
-
     public function syncAll(Request $request)
     {
         try {
@@ -616,7 +634,6 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
-
     public function pending()
     {
         $new_registration = Registration::withoutGlobalScope(new HasActiveScope)->where('status', false)->count();
@@ -624,5 +641,23 @@ class RegistrationController extends Controller
             'status' => true,
             'data' => ['new_registration' => $new_registration],
         ], 200);
+    }
+
+    public function deleteAll(Request $request)
+    {
+        try{
+            $ids = $request->input('ids');
+            $registrations = Registration::withoutGlobalScope(new HasActiveScope)->whereIn('id', $ids)->get();
+
+            foreach ($registrations as $registration) {
+                $registration->delete();
+            }
+
+            return response()->json(['status' => true, 'message' => "Registrations Deleted successfully!"], 200);
+
+        }catch(\Throwable $th){
+            info($th);
+            return response()->json(['status' => false, 'message' => "There was an error deleting the registrations"], 400);
+        }
     }
 }

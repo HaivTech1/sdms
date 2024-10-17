@@ -20,7 +20,6 @@ class SendMidtermMail extends Mailable implements ShouldQueue
      */
     public function __construct($message, $subject)
     {
-        //
         $dom = new \domdocument();
         $dom->loadHtml($message, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $dom->savehtml();

@@ -67,7 +67,7 @@
                                 </div>
                                 <div class='col-xs-4 col-md-4'>
                                     <legend>Academics</legend>
-                                    <blockquote><b>Class</b>: {{ $registration->grade->title() ?? ''}}</blockquote>
+                                    <blockquote><b>Class</b>: {{ $registration?->grade?->title() ?? ''}}</blockquote>
                                 </div>
                             </div>
 

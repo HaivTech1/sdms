@@ -18,7 +18,7 @@
                             @can('user_management_access')
                                 <li><a href="{{ route('user.index') }}" key="t-products">Users</a></li>
                             @endcan
-                            {{-- <li><a href="{{ route('teams.index') }}" key="t-products">Team</a></li> --}}
+
                             @can('permission_access')
                                 <li><a href="{{ route('permission.index') }}" key="t-products">Permissions</a></li>
                             @endcan
@@ -63,6 +63,7 @@
                         @can('fingerprint_access')
                             <li><a href="{{ route('finger_device.index') }}" key="t-products">Biometric Device</a></li>
                         @endcan
+                        <li><a href="{{ route('admin.period.setting') }}" key="t-products">Session Settings</a></li>
                     </ul>
             </li>
             @endcan
