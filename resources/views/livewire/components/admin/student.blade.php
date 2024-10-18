@@ -39,7 +39,7 @@
                                             <select class="form-control select2" wire:model="grade">
                                                 <option value=''>Select Grade</option>
                                                 @foreach ($grades as $grade)
-                                                <option value="{{ $grade->id }}">{{ $grade->title() }}</option>
+                                                <option value="{{ $grade->id }}">{{ $grade?->title() }}</option>
                                                 @endforeach
                                             </select>
 
@@ -182,11 +182,11 @@
                                                 {{ $student->lastName() }} {{ $student->firstName() }} {{ $student->otherName() }}
                                             </td>
                                             <td>
-                                                {{ $student->grade->title() }}
+                                                {{ $student?->grade?->title() }}
                                             </td>
                                             <td>
                                                 @foreach($student->user->roles as $role )
-                                                    {{ $role->title() }}
+                                                    {{ $role?->title() }}
                                                 @endforeach
                                             </td>
                                             <td>
@@ -208,7 +208,7 @@
                                                                 <ul class="list-group">
                                                                     @foreach ($student->subjects as $subject)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            {{ $subject->title() }}
+                                                                            {{ $subject?->title() }}
                                                                             <button type="button" class="btn btn-sm btn-danger delete-subject"  data-student-id="{{ $student->id() }}" data-subject-id="{{ $subject->id }}">
                                                                                 <i class="bx bx-x"></i>
                                                                             </button>
@@ -273,7 +273,7 @@
                                                                                         @foreach ($subjects as $subject)
                                                                                         <option
                                                                                             value="{{ $subject->id() }}">
-                                                                                            {{ $subject->title() }}</option>
+                                                                                            {{ $subject?->title() }}</option>
                                                                                         @endforeach
                                                                                     </select>
                                                                                     <x-form.error for="subjects" />
@@ -294,7 +294,7 @@
 
                                                                             <ul>
                                                                                 @foreach ($student->subjects as $subject)
-                                                                                    <li><span class="badge badge-soft-info">{{ $subject->title() }}</span></li>
+                                                                                    <li><span class="badge badge-soft-info">{{ $subject?->title() }}</span></li>
                                                                                 @endforeach
                                                                             </ul>
                                                                         
@@ -373,7 +373,7 @@
                                     <select class="form-control" name="grade_id" id="grade_id">
                                         <option value=''>Class</option>
                                         @foreach ($grades as $grade)
-                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                        <option value="{{  $grade->id() }}">{{ $grade?->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -413,7 +413,7 @@
                                             <select id="result_grade_id" class="form-control " name="grade_id">
                                                 <option value=''>Choose...</option>
                                                 @foreach ($grades as $grade)
-                                                    <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
+                                                    <option value="{{  $grade->id() }}">{{ $grade?->title() }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -582,7 +582,7 @@
                                     <select class="form-control" name="subject_id">
                                         <option value=''>Subject</option>
                                         @foreach ($subjects as $subject)
-                                        <option value="{{  $subject->id() }}">{{  $subject->title() }}</option>
+                                        <option value="{{  $subject->id() }}">{{  $subject?->title() }}</option>
                                         @endforeach
                                     </select>
                                 </div>

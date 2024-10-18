@@ -112,7 +112,7 @@
                                                 <select class="form-control" name="grade_id">
                                                     <option>Select</option>
                                                     @foreach ($grades as $grade)
-                                                    <option value="{{ $grade->id() }}" @if($grade->id() === $student->grade->id()) selected @endif>{{ $grade->title() }}</option>
+                                                    <option value="{{ $grade?->id() }}" @if($grade?->id() === $student?->grade?->id()) selected @endif>{{ $grade?->title() }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -121,7 +121,7 @@
                                                 <select class="form-control" name="house_id">
                                                     <option>Select</option>
                                                     @foreach ($houses as $house)
-                                                    <option value="{{ $house->id() }}" @if($house->id() === $student->house->id()) selected @endif>{{ $house->title() }}</option>
+                                                    <option value="{{ $house->id() }}" @if($house->id() === $student->house->id()) selected @endif>{{ $house?->title() }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>

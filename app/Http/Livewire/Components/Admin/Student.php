@@ -207,7 +207,7 @@ class Student extends Component
     {
         return view('livewire.components.admin.student', [
             'students' => $this->students,
-            'grades' => Grade::all(),
+            'grades' => Grade::orderBy('title', 'asc')->get(),
             'periods' => Period::all()->pluck('title', 'id'),
             'terms' => Term::all()->pluck('title', 'id'),
         ]);
