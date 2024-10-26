@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', application('name')." | $title")
+    @section('title', application('name') . " | $title")
     <x-slot name="header">
         <h4 class="mb-sm-0 font-size-18">{{ $description}}</h4>
 
@@ -36,14 +36,12 @@
                    Create Contact
                 </button>
                 <button id="sendMultipleMessage" type="button"
-                    class="btn btn-outline-secondary w-sm">
-                    <i class="bx bx-send"></i>
-                   Message
+                    class="btn btn-primary w-sm">
+                   Send Message
                 </button>
                 <button id="scheduleMultipleMessage" type="button"
-                    class="btn btn-outline-secondary w-sm">
-                    <i class="bx bx-time"></i>
-                   Message
+                    class="btn btn-secondary w-sm">
+                   Schedule Message
                 </button>
             </div>
         </div>
@@ -73,8 +71,8 @@
                             <tr class="search-items">
                                 <td>
                                     <div class="form-check font-size-16">
-                                        <input class="form-check-input schedule-checkbox" data-id="{{ $contact['id'] }}" value="{{ $contact['phone_number'] }}"
-                                            type="checkbox" id="{{ $contact['id'] }}">
+                                        <input class="form-check-input schedule-checkbox" data-rows-group-id="data" id="{{ $contact['id'] }}" data-id="{{ $contact['phone_number'] }}" value="{{ $contact['phone_number'] }}"
+                                            type="checkbox">
                                         <label class="form-check-label" for="{{ $contact['id'] }}"></label>
                                     </div>
                                 </td>
@@ -158,7 +156,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Save Parent's in Bot</h5>
+                    <h5 class="modal-title">Save Parent's to Impression</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -169,7 +167,12 @@
                                 <table class="parent-contact">
                                     <thead>
                                         <tr>
-                                            <th></th>
+                                            <th>
+                                                <div class="form-check font-size-16">
+                                                    <input class="form-check-input" type="checkbox" id="checkParentContactAll">
+                                                    <label class="form-check-label" for="checkAll"></label>
+                                                </div>
+                                            </th>
                                             <th>Name</th>
                                             <th>Number</th>
                                         </tr>
@@ -220,20 +223,39 @@
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Send message to multiple contacts</h5>
+                    <h5 class="modal-title">Send Message To Parent's Whatsapp</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="sendMultipleMessageForm" action="{{ route('admin.whatsapp.sendMultipleMessage') }}">
                         @csrf
 
+                        <!-- <div class="col-sm-12 mb-3">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input success" type="checkbox" id="success-check" value="mother" name="to">
+                                        <label class="form-check-label" for="success-check">Mother</label>
+                                    </div>
+                                </div>
+                        
+                                <div class="col-sm-6">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input success" type="checkbox" id="success-check" value="father" name="to">
+                                        <label class="form-check-label" for="success-check">Father</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+
                         <div class="col-sm-12 mb-3">
                             <x-form.label for="message" value="{{ __('Message') }}" />
-                            <textarea rows="7" class="form-control message" value="old('message')" name="message"></textarea>
+                            <textarea rows="7" class="form-control" id="bulk_message" value="old('message')" name="message"></textarea>
                         </div>
 
+
                         <div class="d-flex flex-wrap gap-2">
-                            <button id="submit_multiple_message" type="submit" class="btn btn-primary block waves-effect waves-light pull-right">Send</button>
+                            <button id="submit_multiple_message" type="button" class="btn btn-primary block waves-effect waves-light pull-right">Send Message</button>
                         </div>
                     </form>
                 </div>
@@ -488,36 +510,42 @@
                 $('.sendMessageMultipleModal').modal('show');
             });
 
-            $('#submit_multiple_message').on('click', function(){
-                var contacts = $('.contact-checkbox:checked').map(function () {
-                    return $(this).val();
-                }).get();
+            // $('#submit_multiple_message').on('click', function(){
+            //     var contacts = $('.contact-checkbox:checked').map(function () {
+            //         return $(this).val();
+            //     }).get();
 
-                if (contacts.length > 0) {
-                    var button = $(this);
-                    toggleAble(button, true, "Sending...");
+            //     console.log(contacts);
 
-                    var url = $('#sendMultipleMessageForm').attr('action');
-                    var data = $('#sendMultipleMessageForm').serializeArray();
-                    data.push({ name: 'contacts', value: contacts });
+            //         var button = $(this);
+            //         toggleAble(button, true, "Sending...");
 
-                    $.ajax({
-                        method: "POST",
-                        url,
-                        data,
-                    }).done((res) => {
-                            toggleAble(button, false);
-                            toastr.success(res.message, 'Success!');
-                            $('.sendMessageMultipleModal').modal('hide');
-                    }).fail((err) => {
-                        toggleAble(button, false);
-                        toastr.error(err.responseJSON.message, 'Failed!');
-                    });
-                }else{
-                    toastr.info('Please select a contact to', 'Info');
-                    toggleAble(button, false);
-                }
-            });
+            //         var url = $('#sendMultipleMessageForm').attr('action');
+            //         var data = $('#sendMultipleMessageForm').serializeArray();
+            //         data.push({ name: 'contacts', value: contacts });
+
+            //         $.ajax({
+            //             method: "POST",
+            //             url,
+            //             data,
+            //         }).done((res) => {
+            //                 toggleAble(button, false);
+            //                 toastr.success(res.message, 'Success!');
+            //                 $('.sendMessageMultipleModal').modal('hide');
+            //         }).fail((err) => {
+            //             toggleAble(button, false);
+            //             toastr.error(err.responseJSON.message, 'Failed!');
+            //         });
+              
+            // });
+
+            const sendMultipleMessage = new DashboardActionComponent(
+                "#submit_multiple_message",
+                'input[data-rows-group-id="data"]:checked',
+                "{{ route('admin.whatsapp.sendMultipleMessage') }}",
+                "broadcast",
+                "bulk_message"
+            );
 
             $('.scheduleMessage').on('click', function(){
                 var id = $(this).data('id');
@@ -594,7 +622,7 @@
                         <tr>
                             <td>
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="${contact['phone_number']}" name="ids[]" value="${contact['phone_number']}"} />
+                                    <input type="checkbox" class="form-check-input contact-checkbox" id="${contact['phone_number']}" name="ids[]" value="${contact['phone_number']}"} />
                                 </div>
                             </td>
                             <td>
@@ -609,7 +637,15 @@
 
                 $('.parent-contact tbody').html(tableRows);
             }
-            
+
+            document.getElementById("checkParentContactAll").addEventListener("change", function () {
+                const isChecked = this.checked;
+                const checkboxes = document.querySelectorAll(".contact-checkbox");
+
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.checked = isChecked;
+                });
+            });
         </script>
     @endsection
 </x-app-layout>

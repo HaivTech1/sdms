@@ -49,6 +49,7 @@ class WhatsappController extends Controller
                 'type' => $request->type,
             ];
             $response = $this->postRequest(env('IMPRESSION_URL')."/api/contact/store", $data);
+            info($response);
             return response()->json([
                 'status' => $response['status'],
                 'message' => $response['message'],
@@ -104,15 +105,33 @@ class WhatsappController extends Controller
     public function sendMultipleMessage(Request $request)
     {
         try {
-            $contacts = explode(',', $request->contacts);
-            foreach ($contacts as $contact) {
-                sendWaMessage($contact, $request->message);
-            }
 
+            $ids = $request->ids;
+            $message = $request->message;
+            $action = $request->action;
+
+            $batchSize = 50; 
+            $chunks = array_chunk($ids, $batchSize);
+
+            if($action === "broadcast"){
+                foreach ($chunks as $batch) {
+                    foreach ($batch as $contact) {
+                        $phoneNumber = $contact;
+
+                        if (isValidPhoneNumber($phoneNumber)) {
+                            sendWaMessage($phoneNumber, $message);
+                        }
+                    }
+
+                    sleep(5); 
+                }
+            }
+            
             return response()->json([
                 'status' => true,
                 'message' => "Message sent Successfully!",
             ], 200);
+
         } catch (\Throwable $th) {
             info("Message Sending Error: " . $th->getMessage());
             return response()->json([
@@ -155,8 +174,8 @@ class WhatsappController extends Controller
     {
         try {
             $selectedContacts = $request->json()->all();
+
             foreach ($selectedContacts as $contact) {
-                $student = Student::find($contact['id']);
                 $data = [
                     'name' => $contact['name'],
                     'phone_number' => $contact['phone_number'],

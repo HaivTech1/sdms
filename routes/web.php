@@ -86,6 +86,67 @@ Route::get('/payment/receipt/{payment}', [PaymentController::class, 'receipt'])-
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/assign-student-roles', function(){
+        $users = \App\Models\User::where('type', \App\Models\User::STUDENT)->get();
+
+        foreach ($users as $user) {
+            $user->roles()->detach();
+            $user->roles()->attach(5);
+        }
+
+        return "Done";
+
+    });
+
+    Route::get('/generate-student', function(){
+        $users = \App\Models\User::where('type', \App\Models\User::STUDENT)->get();
+
+        foreach ($users as $user) {
+            $studentData = \App\Models\Student::where('user_id', $user->id)->first();
+
+            if(!$studentData){
+
+                $parts = explode(" ", $user->name);
+
+                $firstName = $parts[1] ?? '';
+                $middleName = isset($parts[2]) ? $parts[2] : '';
+                $lastName = $parts[0]; 
+
+                $student = new \App\Models\Student([ 
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'other_name' => $middleName,
+                    'gender' => "", 
+                    'dob' => now(),
+                    'nationality' => "Nigerian",
+                    'state_of_origin' => "", 
+                    'local_government' => "", 
+                    'address' => "", 
+                    'prev_school' => "", 
+                    'prev_class' => "", 
+                    'medical_history' => "",
+                    'allergics' => "",
+                    'religion' => "",
+                    'denomination' => "",
+                    'blood_group' => "",
+                    'genotype' => "",
+                    'speech_development' => "",
+                    'sight' => "",
+                    'grade_id' => 1,
+                    'house_id' => 1,
+                    'club_id' => 1,
+                    'user_id' => $user->id
+                ]);
+
+                $student->authoredBy(auth()->user());
+                $student->save();
+            }
+        }
+
+        return "Done";
+
+    });
+
     Route::middleware('maintenance')->group(function () {
 
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');

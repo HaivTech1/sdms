@@ -1314,4 +1314,9 @@ if (!function_exists('getGradesWithStudentCount')) {
     }
 }
 
-
+if (!function_exists('isValidPhoneNumber')) {
+    function isValidPhoneNumber($phoneNumber)
+    {
+        return preg_match('/^\+?\d{10,15}$/', $phoneNumber);
+    }
+}

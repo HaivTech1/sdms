@@ -102,7 +102,7 @@
                                                 <select class="form-control select2" name="schedule_id">
                                                     <option value="">Select</option>
                                                      @foreach ($schedules as $schedule)
-                                                        <option value="{{ $schedule->id() }}" @if($schedule->id() === $student->schedules[0]->id()) selected @endif>{{ $schedule->slug() }}</option>
+                                                        <option value="{{ $schedule?->id() }}" @if($schedule->id() === $student?->schedules[0]?->id()) selected @endif>{{ $schedule?->slug() }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -121,7 +121,7 @@
                                                 <select class="form-control" name="house_id">
                                                     <option>Select</option>
                                                     @foreach ($houses as $house)
-                                                    <option value="{{ $house->id() }}" @if($house->id() === $student->house->id()) selected @endif>{{ $house?->title() }}</option>
+                                                    <option value="{{ $house?->id() }}" @if($house->id() === $student?->house?->id()) selected @endif>{{ $house?->title() }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>

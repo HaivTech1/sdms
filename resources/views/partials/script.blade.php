@@ -96,6 +96,7 @@
 <script src="{{ asset('libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
 <script src="{{ asset('js/overlay.js') }}"></script>
+<script src="{{ asset('js/dashboard.js') }}"></script>
 
 
 <!-- form advanced init -->
