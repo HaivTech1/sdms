@@ -2119,6 +2119,8 @@ class ResultController extends Controller
                 $term = Term::where('id', $request->term_id)->first();
 
                 $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id, $request->term_id);
+                info($path);
+
                 foreach ($results as $result) {
                     $result->update(['published' => true]);
                 }
@@ -2130,8 +2132,9 @@ class ResultController extends Controller
                     info("Mid Term Whatsapp Publish Error: " . $th->getMessage());
                 }
 
+
                 try {
-                    NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                    NotifiableParentsTrait::notifyParents($student, $message, $subject, storage_path("app/public/$path"));
                 } catch (\Throwable $th) {
                     info($th->getMessage());
                 }
@@ -2151,6 +2154,7 @@ class ResultController extends Controller
             return response()->json(['status' => true, 'message' => 'Result made available successfully! And email sent to parent.'], 200);
 
         } catch (\Throwable $th) {
+            info($th);
             return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
 

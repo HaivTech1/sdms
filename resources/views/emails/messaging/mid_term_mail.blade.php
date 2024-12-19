@@ -5,7 +5,7 @@
         <div class="f6"> {{date('D, M j, Y \a\t g:ia')}} </div>
         <h1 class="f3 near-black"> {{ucwords($subject)}} </h1>
         <div class="nested-links f5 lh-copy nested-copy-line-height">
-            <?php echo $message->saveHTML(); ?>
+            {!! $body !!}
         </div>
     </div>
 </div>

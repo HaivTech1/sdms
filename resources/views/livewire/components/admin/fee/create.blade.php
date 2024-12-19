@@ -121,16 +121,16 @@
                                                     $payment->student->lastName()}}</span>
                                             </td>
                                             <td>
-                                                <span>{{ $payment->student->grade->title()}}</span>
+                                                <span>{{ $payment?->student?->grade?->title()}}</span>
                                             </td>
                                             <td>
                                                 {{ number_format($payment->amount(), 2)}}
                                             </td>
                                             <td>
-                                                {{ number_format($payment->balance(), 2)}}
+                                                {{ number_format($payment?->balance(), 2)}}
                                             </td>
                                             <td>
-                                                <span class="{{ $payment->payment_badge }}">{{
+                                                <span class="{{ $payment?->payment_badge }}">{{
                                                     $payment->payment_status}}</span>
                                             </td>
                                             <td>

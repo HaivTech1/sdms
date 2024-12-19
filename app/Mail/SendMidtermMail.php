@@ -11,20 +11,18 @@ class SendMidtermMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $message, $subject;
+    public $body, $subject, $attachment;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($message, $subject)
+    public function __construct($body, $subject, $attachment = null)
     {
-        $dom = new \domdocument();
-        $dom->loadHtml($message, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        $dom->savehtml();
-        $this->message = $dom;
+        $this->body = $body;
         $this->subject = $subject;
+        $this->attachment = $attachment;
     }
 
     /**
@@ -34,12 +32,18 @@ class SendMidtermMail extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        return $this->from(application('email') . '', ucwords(application('name')))
+        $email = $this->from(application('email') . '', ucwords(application('name')))
             ->subject($this->subject)
             ->with([
-                'message' => $this->message,
+                'body' => $this->body,
             ])
             ->replyTo(application('email'))
             ->markdown('emails.messaging.mid_term_mail');
+
+        if (!empty($this->attachment)){ 
+            $email->attach($this->attachment); 
+        }
+
+        return $email;
     }
 }

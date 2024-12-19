@@ -9,17 +9,28 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <form id="createSubjects">
-                            <x-form.input type="hidden" value="" name="student_id" id="student_id" />
+                            <x-form.input type="text" value="" name="student_id" id="edit_student_id" />
                             
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <select name="subjects[]" class="select2 form-control" multiple="multiple" style="height: 300px" id="subjects">
-                                        @foreach ($subjects as $subject)
-                                            <option value="{{ $subject->id() }}">
-                                                {{ $subject->title() }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Assign</th>
+                                                <th>Subject Title</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($subjects as $subject)
+                                                <tr>
+                                                    <td>
+                                                        <input type="checkbox" name="subjects[]" class="subject-checkbox" value="{{ $subject->id() }}" />
+                                                    </td>
+                                                    <td>{{ $subject->title() }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                             <div class="modal-footer">

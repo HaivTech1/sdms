@@ -139,7 +139,7 @@ class RegistrationController extends Controller
                 $message = "<p>A new student registration form has just been completed! Please visit the school's portal for review.</p>";
                 $subject = 'New Student Registration';
                 $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\A new student registration form has just been completed! Please visit the school's portal for review.";
-                $admins = User::whereType(2)->get();
+                $admins = User::whereType(2)->where('isAvailable', '1')->get();
     
                 foreach($admins as $admin){
                     try {

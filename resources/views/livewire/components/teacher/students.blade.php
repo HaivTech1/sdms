@@ -111,7 +111,7 @@
                                                                         <select class="form-control" name="house_id">
                                                                             <option>Select</option>
                                                                             @foreach ($houses as $house)
-                                                                            <option value="{{ $house->id() }}" {{ ( $student->house_id == $house->id()) ? 'selected' : '' }}>{{ $house->title() }}</option>
+                                                                            <option value="{{ $house->id() }}" {{ ($student->house_id == $house->id()) ? 'selected' : '' }}>{{ $house->title() }}</option>
                                                                             @endforeach
                                                                         </select>
                                                                         <x-form.error for="house_id" />
@@ -122,7 +122,7 @@
                                                                         <select class="form-control" name="club_id">
                                                                             <option>Select</option>
                                                                             @foreach ($clubs as $club)
-                                                                            <option value="{{ $club->id() }}" {{ ( $student->club_id == $club->id()) ? 'selected' : '' }}>{{ $club->title() }}</option>
+                                                                            <option value="{{ $club->id() }}" {{ ($student->club_id == $club->id()) ? 'selected' : '' }}>{{ $club->title() }}</option>
                                                                             @endforeach
                                                                         </select>
                                                                         <x-form.error for="club_id" />
@@ -143,11 +143,11 @@
                                             <td>
                                                 <div class="row">
                                                     <div class="col-sm-4">
-                                                        <button type="button" id="assingSubject" value="{{ $student->id() }}">
+                                                        <button type="button" id="assingSubject" value="{{ $student->id() }}" data-subjects="{{ json_encode($student->subjects)}}">
                                                             <i class="fas fa-compress-arrows-alt"></i>
                                                         </button>
 
-                                                        <div class="offcanvas offcanvas-start" data-bs-scroll="true"
+                                                        <!-- <div class="offcanvas offcanvas-start" data-bs-scroll="true"
                                                             tabindex="-1"
                                                             id="offcanvasWithBothOptions{{ $student->id() }}"
                                                             aria-labelledby="offcanvasWithBothOptionsLabel">
@@ -202,7 +202,7 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
+                                                        </div> -->
                                                     </div>
                                                 </div>
                                             </td>
@@ -219,7 +219,55 @@
         </div>
     </div>
 
-    @include('partials.add_subject')
+    <div class="modal fade addSubject bs-example-modal-xl" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Subjects</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <form id="createSubjects">
+                                <x-form.input type="hidden" value="" name="student_id" id="edit_student_id" />
+    
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Assign</th>
+                                                    <th>Subject Title</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($subjects as $subject)
+                                                    <tr>
+                                                        <td>
+                                                            <input type="checkbox" name="subjects[]" class="subject-checkbox"
+                                                                value="{{ $subject->id() }}" />
+                                                        </td>
+                                                        <td>{{ $subject->title() }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i
+                                            class="fa fa-close"></i> Close</button>
+                                    <button type="button" id="submit_Sub" class="btn btn-primary btn-flat"><i
+                                            class="fa fa-save"></i> Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @section('scripts')
         <script>
@@ -272,13 +320,24 @@
                 e.preventDefault();
                 var id = $(this).val();
 
-                $('#student_id').val(id);
+                var studentSubjects = $(this).data('subjects'); 
+
+                $('#edit_student_id').val(id);
+
+                $('.subject-checkbox').prop('checked', false);
+
+                if (studentSubjects && Array.isArray(studentSubjects)) {
+                    studentSubjects.forEach(function (subject) {
+                        $('input.subject-checkbox[value="' + subject.id + '"]').prop('checked', true);
+                    });
+                }
+
                 $('.addSubject').modal('show');
             });
 
-            $(document).on('submit', '#createSubjects', function(e){
-                e.preventDefault();
+            $(document).on('click', '#submit_Sub', function(e){
                 toggleAble($(this), true, 'Submitting...');
+                
                 var data = $('#createSubjects').serializeArray();
                 var url = "{{ route('student.assignSubject') }}";
 
@@ -291,19 +350,18 @@
                         toggleAble('#submit_button', false);
                         toastr.success(res.message, 'Success!');
                         resetForm('#createSubjects');
-                        setInterval(function () {window.location.reload()}, 2000);
+                        setTimeout(function () {window.location.reload()}, 2000);
                     }else{
                         toggleAble('#submit_button', false);
                         toastr.error(res.responseJSON.message, 'Failed!');
                     }
                 }).fail((res) => {
+                    toggleAble('#submit_button', false);
                     console.log(res.responseJSON.message);
                     toastr.error(res.responseJSON.message, 'Failed!');
-                    toggleAble('#submit_button', false);
                 });
                 
             });
         </script>
-        
     @endsection
 </div>
