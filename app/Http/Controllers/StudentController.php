@@ -28,7 +28,7 @@ class StudentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'])->except(['assignSubject', 'subject', 'getPerformanceByStudent', 'cognitiveStudents', 'psychomotorStudents', 'affectiveStudents']);
+        $this->middleware(['auth', 'admin'])->except(['getStudentsByClass', 'assignSubject', 'subject', 'getPerformanceByStudent', 'cognitiveStudents', 'psychomotorStudents', 'affectiveStudents']);
     }
     
     
