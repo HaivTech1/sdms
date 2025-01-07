@@ -418,6 +418,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::delete('/debt/delete/{student_id}', [FeeController::class, 'debtDelete'])->name('delete.debt');
             Route::post('/download/debtor/list', [FeeController::class, 'downloadDebtorListPDF'])->name('download.debtor.pdf');
             Route::post('/outstanding/update', [FeeController::class, 'updateOutstanding'])->name('update.outstanding');
+            Route::post('/notify/parents', [FeeController::class, 'notifyParents']);
         });
 
         Route::group(['prefix' => 'event', 'as' => 'event.'], function () {

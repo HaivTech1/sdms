@@ -6,8 +6,10 @@ use App\Models\Fee;
 use App\Jobs\CreateFee;
 use App\Models\Student;
 use App\Models\FeeDetail;
+use App\Traits\WhatsappMessageTrait;
 use Illuminate\Http\Request;
 use App\Http\Requests\FeeRequest;
+use App\Models\Term;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use PDF;
@@ -249,5 +251,119 @@ class FeeController extends Controller
                 'message' => $th->getMessage(),
             ], 500);
        }
+    }
+
+    public function notifyParents(Request $request)
+    {
+        try {
+            // Validate request input
+            $request->validate([
+                'students' => 'required|array',
+                'term_id' => 'required|exists:terms,id',
+            ]);
+
+            // Fetch students and term details
+            $requestStudents = $request->students;
+            $students = Student::whereIn('uuid', $requestStudents)->get();
+            $term = Term::findOrFail($request->term_id);
+
+            foreach ($students as $student) {
+                $name = trim($student->last_name . " " . $student->first_name . " " . $student->other_name);
+                $grade = $student->grade;
+
+                $getFee = Fee::where([
+                    'grade_id' => $grade->id,
+                    'type' => $student->type,
+                    'term_id' => $term->id,
+                ])->first();
+
+                $fee = 0; 
+                if ($getFee) {
+                    $fee += $getFee->details->sum('price');
+
+                    $feeAmount = $fee;
+                    $outstanding = $student->outstanding !== null
+                        ? intval($student->outstanding['outstanding'])
+                        : 0;
+
+                    $total = $fee += $outstanding;
+                }
+
+                $watMessage = "Dear Parent/Guardian,\\ \\";
+                $watMessage .= "Your child *$name*'s school fees for $term->title term is as follows:\\ \\";
+                $watMessage .= "Outstanding Feespublic function notifyParents(Request $request)
+    {
+        try {
+            // Validate request input
+            $request->validate([
+                'students' => 'required|array',
+                'term_id' => 'required|exists:terms,id',
+            ]);
+
+            // Fetch students and term details
+            $requestStudents = $request->students;
+            $students = Student::whereIn('uuid', $requestStudents)->get();
+            $term = Term::findOrFail($request->term_id);
+
+            foreach ($students as $student) {
+                $name = trim($student->last_name . " " . $student->first_name . " " . $student->other_name);
+                $grade = $student->grade;
+
+                $getFee = Fee::where([
+                    'grade_id' => $grade->id,
+                    'type' => $student->type,
+                    'term_id' => $term->id,
+                ])->first();
+
+                $fee = 0; 
+                if ($getFee) {
+                    $fee += $getFee->details->sum('price');
+
+                    $feeAmount = $fee;
+                    $outstanding = $student->outstanding !== null
+                        ? intval($student->outstanding['outstanding'])
+                        : 0;
+
+                    $total = $fee += $outstanding;
+                }
+
+                $watMessage = "Dear Parent/Guardian,\\ \\";
+                $watMessage .= "Your child *$name*'s school fees for *$term->title* is as follows:\\ \\";
+                $watMessage .= "Outstanding balance: *₦ " . number_format($outstanding, 2) . "*\\";
+                $watMessage .= "Amount: *₦ " . number_format($feeAmount, 2) . "*\\";
+                $watMessage .= "Total: *₦ " . number_format($total, 2) . "*\\ \\";
+                $watMessage .= "The school's account number details is below:\\*Acccount Number:* 1012048635\\*Bank Name:* Zenith Bank\\*Account Name:* St Louis Nursery and Primary School Ondo.";
+
+                WhatsappMessageTrait::sendParent($student, $watMessage);
+            }
+
+            return response()->json(["status" => true, "message" => "Parents have been successfully notified."], 200);
+
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                "status" => false,
+                "message" => "There was an error notifying the parents.",
+                "error" => $th->getMessage(),
+            ], 500);
+        }
+    }: *₦ " . number_format($outstanding, 2) . "*\\";
+                $watMessage .= "Fees: *₦ " . number_format($feeAmount, 2) . "*\\";
+                $watMessage .= "Total Fees: *₦ " . number_format($total, 2) . "*\\ \\";
+                $watMessage .= "The school's account number details is below:\\*Acccount Number:* 1012048635\\*Bank Name:* Zenith Bank\\*Account Name:* St Louis Nursery and Primary School Ondo.";
+
+                WhatsappMessageTrait::sendParent($student, $watMessage);
+            }
+
+            return response()->json(["status" => true, "message" => "Parents have been successfully notified."], 200);
+
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                "status" => false,
+                "message" => "There was an error notifying the parents.",
+                "error" => $th->getMessage(),
+            ], 500);
+        }
     }
 }

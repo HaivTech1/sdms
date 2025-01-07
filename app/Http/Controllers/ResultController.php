@@ -1924,7 +1924,7 @@ class ResultController extends Controller
                 $path = $this->generateExamResultLink($student, $request->grade_id, $request->period_id, $request->term_id);
 
                 try {
-                    NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                    NotifiableParentsTrait::notifyParents($student, $message, $subject, storage_path("app/public/$path"));
                 } catch (\Throwable $th) {
                     info($th->getMessage());
                 }
@@ -2119,7 +2119,6 @@ class ResultController extends Controller
                 $term = Term::where('id', $request->term_id)->first();
 
                 $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id, $request->term_id);
-                info($path);
 
                 foreach ($results as $result) {
                     $result->update(['published' => true]);

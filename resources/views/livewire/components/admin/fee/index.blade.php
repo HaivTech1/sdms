@@ -70,47 +70,54 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($fees as $key => $fee)
-                                        <tr>
-                                            <td>
-                                                <div class="form-check font-size-16">
-                                                    <input class="form-check-input" value="{{ $fee->id() }}"
-                                                        type="checkbox" id="{{ $fee->id() }}" wire:model="selectedRows">
-                                                    <label class="form-check-label" for="{{ $fee->id() }}"></label>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                {{ $key + 1}}
-                                            </td>
-                                           
-                                             <td>
-                                                {{ $fee->grade->title() ?? '' }}
-                                            </td>
-                                            <td>
-                                                {{ $fee->type_fee }}
-                                            </td>
-                                            <td>
-                                                {{ $fee->term->title() }}
-                                            </td>
-                                            <td>
-                                                {{ trans('global.naira') }} {{ $fee->details->sum('price') }}
-                                            </td>
-                                            <td>
-                                                <livewire:components.toggle-button :model='$fee' field='status'
-                                                    :key='$fee->id()' />
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary editFee" 
-                                                    type="button"
-                                                    data-id="{{ $fee->id }}"
-                                                    data-grade="{{ $fee->grade_id }}"
-                                                    data-term="{{ $fee->term_id }}"
-                                                    data-type="{{ $fee->type }}"
-                                                    data-details="{{ json_encode($fee->details->toArray()) }}"
-                                                >
-                                                    Edit
-                                                </button>
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check font-size-16">
+                                                        <input class="form-check-input" value="{{ $fee->id() }}"
+                                                            type="checkbox" id="{{ $fee->id() }}" wire:model="selectedRows">
+                                                        <label class="form-check-label" for="{{ $fee->id() }}"></label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {{ $key + 1}}
+                                                </td>
+
+                                                 <td>
+                                                    {{ $fee->grade->title() ?? '' }}
+                                                </td>
+                                                <td>
+                                                    {{ $fee->type_fee }}
+                                                </td>
+                                                <td>
+                                                    {{ $fee->term->title() }}
+                                                </td>
+                                                <td>
+                                                    {{ trans('global.naira') }} {{ $fee->details->sum('price') }}
+                                                </td>
+                                                <td>
+                                                    <livewire:components.toggle-button :model='$fee' field='status'
+                                                        :key='$fee->id()' />
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary editFee" 
+                                                        type="button"
+                                                        data-id="{{ $fee->id }}"
+                                                        data-grade="{{ $fee->grade_id }}"
+                                                        data-term="{{ $fee->term_id }}"
+                                                        data-type="{{ $fee->type }}"
+                                                        data-details="{{ json_encode($fee->details->toArray()) }}"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary notifyParent" type="button" 
+                                                        data-grade="{{ $fee->grade_id }}"
+                                                        data-term="{{ $fee->term_id }}"
+                                                    >
+                                                        Notify
+                                                    </button>
+
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -280,6 +287,21 @@
         </div>
     </div>
 
+    <div class="modal fade notifyParentModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Fee To Parents</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modalErrorr"></div>
+                    <input type="hidden" id="termContainter" class="form-control" />
+                    <ul class="student-list list-unstyled"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @section('scripts')
         <script>
@@ -420,6 +442,102 @@
                 });
 
             })
+        
+            $(".notifyParent").on('click', function () {
+                var grade = $(this).data('grade');
+                var term = $(this).data('term');
+                var button = $(this);
+                
+                toggleAble(button, true, 'Fetching Students...');
+
+                $.ajax({
+                    method: "GET",
+                    url: "/student/students-by-class",
+                    data: { class: grade },
+                }).done((res) => {
+                    toggleAble(button, false);
+                    $('.notifyParentModal').modal('toggle');
+                    const studentList = $('.modal-body .student-list');
+                    studentList.empty();
+
+                    const selectAllCheckbox = `
+                        <div class="mb-3">
+                            <input type="checkbox" id="select-all" />
+                            <label for="select-all">Select All</label>
+                        </div>
+                    `;
+                    studentList.append(selectAllCheckbox);
+
+                    $.each(res, function (index, student) {
+                        const listItem = `
+                            <li class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <input type="checkbox" class="student-checkbox" value="${student.uuid}" id="student-${index}" />
+                                    <label for="student-${index}">${student.last_name} ${student.first_name} ${student.other_name}</label>
+                                </div>
+                            </li>
+                        `;
+                        studentList.append(listItem);
+                    });
+
+                    const termContainer = $('#termContainter');
+                    termContainer.val(term);
+
+                    const notifyButton = `
+                        <div class="mt-3">
+                            <button class="btn btn-primary notify-selected">Notify Selected</button>
+                        </div>
+                    `;
+                    studentList.append(notifyButton);
+
+                    $('#select-all').on('change', function () {
+                        const isChecked = $(this).is(':checked');
+                        $('.student-checkbox').prop('checked', isChecked);
+                    });
+
+                    $('.notify-selected').on('click', function () {
+                        var button = $(this);
+                        toggleAble(button, true, 'Notifying Parents...');
+                        const selectedStudents = $('.student-checkbox:checked').map(function () {
+                            return $(this).val();
+                        }).get();
+
+                        if (selectedStudents.length === 0) {
+                            toastr.info("Please select at least one student to notify.");
+                            return;
+                        }
+
+                        $.ajax({
+                            method: "POST",
+                            url: "/fee/notify/parents",
+                            data: { students: selectedStudents, term_id: term},
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                        }).done((res) => {
+                            toggleAble(button, false);
+                            toastr.success(`Notifications sent to students: ${selectedStudents.join(', ')}`);
+                            $('.notifyParentModal').modal('toggle');
+
+                        }).fail((error) => {
+                            toggleAble(button, false);
+                            toastr.error(err.responseJSON.message);
+                        });
+
+                    });
+                }).fail((err) => {
+                    toggleAble(button, false);
+                    const errors = Object.values(err.responseJSON.errors).map(el => `<li>${el}</li>`).join('');
+                    const errorHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul>${errors}</ul>
+                        </div>
+                    `;
+                    $('.modalErrorr').html(errorHtml);
+                    toastr.error(err.responseJSON.message);
+                });
+            });
+
         </script>
 
         <script>
