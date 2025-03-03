@@ -84,6 +84,26 @@
                                         <i class="bx bx-search-alt search-icon"></i>
                                     </div>
                                 </div>
+
+                                @php
+                                    $currentTerm = $terms->firstWhere('status', true);
+                                    $currentTermId = $currentTerm ? $currentTerm->id : null;
+                                @endphp
+                                
+                                <div class="mt-2 mb-2">
+                                    <h4 class="font-bold">Result Cummulative</h4>
+                                
+                                    <div class="d-flex align-items-center justify-content-between mt-2">
+                                        @foreach($terms as $term)
+                                            <div>
+                                                <input class="form-check-input" type="checkbox" name="terms[]" value="{{ $term->id }}" @if($currentTermId && $term->id <= $currentTermId) checked
+                                                @endif>
+                                                <span>{{ $term->title }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -305,8 +325,8 @@
                                     <input type="hidden" id="affective_term_id" name="term_id" />
 
                                     @php
-                                        $affectives = get_settings('affective_domain');
-                                        $psychomotors = get_settings('psychomotor_domain');
+$affectives = get_settings('affective_domain');
+$psychomotors = get_settings('psychomotor_domain');
                                     @endphp
                                             
                                     <div class="row mt-2">
@@ -426,8 +446,8 @@
 
                                 <div class="col-sm-12 mb-2">
                                     @php
-                                        $examForm = get_settings('exam_format');
-                                        $midtermForm = get_settings('midterm_format');
+$examForm = get_settings('exam_format');
+$midtermForm = get_settings('midterm_format');
                                     @endphp
                                     <div class="table-responsive">
                                         <table id="students-result" class="table table-borderless">
@@ -488,8 +508,8 @@
                             <input name="student_id" id="add_student_id" type="hidden" />
 
                             @php
-                                $examForm = get_settings('exam_format');
-                                $subjects = \App\Models\Subject::all();
+$examForm = get_settings('exam_format');
+$subjects = \App\Models\Subject::all();
                             @endphp
 
                             <div class="row">
@@ -545,9 +565,9 @@
                         <form id="refreshResult" method="POST">
                             @csrf
                             @php
-                                $grades = \App\Models\Grade::all();
-                                $periods = \App\Models\Period::all();
-                                $terms = \App\Models\Term::all();
+$grades = \App\Models\Grade::all();
+$periods = \App\Models\Period::all();
+$terms = \App\Models\Term::all();
                             @endphp
 
                             <div class="row">
@@ -606,9 +626,9 @@
                         <form id="generateResult" method="POST">
                             @csrf
                             @php
-                                $grades = \App\Models\Grade::all();
-                                $periods = \App\Models\Period::all();
-                                $terms = \App\Models\Term::all();
+$grades = \App\Models\Grade::all();
+$periods = \App\Models\Period::all();
+$terms = \App\Models\Term::all();
                             @endphp
 
                             <div class="row">
@@ -712,9 +732,9 @@
                         <form id="setCummulative" method="POST">
                             @csrf
                             @php
-                                $grades = \App\Models\Grade::all();
-                                $periods = \App\Models\Period::all();
-                                $terms = \App\Models\Term::all();
+$grades = \App\Models\Grade::all();
+$periods = \App\Models\Period::all();
+$terms = \App\Models\Term::all();
                             @endphp
 
                             <div class="row">
@@ -979,7 +999,7 @@
                     var termId = $(this).data('term');
 
                     $.ajax({
-                        url: '{{ route("result.fetch.exam", ["student_id" => ":student_id",  "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
+                        url: '{{ route("result.fetch.exam", ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
                         type: 'GET',
                         dataType: 'json',
                     }).done((response) => {
@@ -1778,7 +1798,7 @@
             select.empty();
 
             $.ajax({
-                url: "{{ route("result.get.students",["grade_id" => ":grade_id"]) }}".replace(':grade_id', grade),
+                url: "{{ route("result.get.students", ["grade_id" => ":grade_id"]) }}".replace(':grade_id', grade),
                 method: 'GET',
                 success: function(response) {
                     var students = response;

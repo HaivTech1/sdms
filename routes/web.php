@@ -69,6 +69,134 @@ use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController;
 use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\File;
+use Carbon\Carbon;
+
+Route::get('/test-email', function () {
+   try{
+     \Illuminate\Support\Facades\Mail::to("shittuopeyemi24@gmail.com")->send(new \App\Mail\SendMidtermMail("Test Email", "Test Email"));
+   }catch(\Throwable $th){
+    dd($th);
+   }
+});
+
+Route::get('/calculate-status-totals', function () {
+    $inputFile = public_path('user_33535_transactions.json'); // Input file
+    $outputFile = public_path('user_33535_transactions.txt'); // Output file
+
+    // Load the JSON file as an array
+    $jsonData = json_decode(File::get($inputFile), true);
+
+    if (!is_array($jsonData)) {
+        return "Invalid JSON structure in the file!";
+    }
+
+    // Group transactions by `created_at` and calculate totals for each `status`
+    $totalsByDate = [];
+
+    foreach ($jsonData as $record) {
+        if (isset($record['created_at'], $record['status'], $record['amount'])) {
+            $createdAt = Carbon::parse($record['created_at'])->toDateString();
+            $status = $record['status'];
+            $amount = floatval($record['amount']); // Convert to float for summing
+
+            if (!isset($totalsByDate[$createdAt])) {
+                $totalsByDate[$createdAt] = [
+                    'success' => 0,
+                    'unsuccessful' => 0,
+                    'refund' => 0,
+                    'total_amount' => 0
+                ];
+            }
+
+            if ($status === "success" || $status === "unsuccessful" || $status === "refund") {
+                $totalsByDate[$createdAt][$status] += 1;  // Count transactions per status
+                $totalsByDate[$createdAt]['total_amount'] += $amount;  // Sum amounts
+            }
+        }
+    }
+
+    // Format the results into a readable string for each date
+    $formattedResults = [];
+    foreach ($totalsByDate as $date => $data) {
+        $formattedResults[] = "Date: {$date}\n"
+            . "  Successes: {$data['success']}\n"
+            . "  Unsuccessful: {$data['unsuccessful']}\n"
+            . "  Refunds: {$data['refund']}\n"
+            . "  Total Amount: {$data['total_amount']}\n";
+    }
+
+    // Write results to the output txt file
+    File::put($outputFile, implode("\n", $formattedResults));
+
+    return response()->json(['message' => 'Totals saved to text file successfully!']);
+});
+
+
+Route::get('/filter-transactions', function () {
+    $inputFile = public_path('filtered_transactions.json'); // Output directory
+
+    // Define the date range
+    $startDate = Carbon::create(2025, 1, 13); // Start date
+    $endDate = Carbon::today(); // Today's date
+
+    // Load the JSON file as an array
+    $jsonData = json_decode(File::get($inputFile), true);
+
+    if (!is_array($jsonData)) {
+        return "Invalid JSON structure in the file!";
+    }
+
+    // Filter records based on the date range
+    $filteredData = array_filter($jsonData, function ($record) use ($startDate, $endDate) {
+        if (isset($record['created_at'])) {
+            $createdAt = Carbon::parse($record['created_at']);
+            return $createdAt->between($startDate, $endDate);
+        }
+        return false;
+    });
+
+    // User IDs to separate
+    $userIds = ['36085', '33535', '27510'];
+
+    // Separate and save records for each user ID
+    foreach ($userIds as $userId) {
+        $userTransactions = array_filter($filteredData, function ($record) use ($userId) {
+            return isset($record['user_id']) && $record['user_id'] == $userId;
+        });
+
+        $userOutputFile = "user_{$userId}_transactions.json";
+
+        File::put($userOutputFile, json_encode(array_values($userTransactions), JSON_PRETTY_PRINT));
+    }
+
+    return "Filtered transactions saved";
+});
+
+Route::get('/filter-service-type', function () {
+    $inputFile = public_path('user_27510_transactions.json'); // Input file
+    $outputFile = $inputFile; // Overwrite the same file
+
+    // Load the JSON file as an array
+    $jsonData = json_decode(File::get($inputFile), true);
+
+    if (!is_array($jsonData)) {
+        return "Invalid JSON structure in the file!";
+    }
+
+    // Filter records where service_type is "Data Topup"
+    $filteredData = array_filter($jsonData, function ($record) {
+        return isset($record['service_type']) && $record['service_type'] === "Data Topup";
+    });
+
+    // Save the filtered records back to the file
+    File::put($outputFile, json_encode(array_values($filteredData), JSON_PRETTY_PRINT));
+
+    return "Filtered transactions with 'service_type: Data Topup' saved back to the file.";
+});
+
+
+
 
 Route::get("/action", function(){
     $students = \App\Models\User::where('type', 4)->get();
@@ -80,6 +208,158 @@ Route::get("/action", function(){
 
     return "done";
 });
+
+Route::get("/action-merge-midterm", function(){
+
+    $studentsJson = File::get(public_path('students.json'));
+    $subjectsJson = File::get(public_path('student_subject.json'));
+
+    $students = json_decode($studentsJson, true);
+    $subjects = json_decode($subjectsJson, true);
+
+    foreach ($students as &$student) {
+        $student['subjects'] = collect($subjects)
+            ->where('student_uuid', $student['uuid'])
+            ->pluck('subject_id')
+            ->toArray();
+    }
+
+    $mergedJson = json_encode($students, JSON_PRETTY_PRINT);
+    // File::put(storage_path('app/merged_students.json'), $mergedJson);
+    return $students;
+});
+
+Route::get("/action-merge-result", function () {
+    $fathersJson = File::get(public_path('mid_term4.json'));
+    $fathers = json_decode($fathersJson, true);
+
+    $remainingRecords = [];
+
+    foreach ($fathers as $father) {
+        $existingFather = \App\Models\Father::where('student_uuid', $father['student_uuid'])->first();
+
+        if (!$existingFather) {
+            try {
+                \App\Models\Father::create(
+                    collect($father)->only((new \App\Models\Father())->getFillable())->toArray()
+                );
+            } catch (\Exception $e) {
+                \Log::error("Failed to insert record: " . $father['student_uuid'] . ". Error: " . $e->getMessage());
+            }
+        }
+    }
+
+    foreach ($fathers as $result) {
+        if (!\App\Models\Mother::where('student_uuid', $father['student_uuid'])->exists()) {
+            $remainingRecords[] = $result;  
+        }
+    }
+
+    file_put_contents(public_path('mid_term4.json'), json_encode($remainingRecords));
+
+    return "Imported and records removed from JSON successfully!";
+});
+
+Route::get("/action-merge", function () {
+    $studentsJson = File::get(public_path('students.json'));
+    $subjectsJson = File::get(public_path('student_subject.json'));
+
+    $students = json_decode($studentsJson, true);
+    $subjects = json_decode($subjectsJson, true);
+
+    foreach ($students as $studentData) {
+        // Check if the student already exists
+        $existingStudent = \App\Models\Student::where('uuid', $studentData['uuid'])->first();
+
+        if (!$existingStudent) {
+            try {
+                // Check if the user exists
+                $existingUser = \App\Models\User::find($studentData['user_id']);
+
+                if (!$existingUser) {
+                    // Create the user account if it doesn't exist
+                    $existingUser = \App\Models\User::create([
+                        'title' => 'student',
+                        'name' => $studentData['last_name'] . ' ' . $studentData['first_name'] . ' ' . ($studentData['other_name'] ?? ''),
+                        'email' => strtolower($studentData['last_name'] . $studentData['first_name']) . '@gmail.com',
+                        'phone_number' => '',
+                        'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                        'type' => 4, // Assuming '4' corresponds to the role of a student
+                    ]);
+
+                    // Optionally generate a registration code
+                    $code = \App\Services\SaveCode::Generator(application('alias') . '/', 4, 'reg_no', $existingUser);
+                    $existingUser->reg_no = $code;
+                    $existingUser->save();
+
+                    // Update the studentData with the new user_id
+                    $studentData['user_id'] = $existingUser->id;
+                }
+
+                // Insert the new student record
+                $newStudent = \App\Models\Student::create(
+                    collect($studentData)->only((new \App\Models\Student())->getFillable())->toArray()
+                );
+
+                // Sync subjects for the new student
+                $studentSubjects = collect($subjects)
+                    ->where('student_uuid', $newStudent->uuid)
+                    ->pluck('subject_id')
+                    ->toArray();
+
+                $newStudent->subjects()->sync($studentSubjects);
+            } catch (\Exception $e) {
+                // Log any errors and continue
+                \Log::error("Failed to insert student: {$studentData['uuid']}. Error: " . $e->getMessage());
+            }
+        }
+    }
+
+    return response()->json(['message' => 'New students and their subjects synced successfully.']);
+});
+
+Route::get("/action-merge-get", function () {
+    $studentsJson = File::get(public_path('students.json'));
+    $students = json_decode($studentsJson, true);
+
+    $missingStudents = [];
+
+    foreach ($students as $studentData) {
+        $existingStudent = \App\Models\Student::where('uuid', $studentData['uuid'])->first();
+
+        if (!$existingStudent) {
+            $missingStudents[] = $studentData['first_name'] . ' ' . $studentData['last_name'] . ' ' . $studentData['other_name'];
+        }
+    }
+
+    return response()->json([
+        'missing_students_count' => count($missingStudents),
+        'missing_students_names' => implode(', ', $missingStudents),
+        'message' => 'These students do not exist in the database.'
+    ]);
+});
+
+Route::get("/action-merge-users", function () {
+    $studentsJson = File::get(public_path('students.json'));
+    $students = json_decode($studentsJson, true);
+
+    $missingStudents = [];
+
+    foreach ($students as $studentData) {
+        $existingStudent = \App\Models\User::where('id', $studentData['user_id'])->first();
+
+        if (!$existingStudent) {
+            $missingStudents[] = $studentData['first_name'] . ' ' . $studentData['last_name'] . ' ' . $studentData['other_name'];
+        }
+    }
+
+    return response()->json([
+        'missing_users_count' => count($missingStudents),
+        'missing_users_names' => implode(', ', $missingStudents),
+        'message' => 'These users do not exist in the database.'
+    ]);
+});
+
 
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
 Route::post('/update/password', [UserController::class, 'updatePassword'])->name('update.password');
