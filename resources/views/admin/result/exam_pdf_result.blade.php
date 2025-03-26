@@ -181,15 +181,15 @@
                 <div class="mainContainer">
                    <div class="result-item">
                         <b>No. of times school opened:</b>
-                        <span>{{ $termSetting->no_school_opened }}</span>
+                        <span>{{ $termSetting?->no_school_opened ?? " " }}</span>
                     </div>
                     <div class="result-item">
                         <b>No. of times present:</b>
-                        <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
+                        <span>{{ $studentAttendance?->attendance_present ?? '' }}</span>
                     </div>
                     <div class="result-item">
                         <b>Attendance Average:</b>
-                        <span>{{ round(calculatePercentage($studentAttendance->attendance_present, $termSetting->no_school_opened, 100)) }}%</span>
+                        <span>{{ round(calculatePercentage($studentAttendance->attendance_present, $termSetting?->no_school_opened ?? 0, 100)) }}%</span>
                     </div>
 
                     {{-- <div class="result-item">
@@ -211,7 +211,7 @@
                 <div class="minorContainer">
                     <div class="result-item">
                         <b>Next term resumes:</b>
-                        <span>{{ $termSetting->next_term_resumption->format('d-M-Y') ?? '-----'}}</span>
+                        <span>{{ $termSetting?->next_term_resumption->format('d-M-Y') ?? '-----'}}</span>
                     </div>
                 </div>
             </div>
@@ -222,8 +222,8 @@
                         $midterm = get_settings('midterm_format');
                         $exam = get_settings('exam_format');
                         
-                        $remarkFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_remark') : get_settings('exam_remark_jun');
-                        $gradingFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_grade') : get_settings('exam_grade_jun');
+                        $remarkFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_remark') : get_settings('exam_remark');
+                        $gradingFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_grade') : get_settings('exam_grade');
 
                         $midtermTotal = 0;
                         $examTotal = 0;

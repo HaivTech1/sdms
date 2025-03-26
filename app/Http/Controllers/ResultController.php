@@ -700,60 +700,195 @@ class ResultController extends Controller
 
     public function primaryShow(Student $student, Request $request)
     {
-        if ($request->term_id == 1) {
-            $know = (int) $request->term_id + 1;
-        } elseif ($request->term_id == 1) {
-            $know = (int) $request->term_id + 1;
-        } else {
-            $know = 1;
+        $data = $this->generateStudentResultData($student, $request->period_id, $request->term_id);
+        return view('admin.result.secondary', $data);
+    }
+
+    public function primaryPublish(Request $request)
+    {
+        try {
+            DB::transaction(function () use ($request) {
+                $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+                $student = Student::findOrfail($request->student_id);
+                $idNumber = $student->user->code();
+                $password = 'password123';
+                $name = $student->last_name . " " . $student->first_name . " " . $student->other_name;
+                $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . "/result to access the result with these credentials: Id Number: " . $idNumber . " and password: " . $password . " or password1234</p>";
+                $subject = 'Examination Report Sheet';
+
+                $period = Period::where('id', $request->period_id)->first();
+                $term = Term::where('id', $request->term_id)->first();
+
+
+                foreach ($results as $result) {
+                    $result->update(['published' => true]);
+                }
+
+                // $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+
+                // if (count($check) > 0) {
+                //     foreach ($check as $value) {
+                //         $value->delete();
+                //     }
+
+                //     $cum = array();
+                //     foreach ($results as $result) {
+                //         $cummulative = new Cummulative([
+                //             'subject_id' => $result['subject_id'],
+                //             'score' => calculateResult($result),
+                //             'student_uuid' => $result['student_id'],
+                //             'period_id' => $result['period_id'],
+                //             'term_id' => $result['term_id'],
+                //             'grade_id' => $result['grade_id'],
+                //             'author_id' => auth()->id()
+                //         ]);
+                //         $cummulative->save();
+                //     }
+                // } else {
+                //     $cum = array();
+                //     foreach ($results as $result) {
+                //         $cummulative = new Cummulative([
+                //             'subject_id' => $result['subject_id'],
+                //             'score' => calculateResult($result),
+                //             'student_uuid' => $result['student_id'],
+                //             'period_id' => $result['period_id'],
+                //             'term_id' => $result['term_id'],
+                //             'grade_id' => $result['grade_id'],
+                //             'author_id' => auth()->id()
+                //         ]);
+                //         $cummulative->save();
+                //     }
+
+                // }
+
+                $path = $this->generateExamResultLink($student, $request->period_id, $request->term_id);
+
+                try {
+                    NotifiableParentsTrait::notifyParents($student, $message, $subject, storage_path("app/public/$path"));
+                } catch (\Throwable $th) {
+                    info($th->getMessage());
+                }
+
+                try {
+                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\$name's result is now available download the document attached with this message.";
+                    WhatsappMessageTrait::sendParent($student, $watMessage, $path);
+                } catch (\Throwable $th) {
+                    info("Exam Term Whatsapp Publish Error: " . $th->getMessage());
+                }
+
+                if (File::exists($path)) {
+                    File::delete($path);
+                }
+            });
+            return response()->json(['status' => true, 'message' => 'Result Published successfully!'], 200);
+        } catch (\Exception $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 200);
         }
+    }
 
-        $period = Period::where('id', $request->period_id)->first();
-        $term = Term::where('id', $request->term_id)->first();
+    private function generateExamResultLink($student, $period_id, $term_id)
+    {
+        $resultData = $this->generateStudentResultData($student, $period_id, $term_id);
+        
+        $resultData['student'] = $student;
 
-        $psychomotors = $student->psychomotors->where('period_id', $request->period_id)
-            ->where('term_id', $request->term_id);
+        $filename = "{$student->id()}_exam_report_" . Carbon::today()->format('Y-m-d') . '.pdf';
+        $filePath = storage_path("app/public/results/examination/{$filename}");
 
-        $affectives = $student->affectives->where('period_id', $request->period_id)
-            ->where('term_id', $request->term_id);
+        $pdf = \PDF::loadView('admin.result.exam_pdf_result', $resultData);
+        $pdf->save($filePath);
 
-        $studentAttendance = Cognitive::where('period_id', $request->period_id)
-            ->where('term_id', $request->term_id)
-            ->where('student_uuid', $student->id())->first();
+        return $filePath;
+}
 
-        $first_term = 1;
-        $second_term = 2;
+
+    public function generateSingleExamPDF(Request $request)
+    {
+        $student = Student::findOrFail($request->student_id);
+        $data = $this->generateStudentResultData($student, $request->period_id, $request->term_id);
+
+        $filename = "{$data['student']->last_name}_{$data['student']->first_name}_result.pdf";
+        
+        $pdf = \PDF::loadView('admin.result.exam_pdf_result', $data);
+
+        return $pdf->download($filename);
+    }
+
+    private function generateStudentResultData(Student $student, string $period_id, string $term_id)
+    {
+        $period = Period::find($period_id);
+        $term = Term::find($term_id);
+        $termSetting = termSetting($term_id, $period_id);
+        
+        $studentGrade = get_grade($student->grade->title());
+        $gradeStudents = Student::whereHas('grade', function ($query) use ($studentGrade) {
+                $query->where('title', 'like', $studentGrade . '%');
+            })->count();
+
+        $psychomotors = $student->psychomotors->where('period_id', $period_id)->where('term_id', $term_id);
+        $affectives = $student->affectives->where('period_id', $period_id)->where('term_id', $term_id);
+
+        $studentAttendance = Cognitive::where([
+            'period_id' => $period_id,
+            'term_id' => $term_id,
+            'student_uuid' => $student->id()
+        ])->first();
+
         $midtermFormat = get_settings('midterm_format');
         $examFormat = get_settings('exam_format');
 
-        $first_term_cumm = Cummulative::where('term_id', $first_term)->where('student_uuid', $student->id())->where('period_id', $period->id)->get();
-        $second_term_cumm = Cummulative::where('term_id', $second_term)->where('student_uuid', $student->id())->where('period_id', $period->id)->get();
-        $studentResults = $student->primaryResults->where('term_id', $term->id())->where('period_id', $period->id)->toArray();
+        $first_term_cumm = ($term_id > 1)
+            ? $student->primaryResults()
+                ->where(['term_id' => 1, 'period_id' => $period_id])
+                ->get()
+                ->map(fn($result) => [
+                    'score' => calculateResult($result->toArray(), $midtermFormat, $examFormat),
+                    'subject_id' => $result->subject_id,
+                    'grade_id' => $result->grade_id,
+                    'term_id' => $result->term_id,
+                    'period_id' => $result->period_id,
+                ])
+            : collect();
 
-        $newFirst = array();
-        foreach ($first_term_cumm as $key => $value) {
-            $newFirst[] = [
-                'first_term' => $value->score,
-                'subject_id' => $value->subject_id,
-                'grade_id' => $value->grade_id,
-                'term_id' => $value->term_id,
-                'period_id' => $value->period_id,
-            ];
-        }
+        $second_term_cumm = ($term_id > 2)
+            ? $student->primaryResults()
+                ->where(['term_id' => 2, 'period_id' => $period_id])
+                ->get()
+                ->map(fn($result) => [
+                    'score' => calculateResult($result->toArray(), $midtermFormat, $examFormat),
+                    'subject_id' => $result->subject_id,
+                    'grade_id' => $result->grade_id,
+                    'term_id' => $result->term_id,
+                    'period_id' => $result->period_id,
+                ])
+            : collect();
 
-        $newSecond = array();
-        foreach ($second_term_cumm as $key => $value) {
-            $newSecond[] = [
-                'second_term' => $value->score,
-                'subject_id' => $value->subject_id,
-                'grade_id' => $value->grade_id,
-                'term_id' => $value->term_id,
-                'period_id' => $value->period_id,
-            ];
-        }
+        $studentResults = $student->primaryResults()
+            ->where(['term_id' => $term_id, 'period_id' => $period_id])
+            ->get()
+            ->toArray();
 
-        $newResult = [];
-        foreach ($studentResults as $key => $value) {
+        $newFirst = !empty($first_term_cumm->toArray()) 
+            ? $first_term_cumm->map(fn($cumm) => [
+                'first_term' => $cumm['score'], 
+                'subject_id' => $cumm['subject_id'],
+                'grade_id' => $cumm['grade_id'],
+                'term_id' => $cumm['term_id'],
+                'period_id' => $cumm['period_id'],
+            ])->toArray()
+            : (!empty($studentResults) ? array_map(fn($r) => array_merge($r, ['first_term' => calculateResult($r)]), $studentResults) : []);
+
+        $newSecond = !empty($second_term_cumm->toArray()) 
+            ? $second_term_cumm->map(fn($cumm) => [
+                'second_term' => $cumm['score'], 
+                'subject_id' => $cumm['subject_id'],
+                'grade_id' => $cumm['grade_id'],
+                'term_id' => $cumm['term_id'],
+                'period_id' => $cumm['period_id'],
+            ])->toArray()
+            : (!empty($studentResults) ? array_map(fn($r) => array_merge($r, ['second_term' => calculateResult($r)]), $studentResults) : []);
+
+        $newResult = array_map(function ($value) use ($midtermFormat, $examFormat) {
             $resultItem = [
                 'subject_id' => $value['subject']['id'],
                 'subject' => $value['subject']['title'],
@@ -761,281 +896,76 @@ class ResultController extends Controller
                 'position_in_grade_subject' => $value['position_in_grade_subject'],
             ];
 
+            foreach ($midtermFormat as $midtermKey => $midtermValue) {
+                $resultItem[$midtermKey] = $value[$midtermKey] ?? "";
+            }
+
+            foreach ($examFormat as $examKey => $examValue) {
+                $resultItem[$examKey] = $value[$examKey] ?? "";
+            }
+
+            return $resultItem;
+        }, $studentResults);
+
+        $results = match ($term_id) {
+            "1" => $newResult,
+            "2" => !empty($newFirst) 
+                ? $this->custom_array_merge($newFirst, $newResult) 
+                : array_map(fn($r) => array_merge($r, ['first_term' => calculateResult($r)]), $newResult),
+            "3" => match (true) {
+                empty($newFirst) && empty($newSecond) => array_map(fn($r) => array_merge($r, [
+                    'first_term' => calculateResult($r),
+                    'second_term' => calculateResult($r)
+                ]), $newResult),
+                empty($newFirst) => $this->custom_array_merge(
+                    array_map(fn($r) => array_merge($r, ['first_term' => calculateResult($r)]), $newResult),
+                    $newSecond
+                ),
+                empty($newSecond) => $this->custom_array_merge($newFirst, $newResult),
+                default => $this->custom_array_merge($this->custom_array_merge($newFirst, $newResult), $newSecond),
+            },
+            default => []
+        };
+
+        $marksObtained = array_reduce($results, function ($total, $result) use ($term_id) {
+            return $total + match ($term_id) {
+                "2" => calculateResult($result) + (!empty($result['first_term']) ? $result['first_term'] / 2 : 0),
+                "3" => secondary_average($result['first_term'] ?? 0, $result['second_term'] ?? 0, calculateResult($result), 2),
+                default => calculateResult($result),
+            };
+        }, 0);
+
+        $numSubjects = count($results);
+        $grandTotal = $numSubjects * 100;
+        $aggregate = $grandTotal ? ($marksObtained / $grandTotal * 100) : 0;
+
+        $scores = collect($results)->mapWithKeys(function ($item) use ($midtermFormat, $examFormat) {
+            $total_score = 0;
+
             if (is_array($midtermFormat)) {
-                foreach ($midtermFormat as $midtermKey => $midtermValue) {
-                    if (isset($value[$midtermKey])) {
-                        $resultItem[$midtermKey] = $value[$midtermKey];
-                    } else {
-                        $resultItem[$midtermKey] = "";
+                foreach ($midtermFormat as $key => $value) {
+                    if (isset($item[$key])) {
+                        $total_score += $item[$key];
                     }
                 }
             }
 
             if (is_array($examFormat)) {
-                foreach ($examFormat as $examKey => $examValue) {
-                    if (isset($value[$examKey])) {
-                        $resultItem[$examKey] = $value[$examKey];
-                    } else {
-                        $resultItem[$examKey] = "";
+                foreach ($examFormat as $key => $value) {
+                    if (isset($item[$key])) {
+                        $total_score += $item[$key];
                     }
                 }
             }
 
-            $newResult[] = $resultItem;
-        }
+            return [$item['subject_id'] => $total_score];
+        })->toArray();
 
-        $firstTermResult = $newResult;
-        $secondTermResult = $this->custom_array_merge($newFirst, $newResult);
-        $thirdTermResult = $this->custom_array_merge($secondTermResult, $newSecond);
+        $comment = generate_comment($scores, "Dear {$student->first_name}, based on your current term score, you need to improve in the following subject(s):", 0.5, 100);
 
-        if ($request->term_id === '1') {
-            $results = $firstTermResult;
-        } elseif ($request->term_id === '2') {
-            $results = $secondTermResult;
-        } elseif ($request->term_id === '3') {
-            $results = $thirdTermResult;
-        }
-
-        $marksObtained = 0;
-        $numSubjects = count($results);
-        $grand = $numSubjects * 100;
-
-        foreach ($results as $result) {
-            if ($request->term_id === '2') {
-                $total = calculateResult($result) + $result['first_term'] / 2;
-            } elseif ($request->term_id === '3') {
-                $total = secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2);
-            } else {
-                $total = calculateResult($result);
-            }
-            // $total = secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2);
-            $marksObtained += $total;
-        }
-
-        $aggregate = $marksObtained / $grand * 100;
-
-        $studentGrade = get_grade($student->grade->title());
-        $gradeStudents = Student::whereHas('grade', function ($query) use ($studentGrade) {
-            $query->where('title', 'like', $studentGrade . '%');
-        })->count();
-
-
-        usort($results, function ($a, $b) {
-            $mathematicsEnglish = ['Mathematics', 'English Language'];
-
-            if (in_array($a['subject'], $mathematicsEnglish) && !in_array($b['subject'], $mathematicsEnglish)) {
-                return -1;
-            } elseif (!in_array($a['subject'], $mathematicsEnglish) && in_array($b['subject'], $mathematicsEnglish)) {
-                return 1;
-            } else {
-                return strcasecmp($a['subject'], $b['subject']);
-            }
-        });
-
-        foreach ($results as $item) {
-            $total_score = $item['ca1'] + $item['ca2'] + $item['exam'];
-            $subject_id = $item['subject_id'];
-            $scores[$subject_id] = $total_score;
-        }
-
-
-        $weakness_info = "Dear $student->first_name, based on your current term score, you need to improve in the following subject(s):";
-        $comment = generate_comment($scores, $weakness_info, 0.5, 100);
-        $termSetting = termSetting($request->term_id, $request->period_id);
-
-        return view('admin.result.secondary', [
-            'student' => $student,
-            'period' => $period,
-            'term' => $term,
-            'psychomotors' => $psychomotors,
-            'affectives' => $affectives,
-            'results' => $results,
-            'studentAttendance' => $studentAttendance,
-            'gradeStudents' => $gradeStudents,
-            'aggregate' => $aggregate,
-            'comment' => $comment,
-            'termSetting' => $termSetting
-        ]);
-
+        return compact('student', 'period', 'term', 'psychomotors', 'affectives', 'results', 'studentAttendance', 'gradeStudents', 'aggregate', 'comment', 'termSetting');
     }
 
-    public function generateSingleExamPDF(Request $request)
-    {
-        try {
-            if ($request->term_id == 1) {
-                $know = (int) $request->term_id + 1;
-            } elseif ($request->term_id == 1) {
-                $know = (int) $request->term_id + 1;
-            } else {
-                $know = 1;
-            }
-
-            $student = Student::findOrFail($request->student_id);
-
-            $period = Period::where('id', $request->period_id)->first();
-            $term = Term::where('id', $request->term_id)->first();
-
-            $psychomotors = $student->psychomotors->where('period_id', $request->period_id)
-                ->where('term_id', $request->term_id);
-
-            $affectives = $student->affectives->where('period_id', $request->period_id)
-                ->where('term_id', $request->term_id);
-
-            $studentAttendance = Cognitive::where('period_id', $request->period_id)
-                ->where('term_id', $request->term_id)
-                ->where('student_uuid', $student->id())->first();
-
-            $first_term = 1;
-            $second_term = 2;
-            $midtermFormat = get_settings('midterm_format');
-            $examFormat = get_settings('exam_format');
-
-            $first_term_cumm = Cummulative::where('term_id', $first_term)->where('student_uuid', $student->id())->where('period_id', $period->id)->get();
-            $second_term_cumm = Cummulative::where('term_id', $second_term)->where('student_uuid', $student->id())->where('period_id', $period->id)->get();
-            $studentResults = $student->primaryResults->where('term_id', $term->id())->where('period_id', $period->id)->toArray();
-
-            $newFirst = array();
-            foreach ($first_term_cumm as $key => $value) {
-                $newFirst[] = [
-                    'first_term' => $value->score,
-                    'subject_id' => $value->subject_id,
-                    'grade_id' => $value->grade_id,
-                    'term_id' => $value->term_id,
-                    'period_id' => $value->period_id,
-                ];
-            }
-
-            $newSecond = array();
-            foreach ($second_term_cumm as $key => $value) {
-                $newSecond[] = [
-                    'second_term' => $value->score,
-                    'subject_id' => $value->subject_id,
-                    'grade_id' => $value->grade_id,
-                    'term_id' => $value->term_id,
-                    'period_id' => $value->period_id,
-                ];
-            }
-
-            $newResult = [];
-            foreach ($studentResults as $key => $value) {
-                $resultItem = [
-                    'subject_id' => $value['subject']['id'],
-                    'subject' => $value['subject']['title'],
-                    'position_in_class_subject' => $value['position_in_class_subject'],
-                    'position_in_grade_subject' => $value['position_in_grade_subject'],
-                ];
-
-                if (is_array($midtermFormat)) {
-                    foreach ($midtermFormat as $midtermKey => $midtermValue) {
-                        if (isset($value[$midtermKey])) {
-                            $resultItem[$midtermKey] = $value[$midtermKey];
-                        } else {
-                            $resultItem[$midtermKey] = "";
-                        }
-                    }
-                }
-
-                if (is_array($examFormat)) {
-                    foreach ($examFormat as $examKey => $examValue) {
-                        if (isset($value[$examKey])) {
-                            $resultItem[$examKey] = $value[$examKey];
-                        } else {
-                            $resultItem[$examKey] = "";
-                        }
-                    }
-                }
-
-                $newResult[] = $resultItem;
-            }
-
-            $firstTermResult = $newResult;
-            $secondTermResult = $this->custom_array_merge($newFirst, $newResult);
-            $thirdTermResult = $this->custom_array_merge($secondTermResult, $newSecond);
-
-            if ($request->term_id === '1') {
-                $results = $firstTermResult;
-            } elseif ($request->term_id === '2') {
-                $results = $secondTermResult;
-            } elseif ($request->term_id === '3') {
-                $results = $thirdTermResult;
-            }
-
-            $marksObtained = 0;
-            $numSubjects = count($results);
-            $grand = $numSubjects * 100;
-
-            foreach ($results as $result) {
-                if ($request->term_id === '2') {
-                    $total = calculateResult($result) + $result['first_term'] / 2;
-                } elseif ($request->term_id === '3') {
-                    $total = secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2);
-                } else {
-                    $total = calculateResult($result);
-                }
-                $marksObtained += $total;
-            }
-
-            $aggregate = $marksObtained / $grand * 100;
-
-            $studentGrade = get_grade($student->grade->title());
-            $gradeStudents = Student::whereHas('grade', function ($query) use ($studentGrade) {
-                $query->where('title', 'like', $studentGrade . '%');
-            })->count();
-
-
-            usort($results, function ($a, $b) {
-                $mathematicsEnglish = ['Mathematics', 'English Language'];
-
-                if (in_array($a['subject'], $mathematicsEnglish) && !in_array($b['subject'], $mathematicsEnglish)) {
-                    return -1;
-                } elseif (!in_array($a['subject'], $mathematicsEnglish) && in_array($b['subject'], $mathematicsEnglish)) {
-                    return 1;
-                } else {
-                    return strcasecmp($a['subject'], $b['subject']);
-                }
-            });
-
-            foreach ($results as $item) {
-                $total_score = intval($item['ca1']) + intval($item['ca2']) + intval($item['exam']);
-                $subject_id = $item['subject_id'];
-                $scores[$subject_id] = $total_score;
-            }
-
-
-            $weakness_info = "Dear $student->first_name, based on your current term score, you need to improve in the following subject(s):";
-            $comment = generate_comment($scores, $weakness_info, 0.5, 100);
-            $termSetting = termSetting($request->term_id, $request->period_id);
-
-            $filename = "{$student->last_name}_{$student->first_name}_{$student->other_name}_result.pdf";
-
-            $pdf = PDF::loadView('admin.result.exam_pdf_result', [
-                'student' => $student,
-                'period' => $period,
-                'term' => $term,
-                'psychomotors' => $psychomotors,
-                'affectives' => $affectives,
-                'results' => $results,
-                'studentAttendance' => $studentAttendance,
-                'gradeStudents' => $gradeStudents,
-                'aggregate' => $aggregate,
-                'comment' => $comment,
-                'termSetting' => $termSetting
-            ]);
-
-            return $pdf->download($filename);
-        } catch (\Throwable $th) {
-            info($th);
-            $notification = ([
-                'messege' => 'There was an error generating the result. Please try again!',
-                'alert-type' => 'error',
-                'button' => 'Okay',
-                'title' => "Failed"
-            ]);
-
-            return redirect()->back()->with($notification);
-        }
-
-    }
 
     public function midtermShow(Student $student, Request $request)
     {
@@ -1864,244 +1794,6 @@ class ResultController extends Controller
         }
     }
 
-    public function primaryPublish(Request $request)
-    {
-        try {
-            DB::transaction(function () use ($request) {
-                $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
-                $student = Student::findOrfail($request->student_id);
-                $idNumber = $student->user->code();
-                $password = 'password123';
-                $name = $student->last_name . " " . $student->first_name . " " . $student->other_name;
-                $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . "/result to access the result with these credentials: Id Number: " . $idNumber . " and password: " . $password . " or password1234</p>";
-                $subject = 'Examination Report Sheet';
-
-                $period = Period::where('id', $request->period_id)->first();
-                $term = Term::where('id', $request->term_id)->first();
-
-
-                foreach ($results as $result) {
-                    $result->update(['published' => true]);
-                }
-
-                $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
-
-                if (count($check) > 0) {
-                    foreach ($check as $value) {
-                        $value->delete();
-                    }
-
-                    $cum = array();
-                    foreach ($results as $result) {
-                        $cummulative = new Cummulative([
-                            'subject_id' => $result['subject_id'],
-                            'score' => calculateResult($result),
-                            'student_uuid' => $result['student_id'],
-                            'period_id' => $result['period_id'],
-                            'term_id' => $result['term_id'],
-                            'grade_id' => $result['grade_id'],
-                            'author_id' => auth()->id()
-                        ]);
-                        $cummulative->save();
-                    }
-                } else {
-                    $cum = array();
-                    foreach ($results as $result) {
-                        $cummulative = new Cummulative([
-                            'subject_id' => $result['subject_id'],
-                            'score' => calculateResult($result),
-                            'student_uuid' => $result['student_id'],
-                            'period_id' => $result['period_id'],
-                            'term_id' => $result['term_id'],
-                            'grade_id' => $result['grade_id'],
-                            'author_id' => auth()->id()
-                        ]);
-                        $cummulative->save();
-                    }
-
-                }
-
-                $path = $this->generateExamResultLink($student, $request->grade_id, $request->period_id, $request->term_id);
-
-                try {
-                    NotifiableParentsTrait::notifyParents($student, $message, $subject, storage_path("app/public/$path"));
-                } catch (\Throwable $th) {
-                    info($th->getMessage());
-                }
-
-                try {
-                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\$name's result is now available download the document attached with this message.";
-                    WhatsappMessageTrait::sendParent($student, $watMessage, $path);
-                } catch (\Throwable $th) {
-                    info("Exam Term Whatsapp Publish Error: " . $th->getMessage());
-                }
-
-                if (File::exists($path)) {
-                    File::delete($path);
-                }
-            });
-            return response()->json(['status' => true, 'message' => 'Result Published successfully!'], 200);
-        } catch (\Exception $th) {
-            return response()->json(['status' => false, 'message' => $th->getMessage()], 200);
-        }
-    }
-
-    private function generateExamResultLink($student, $grade_id, $period_id, $term_id)
-    {
-        $period = Period::where('id', $period_id)->first();
-        $term = Term::where('id', $term_id)->first();
-
-        $psychomotors = $student->psychomotors->where('period_id', $period_id)
-            ->where('term_id', $term_id);
-
-        $affectives = $student->affectives->where('period_id', $period_id)
-            ->where('term_id', $term_id);
-
-        $studentAttendance = Cognitive::where('period_id', $period_id)
-            ->where('term_id', $term_id)
-            ->where('student_uuid', $student->id())->first();
-
-        $first_term = 1;
-        $second_term = 2;
-        $midtermFormat = get_settings('midterm_format');
-        $examFormat = get_settings('exam_format');
-
-        $first_term_cumm = Cummulative::where('term_id', $first_term)->where('student_uuid', $student->id())->where('period_id', $period->id)->get();
-        $second_term_cumm = Cummulative::where('term_id', $second_term)->where('student_uuid', $student->id())->where('period_id', $period->id)->get();
-        $studentResults = $student->primaryResults->where('term_id', $term->id())->where('period_id', $period->id)->toArray();
-
-        $newFirst = array();
-        foreach ($first_term_cumm as $key => $value) {
-            $newFirst[] = [
-                'first_term' => $value->score,
-                'subject_id' => $value->subject_id,
-                'grade_id' => $value->grade_id,
-                'term_id' => $value->term_id,
-                'period_id' => $value->period_id,
-            ];
-        }
-
-        $newSecond = array();
-        foreach ($second_term_cumm as $key => $value) {
-            $newSecond[] = [
-                'second_term' => $value->score,
-                'subject_id' => $value->subject_id,
-                'grade_id' => $value->grade_id,
-                'term_id' => $value->term_id,
-                'period_id' => $value->period_id,
-            ];
-        }
-
-        $newResult = [];
-        foreach ($studentResults as $key => $value) {
-            $resultItem = [
-                'subject_id' => $value['subject']['id'],
-                'subject' => $value['subject']['title'],
-                'position_in_class_subject' => $value['position_in_class_subject'],
-                'position_in_grade_subject' => $value['position_in_grade_subject'],
-            ];
-
-            if (is_array($midtermFormat)) {
-                foreach ($midtermFormat as $midtermKey => $midtermValue) {
-                    if (isset($value[$midtermKey])) {
-                        $resultItem[$midtermKey] = $value[$midtermKey];
-                    } else {
-                        $resultItem[$midtermKey] = "";
-                    }
-                }
-            }
-
-            if (is_array($examFormat)) {
-                foreach ($examFormat as $examKey => $examValue) {
-                    if (isset($value[$examKey])) {
-                        $resultItem[$examKey] = $value[$examKey];
-                    } else {
-                        $resultItem[$examKey] = "";
-                    }
-                }
-            }
-
-            $newResult[] = $resultItem;
-        }
-
-        $firstTermResult = $newResult;
-        $secondTermResult = $this->custom_array_merge($newFirst, $newResult);
-        $thirdTermResult = $this->custom_array_merge($secondTermResult, $newSecond);
-
-        if ($term_id === '1') {
-            $results = $firstTermResult;
-        } elseif ($term_id === '2') {
-            $results = $secondTermResult;
-        } elseif ($term_id === '3') {
-            $results = $thirdTermResult;
-        }
-
-        $marksObtained = 0;
-        $numSubjects = count($results);
-        $grand = $numSubjects * 100;
-
-        foreach ($results as $result) {
-            if ($term_id === '2') {
-                $total = calculateResult($result) + $result['first_term'] / 2;
-            } elseif ($term_id === '3') {
-                $total = secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2);
-            } else {
-                $total = calculateResult($result);
-            }
-            $marksObtained += $total;
-        }
-
-        $aggregate = $marksObtained / $grand * 100;
-
-        $studentGrade = get_grade($student->grade->title());
-        $gradeStudents = Student::whereHas('grade', function ($query) use ($studentGrade) {
-            $query->where('title', 'like', $studentGrade . '%');
-        })->count();
-
-
-        usort($results, function ($a, $b) {
-            $mathematicsEnglish = ['Mathematics', 'English Language'];
-
-            if (in_array($a['subject'], $mathematicsEnglish) && !in_array($b['subject'], $mathematicsEnglish)) {
-                return -1;
-            } elseif (!in_array($a['subject'], $mathematicsEnglish) && in_array($b['subject'], $mathematicsEnglish)) {
-                return 1;
-            } else {
-                return strcasecmp($a['subject'], $b['subject']);
-            }
-        });
-
-        foreach ($results as $item) {
-            $total_score = $item['ca1'] + $item['ca2'] + $item['exam'];
-            $subject_id = $item['subject_id'];
-            $scores[$subject_id] = $total_score;
-        }
-
-
-        $weakness_info = "Dear $student->first_name, based on your current term score, you need to improve in the following subject(s):";
-        $comment = generate_comment($scores, $weakness_info, 0.5, 100);
-        $termSetting = termSetting($term_id, $period_id);
-
-        $filename = $student->id() . "_exam_report_" . Carbon::today()->format('Y-m-d') . '.pdf';
-        $filePath = storage_path('app/public/results/examination' . $filename);
-
-        $pdf = PDF::loadView('admin.result.exam_pdf_result', [
-            'student' => $student,
-            'period' => $period,
-            'term' => $term,
-            'psychomotors' => $psychomotors,
-            'affectives' => $affectives,
-            'results' => $results,
-            'studentAttendance' => $studentAttendance,
-            'gradeStudents' => $gradeStudents,
-            'aggregate' => $aggregate,
-            'comment' => $comment,
-            'termSetting' => $termSetting
-        ]);
-
-        $pdf->save($filePath);
-        return $filePath;
-    }
 
     public function midtermPublish(Request $request)
     {

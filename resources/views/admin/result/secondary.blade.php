@@ -261,9 +261,9 @@
 
                         $midterm = get_settings('midterm_format');
                         $exam = get_settings('exam_format');
-                        
-                        $remarkFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_remark') : get_settings('exam_remark_jun');
-                        $gradingFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_grade') : get_settings('exam_grade_jun');
+
+                        $remarkFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_remark') : get_settings('exam_remark');
+                        $gradingFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_grade') : get_settings('exam_grade');
 
                         $midtermTotal = 0;
                         $examTotal = 0;
@@ -496,7 +496,6 @@
                 <div><b style="font-size: 14px; text-align: center">Aggregate:</b> <span style="font-size: 12px;">{{ round($aggregate)}}/100</span></div>
                 @if($resultPosition == 1)
                     <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of {{ $student->grade->students->count() }} students</span></div>
-                    <div><b style="font-size: 14px; text-align: center">Position in grade:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_grade ?? '' }} of {{ $gradeStudents }} students</span></div>
                 @endif
             </div>
 

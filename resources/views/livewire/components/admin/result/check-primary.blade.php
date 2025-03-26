@@ -85,7 +85,7 @@
                                     </div>
                                 </div>
 
-                                @php
+                                <!-- @php
                                     $currentTerm = $terms->firstWhere('status', true);
                                     $currentTermId = $currentTerm ? $currentTerm->id : null;
                                 @endphp
@@ -102,7 +102,7 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                </div>
+                                </div> -->
 
                             </div>
                         </div>

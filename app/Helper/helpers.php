@@ -406,19 +406,24 @@ function calculateAdminGradePosition($studentTotalScores, $studentId)
 
 function secondary_average($first, $second, $third, $by)
 {
+    if ($by <= 0) {
+        return ceil($third);
+    }
+
     $one = $first + $second;
     $oneResult = $one / 2;
 
     $two = $oneResult + $third;
-    $twoResult = $two / 2;
+    $twoResult = $two / $by;
 
     return ceil($twoResult);
 }
 
+
 function examRemark($remark, $type)
 {
     $dataSec = get_settings('exam_remark');
-    $dataJun = get_settings('exam_remark_jun');
+    $dataJun = get_settings('exam_remark');
 
     if (Str::startsWith($type, "SSS")) {
         foreach ($dataSec as $key => $value) {
@@ -444,7 +449,7 @@ function examRemark($remark, $type)
 function examGrade($grade, $type)
 {
     $dataSec = get_settings('exam_grade');
-    $dataJun = get_settings('exam_grade_jun');
+    $dataJun = get_settings('exam_grade');
 
     if (Str::startsWith($type, "SSS")) {
         foreach ($dataSec as $key => $value) {
