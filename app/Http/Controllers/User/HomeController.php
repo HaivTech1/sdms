@@ -145,15 +145,9 @@ class HomeController extends Controller
                 $table->date('vacation_date');
                 $table->date('next_term_resumption');
                 $table->integer('no_school_opened');
+                $table->json('class_count')->nullable();
                 $table->timestamps();
             });
         }
-
-        if (!Schema::hasColumn('term_settings', 'class_count')) {
-            Schema::table('term_settings', function (Blueprint $table) {
-                $table->json('class_count')->nullable()->after('no_school_opened');
-            });
-        }
-
     }
 }

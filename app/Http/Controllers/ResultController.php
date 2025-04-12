@@ -945,7 +945,7 @@ class ResultController extends Controller
             if (is_array($midtermFormat)) {
                 foreach ($midtermFormat as $key => $value) {
                     if (isset($item[$key])) {
-                        $total_score += $item[$key];
+                        $total_score += intval($item[$key])  ?? 0;
                     }
                 }
             }
