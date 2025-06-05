@@ -72,6 +72,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
 
+Route::get('/check-student', function () {
+   $result = \App\Models\MidTerm::where("student_id", "38919144-3dcc-4a8c-8a5e-ab9411bba625")->where('period_id', '5')->where('term_id', '2')->get();
+   dd($result);
+});
+
 Route::get('/test-email', function () {
    try{
      \Illuminate\Support\Facades\Mail::to("shittuopeyemi24@gmail.com")->send(new \App\Mail\SendMidtermMail("Test Email", "Test Email"));

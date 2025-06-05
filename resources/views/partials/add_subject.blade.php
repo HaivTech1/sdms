@@ -9,7 +9,7 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <form id="createSubjects">
-                            <x-form.input type="text" value="" name="student_id" id="edit_student_id" />
+                            <input type="text" value="" name="student_id" id="edit_student_id" />
                             
                             <div class="row">
                                 <div class="col-sm-12">

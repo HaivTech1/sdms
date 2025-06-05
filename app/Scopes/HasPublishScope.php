@@ -10,7 +10,7 @@ class HasPublishScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
-        if(auth()->user()->isStudent()) {
+        if(auth()->user() && auth()->user()->isStudent()) {
             $builder->where('published', true);
         }
     }

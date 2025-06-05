@@ -1753,7 +1753,7 @@ class ResultController extends Controller
         }
     }
     
-    private function generateExamResultLink($student, $period_id, $term_id)
+    public function generateExamResultLink($student, $period_id, $term_id)
     {
         $data = $this->generateStudentResultData($student, $period_id, $term_id);
         $data['student'] = $student;
@@ -1818,7 +1818,7 @@ class ResultController extends Controller
 
     }
     
-    private function generateMidtermResultLink($student, $grade_id, $period_id, $term_id)
+    public function generateMidtermResultLink($student, $grade_id, $period_id, $term_id)
     {
         $period = Period::where('id', $period_id)->first();
         $term = Term::where('id', $term_id)->first();

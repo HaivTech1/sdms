@@ -16,6 +16,7 @@ use App\Http\Controllers\API\v1\{
 
 use App\Http\Controllers\ResultController as WebResultController;
 use App\Http\Controllers\OtherBrowserSessionsController;
+use App\Scopes\HasActiveScope;
 
 Route::middleware('guest')->group(
     function () {
@@ -30,6 +31,27 @@ Route::middleware('guest')->group(
 Route::get('get-site-roles', [SettingController::class, 'getSiteRoles']);
 Route::get('get-site-permissions', [SettingController::class, 'getSitePermissions']);
 Route::get('get-role-permissions/{id}', [SettingController::class, 'getRolePermissions']);
+
+Route::post('/whatsapp-result', [ResultController::class, "whatsappResult"]);
+Route::get('/whatsapp-student', function (Request $request) {
+    $phone = $request->query('number');
+    
+    if (!$phone) {
+        return response()->json(['error' => 'Phone number is required.'], 400);
+    }
+
+    $students = \App\Models\Student::withoutGlobalScope(HasActiveScope::class)->with(['father', 'mother', 'guardian', 'grade', 'user'])
+    ->whereHas('father', fn ($q) => $q->where('phone', $phone))
+    ->orWhereHas('mother', fn ($q) => $q->where('phone', $phone))
+    ->orWhereHas('guardian', fn ($q) => $q->where('phone_number', $phone))
+    ->get();
+
+    if ($students->isEmpty()) {
+        return response()->json(['status' => false, 'message' => 'Students not found.'], 400);
+    }
+
+    return response()->json($students);
+});
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 

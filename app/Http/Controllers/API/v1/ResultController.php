@@ -14,8 +14,10 @@ use Illuminate\Http\Request;
 use App\Models\PrimaryResult;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ResultController as ControllersResultController;
 use App\Http\Resources\v1\ExamResource;
 use App\Http\Resources\v1\MidtermResource;
+use Illuminate\Support\Facades\Validator;
 
 class ResultController extends Controller
 {
@@ -433,5 +435,104 @@ class ResultController extends Controller
         return $result;
     }
 
+
+    public function whatsappResult(Request $request)
+    {
+        try {
+            $data = $request->all();
+
+            $validateData = Validator::make($data, [
+                'student_id' => ['required', 'regex:/^SLNP/'],  // Must start with SLNP uppercase
+                'session' => ['required'],
+                'term' => ['required', 'in:first,second,third'],
+                'type' => ['required', 'in:midterm,exam'],
+            ], [
+                'student_id.required' => 'Student Registration number is required.',
+                'student_id.regex' => 'Student ID must start with the uppercase letters "SLNP".',
+                'session.required' => 'Academic session is required.',
+                'term.required' => 'Term is required.',
+                'term.in' => 'Term must be one of: First, Second, or Third.',
+                'type.required' => 'Type of result is required.',
+                'type.in' => 'Type must be either "midterm" or "exam".',
+            ]);
+
+            if ($validateData->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validateData->errors()->first()
+                ], 400);
+            }
+
+            $student = Student::with(['user'])
+                ->whereHas('user', function ($query) use ($data) {
+                    $query->where('reg_no', $data['student_id']);
+                })
+                ->first();
+
+            if (!$student) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Student not found with the given ID.'
+                ], 404);
+            }
+
+            $period = Period::where('title', 'like', '%' . $data['session'] . '%')->first();
+
+            if (!$period) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid session provided. Please check and try again.'
+                ], 404);
+            }
+
+            $term = Term::where('title', 'like', '%' . $data['term'] . '%')->first();
+
+            if (!$term) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid term provided. Please check and try again.'
+                ], 404);
+            }
+
+            $link = "";
+
+            $resultController = app()->make(ControllersResultController::class);
+            switch ($data['type']) {
+                case 'midterm':
+                    $link = $resultController->generateMidtermResultLink($student, $student->grade_id, $period->id, $term->id);
+                    break;
+                case 'exam':
+                    $link = $resultController->generateExamResultLink($student, $period->id, $term->id);
+                    break;
+            }
+
+            if ($link && file_exists($link)) {
+                $filename = basename($link);
+                $publicUrl = asset('storage/results/' . $filename);
+            } else {
+                $publicUrl = null;
+            }
+
+            if (!$publicUrl) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Result not found for the given session, term, and type.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => "The result for {$term->title} - {$period->title} of ".$student->last_name . ' ' . $student->first_name .' found and generated successfully.',
+                'download_url' => $publicUrl,
+            ]);
+        } catch (\Exception $e) {
+            info('Error in whatsappResult: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred. Please try again later.'
+            ], 500);
+        }
+    }
 
 }

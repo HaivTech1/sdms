@@ -786,20 +786,20 @@ class ResultController extends Controller
         }
     }
 
-    private function generateExamResultLink($student, $period_id, $term_id)
+    public function generateExamResultLink($student, $period_id, $term_id)
     {
         $resultData = $this->generateStudentResultData($student, $period_id, $term_id);
         
         $resultData['student'] = $student;
 
-        $filename = "{$student->id()}_exam_report_" . Carbon::today()->format('Y-m-d') . '.pdf';
-        $filePath = storage_path("app/public/results/examination/{$filename}");
+        $filename = "exam_report_" . time() . '.pdf';
+        $filePath = storage_path("app/public/results/{$filename}");
 
         $pdf = \PDF::loadView('admin.result.exam_pdf_result', $resultData);
         $pdf->save($filePath);
 
         return $filePath;
-}
+    }
 
 
     public function generateSingleExamPDF(Request $request)
@@ -1852,7 +1852,7 @@ class ResultController extends Controller
 
     }
 
-    private function generateMidtermResultLink($student, $grade_id, $period_id, $term_id)
+    public function generateMidtermResultLink($student, $grade_id, $period_id, $term_id)
     {
         $period = Period::where('id', $period_id)->first();
         $term = Term::where('id', $term_id)->first();
@@ -2231,7 +2231,7 @@ class ResultController extends Controller
                 $students[] = [
                     'id' => $value->id(),
                     'name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
-                    'recorded_subjects' => $value->midTermResults->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
+                    'recorded_subjects' => MidTerm::where('student_id', $value->uuid)->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
                     'publish_state' => publishMidState($value->id(), $period_id, $term_id),
                 ];
             }

@@ -175,7 +175,7 @@
                                                 <img 
                                                 class="rounded-circle avatar-xs uploadImage"
                                                 data-id="{{ $student->id() }}"
-                                                src="{{ $student->image() ? asset('storage/'.$student->image()) : asset('noImage.png') }}"
+                                                src="{{ $student->image() ? asset('storage/' . $student->image()) : asset('noImage.png') }}"
                                                 alt="{{ $student->firstName() }}">
                                             </td>
                                             <td>
@@ -185,7 +185,7 @@
                                                 {{ $student?->grade?->title() }}
                                             </td>
                                             <td>
-                                                @foreach($student->user->roles as $role )
+                                                @foreach($student->user->roles as $role)
                                                     {{ $role?->title() }}
                                                 @endforeach
                                             </td>
@@ -234,7 +234,7 @@
                                                         <div class="dropdown-menu dropdown-menu-end">
                                                             <a class="dropdown-item" href="{{ route('student.show', $student) }}"><i class="fa fa-eye"></i> Show</a>
                                                             <a class="dropdown-item" href="{{ route('student.edit', $student) }}"><i class="fa fa-edit"></i> Edit</a>
-                                                            <button class="dropdown-item btn btn-sm btn-primary" wire:click.prevent="sendDetails('{{ $student ->id()}}')">
+                                                            <button class="dropdown-item btn btn-sm btn-primary" wire:click.prevent="sendDetails('{{ $student->id()}}')">
                                                                 <i class="fa fa-envelope"></i> Credentals
                                                             </button>
 
@@ -261,7 +261,7 @@
                                                                             <h4>Assign Subjects for {{  $student->fullName() }}</h4>
                                                                             <form id="assignSubjects">
                                                                                 @csrf
-                                                                                <x-form.input type="hidden"
+                                                                                <input type="text"
                                                                                     value="{{ $student->id() }}"
                                                                                     name="student_id" />
 
@@ -506,8 +506,8 @@
 
                                 <div class="col-sm-12 mb-2">
                                     @php
-                                        $examForm = get_settings('exam_format');
-                                        $midtermForm = get_settings('midterm_format');
+$examForm = get_settings('exam_format');
+$midtermForm = get_settings('midterm_format');
                                     @endphp
                                     <div class="table-responsive">
                                         <table id="students-result" class="table table-borderless">
@@ -573,8 +573,8 @@
                             <input name="student_id" id="add_student_id" type="hidden" />
 
                             @php
-                                $examForm = get_settings('exam_format');
-                                $subjects = \App\Models\Subject::all();
+$examForm = get_settings('exam_format');
+$subjects = \App\Models\Subject::all();
                             @endphp
 
                             <div class="row">
@@ -747,7 +747,7 @@
 
                 $.ajax({
                     type: 'GET',
-                    url: '{{ route("result.check.single.exam", ["student_id" => ":student_id" , "grade_id" => ":grade_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':student_id', student).replace(':grade_id', grade).replace(':period_id', period).replace(':term_id', term),
+                    url: '{{ route("result.check.single.exam", ["student_id" => ":student_id", "grade_id" => ":grade_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}'.replace(':student_id', student).replace(':grade_id', grade).replace(':period_id', period).replace(':term_id', term),
                     dataType: 'json',
                 }).done((response) => {
                     toggleAble(button, false);
@@ -819,7 +819,7 @@
                         console.log(id, classId, sessionId, termId);
 
                         $.ajax({
-                            url: '{{ route("result.fetch.exam", ["student_id" => ":student_id",  "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
+                            url: '{{ route("result.fetch.exam", ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
                             type: 'GET',
                             dataType: 'json',
                         }).done((response) => {
@@ -1002,7 +1002,7 @@
                             $('#subjects option[value="' + subject.id + '"]').prop('selected', true);
                         });
 
-                        $('#student_id').val(id);
+                        $('#edit_student_id').val(id);
                         $('.addSubject').modal('show');
                     }
                 });
