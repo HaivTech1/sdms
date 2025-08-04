@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\v1\StudentResource;
 use App\Http\Resources\v1\StudentCollection;
+use App\Models\Fee;
+use App\Models\Grade;
+use App\Models\Term;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -155,6 +159,113 @@ class StudentController extends Controller
         }
     }
 
+    public function getStudentFee(Request $request)
+    {
+        try {
+            $data = $request->all();
+
+            $validateData = Validator::make($data, [
+                'student_id' => ['required', 'regex:/^SLNP/'],
+                'term' => ['required', 'in:first,second,third'],
+                'grade_id' => ['required'],
+            ],[
+            'student_id.required' => 'Student Registration number is required.',
+            'student_id.regex' => 'Student ID must start with the uppercase letters "SLNP".',
+            'term.required' => 'Term is required.',
+            'term.in' => 'Term must be one of: First, Second, or Third.',
+            'grade_id.required' => 'Please enter the grade id from the list.',
+            ]);
+
+            if ($validateData->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validateData->errors()->first()
+                ], 400);
+            }
+
+            $student = Student::with(['user'])
+                ->whereHas('user', function ($query) use ($data) {
+                    $query->where('reg_no', $data['student_id']);
+                })
+                ->first();
+
+            if (!$student) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Student not found with the given ID.'
+                ], 404);
+            }
+
+            $term = Term::where('title', 'like', '%' . $data['term'] . '%')->first();;
+
+            $name = trim($student->last_name . " " . $student->first_name . " " . $student->other_name);
+
+            $getFee = Fee::where([
+                'grade_id' => $data['grade_id'],
+                'type' => $student->type,
+                'term_id' => $term->id,
+                'status' => true
+            ])->first();
+
+            if(!$getFee) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No fee found for the current class yet. Please check back later.'
+                ], 404);
+            }
+
+            $fee = 0; 
+            if ($getFee) {
+                $fee += $getFee->details->sum('price');
+
+                $feeAmount = $fee;
+                $outstanding = $student->outstanding !== null
+                    ? intval($student->outstanding['outstanding'])
+                    : 0;
+
+                $total = $fee += $outstanding;
+            }
+
+            $watMessage = "Dear Parent/Guardian,\n \n";
+            $watMessage .= "Your child *$name*'s school fees for $term->title term is as follows:\n \n";
+            $watMessage .= "Outstanding Fees: *₦ " . number_format($outstanding, 2) . "*\n";
+            $watMessage .= "Fees: *₦ " . number_format($feeAmount, 2) . "*\n";
+            $watMessage .= "Total Fees: *₦ " . number_format($total, 2) . "*\n \n";
+            $watMessage .= "The school's account number details is below:\n*Acccount Number:* 1012048635\n*Bank Name:* Zenith Bank\n*Account Name:* St Louis Nursery and Primary School Ondo.";
+
+            return response()->json(["status" => true, "message" => $watMessage], 200);
+
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                "status" => false,
+                "message" => "There was an error gettting the fee.",
+                "error" => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getClasses()
+    {
+        try {
+            $data = Grade::whereNotIn('id', [30, 27])->where("status", true)->get();
+            $classes = [];
+            foreach($data as $class){
+                $classes[] = [
+                    "id" => $class->id,
+                    "name" => $class->title
+                ];
+            }
+
+            return response()->json($classes);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                "status" => false,
+                "message" => "There was an error gettting the classes.",
+                "error" => $th->getMessage(),
+            ], 500);
+        }
+    }
 
 }
-// 504F4F

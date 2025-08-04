@@ -381,6 +381,28 @@
     </section>
     @endregistrationLinkEnabled
 
+    <div class="modal fade" id="pdfDownloadModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfModalLabel">Registration Complete</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Your registration was successful. You can now download your registration summary PDF and proceed to the school for submission with a receipt for payment.
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-primary download-btn" target="_blank">Download PDF</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     @section('scripts')
         <script>
 
@@ -446,14 +468,22 @@
                     processData: false,
                     dataType: 'json',
                 }).done((res) => {
-                    if(res.status === true) {
+                    if (res.status === true) {
                         toggleAble('#submit', false);
                         toastr.success(res.message, 'Success!');
                         $('#img-show-container').hide();
-                    }else{
+
+                        if (res.pdf_url) {
+                            $('#pdfDownloadModal .download-btn').attr('href', res.pdf_url);
+                            $('#pdfDownloadModal').modal('show');
+                        }
+
+                        resetForm('#registration');
+                    } else {
                         toggleAble('#submit', false);
-                        toastr.error(res.message, 'Success!');
+                        toastr.error(res.message, 'Error!');
                     }
+
                     resetForm('#registration')
                 }).fail((err) => {
                     console.log(err);

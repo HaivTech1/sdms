@@ -23,6 +23,7 @@ use App\Mail\SendNewRegistrationMail;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\RegistrationRequest;
 use Carbon\Carbon;
+use PDF;
 
 class RegistrationController extends Controller
 {
@@ -87,7 +88,7 @@ class RegistrationController extends Controller
     public function store(RegistrationRequest $request)
     {
         try {
-            DB::transaction(function () use ($request) {
+            $student = DB::transaction(function () use ($request) {
                 $student = new Registration([
                     'first_name'  => $request->first_name,
                     'last_name'  => $request->last_name,
@@ -127,41 +128,55 @@ class RegistrationController extends Controller
                     'guardian_home_address'  => $request->guardian_home_address,
                     'guardian_relationship'  => $request->guardian_relationship,
                 ]);
-        
-                $fileName = $request->image->getClientOriginalName();
-                $filePath = 'registrations/' . $fileName;
-                $isFileUploaded = Storage::disk('public')->put($filePath, file_get_contents($request->image));
-          
-                if ($isFileUploaded) {
+
+                if ($request->hasFile('image')) {
+                    $fileName = time() . '-' . $request->image->getClientOriginalName();
+                    $filePath = 'registrations/' . $fileName;
+                    Storage::disk('public')->put($filePath, file_get_contents($request->image));
                     $student->image = $filePath;
                 }
+
                 $student->save();
+
+                // Notify admins
                 $message = "<p>A new student registration form has just been completed! Please visit the school's portal for review.</p>";
                 $subject = 'New Student Registration';
                 $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\A new student registration form has just been completed! Please visit the school's portal for review.";
-                $admins = User::whereType(2)->where('isAvailable', '1')->get();
-    
-                foreach($admins as $admin){
+
+                $admins = User::whereType(2)->where('isAvailable', 1)->get();
+                foreach ($admins as $admin) {
                     try {
-                        Mail::to($admin->email())->send(new SendNewRegistrationMail($message, $subject));
+                        Mail::to($admin->email)->send(new SendNewRegistrationMail($message, $subject));
                     } catch (\Throwable $th) {
-                       info($th->getMessage());
+                        info("Mail error: " . $th->getMessage());
                     }
-                    
+
                     try {
                         sendWaMessage($admin->phone_number, $watMessage);
                     } catch (\Throwable $th) {
-                        info($th->getMessage());
+                        info("WhatsApp error: " . $th->getMessage());
                     }
                 }
-            });
-            return response()->json(['status' => true, 'message' => 'Registration completed successfully!'], 200);
 
+                return $student;
+            });
+
+            $pdf = Pdf::loadView('generate.registration', ['data' => $student]);
+            $pdfPath = 'registrations/registration_' . $student->id . '.pdf';
+            Storage::disk('public')->put($pdfPath, $pdf->output());
+            $pdfUrl = asset('storage/' . $pdfPath);
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Registration completed successfully!',
+                'pdf_url' => $pdfUrl,
+            ]);
         } catch (\Throwable $th) {
-            return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
+            return response()->json([
+                'status' => false,
+                'errors' => $th->getMessage(),
+            ], 500);
         }
-        
-        
     }
 
     public function destroy($id)

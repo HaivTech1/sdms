@@ -45,7 +45,7 @@ class HomeController extends Controller
     {
         $title = "Admission";
         return view('frontend.registration', [
-            'grades' => Grade::all(),
+            'grades' => Grade::whereNotIn("id", [30, 27])->get(),
             'title' => $title,
         ]);
     }
