@@ -556,6 +556,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/parent-details', [GeneralController::class, 'parentDetails'])->name('parentDetails');
             Route::post('/update-mother-details', [GeneralController::class, 'updateMotherData'])->name('updateMotherData');
             Route::post('/update-father-details', [GeneralController::class, 'updateFatherData'])->name('updateFatherData');
+
+            Route::get('/generate-qrcode/{id}', [StudentController::class, 'generateQr']);
         });
 
         Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {

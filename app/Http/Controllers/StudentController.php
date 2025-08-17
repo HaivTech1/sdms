@@ -23,6 +23,12 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreStudentRequest;
 use PDF;
+use App\Traits\NotifiableParentsTrait;
+use App\Traits\NumberBroadcast;
+
+use Endroid\QrCode\Builder\Builder;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
@@ -411,5 +417,92 @@ class StudentController extends Controller
             'status' => true,
             'affectives' => count($data) > 0 ? $affectives : [],
         ]);
+    }
+
+    public function generateQr($id)
+    {
+        $student = Student::with(['user'])->where('uuid', $id)->firstOrFail();
+        $regNo = $student->id();
+        $studentName = $student->fullName();
+
+        // Delete old QR if exists
+        if ($student->qrcode && Storage::disk('public')->exists($student->qrcode)) {
+            Storage::disk('public')->delete($student->qrcode);
+        }
+
+        // File naming
+        $slugName = Str::slug($studentName);
+        $fileName = $slugName . '-' . time() . '.png';
+        $path = "qrcodes/{$fileName}";
+
+        $result = Builder::create()
+            ->data($regNo)
+            ->size(300)
+            ->margin(10)
+            ->build();
+
+        // Save to storage
+        Storage::disk('public')->put($path, $result->getString());
+
+        // Update DB
+        $student->update(['qrcode' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "QR code generated successfully.",
+            'file' => asset('storage/' . $path),
+        ]);
+    }
+
+    public function sendCredentials($studentuuid)
+    {
+        try {
+            $student = Student::withoutGlobalScope(new HasActiveScope)->where('uuid', $studentuuid)->first();
+            $idNumber = $student->user->code();
+            $name = $student->last_name." ".$student->first_name. " ".$student->other_name;
+            $message = "<p>Your child: $name login credential is: Id Number: ".$idNumber." and password: password123\n Kindly note that the word 'password' should not be removed from the
+                numbers.</p>";
+            $subject = 'Portal Login Credentials';
+
+            
+            try {
+                NotifiableParentsTrait::notifyParents($student, $message, $subject);
+            } catch (\Throwable $th) {
+                info($th->getMessage());
+            }
+
+            try {
+                $watMessage = "Your child: $name login credential is: \\ \\*Id Number:* ".$idNumber." \\*Password:*password123 \\ \\Kindly note that the word *password* should not be removed from the numbers.";
+                NumberBroadcast::notify($student, $watMessage);
+            } catch (\Throwable $th) {
+               info($th->getMessage());
+            }
+            
+            return response()->json(['status' => true, 'message' => 'Credentials have been sent successfully!'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 400);
+        }
+    }
+
+    public function updateUserPassword(Request $request, $studentUuid)
+    {
+        try {
+            $validated = $request->validate([
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+
+            $student = Student::where('uuid', $studentUuid)->firstOrFail();
+            $user = $student->user;
+            if (!$user) {
+                return response()->json(['status' => false, 'message' => 'User account not found.'], 404);
+            }
+
+            $user->password = Hash::make($validated['password']);
+            $user->save();
+
+            return response()->json(['status' => true, 'message' => 'Password updated successfully.'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
     }
 }

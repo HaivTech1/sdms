@@ -246,6 +246,19 @@
                                                                 <i class="fas fa-compress-arrows-alt"></i> View Results
                                                             </button>
 
+                                                            @if ($student->qrcode)
+                                                                <button class="dropdown-item" type="button"
+                                                                    id="showQrcode" value="{{ $student->qrcode }}">
+                                                                    <i class="fa fa-eye"></i> Show Qrcode
+                                                                </button>
+                                                            @else
+                                                                <button class="dropdown-item" type="button"
+                                                                    id="generateQrcode" value="{{ $student->id() }}">
+                                                                    <i class="fa fa-qrcode"></i> Generate Qrcode
+                                                                </button>
+                                                            @endif
+                                                           
+
                                                             <div class="offcanvas offcanvas-start" data-bs-scroll="true"
                                                                 tabindex="-1"
                                                                 id="offcanvasWithBothOptions{{ $student->id() }}"
@@ -506,8 +519,8 @@
 
                                 <div class="col-sm-12 mb-2">
                                     @php
-$examForm = get_settings('exam_format');
-$midtermForm = get_settings('midterm_format');
+                                        $examForm = get_settings('exam_format');
+                                        $midtermForm = get_settings('midterm_format');
                                     @endphp
                                     <div class="table-responsive">
                                         <table id="students-result" class="table table-borderless">
@@ -573,8 +586,8 @@ $midtermForm = get_settings('midterm_format');
                             <input name="student_id" id="add_student_id" type="hidden" />
 
                             @php
-$examForm = get_settings('exam_format');
-$subjects = \App\Models\Subject::all();
+                                $examForm = get_settings('exam_format');
+                                $subjects = \App\Models\Subject::all();
                             @endphp
 
                             <div class="row">
@@ -660,6 +673,22 @@ $subjects = \App\Models\Subject::all();
             </div>
         </div>
     </div>
+
+  <div class="modal fade" id="showQrcodeModal" tabindex="-1" aria-labelledby="showQrcodeModalLabel" aria-hidden="true"
+      wire:ignore.self>
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="editModalLabel">Student QR Code</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center">
+                  <img id="qr-preview" src="" alt="QR Code" class="img-fluid mx-auto d-block" style="max-width:200px;">
+              </div>
+          </div>
+      </div>
+  </div>
+
 
 
     @section('scripts')
@@ -1065,7 +1094,7 @@ $subjects = \App\Models\Subject::all();
                 });
             });
 
-             $(document).on('submit', '#upload', function (e) {
+            $(document).on('submit', '#upload', function (e) {
                 e.preventDefault();
                 let formData = new FormData($('#upload')[0]);
                 toggleAble('#submit_passport', true, 'Submitting...');
@@ -1094,6 +1123,69 @@ $subjects = \App\Models\Subject::all();
                     toastr.error(err.responseJSON.message, 'Failed!');
                 });
             });
+
+            $(document).on('click', '#generateQrcode', function() {
+                var studentId = $(this).val();
+                var button = $(this); 
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This will delete the old QR code and generate a new one.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, regenerate it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        toggleAble(button, true);
+
+                        // Show loading modal
+                        Swal.fire({
+                            title: "Generating QR Code...",
+                            text: "Please wait a moment.",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/student/generate-qrcode/' + studentId,
+                            type: 'GET',
+                            dataType: 'json',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                toggleAble(button, false);
+                                Swal.close(); // close loading modal
+                                toastr.success(response.message, 'Success!');
+                                $('#qr-preview').attr('src', response.file);
+                                $('#showQrcodeModal').modal('show');
+                            },
+                            error: function(xhr, status, error) {
+                                toggleAble(button, false);
+                                Swal.close(); // close loading modal
+                                toastr.error("Failed to generate QR code", 'Error!');
+                            }
+                        });
+                    }
+                });
+            });
+
+            $(document).on('click', '#showQrcode', function() {
+                var qrPath = $(this).val(); 
+                
+                if (qrPath) {
+                    $('#qr-preview').attr('src', '/storage/' + qrPath);
+                    $('#showQrcodeModal').modal('show');
+                } else {
+                    toastr.error("QR code not found for this student.", "Error!");
+                }
+            });
+
+
         </script>
         
     @endsection

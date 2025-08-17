@@ -9,6 +9,7 @@ use App\Models\{
     Period,
     Subject,
     Application,
+    House,
     Permission,
     Role
 };
@@ -59,6 +60,19 @@ class SettingController extends Controller
         $data = Subject::all();
         $subjects = SubjectResource::collection($data);
         return response()->json(['status' => 200, 'subjects' => $subjects], 200);
+    }
+
+    public function houses()
+    {
+        $data = House::where('status', true)->get();
+        $houses = [];
+        foreach ($data as $value) {
+            $houses[] = [
+                'id' => $value->id,
+                'title' => $value->title,
+            ];
+        }
+        return response()->json(['status' => 200, 'houses' => $houses], 200);
     }
 
     public function midtermFormat()

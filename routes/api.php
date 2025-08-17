@@ -13,8 +13,11 @@ use App\Http\Controllers\API\v1\{
     AttendanceController,
     RegistrationController
 };
-
 use App\Http\Controllers\ResultController as WebResultController;
+use App\Http\Controllers\StudentController as WebStudentController;
+use App\Http\Controllers\AttendanceController as WebAttendanceController;
+use App\Http\Controllers\GeneralController;
+
 use App\Http\Controllers\OtherBrowserSessionsController;
 use App\Scopes\HasActiveScope;
 
@@ -98,6 +101,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/sessions/all', [SettingController::class, 'session']);
         Route::get('/terms/all', [SettingController::class, 'term']);
         Route::get('/subjects/all', [SettingController::class, 'subject']);
+        Route::get('/houses/all', [SettingController::class, 'houses']);
         Route::get('/midterm/format', [SettingController::class, 'midtermFormat']);
         Route::get('/exam/format', [SettingController::class, 'examFormat']);
     });
@@ -118,8 +122,18 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/assign/grade', [StudentController::class, 'assignStudent']);
         Route::post('/toggle/status', [StudentController::class, 'toggleStudent']);
         Route::get('/delete/{id}', [StudentController::class, 'delete']);
-        Route::post('/multiple/subject/assign', [StudentController::class, 'assignSubjects']);
+        Route::post('/subject/assign', [WebStudentController::class, 'assignSubject']);
         Route::get('/{id}/delete/{subject}', [StudentController::class, 'deleteSubject']);
+
+        Route::put('/{student}', [WebStudentController::class, 'update'])->name('update');
+        Route::post('/update/mother', [GeneralController::class, 'motherUpdate']);
+        Route::post('/update/father', [GeneralController::class, 'fatherUpdate']);
+        Route::post('/update/guardian', [GeneralController::class, 'guardianUpdate']);
+
+        Route::get('/send-credentials/{student}', [WebStudentController::class, 'sendCredentials']);
+        Route::put('/update-password/{student}', [WebStudentController::class, 'updateUserPassword']);
+        Route::get('/generate-qrcode/{student}', [WebStudentController::class, 'generateQr']);
+
     });
 
     Route::group(['prefix' => 'registration', 'namespace' => 'Registration'], function () {
@@ -138,12 +152,34 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/student/{id}/delete/{attendance}', [AttendanceController::class, 'deleteStudent']);
         Route::post('/mark', [AttendanceController::class, 'mark_attendance']);
         Route::get('/stat', [AttendanceController::class, 'stat_search']);
+
+        Route::get("/daily", [WebAttendanceController::class, "myAttendance"]);
+        Route::post("/daily", [WebAttendanceController::class, 'storeDailyAttendance']);
+        Route::delete("/daily", [WebAttendanceController::class, 'deleteDailyAttendance']);
     });
 
     Route::group(['prefix' => 'result', 'namespace' => 'Result'], function () {
         Route::get('/', [ResultController::class, 'index']);
-        Route::post('/upload', [ResultController::class, 'store']);
+        Route::post('/midterm/upload', [WebResultController::class, 'storeMidTerm']);
+        Route::post('/exam/upload', [WebResultController::class, 'singlePrimaryUpload']);
+
+        Route::post('/midterm/batch/upload', [WebResultController::class, 'storeBatchMidterm']);
+        Route::post('/exam/batch/upload', [WebResultController::class, 'batchExamUpload']);
+
+        Route::post('/publish/midterm', [WebResultController::class, 'midtermPublish']);
+        Route::post('/publish/exam', [WebResultController::class, 'primaryPublish']);
+
         Route::get('show/{student_id}/{period_id}/{term_id}', [ResultController::class, 'show'])->name('show');
+
+        Route::get('/fetch/midterm/{student_id}/{period_id}/{term_id}/{grade_id}', [WebResultController::class,
+        'midtermFetch']);
+        Route::get('/fetch/exam/{student_id}/{period_id}/{term_id}/{grade_id}', [WebResultController::class,
+        'examFetch']);
+
+        Route::get('/sync/position/student/{student_id}/{period_id}/{term_id}', [WebResultController::class,
+        'syncStudentPosition']);
+        Route::get('/single/position/student/{student_id}/{period_id}/{term_id}', [WebResultController::class,
+        'syncStudentSinglePosition']);
     });
 
     Route::group(['prefix' => 'webresults', 'namespace' => 'Webresults'], function () {

@@ -35,21 +35,29 @@ class TokenAuthController extends Controller
             $accessToken = $user->api_token;
             if (!$accessToken) {
                 $token = $user->createToken(application('name'))->plainTextToken;
-                try {
-                    $user->api_token = $token;
-                    $user->save();
-                    $accessToken = $user->api_token;
-                } catch (\Exception $e) {
-                    //
-                }
+                $user->api_token = $token;
+                $user->save();
+                $accessToken = $user->api_token;
             } else {
                 $accessToken = $user->api_token;
             }
+
+            $permissions = [];
+            $permissions = $user->roles()
+                ->with('permissions')
+                ->get()
+                ->flatMap(function ($role) {
+                    return $role->permissions->pluck('title');
+                })
+                ->unique()
+                ->values()
+                ->toArray();
 
             return response()->json([
                 'status' => true,
                 'user' => new UserResource($user),
                 'token' => $accessToken,
+                'permissions' => $permissions,
                 'message' => 'Authorization successful!',
             ], 200);
 

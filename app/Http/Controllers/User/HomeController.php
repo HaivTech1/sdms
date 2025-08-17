@@ -149,5 +149,39 @@ class HomeController extends Controller
                 $table->timestamps();
             });
         }
+
+        if (!Schema::hasColumn('students', 'qrcode')) {
+            Schema::table('students', function (Blueprint $table) {
+                $table->string('qrcode')->nullable()->after('type');
+            });
+        }
+
+        if (!Schema::hasTable('attendance_dailies')) {
+            Schema::create('attendance_dailies', function (Blueprint $table) {
+                $table->id();
+
+                $table->date('date'); 
+
+                $table->timestamp('am_check_in_at')->nullable(); 
+                $table->boolean('am_status')->default(0); 
+
+                $table->timestamp('pm_check_out_at')->nullable();
+                $table->boolean('pm_status')->default(0); 
+
+                $table->text('note')->nullable();
+
+                // 🔹 Relationships
+                $table->foreignUuid('student_id')->constrained('students')->onDelete('cascade');
+                $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');
+                $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
+                $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
+
+                $table->timestamps();
+
+                // 🔹 Ensure one record per student per day
+                $table->unique(['student_id', 'date']);
+            });
+        }
+
     }
 }

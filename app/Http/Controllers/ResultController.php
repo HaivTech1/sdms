@@ -29,14 +29,15 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\{
     NotifiableParentsTrait,
-    WhatsappMessageTrait,
-    NumberBroadcast
+    WhatsappMessageTrait
 };
 use App\Exports\MidtermResultDataExport;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Services\MidtermService;
+use App\Services\ExamService;
 
 class ResultController extends Controller
 {
@@ -708,12 +709,33 @@ class ResultController extends Controller
     {
         try {
             DB::transaction(function () use ($request) {
+                $publish = $request->has('publish')
+                ? filter_var($request->publish, FILTER_VALIDATE_BOOLEAN)
+                : false;
+
                 $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
                 $student = Student::findOrfail($request->student_id);
                 $idNumber = $student->user->code();
-                $password = 'password123';
                 $name = $student->last_name . " " . $student->first_name . " " . $student->other_name;
-                $message = "<p> $name's examination result is now available on his/her portal. Please visit the school's website on " . application('website') . "/result to access the result with these credentials: Id Number: " . $idNumber . " and password: " . $password . " or password1234</p>";
+                $message = "
+                <p>
+                    Dear Parent/Guardian,
+                </p>
+                <p>
+                    The examination result for <strong>{$name}</strong> is now available.
+                </p>
+                <p>
+                    You may conveniently view the result through your child’s online dashboard on
+                    <a href='" . application(' website') . "/result'>". "</a>.
+                    </p>
+                    <p>
+                        For your ease, result updates are also shared via your registered WhatsApp number.
+                    </p>
+                    <p>
+                        To log in directly, you can still use the following credentials:<br>
+                        <strong>ID Number:</strong> {$idNumber}<br>
+                    </p>
+                " ;
                 $subject = 'Examination Report Sheet';
 
                 $period = Period::where('id', $request->period_id)->first();
@@ -721,64 +743,33 @@ class ResultController extends Controller
 
 
                 foreach ($results as $result) {
-                    $result->update(['published' => true]);
+                    $result->update(['published' => $publish]);
                 }
 
-                // $check = Cummulative::where('student_uuid', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+                if($publish){
+                    $path = $this->generateExamResultLink($student, $request->period_id, $request->term_id);
 
-                // if (count($check) > 0) {
-                //     foreach ($check as $value) {
-                //         $value->delete();
-                //     }
+                    try {
+                        NotifiableParentsTrait::notifyParents($student, $message, $subject, storage_path("app/public/$path"));
+                    } catch (\Throwable $th) {
+                        info($th->getMessage());
+                    }
 
-                //     $cum = array();
-                //     foreach ($results as $result) {
-                //         $cummulative = new Cummulative([
-                //             'subject_id' => $result['subject_id'],
-                //             'score' => calculateResult($result),
-                //             'student_uuid' => $result['student_id'],
-                //             'period_id' => $result['period_id'],
-                //             'term_id' => $result['term_id'],
-                //             'grade_id' => $result['grade_id'],
-                //             'author_id' => auth()->id()
-                //         ]);
-                //         $cummulative->save();
-                //     }
-                // } else {
-                //     $cum = array();
-                //     foreach ($results as $result) {
-                //         $cummulative = new Cummulative([
-                //             'subject_id' => $result['subject_id'],
-                //             'score' => calculateResult($result),
-                //             'student_uuid' => $result['student_id'],
-                //             'period_id' => $result['period_id'],
-                //             'term_id' => $result['term_id'],
-                //             'grade_id' => $result['grade_id'],
-                //             'author_id' => auth()->id()
-                //         ]);
-                //         $cummulative->save();
-                //     }
+                    $publicUrl = null;
 
-                // }
-
-                $path = $this->generateExamResultLink($student, $request->period_id, $request->term_id);
-
-                try {
-                    NotifiableParentsTrait::notifyParents($student, $message, $subject, storage_path("app/public/$path"));
-                } catch (\Throwable $th) {
-                    info($th->getMessage());
+                    try {
+                        if ($path && file_exists($path)) {
+                            $filename = basename($path);
+                            $publicUrl = asset('storage/results/' . $filename);
+                        }
+                        $watMessage = "*" . $term->title . " " . $period->title . " $subject*\\ \\$name's result is now
+                        available. Please click the link below to view the result\\ \\ $publicUrl";
+                        WhatsappMessageTrait::sendParent($student, $watMessage);
+                    } catch (\Throwable $th) {
+                        info("Examination Whatsapp Publish Error: " . $th->getMessage());
+                    }
                 }
 
-                try {
-                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\$name's result is now available download the document attached with this message.";
-                    WhatsappMessageTrait::sendParent($student, $watMessage, $path);
-                } catch (\Throwable $th) {
-                    info("Exam Term Whatsapp Publish Error: " . $th->getMessage());
-                }
-
-                if (File::exists($path)) {
-                    File::delete($path);
-                }
             });
             return response()->json(['status' => true, 'message' => 'Result Published successfully!'], 200);
         } catch (\Exception $th) {
@@ -1011,123 +1002,124 @@ class ResultController extends Controller
 
     public function storeMidTerm(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'period_id' => ['required'],
-            'term_id' => ['required'],
-            'grade_id' => ['required'],
+            'period_id'  => ['required'],
+            'term_id'    => ['required'],
+            'grade_id'   => ['required'],
             'student_id' => ['required'],
+            'subject_id' => ['required', 'array', 'min:1'],
         ], [
-            "period_id.required" => "Session is required",
-            "term_id.required" => "Session is required",
-            "grade_id.required" => "Please select a class",
+            "period_id.required"  => "Session is required",
+            "term_id.required"    => "Session is required",
+            "grade_id.required"   => "Please select a class",
             "student_id.required" => "Please select a student!",
+            "subject_id.required" => "Please select at least one subject",
         ]);
 
         if ($validator->fails()) {
-            return response()->json(error_processor($validator));
-        } else {
-            try {
-                $check = MidTerm::where('period_id', $request->period_id)
-                    ->where('term_id', $request->term_id)
-                    ->where('grade_id', $request->grade_id)
-                    ->where('student_id', $request->student_id)
-                    ->first();
+            return response()->json([
+                'status'  => false,
+                'message' => $validator->errors()->all(),
+            ], 400);
+        }
 
-                $midtermFormat = get_settings('midterm_format');
+        try {
+            $service = app(MidtermService::class);
+            $format  = get_settings('midterm_format') ?? [];
 
-                foreach ($request->subject_id as $i => $subjectId) {
-                    $midtermData = [
-                        'period_id' => $request->period_id,
-                        'term_id' => $request->term_id,
-                        'grade_id' => $request->grade_id,
-                        'student_id' => $request->student_id,
-                        'subject_id' => $subjectId
-                    ];
+            $periodId  = (int) $request->period_id;
+            $termId    = (int) $request->term_id;
+            $gradeId   = (int) $request->grade_id;
+            $studentId = (string) $request->student_id;
 
-                    foreach (array_keys($midtermFormat) as $key) {
-                        if (isset($request->$key[$i])) {
-                            $midtermData[$key] = $request->$key[$i];
-                        }
-                    }
-
-                    if ($check) {
-                        return response()->json(['status' => false, 'message' => 'Result already exists! Please edit'], 500);
-                    } else {
-                        $midterm = new MidTerm($midtermData);
-                        $midterm->authoredBy(auth()->user());
-                        $midterm->save();
+            foreach ($request->subject_id as $i => $subjectId) {
+                // Build scores for this subject
+                $scores = [];
+                foreach (array_keys($format) as $key) {
+                    if (isset($request->{$key}[$i])) {
+                        $scores[$key] = (int) $request->{$key}[$i];
                     }
                 }
 
-                return response()->json(['status' => true, 'message' => 'Result uploaded successfully!'], 200);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Error creating result: ' . $e->getMessage(),
-                ], 500);
+                // Delegate to the service
+                $service->createOrUpdateMidtermScore(
+                    $periodId,
+                    $termId,
+                    $gradeId,
+                    (int) $subjectId,
+                    $studentId,
+                    $scores,
+                    auth()->user()
+                );
             }
-        }
 
+            return response()->json(['status' => true, 'message' => 'Result uploaded successfully!'], 200);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Error creating result: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function storeBatchMidterm(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'period_id' => ['required'],
-            'term_id' => ['required'],
-            'grade_id' => ['required'],
+            'period_id'  => ['required'],
+            'term_id'    => ['required'],
+            'grade_id'   => ['required'],
             'subject_id' => ['required'],
+            'student_id' => ['required', 'array', 'min:1'],
         ], [
-            "period_id.required" => "Session is required",
-            "term_id.required" => "Session is required",
-            "grade_id.required" => "Please select a class",
-            "subject_id.required" => "Please select a Subject!",
+            'period_id.required'  => 'Session is required',
+            'term_id.required'    => 'Session is required',
+            'grade_id.required'   => 'Please select a class',
+            'subject_id.required' => 'Please select a Subject!',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(error_processor($validator));
-        } else {
-            try {
-                foreach ($request->student_id as $i => $studentId) {
-                    $check = MidTerm::where('period_id', $request->period_id)
-                        ->where('term_id', $request->term_id)
-                        ->where('grade_id', $request->grade_id)
-                        ->where('subject_id', $request->subject_id)
-                        ->where('student_id', $studentId)
-                        ->first();
+            return response()->json([
+                'status'  => false,
+                'message' => $validator->errors()->all(),
+            ], 400);
+        }
 
-                    $midtermFormat = get_settings('midterm_format');
-                    $midtermData = [
-                        'period_id' => $request->period_id,
-                        'term_id' => $request->term_id,
-                        'grade_id' => $request->grade_id,
-                        'subject_id' => $request->subject_id,
-                        'student_id' => $studentId
-                    ];
+        try {
+            $service = app(MidtermService::class);
+            $format  = get_settings('midterm_format') ?? [];
 
-                    foreach (array_keys($midtermFormat) as $key) {
-                        if (isset($request->{$key}[$i])) {
-                            $midtermData[$key] = $request->{$key}[$i];
-                        }
-                    }
+            $periodId  = (int) $request->period_id;
+            $termId    = (int) $request->term_id;
+            $gradeId   = (int) $request->grade_id;
+            $subjectId = (int) $request->subject_id;
 
-                    if ($check) {
-                        $check->update($midtermData);
-                    } else {
-                        $midterm = new MidTerm($midtermData);
-                        $midterm->authoredBy(auth()->user());
-                        $midterm->save();
+            foreach ($request->student_id as $i => $studentId) {
+                // Build scores for this row based on format keys
+                $scores = [];
+                foreach (array_keys($format) as $key) {
+                    if (isset($request->{$key}[$i])) {
+                        $scores[$key] = (int) $request->{$key}[$i];
                     }
                 }
 
-                return response()->json(['status' => true, 'message' => ['Result uploaded successfully!']], 200);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Error creating result: ' . $e->getMessage(),
-                ], 500);
+                $service->createOrUpdateMidtermScore(
+                    $periodId,
+                    $termId,
+                    $gradeId,
+                    $subjectId,
+                    $studentId,
+                    $scores,
+                    auth()->user()
+                );
             }
+
+            return response()->json(['status' => true, 'message' => 'Result uploaded successfully!'], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Error creating result: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -1246,222 +1238,154 @@ class ResultController extends Controller
 
     }
 
-    public function singlePrimaryUpload(Request $request)
+    public function singlePrimaryUpload(Request $request, ExamService $examService)
     {
+        $validator = Validator::make($request->all(), [
+            'period_id'  => ['required'],
+            'term_id'    => ['required'],
+            'grade_id'   => ['required'],
+            'student_id' => ['required'],
+            'subject_id' => ['required', 'array', 'min:1'],
+        ], [
+            'period_id.required'  => 'Session is required',
+            'term_id.required'    => 'Session is required',
+            'grade_id.required'   => 'Please select a class',
+            'student_id.required' => 'Please select a student!',
+            'subject_id.required' => 'Please select at least one subject',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(error_processor($validator));
+        }
+
         try {
-            DB::transaction(function () use ($request) {
-                $check = PrimaryResult::where('period_id', $request->period_id)
-                    ->where('term_id', $request->term_id)
-                    ->where('grade_id', $request->grade_id)
-                    ->where('student_id', $request->student_id)
-                    ->first();
+            $periodId  = (int) $request->period_id;
+            $termId    = (int) $request->term_id;
+            $gradeId   = (int) $request->grade_id;
+            $studentId = (string) $request->student_id;
 
-                if ($check) {
-                    throw new \Exception('Result for this student already exists!');
-                } else {
+            $examFormat = get_settings('exam_format') ?? [];
 
-                    $midterm = Midterm::where([
-                        'period_id' => $request->period_id,
-                        'term_id' => $request->term_id,
-                        'grade_id' => $request->grade_id,
-                        'student_id' => $request->student_id,
-                    ])->get();
-
-                    if ($midterm->count() < 1) {
-                        throw new \Exception('Please upload midterm result for this student first!');
-                    } else {
-                        foreach ($request->subject_id as $i => $subject_id) {
-
-                            $midtermFormat = get_settings('midterm_format');
-                            $examFormat = get_settings('exam_format');
-
-                            $midterm_entry = $midterm->where('subject_id', $subject_id)->first();
-                            $result = new PrimaryResult([
-                                'period_id' => $request->period_id,
-                                'term_id' => $request->term_id,
-                                'grade_id' => $request->grade_id,
-                                'student_id' => $request->student_id,
-                                'subject_id' => $subject_id,
-                            ]);
-
-                            if (is_array($midtermFormat)) {
-                                foreach ($midtermFormat as $key => $value) {
-                                    if (isset($midterm_entry->$key)) {
-                                        $result->$key = $midterm_entry->$key;
-                                    }
-                                }
-                            }
-
-                            if (is_array($examFormat)) {
-                                foreach ($examFormat as $key => $value) {
-                                    if (isset($request->$key) && isset($request->$key[$i])) {
-                                        $result->$key = $request->$key[$i];
-                                    }
-                                }
-                            }
-
-                            $result->authoredBy(auth()->user());
-                            $result->save();
-                        }
+            foreach ($request->subject_id as $i => $subjectId) {
+                // Build exam scores for this subject
+                $scores = [];
+                foreach (array_keys($examFormat) as $key) {
+                    if (isset($request->{$key}[$i])) {
+                        $scores[$key] = (int) $request->{$key}[$i];
                     }
                 }
-            });
+
+                // Delegate to service
+                $examService->createOrUpdateExamResult(
+                    $periodId,
+                    $termId,
+                    $gradeId,
+                    (int) $subjectId,
+                    $studentId,
+                    $scores,
+                    auth()->user(),
+                    true // require midterm before allowing exam result
+                );
+            }
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => 'Result uploaded successfully!',
                 'data' => [
-                    'student_uuid' => $request->student_id,
-                    'period_id' => $request->period_id,
-                    'term_id' => $request->term_id
-                ]
+                    'student_uuid' => $studentId,
+                    'period_id'    => $periodId,
+                    'term_id'      => $termId,
+                ],
             ], 200);
-        } catch (\Exception $e) {
-            // Roll back the transaction and return an error response
-            DB::rollBack();
 
+        } catch (\Throwable $e) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Error creating result: ' . $e->getMessage(),
             ], 500);
         }
     }
 
-    public function batchExamUpload(Request $request)
+    public function batchExamUpload(Request $request, ExamService $examService)
     {
         $validator = Validator::make($request->all(), [
-            'period_id' => ['required'],
-            'term_id' => ['required'],
-            'grade_id' => ['required'],
+            'period_id'  => ['required'],
+            'term_id'    => ['required'],
+            'grade_id'   => ['required'],
             'subject_id' => ['required'],
+            'student_id' => ['required', 'array', 'min:1'],
         ], [
-            "period_id.required" => "Session is required",
-            "term_id.required" => "Session is required",
-            "grade_id.required" => "Please select a class",
-            "subject_id.required" => "Please select a Subject!",
+            'period_id.required'  => 'Session is required',
+            'term_id.required'    => 'Session is required',
+            'grade_id.required'   => 'Please select a class',
+            'subject_id.required' => 'Please select a Subject!',
         ]);
 
         if ($validator->fails()) {
             return response()->json(error_processor($validator));
-        } else {
-            try {
-                DB::transaction(function () use ($request) {
-                    foreach ($request->student_id as $i => $student) {
-                        $student_data = Student::where('uuid', $student)->first();
-
-                        $checkExam = PrimaryResult::where([
-                            'period_id' => $request->period_id,
-                            'term_id' => $request->term_id,
-                            'grade_id' => $request->grade_id,
-                            'subject_id' => $request->subject_id,
-                            'student_id' => $student
-                        ])->first();
-
-                        $midterm = Midterm::where([
-                            'period_id' => $request->period_id,
-                            'term_id' => $request->term_id,
-                            'grade_id' => $request->grade_id,
-                            'subject_id' => $request->subject_id,
-                            'student_id' => $student
-                        ])->first();
-
-                        $midtermFormat = get_settings('midterm_format');
-                        $examFormat = get_settings('exam_format');
-
-                        if (!$checkExam) {
-                            if (!$midterm) {
-                                $name = $student_data->lastName() . ' ' . $student_data->firstName() . ' ' . $student_data->otherName();
-                                throw new \Exception("Please upload midterm score for  $name");
-                            } else {
-
-                                $result = new PrimaryResult([
-                                    'period_id' => $request->period_id,
-                                    'term_id' => $request->term_id,
-                                    'grade_id' => $request->grade_id,
-                                    'subject_id' => $request->subject_id,
-                                    'student_id' => $student,
-                                ]);
-
-                                if (is_array($midtermFormat)) {
-                                    foreach ($midtermFormat as $key => $value) {
-                                        if (isset($midterm->$key)) {
-                                            $result->$key = $midterm->$key;
-                                        }
-                                    }
-                                }
-
-                                if (is_array($examFormat)) {
-                                    foreach ($examFormat as $key => $value) {
-                                        if (isset($request->$key) && isset($request->$key[$i])) {
-                                            $result->$key = $request->$key[$i];
-                                        }
-                                    }
-                                }
-
-                                $result->authoredBy(auth()->user());
-                                $result->save();
-                            }
-                        } else {
-                            $examData = [];
-                            if (is_array($midtermFormat)) {
-                                foreach ($midtermFormat as $key => $value) {
-                                    if (isset($midterm->$key)) {
-                                        $examData[$key] = $midterm->$key;
-                                    }
-                                }
-                            }
-
-                            if (is_array($examFormat)) {
-                                foreach ($examFormat as $key => $value) {
-                                    if (isset($request->$key) && isset($request->$key[$i])) {
-                                        $examData[$key] = $request->$key[$i];
-                                    }
-                                }
-                            }
-
-                            $checkExam->update($examData);
-                        }
-
-                    }
-
-                    $positionAllow = get_application_settings('class_position');
-
-                    if ($positionAllow == 1) {
-                        //calculate the position of each student in the subject by class and grade
-                        $students = Student::where('grade_id', $request->grade_id)->get();
-                        $grade = Grade::findOrFail($request->grade_id);
-
-
-                        foreach ($students as $student) {
-                            $checkResult = PrimaryResult::where([
-                                'period_id' => $request->period_id,
-                                'term_id' => $request->term_id,
-                                'grade_id' => $request->grade_id,
-                                'subject_id' => $request->subject_id,
-                                'student_id' => $student->id()
-                            ])->first();
-
-                            $checkResult->update([
-                                'position_in_class_subject' => generateStudentClassSubjectPosition($student->id(), $request->period_id, $request->term_id, $request->subject_id, $request->grade_id),
-                                // 'position_in_grade_subject' => generateStudentGradeSubjectPosition($student->id(), $request->period_id,  $request->term_id, $request->subject_id, $grade->title())
-                            ]);
-                        }
-                    }
-                });
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Result uploaded successfully!',
-                ], 200);
-            } catch (\Exception $e) {
-                DB::rollBack();
-                info($e->getMessage());
-                return response()->json([
-                    'status' => false,
-                    'message' => 'There was an error creating result please try again! Reason: ' . $e->getMessage(),
-                ], 500);
-            }
         }
 
+        try {
+            $periodId  = (int) $request->period_id;
+            $termId    = (int) $request->term_id;
+            $gradeId   = (int) $request->grade_id;
+            $subjectId = (int) $request->subject_id;
+
+            $examFormat = get_settings('exam_format') ?? [];
+
+            $rows = [];
+            foreach ($request->student_id as $i => $studentKey) {
+                $scores = [];
+                foreach (array_keys($examFormat) as $key) {
+                    if (isset($request->{$key}[$i])) {
+                        $scores[$key] = (int) $request->{$key}[$i];
+                    }
+                }
+
+                $rows[] = ['student_id' => $studentKey, 'scores' => $scores];
+            }
+
+            info($rows);
+
+            // Save batch (requires midterm by default)
+            $examService->createOrUpdateExamResultsBatch(
+                $periodId, $termId, $gradeId, $subjectId, $rows, auth()->user(), true
+            );
+
+            // Update class subject positions if enabled
+            if ((int) get_application_settings('class_position') === 1) {
+                $students = Student::where('grade_id', $gradeId)->get(['uuid']);
+                foreach ($students as $student) {
+                    $result = PrimaryResult::where([
+                        'period_id'  => $periodId,
+                        'term_id'    => $termId,
+                        'grade_id'   => $gradeId,
+                        'subject_id' => $subjectId,
+                        'student_id' => $student->uuid,
+                    ])->first();
+
+                    if ($result) {
+                        $result->update([
+                            'position_in_class_subject' => generateStudentClassSubjectPosition(
+                                $student->id(), $periodId, $termId, $subjectId, $gradeId
+                            ),
+                        ]);
+                    }
+                }
+            }
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Result uploaded successfully!',
+            ], 200);
+
+        } catch (\Throwable $e) {
+            info($e);
+            return response()->json([
+                'status'  => false,
+                'message' => 'There was an error creating result. Reason: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function addMidterm(Request $request)
@@ -1799,47 +1723,71 @@ class ResultController extends Controller
     {
         try {
             DB::transaction(function () use ($request) {
+                $publish = $request->has('publish')
+                ? filter_var($request->publish, FILTER_VALIDATE_BOOLEAN)
+                : false;
+
                 $results = MidTerm::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
                 $student = Student::findOrfail($request->student_id);
                 $idNumber = $student->user->code();
-                $password = 'password123';
-                $name = $student->last_name . " " . $student->first_name . " " . $student->first_name;
-                $message = "<p> $name's midterm result is now available on his/her portal. Please visit the school's website on " . application('website') . "/result/view/midterm to access the result with these credentials: Id Number: " . $idNumber . " and password: " . $password . " or password1234</p>";
+                $name = $student->last_name . " " . $student->first_name . " " . $student->other_name;
+                $message = "
+                    <p>
+                        Dear Parent/Guardian,
+                    </p>
+                    <p>
+                        The midterm result for <strong>{$name}</strong> is now available.
+                    </p>
+                    <p>
+                        You may conveniently view the result through your child’s online dashboard on
+                        <a href='" . application(' website') . "/result/view/midterm'>" . application('website') . "</a>.
+                    </p>
+                    <p>
+                        For your ease, result updates are also shared via your registered WhatsApp number.
+                    </p>
+                    <p>
+                        To log in directly, you can still use the following credentials:<br>
+                        <strong>ID Number:</strong> {$idNumber}<br>
+                    </p>
+                " ;
+
                 $subject = 'Mid-term Result';
 
                 $period = Period::where('id', $request->period_id)->first();
                 $term = Term::where('id', $request->term_id)->first();
 
-                $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id, $request->term_id);
 
                 foreach ($results as $result) {
-                    $result->update(['published' => true]);
+                    $result->update(['published' => $publish]);
                 }
 
-                try {
-                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\$name's result is now available download the document attached with this message.";
-                    WhatsappMessageTrait::sendParent($student, $watMessage, $path);
-                } catch (\Throwable $th) {
-                    info("Mid Term Whatsapp Publish Error: " . $th->getMessage());
+                if($publish){
+
+                    $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id,
+                    $request->term_id);
+
+                    $publicUrl = null;
+
+                    try {
+                        if ($path && file_exists($path)) {
+                            $filename = basename($path);
+                            $publicUrl = asset('storage/results/' . $filename);
+                        }
+                        $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\$name's result is now
+                        available. Please click the link below to view the result\\ \\ $publicUrl \\ \\Kind Regards, \\Management.";
+                        WhatsappMessageTrait::sendParent($student, $watMessage);
+                    } catch (\Throwable $th) {
+                        info("Mid Term Whatsapp Publish Error: " . $th->getMessage());
+                    }
+
+
+                    try {
+                        NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                    } catch (\Throwable $th) {
+                        info($th->getMessage());
+                    }
                 }
 
-
-                try {
-                    NotifiableParentsTrait::notifyParents($student, $message, $subject, storage_path("app/public/$path"));
-                } catch (\Throwable $th) {
-                    info($th->getMessage());
-                }
-
-                if (File::exists($path)) {
-                    File::delete($path);
-                }
-
-                // try {
-                // $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\$name's midterm result is now available on his/her portal. Please visit the school's website on " . application('website') . " to access the result with this credential: \\Id Number: " . $idNumber . " \\Password: " . $password . " or password1234 \\ \\Kind Regards, \\Management.";
-                //     NumberBroadcast::notify($student, $watMessage);
-                // } catch (\Throwable $th) {
-                //     info($th->getMessage());
-                // }
             });
 
             return response()->json(['status' => true, 'message' => 'Result made available successfully! And email sent to parent.'], 200);

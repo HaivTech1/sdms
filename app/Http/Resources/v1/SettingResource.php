@@ -32,6 +32,8 @@ class SettingResource extends JsonResource
             'score_color_fourty' => get_settings('over_fourty'),
             'score_color_sixty' => get_settings('over_sixty'),
             'score_color_100' => get_settings('over_hundred'),
+            'affective_domain' => get_settings('affective_domain'),
+            'psychomotor_domain' => get_settings('psychomotor_domain'),
         ];
     }
 }

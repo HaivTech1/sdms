@@ -921,69 +921,72 @@ class ResultController extends Controller
 
     public function storeMidTerm(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'period_id'          => ['required'],
-            'term_id'              => ['required'],
-            'grade_id'              => ['required'],
-            'student_id'              => ['required'],
-        ],[
+            'period_id'  => ['required'],
+            'term_id'    => ['required'],
+            'grade_id'   => ['required'],
+            'student_id' => ['required'],
+        ], [
             "period_id.required" => "Session is required",
-            "term_id.required" => "Session is required",
-            "grade_id.required" => "Please select a class",
-            "student_id.required" => "Please select a student!",
+            "term_id.required"   => "Session is required",
+            "grade_id.required"  => "Please select a class",
+            "student_id.required"=> "Please select a student!",
         ]);
 
-        if ($validator->fails())
-        {
+        if ($validator->fails()) {
             return response()->json([
-                'success' => 'false',
-                'message'  => $validator->message()->all(),
+                'success' => false,
+                'message' => $validator->errors()->all(),
             ], 400);
-        }else{
-            try{
+        }
+
+        try {
+            $midtermFormat = get_settings('midterm_format');
+
+            foreach ($request->subject_id as $i => $subjectId) {
+                $midtermData = [
+                    'period_id'  => $request->period_id,
+                    'term_id'    => $request->term_id,
+                    'grade_id'   => $request->grade_id,
+                    'student_id' => $request->student_id,
+                    'subject_id' => $subjectId,
+                ];
+
+                foreach (array_keys($midtermFormat) as $key) {
+                    if (isset($request->$key[$i])) {
+                        $midtermData[$key] = $request->$key[$i];
+                    }
+                }
+
+                // Check *per subject*
                 $check = MidTerm::where('period_id', $request->period_id)
                     ->where('term_id', $request->term_id)
                     ->where('grade_id', $request->grade_id)
                     ->where('student_id', $request->student_id)
+                    ->where('subject_id', $subjectId)
                     ->first();
-            
-                $midtermFormat = get_settings('midterm_format');
-            
-                foreach ($request->subject_id as $i => $subjectId) {
-                    $midtermData = [
-                        'period_id' => $request->period_id,
-                        'term_id' => $request->term_id,
-                        'grade_id' => $request->grade_id,
-                        'student_id' => $request->student_id,
-                        'subject_id' => $subjectId
-                    ];
-            
-                    foreach (array_keys($midtermFormat) as $key) {
-                        if (isset($request->$key[$i])) {
-                            $midtermData[$key] = $request->$key[$i];
-                        }
-                    }
-            
-                    if ($check) {
-                        return response()->json(['status' => false, 'message' => 'Result already exists! Please edit'], 500);
-                    } else {
-                        $midterm = new MidTerm($midtermData);
-                        $midterm->authoredBy(auth()->user());
-                        $midterm->save();
-                    }
-                }
-                
-                return response()->json(['status' => true, 'message' => 'Result uploaded successfully!'], 200);
-            }catch(\Exception $e){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Error creating result: ' . $e->getMessage(),
-                ], 500);
-            }
-        }
 
+                if ($check) {
+                    // Update instead of blocking everything
+                    $check->fill($midtermData);
+                    $check->save();
+                } else {
+                    $midterm = new MidTerm($midtermData);
+                    $midterm->authoredBy(auth()->user());
+                    $midterm->save();
+                }
+            }
+
+            return response()->json(['status' => true, 'message' => 'Result uploaded successfully!'], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Error creating result: ' . $e->getMessage(),
+            ], 500);
+        }
     }
+
 
     public function storeBatchMidterm(Request $request)
     {
@@ -1003,7 +1006,7 @@ class ResultController extends Controller
         {
             return response()->json([
                 'success' => 'false',
-                'message'  => $validator->message()->all(),
+                'message'  => $validator->errors()->all(),
             ], 400);
         }else{
             try{
@@ -1069,7 +1072,7 @@ class ResultController extends Controller
         {
             return response()->json([
                 'success' => false,
-                'message'  => $validator->message()->all(),
+                'message'  => $validator->errors()->all(),
             ], 400);
         }else{
             try {
@@ -1322,7 +1325,7 @@ class ResultController extends Controller
         {
             return response()->json([
                 'success' => 'false',
-                'message'  => $validator->message()->all(),
+                'message'  => $validator->errors()->all(),
             ], 400);
         }else{
             try {
@@ -1403,6 +1406,7 @@ class ResultController extends Controller
                        
                     }
                 });
+                
                 return response()->json([
                     'status' => true,
                     'message' => 'Result uploaded successfully!',

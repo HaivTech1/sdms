@@ -1098,6 +1098,8 @@ function generateStudentClassSubjectPosition($studentId, $session, $term, $subje
             return $result->getTotalScore();
         });
 
+        $totalScores = null;
+
         if ($term === '1') {
             $totalScores = $firstTotalScores;
         } elseif ($term === '2') {

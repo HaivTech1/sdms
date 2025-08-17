@@ -665,7 +665,6 @@
         });
 
         function publish(pupil) {
-            console.log(pupil);
             var data = pupil.split(",");
             var student_id = data[0];
             var period_id = data[1];
