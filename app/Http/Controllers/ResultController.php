@@ -34,10 +34,13 @@ use App\Traits\{
 use App\Exports\MidtermResultDataExport;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
+use App\Jobs\NotifyParentsJob;
+use App\Jobs\SendWhatsappJob;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Services\MidtermService;
 use App\Services\ExamService;
+use Illuminate\Support\Facades\Bus;
 
 class ResultController extends Controller
 {
@@ -741,33 +744,27 @@ class ResultController extends Controller
                 $period = Period::where('id', $request->period_id)->first();
                 $term = Term::where('id', $request->term_id)->first();
 
-
                 foreach ($results as $result) {
                     $result->update(['published' => $publish]);
                 }
 
                 if($publish){
                     $path = $this->generateExamResultLink($student, $request->period_id, $request->term_id);
-
-                    try {
-                        NotifiableParentsTrait::notifyParents($student, $message, $subject, storage_path("app/public/$path"));
-                    } catch (\Throwable $th) {
-                        info($th->getMessage());
-                    }
-
                     $publicUrl = null;
-
-                    try {
-                        if ($path && file_exists($path)) {
-                            $filename = basename($path);
-                            $publicUrl = asset('storage/results/' . $filename);
-                        }
-                        $watMessage = "*" . $term->title . " " . $period->title . " $subject*\\ \\$name's result is now
-                        available. Please click the link below to view the result\\ \\ $publicUrl";
-                        WhatsappMessageTrait::sendParent($student, $watMessage);
-                    } catch (\Throwable $th) {
-                        info("Examination Whatsapp Publish Error: " . $th->getMessage());
+                    if ($path && file_exists($path)) {
+                        $filename = basename($path);
+                        $publicUrl = asset('storage/results/' . $filename);
                     }
+                    $watMessage = "*" . $term->title . " " . $period->title . " $subject*\\ \\$name's result is now
+                    available. Please click the link below to view the result\\ \\ $publicUrl";
+
+
+                    $emailJob = new NotifyParentsJob($student, $message, $subject, storage_path("app/public/$path"));
+                    $whatsappJob = new SendWhatsappJob($student, $watMessage, "parent");
+                    Bus::chain([
+                        $emailJob,
+                        $whatsappJob,
+                    ])->dispatch();
                 }
 
             });
@@ -1518,56 +1515,50 @@ class ResultController extends Controller
 
     public function psychomotorUpload(Request $request)
     {
-        $check = Psychomotor::where('student_uuid', $request->student_uuid)
-            ->where('period_id', $request->period_id)
-            ->where('term_id', $request->term_id)->get();
-
+        $request->validate([
+            'student_uuid' => 'required|exists:students,uuid',
+            'period_id'    => 'required|integer',
+            'term_id'      => 'required|integer',
+            'title'        => 'required|array|min:1',
+            'rate'         => 'required|array|min:1',
+        ]);
 
         try {
-            DB::transaction(function () use ($request, $check) {
-                if (count($check) > 0) {
-                    foreach ($check as $value) {
-                        $value->delete();
-                    }
-                    for ($i = 0; $i < count($request->title); $i++) {
-                        $psychomotor = new Psychomotor([
-                            'title' => $request->title[$i],
-                            'rate' => $request->rate[$i],
-                            'period_id' => $request->period_id,
-                            'term_id' => $request->term_id,
+            DB::transaction(function () use ($request) {
+                foreach ($request->title as $i => $title) {
+                    Psychomotor::updateOrCreate(
+                        [
                             'student_uuid' => $request->student_uuid,
-                        ]);
-                        $psychomotor->save();
-                    }
-                } else {
-                    for ($i = 0; $i < count($request->title); $i++) {
-                        $psychomotor = new Psychomotor([
-                            'title' => $request->title[$i],
-                            'rate' => $request->rate[$i],
-                            'period_id' => $request->period_id,
-                            'term_id' => $request->term_id,
-                            'student_uuid' => $request->student_uuid,
-                        ]);
-                        $psychomotor->save();
-                    }
+                            'period_id'    => $request->period_id,
+                            'term_id'      => $request->term_id,
+                            'title'        => $title, // 👈 unique per student/period/term/title
+                        ],
+                        [
+                            'rate'       => $request->rate[$i] ?? null,
+                            'updated_at' => now(),
+                        ]
+                    );
                 }
             });
 
+            $psychomotor = Psychomotor::where('student_uuid', $request->student_uuid)
+                ->where('period_id', $request->period_id)
+                ->where('term_id', $request->term_id)
+                ->with(['student:uuid,first_name,last_name,other_name,grade_id', 'student.grade:id,title'])
+                ->get();
+
             return response()->json([
-                'status' => true,
-                'message' => 'Psychomotor saved successfully',
-                'data' => [
-                    'student_uuid' => $request->student_uuid,
-                    'period_id' => $request->period_id,
-                    'term_id' => $request->term_id
-                ]
+                'status'      => true,
+                'message'     => 'Psychomotor domain saved/updated successfully',
+                'psychomotor' => $psychomotor,
             ], 200);
 
-        } catch (\Exception $th) {
-            DB::rollback();
-            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
     }
 
     public function affective(Request $request)
@@ -1581,94 +1572,97 @@ class ResultController extends Controller
 
     public function affectiveUpload(Request $request)
     {
-
-        $check = Affective::where('student_uuid', $request->student_uuid)
-            ->where('period_id', $request->period_id)
-            ->where('term_id', $request->term_id)->get();
+        $request->validate([
+            'student_uuid' => 'required|exists:students,uuid',
+            'period_id'    => 'required|integer',
+            'term_id'      => 'required|integer',
+            'title'        => 'required|array|min:1',
+            'rate'         => 'required|array|min:1',
+        ]);
 
         try {
-            DB::transaction(function () use ($request, $check) {
-                if (count($check) > 0) {
-
-                    foreach ($check as $value) {
-                        $value->delete();
-                    }
-
-                    for ($i = 0; $i < count($request->title); $i++) {
-                        $psychomotor = new Affective([
-                            'title' => $request->title[$i],
-                            'rate' => $request->rate[$i],
-                            'period_id' => $request->period_id,
-                            'term_id' => $request->term_id,
+            DB::transaction(function () use ($request) {
+                foreach ($request->title as $i => $title) {
+                    Affective::updateOrCreate(
+                        [
                             'student_uuid' => $request->student_uuid,
-                        ]);
-                        $psychomotor->save();
-                    }
-
-                } else {
-                    for ($i = 0; $i < count($request->title); $i++) {
-                        $psychomotor = new Affective([
-                            'title' => $request->title[$i],
-                            'rate' => $request->rate[$i],
-                            'period_id' => $request->period_id,
-                            'term_id' => $request->term_id,
-                            'student_uuid' => $request->student_uuid,
-                        ]);
-                        $psychomotor->save();
-                    }
+                            'period_id'    => $request->period_id,
+                            'term_id'      => $request->term_id,
+                            'title'        => $title,  // 👈 unique per student/period/term/title
+                        ],
+                        [
+                            'rate'       => $request->rate[$i] ?? null,
+                            'updated_at' => now(),
+                        ]
+                    );
                 }
             });
-            return response()->json([
-                'status' => true,
-                'message' => 'Affective domain saved successfully',
-                'data' => [
-                    'student_uuid' => $request->student_uuid,
-                    'period_id' => $request->period_id,
-                    'term_id' => $request->term_id
-                ]
-            ], 200);
-        } catch (\Exception $th) {
-            DB::rollback();
-            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
-        }
 
+            $affective = Affective::where('student_uuid', $request->student_uuid)
+                ->where('period_id', $request->period_id)
+                ->where('term_id', $request->term_id)
+                ->with(['student:uuid,first_name,last_name,other_name,grade_id', 'student.grade:id,title'])
+                ->get();
+
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Affective domain saved/updated successfully',
+                'affective'=> $affective
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function cognitiveUpload(Request $request)
     {
-        $check = Cognitive::where('student_uuid', $request->student_uuid)
-            ->where('period_id', $request->period_id)
-            ->where('term_id', $request->term_id)->first();
+        $request->validate([
+            'student_uuid'       => 'required|exists:students,uuid',
+            'period_id'          => 'required|integer',
+            'term_id'            => 'required|integer',
+            'attendance_duration'=> 'nullable|integer',
+            'attendance_present' => 'nullable|integer',
+            'comment'            => 'nullable|string',
+            'principal_comment'  => 'nullable|string',
+        ]);
 
         try {
-            if ($check) {
-                $check->update([
-                    'attendance_duration' => $request->attendance_duration ?? $check->attendance_duration,
-                    'attendance_present' => $request->attendance_present ?? $check->attendance_present,
-                    'comment' => $request->comment ?? $check->comment,
-                    'principal_comment' => $request->principal_comment ?? $check->principal_comment,
-                    'period_id' => $request->period_id ?? $check->period_id,
-                    'term_id' => $request->term_id ?? $check->term_id,
-                    'student_uuid' => $request->student_uuid ?? $check->student_uuid,
-                ]);
-            } else {
-                $cognitive = new Cognitive([
-                    'attendance_duration' => $request->attendance_duration,
-                    'attendance_present' => $request->attendance_present,
-                    'comment' => $request->comment,
-                    'principal_comment' => $request->principal_comment,
-                    'period_id' => $request->period_id,
-                    'term_id' => $request->term_id,
+            $cognitive = Cognitive::updateOrCreate(
+                [
                     'student_uuid' => $request->student_uuid,
-                ]);
-                $cognitive->save();
-            }
-            return response()->json(['status' => true, 'message' => 'Data saved successfully'], 200);
-        } catch (\Exception $th) {
-            DB::rollback();
-            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
-        }
+                    'period_id'    => $request->period_id,
+                    'term_id'      => $request->term_id,
+                ],
+                [
+                    'attendance_duration' => $request->attendance_duration,
+                    'attendance_present'  => $request->attendance_present,
+                    'comment'             => $request->comment,
+                    'principal_comment'   => $request->principal_comment,
+                ]
+            );
 
+            // ✅ Reload with relationships
+            $cognitive->load([
+                'student:uuid,first_name,last_name,other_name,grade_id',
+                'student.grade:id,title'
+            ]);
+
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Data saved successfully',
+                'cognitive'=> $cognitive
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function batchCognitiveUpload(Request $request)
@@ -1765,27 +1759,21 @@ class ResultController extends Controller
 
                     $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id,
                     $request->term_id);
-
                     $publicUrl = null;
-
-                    try {
-                        if ($path && file_exists($path)) {
-                            $filename = basename($path);
-                            $publicUrl = asset('storage/results/' . $filename);
-                        }
-                        $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\$name's result is now
-                        available. Please click the link below to view the result\\ \\ $publicUrl \\ \\Kind Regards, \\Management.";
-                        WhatsappMessageTrait::sendParent($student, $watMessage);
-                    } catch (\Throwable $th) {
-                        info("Mid Term Whatsapp Publish Error: " . $th->getMessage());
+                    if ($path && file_exists($path)) {
+                        $filename = basename($path);
+                        $publicUrl = asset('storage/results/' . $filename);
                     }
+                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\$name's result is now
+                    available. Please click the link below to view the result\\ \\ $publicUrl \\ \\Kind Regards,
+                    \\Management.";
 
-
-                    try {
-                        NotifiableParentsTrait::notifyParents($student, $message, $subject);
-                    } catch (\Throwable $th) {
-                        info($th->getMessage());
-                    }
+                    $emailJob = new NotifyParentsJob($student, $message, $subject, storage_path("app/public/$path"));
+                    $whatsappJob = new SendWhatsappJob($student, $watMessage, "parent");
+                    Bus::chain([
+                        $emailJob,
+                        $whatsappJob,
+                    ])->dispatch();
                 }
 
             });

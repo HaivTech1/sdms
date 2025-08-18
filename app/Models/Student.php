@@ -246,19 +246,24 @@ class Student extends Authenticatable
         return $this->hasMany(MidTerm::class, 'student_id');
     }
 
-    public function psychomotors(): hasMany
+    public function psychomotors(): HasMany
     {
-        return $this->hasMany(Psychomotor::class);
+        return $this->hasMany(Psychomotor::class, 'student_uuid', 'uuid');
     }
 
-    public function affectives(): hasMany
+    public function affectives(): HasMany
     {
-        return $this->hasMany(Affective::class);
+        return $this->hasMany(Affective::class, 'student_uuid', 'uuid');
     }
 
-    public function cummulatives(): hasMany
+    public function cognitives(): HasMany
     {
-        return $this->hasMany(Cummulative::class);
+        return $this->hasMany(Cognitive::class, 'student_uuid', 'uuid');
+    }
+
+    public function cummulatives(): HasMany
+    {
+        return $this->hasMany(Cummulative::class, 'student_uuid', 'uuid');
     }
 
     public function subjects(): BelongsToMany

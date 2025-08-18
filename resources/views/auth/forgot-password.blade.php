@@ -60,21 +60,8 @@
                                     {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
 
                                 </div>
-                                <form method="POST" action="{{ route('password.email') }}">
-                                    @csrf
-
-                                    <div class="mb-3">
-                                        <label for="useremail" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="useremail"
-                                            placeholder="Enter email" name="email" :val>
-                                    </div>
-
-                                    <div class="text-end">
-                                        <button class="btn btn-primary w-md waves-effect waves-light"
-                                            type="submit">Reset</button>
-                                    </div>
-
-                                </form>
+                                <button class="btn btn-primary w-md waves-effect waves-light"
+                                    type="submit">Reset Password</button>
                             </div>
 
                         </div>

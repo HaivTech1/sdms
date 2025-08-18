@@ -326,19 +326,23 @@ class AttendanceController extends Controller
             $user = auth()->user();
             $authorId = $user->id;
 
+            $adminTypes = [];
+            if (defined(\App\Models\User::class.'::ADMIN')) {
+                $adminTypes[] = \App\Models\User::ADMIN;
+            }
+            
+            if (defined(\App\Models\User::class.'::SUPERADMIN')) {
+                $adminTypes[] = \App\Models\User::SUPERADMIN;
+            }
+
             $query = AttendanceDaily::with('student')
-                ->where('author_id', $authorId)
-                ->orderByDesc('date');
+            ->when(!in_array($user->type, $adminTypes), fn($q) => $q->where('author_id', $authorId))
+            ->orderByDesc('date');
 
-            if ($request->filled('from')) {
-                $from = Carbon::parse($request->input('from'))->toDateString();
-                $query->whereDate('date', '>=', $from);
-            }
-
-            if ($request->filled('to')) {
-                $to = Carbon::parse($request->input('to'))->toDateString();
-                $query->whereDate('date', '<=', $to);
-            }
+            $date = $request->input('date');
+            $from = Carbon::parse($date)->toDateString();
+            $query->whereDate('date', '>=', $from);
+           
 
             $records = $query->get()->map(function ($a) {
                 return [
@@ -353,8 +357,9 @@ class AttendanceController extends Controller
 
                     // ✅ Student details
                     'student' => $a->student ? [
-                        'id' => $a->student->id,
+                        'id' => $a->student->id(),
                         'name' => trim($a->student->lastName() . ' ' . $a->student->firstName() . ' ' . $a->student->otherName()),
+                        'grade' => optional($a->student->grade)->title(),
                         'reg_no' => optional($a->student->user)->code(),
                     ] : null,
                 ];

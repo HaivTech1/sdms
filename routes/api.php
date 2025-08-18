@@ -87,6 +87,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         return new UserResource($request->user());
     });
 
+
     Route::delete('/auth/token', [TokenAuthController::class, 'destroy']);
     Route::get('/me', [UserController::class, 'me']);
     Route::get('/assigned/grades', [UserController::class, 'assignedGrade']);
@@ -104,6 +105,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/houses/all', [SettingController::class, 'houses']);
         Route::get('/midterm/format', [SettingController::class, 'midtermFormat']);
         Route::get('/exam/format', [SettingController::class, 'examFormat']);
+        Route::get("/dashboard/summary", [SettingController::class, 'dashboardSummary']);
     });
 
     Route::group(['prefix' => 'staffs', 'namespace' => 'Staffs'], function () {
@@ -180,6 +182,15 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         'syncStudentPosition']);
         Route::get('/single/position/student/{student_id}/{period_id}/{term_id}', [WebResultController::class,
         'syncStudentSinglePosition']);
+
+        Route::get('/psychomotor', [ResultController::class, 'psychomotor']);
+        Route::post('/psychomotor/upload', [WebResultController::class, 'psychomotorUpload']);
+
+        Route::get('/affective', [ResultController::class, 'affective']);
+        Route::post('/affective/upload', [WebResultController::class, 'affectiveUpload']);
+
+        Route::get('/cognitive', [ResultController::class, 'cognitive']);
+        Route::post('/cognitive/upload', [WebResultController::class, 'cognitiveUpload']);
     });
 
     Route::group(['prefix' => 'webresults', 'namespace' => 'Webresults'], function () {

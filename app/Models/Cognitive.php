@@ -17,6 +17,7 @@ class Cognitive extends Model
     protected $table = self::TABLE;
 
     protected $fillable = [
+        'student_uuid',
         'attendance_duration', 
         'attendance_present', 
         'comment',
@@ -24,7 +25,6 @@ class Cognitive extends Model
         'promotion_comment',
         'position_in_class',
         'position_in_grade',
-        'student_uuid', 
         'term_id',
         'period_id',
     ];

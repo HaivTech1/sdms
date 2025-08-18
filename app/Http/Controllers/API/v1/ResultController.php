@@ -324,4 +324,112 @@ class ResultController extends Controller
         }
     }
 
+    public function affective(Request $request)
+    {
+        $request->validate([
+            'period_id' => 'required|integer',
+            'term_id'   => 'required|integer',
+            'grade_id'  => 'required|integer|exists:grades,id',
+        ]);
+
+        try {
+            $students = Student::select('uuid', 'first_name', 'last_name', 'grade_id') // only basic info
+                ->where('grade_id', $request->grade_id)
+                ->with(['affectives' => function ($q) use ($request) {
+                    $q->select('id', 'title', 'rate', 'student_uuid', 'period_id', 'term_id')
+                    ->where('period_id', $request->period_id)
+                    ->where('term_id', $request->term_id);
+                }])
+                ->get();
+
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Affective results retrieved successfully',
+                'students' => $students,
+            ], 200);
+
+        } catch (\Exception $e) {
+            info($e);
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function cognitive(Request $request)
+    {
+        $request->validate([
+            'period_id' => 'required|integer',
+            'term_id'   => 'required|integer',
+            'grade_id'  => 'required|integer|exists:grades,id',
+        ]);
+
+        try {
+            $students = Student::select('uuid', 'first_name', 'last_name', 'grade_id')
+                ->where('grade_id', $request->grade_id)
+                ->with(['cognitives' => function ($q) use ($request) {
+                    $q->select(
+                        'id', 
+                        'attendance_duration', 
+                        'attendance_present', 
+                        'comment', 
+                        'principal_comment',
+                        'promotion_comment',
+                        'student_uuid',
+                        'period_id',
+                        'term_id'
+                    )
+                    ->where('period_id', $request->period_id)
+                    ->where('term_id', $request->term_id);
+                }])
+                ->get();
+
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Cognitive results retrieved successfully',
+                'students' => $students,
+            ], 200);
+
+        } catch (\Exception $e) {
+            info($e);
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function psychomotor(Request $request)
+    {
+        $request->validate([
+            'period_id' => 'required|integer',
+            'term_id'   => 'required|integer',
+            'grade_id'  => 'required|integer|exists:grades,id',
+        ]);
+
+        try {
+            $students = Student::select('uuid', 'first_name', 'last_name', 'grade_id')
+                ->where('grade_id', $request->grade_id)
+                ->with(['psychomotors' => function ($q) use ($request) {
+                    $q->select('id', 'title', 'rate', 'student_uuid', 'period_id', 'term_id')
+                    ->where('period_id', $request->period_id)
+                    ->where('term_id', $request->term_id);
+                }])
+                ->get();
+
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Psychomotor results retrieved successfully',
+                'students' => $students,
+            ], 200);
+
+        } catch (\Exception $e) {
+            info($e);
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
