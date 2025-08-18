@@ -9,6 +9,7 @@
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link href="{{ asset('libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 
     <title>Reset Password</title>
 
@@ -56,32 +57,114 @@
                             <x-jet-validation-errors class="mb-4 text-danger" />
 
                             <div class="p-2">
-                                <div class="alert alert-success text-center mb-4" role="alert">
-                                    {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+                                <div class="alert alert-info text-left mb-4" role="alert">
+                                    {{ __('Forgot your child\'s password? No problem. Please provide the student ID.') }}
 
                                 </div>
-                                <button class="btn btn-primary w-md waves-effect waves-light"
-                                    type="submit">Reset Password</button>
-                            </div>
 
+                                <div>
+                                    <div class="mb-3">
+                                        <label for="reg_no" class="form-label">Student ID</label>
+                                        <input type="text" class="form-control" id="reg_no"
+                                            placeholder="E.g SLNP/24/2025" name="reg_no" :val>
+                                    </div>
+
+                                    <div class="text-end">
+                                        <button class="btn btn-primary w-md waves-effect waves-light resetButton"
+                                            type="submit">Request New Password</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="mt-5 text-center">
-
-                        <div>
-                            <p>Don't have an account ? <a href="{{route('register') }}" class="fw-medium text-primary">
-                                    Signup now </a> </p>
-                            <p>© <script>
-                                document.write(new Date().getFullYear())
-                                </script>{{ application('name')}}
-                            </p>
-                        </div>
+                        <p>
+                            <a href="{{ route('login') }}" class="fw-medium text-primary">Back to Login</a>
+                        </p>
+                        © <script>
+                            document.write(new Date().getFullYear())
+                        </script>{{ application('name')}}
+                        </p>
                     </div>
-
                 </div>
             </div>
         </div>
-        < @include('partials.script') </body>
+        <script src="{{ asset('libs/jquery/jquery.min.js') }}"></script>
+        <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+
+        <script>
+            $('.resetButton').on('click', function (e) {
+                e.preventDefault();
+
+                var $btn = $(this);
+                var reg_no = $.trim($('#reg_no').val()).toUpperCase();
+
+                if (!reg_no) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required',
+                        text: 'Student ID is required.'
+                    });
+                    return;
+                }
+                
+                Swal.fire({
+                    icon: 'question',
+                    title: 'Confirm Request',
+                    html: 'Send password reset for Student ID:<br><b>' + reg_no + '</b>?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, send it',
+                    cancelButtonText: 'Cancel'
+                }).then(function (result) {
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: "{{ route('request.password') }}",
+                        type: 'POST',
+                        data: {
+                            reg_no: reg_no,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        beforeSend: function () {
+                            $btn.prop('disabled', true).text('Requesting...');
+                            Swal.fire({
+                                title: 'Requesting...',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+                        },
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Request Sent',
+                                text: response.message || 'Your request has been submitted.'
+                            });
+                        },
+                        error: function (xhr) {
+                            var msg = 'An error occurred. Please try again.';
+                            if (xhr.responseJSON) {
+                                if (xhr.responseJSON.errors && xhr.responseJSON.errors.reg_no) {
+                                    msg = xhr.responseJSON.errors.reg_no[0];
+                                } else if (xhr.responseJSON.message) {
+                                    msg = xhr.responseJSON.message;
+                                }
+                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: msg
+                            });
+                        },
+                        complete: function () {
+                            $btn.prop('disabled', false).text('Request New Password');
+                        }
+                    });
+                });
+            });
+
+        </script>
 
 
 </html>

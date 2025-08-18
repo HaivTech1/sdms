@@ -13,9 +13,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\v1\UserResource;
+use App\Models\Student;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Str;
+use App\Jobs\NotifyParentsJob;
+use App\Jobs\SendWhatsappJob;
+use Illuminate\Support\Facades\Bus;
 
 class UserController extends Controller
 {
@@ -221,4 +225,68 @@ class UserController extends Controller
         ], 500);
        }
     }
+
+    public function requestPassword(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'reg_no' => 'required|string|exists:users,reg_no',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $validator->errors()->first(),
+                ], 422);
+            }
+
+            $user = User::where('reg_no', $request->reg_no)
+                ->with(['student.mother', 'student.father'])
+                ->first();
+
+            $student = $user->student;
+
+            if (!$student) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Student not found.',
+                ], 404);
+            }
+
+            $newPassword = Str::random(8);
+
+            $user->update([
+                'password' => Hash::make($newPassword),
+            ]);
+
+            $subject = "Student Portal Password Reset";
+            $emailBody = "Your child's portal password has been reset.\n
+            Registration No: {$user->reg_no}\n
+            New Password: {$newPassword}";
+
+            $whatsappBody = "*Password reset successful*\\ \\Your child's portal password has been reset.\\
+            Reg No: {$user->reg_no}\\
+            New Password: {$newPassword}";
+
+            $emailJob = new NotifyParentsJob($student, $emailBody, $subject);
+            $whatsappJob = new SendWhatsappJob($student, $whatsappBody, "parent");
+
+            Bus::chain([
+                $emailJob,
+                $whatsappJob,
+            ])->dispatch();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Password reset successfully. You will be notified soon of the new password via email or whatsapp.',
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status'  => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
 }
+

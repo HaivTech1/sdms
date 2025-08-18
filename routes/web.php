@@ -200,9 +200,6 @@ Route::get('/filter-service-type', function () {
     return "Filtered transactions with 'service_type: Data Topup' saved back to the file.";
 });
 
-
-
-
 Route::get("/action", function(){
     $students = \App\Models\User::where('type', 4)->get();
     foreach($students as $student){
@@ -365,9 +362,10 @@ Route::get("/action-merge-users", function () {
     ]);
 });
 
-
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
 Route::post('/update/password', [UserController::class, 'updatePassword'])->name('update.password');
+Route::post('/request/password', [UserController::class, 'requestPassword'])->name('request.password');
+
 
 Route::get('/setup/user', [VisitorController::class, 'setupUser'])->name('setupUser');
 Route::post('/setup/user', [VisitorController::class, 'register'])->name('visitor.register');
