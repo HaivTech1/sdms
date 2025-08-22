@@ -192,7 +192,11 @@ class AttendanceController extends Controller
                         throw new \Exception("Invalid payload: student_id and scanned_at are required.");
                     }
 
-                    $studentId = $scan['student_id'];
+                    $scanId = $scan['student_id'];
+                    $student = Student::where('uuid', $scanId)->orWhereHas('user', function ($query) use ($scanId) {
+                        $query->where('reg_no', $scanId);
+                    })->first();
+                    $studentId = $student->id();
                     $scannedAt = Carbon::parse($scan['scanned_at']);
                     $date = $scannedAt->toDateString();
 
@@ -230,7 +234,6 @@ class AttendanceController extends Controller
                     }
 
                     try {
-                        $student = Student::find($studentId);
                         if ($student) {
                             $name = trim($student->lastName() . ' ' . $student->firstName() . ' ' . $student->otherName());
                             $when = $scannedAt->format('g:i A, D j M Y');

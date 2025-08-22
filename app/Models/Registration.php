@@ -57,6 +57,7 @@ class Registration extends Model
         'guardian_office_address',
         'guardian_home_address',
         'guardian_relationship',
+        'state'
     ];
 
     protected $casts = [
@@ -155,6 +156,11 @@ class Registration extends Model
     public function status(): ?bool
     {
         return (bool) $this->status;
+    }
+
+    public function state(): ?string
+    {
+        return (string) $this->state;
     }
 
     public function grade(): BelongsTo

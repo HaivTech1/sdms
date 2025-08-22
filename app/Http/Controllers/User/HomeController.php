@@ -183,5 +183,10 @@ class HomeController extends Controller
             });
         }
 
+        if (!Schema::hasColumn('registrations', 'state')) {
+            Schema::table('registrations', function (Blueprint $table) {
+                $table->enum('state', ['pending', 'approved', 'rejected'])->default('pending')->after('status');
+            });
+        }
     }
 }

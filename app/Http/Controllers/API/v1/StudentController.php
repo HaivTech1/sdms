@@ -21,8 +21,9 @@ class StudentController extends Controller
     {
         try {
             $grade = $request->query('grade_id');
+            $search = $request->query('search');
             $page = $request->query('page', 1);
-            $perPage = $request->query('per_page', 200);
+            $perPage = $request->query('per_page', 20);
 
             $query = Student::query();
 
@@ -30,7 +31,20 @@ class StudentController extends Controller
                 $query->where('grade_id', $grade);
             }
 
-            $data = $query->withoutGlobalScope(new HasActiveScope)->paginate($perPage, ['*'], 'page', $page);
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', "%{$search}%")
+                    ->orWhere('last_name', 'LIKE', "%{$search}%")
+                    ->orWhere('other_name', 'LIKE', "%{$search}%");
+
+                    $q->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('reg_no', 'LIKE', "%{$search}%");
+                    });
+                });
+            }
+
+            $data = $query->withoutGlobalScope(new HasActiveScope)
+                        ->paginate($perPage, ['*'], 'page', $page);
 
             return (new StudentCollection($data))->response()
                 ->setStatusCode(200);
@@ -39,7 +53,6 @@ class StudentController extends Controller
             info($th);
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
-
     }
 
     public function single($id)
@@ -197,10 +210,9 @@ class StudentController extends Controller
             }
 
             $term = Term::where('title', 'like', '%' . $data['term'] . '%')->first();;
-
             $name = trim($student->last_name . " " . $student->first_name . " " . $student->other_name);
 
-            $getFee = Fee::where([
+            $getFee = Fee::with(['grade'])->where([
                 'grade_id' => $data['grade_id'],
                 'type' => $student->type,
                 'term_id' => $term->id,
@@ -214,24 +226,39 @@ class StudentController extends Controller
                 ], 404);
             }
 
-            $fee = 0; 
-            if ($getFee) {
-                $fee += $getFee->details->sum('price');
-
-                $feeAmount = $fee;
-                $outstanding = $student->outstanding !== null
-                    ? intval($student->outstanding['outstanding'])
-                    : 0;
-
-                $total = $fee += $outstanding;
+            // Build fee details list and totals
+            $feeDetails = [];
+            foreach (($getFee->details ?? collect()) as $detail) {
+                $label = $detail->title;
+                $amount = (float) ($detail->price ?? 0);
+                $feeDetails[] = ['label' => $label, 'amount' => $amount];
             }
 
-            $watMessage = "Dear Parent/Guardian,\n \n";
-            $watMessage .= "Your child *$name*'s school fees for $term->title term is as follows:\n \n";
+            $feeAmount = collect($feeDetails)->sum('amount');
+            $outstanding = $student->outstanding !== null
+                ? intval($student->outstanding['outstanding'])
+                : 0;
+            $total = $feeAmount + $outstanding;
+
+            // Build WhatsApp message with breakdown
+            $watMessage = "Dear Parent/Guardian,\n\n";
+            $watMessage .= "Your child *$name*'s school fees for {$getFee->grade->title} - $term->title is:\n\n";
+
+            if (!empty($feeDetails)) {
+                $watMessage .= "Fee Breakdown:\n";
+                foreach ($feeDetails as $item) {
+                    $watMessage .= "- {$item['label']}: ₦ " . number_format($item['amount'], 2) . "\n";
+                }
+                $watMessage .= "\n";
+            }
+
             $watMessage .= "Outstanding Fees: *₦ " . number_format($outstanding, 2) . "*\n";
             $watMessage .= "Fees: *₦ " . number_format($feeAmount, 2) . "*\n";
-            $watMessage .= "Total Fees: *₦ " . number_format($total, 2) . "*\n \n";
-            $watMessage .= "The school's account number details is below:\n*Acccount Number:* 1012048635\n*Bank Name:* Zenith Bank\n*Account Name:* St Louis Nursery and Primary School Ondo.";
+            $watMessage .= "Total Fees: *₦ " . number_format($total, 2) . "*\n\n";
+            $watMessage .= "The school's account number details is below:\n";
+            $watMessage .= "*Acccount Number:* 1012048635\n";
+            $watMessage .= "*Bank Name:* Zenith Bank\n";
+            $watMessage .= "*Account Name:* St Louis Nursery and Primary School Ondo.";
 
             return response()->json(["status" => true, "message" => $watMessage], 200);
 

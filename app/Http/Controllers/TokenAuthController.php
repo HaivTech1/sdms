@@ -14,15 +14,14 @@ class TokenAuthController extends Controller
     {
         try {
             $request = request();
-
             $request->validate(
                 [
-                    'email' => 'required|email',
+                    'email' => 'required',
                     'password' => 'required',
                 ]
             );
 
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->orWhere('reg_no', $request->email)->first();
 
             if (!$user || !Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages(

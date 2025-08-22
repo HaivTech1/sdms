@@ -430,21 +430,8 @@ class StudentController extends Controller
             Storage::disk('public')->delete($student->qrcode);
         }
 
-        // File naming
         $slugName = Str::slug($studentName);
-        $fileName = $slugName . '-' . time() . '.png';
-        $path = "qrcodes/{$fileName}";
-
-        $result = Builder::create()
-            ->data($regNo)
-            ->size(300)
-            ->margin(10)
-            ->build();
-
-        // Save to storage
-        Storage::disk('public')->put($path, $result->getString());
-
-        // Update DB
+        $path = $this->generateQrcode($slugName, $regNo);
         $student->update(['qrcode' => $path]);
 
         return response()->json([
@@ -452,6 +439,21 @@ class StudentController extends Controller
             'message' => "QR code generated successfully.",
             'file' => asset('storage/' . $path),
         ]);
+    }
+
+    public function generateQrcode($slugName, $regNo)
+    {
+        $fileName = $slugName . '-' . time() . '.png';
+        $path = "qrcodes/{$fileName}";
+
+        $result = Builder::create()
+        ->data($regNo)
+        ->size(300)
+        ->margin(10)
+        ->build();
+
+        Storage::disk('public')->put($path, $result->getString());
+        return $path;
     }
 
     public function sendCredentials($studentuuid)

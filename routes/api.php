@@ -141,7 +141,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     Route::group(['prefix' => 'registration', 'namespace' => 'Registration'], function () {
         Route::get('/all', [RegistrationController::class, 'index']);
         Route::get('/single/{id}', [RegistrationController::class, 'single']);
-        Route::post('/activate', [RegistrationController::class, 'activate']);
+        Route::get('/accept/{id}', [RegistrationController::class, 'accept']);
+        Route::get('/reject/{id}', [RegistrationController::class, 'reject']);
     });
 
     Route::group(['prefix' => 'attendance', 'namespace' => 'Attendance'], function () {

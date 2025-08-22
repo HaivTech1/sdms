@@ -21,6 +21,7 @@ use App\Http\Resources\v1\GradeResource;
 use App\Http\Resources\v1\SessionResource;
 use App\Http\Resources\v1\SettingResource;
 use App\Http\Resources\v1\SubjectResource;
+use App\Scopes\HasActiveScope;
 
 class SettingController extends Controller
 {
@@ -170,6 +171,7 @@ class SettingController extends Controller
             $totalExamPending       = 0;
             $totalMidtermPublished  = 0;
             $totalMidtermPending    = 0;
+            $totalRegistrations = 0;
 
             // --- Exams (PrimaryResult) ---
             $examQuery = \App\Models\PrimaryResult::query()
@@ -231,6 +233,8 @@ class SettingController extends Controller
             $totalWorkers  = \App\Models\User::whereType(6)->where('isAvailable', true)->count();
             $totalStaffs   = \App\Models\User::whereIn('type', [3, 5, 6])->where('isAvailable', true)->count();
             $totalNews     = \App\Models\News::where('status', true)->count();
+            $totalRegistrations = \App\Models\Registration::withoutGlobalScope(new HasActiveScope)->where('status', false)->count();
+
 
             return response()->json([
                 'status'  => true,
@@ -244,6 +248,7 @@ class SettingController extends Controller
                     'totalExamPending'      => $totalExamPending,
                     'totalMidtermPublished' => $totalMidtermPublished,
                     'totalMidtermPending'   => $totalMidtermPending,
+                    'totalRegistrations' => $totalRegistrations
                 ],
             ], 200);
 
