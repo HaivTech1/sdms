@@ -17,7 +17,7 @@ use App\Http\Controllers\ResultController as WebResultController;
 use App\Http\Controllers\StudentController as WebStudentController;
 use App\Http\Controllers\AttendanceController as WebAttendanceController;
 use App\Http\Controllers\GeneralController;
-
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\OtherBrowserSessionsController;
 use App\Scopes\HasActiveScope;
 
@@ -103,6 +103,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/terms/all', [SettingController::class, 'term']);
         Route::get('/subjects/all', [SettingController::class, 'subject']);
         Route::get('/houses/all', [SettingController::class, 'houses']);
+        Route::get('/clubs/all', [SettingController::class, 'clubs']);
+        Route::get('/schedules/all', [SettingController::class, 'schedules']);
         Route::get('/midterm/format', [SettingController::class, 'midtermFormat']);
         Route::get('/exam/format', [SettingController::class, 'examFormat']);
         Route::get("/dashboard/summary", [SettingController::class, 'dashboardSummary']);
@@ -120,12 +122,14 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 
     Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {
         Route::get('/all', [StudentController::class, 'index']);
+        Route::post('/', [WebStudentController::class, 'store']);
         Route::get('/single/{id}', [StudentController::class, 'single']);
         Route::get('/assign/grade', [StudentController::class, 'assignStudent']);
         Route::post('/toggle/status', [StudentController::class, 'toggleStudent']);
         Route::get('/delete/{id}', [StudentController::class, 'delete']);
         Route::post('/subject/assign', [WebStudentController::class, 'assignSubject']);
         Route::get('/{id}/delete/{subject}', [StudentController::class, 'deleteSubject']);
+
 
         Route::put('/{student}', [WebStudentController::class, 'update'])->name('update');
         Route::post('/update/mother', [GeneralController::class, 'motherUpdate']);
@@ -197,5 +201,12 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     Route::group(['prefix' => 'webresults', 'namespace' => 'Webresults'], function () {
         Route::get('/fetch/exam/{student_id}/{period_id}/{term_id}/{grade_id}', [WebResultController::class, 'examFetch'])->name('fetch.exam');
         Route::get('exam/check/{grade_id}/{period_id}/{term_id}', [WebResultController::class, 'checkExam'])->name('check.exam');
+    });
+
+    Route::group(['prefix' => 'news', 'namespace' => 'News'], function () {
+        Route::get('/all', [NewsController::class, 'index']);
+        Route::post('/create', [NewsController::class, 'store']);
+        Route::put('/update/{id}', [NewsController::class, 'update']);
+        Route::delete('/delete/{id}', [NewsController::class, 'delete']);
     });
 });

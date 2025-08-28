@@ -9,10 +9,12 @@ use App\Models\{
     Period,
     Subject,
     Application,
+    Club,
     House,
     News,
     Permission,
-    Role
+    Role,
+    Schedule
 };
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -75,6 +77,32 @@ class SettingController extends Controller
             ];
         }
         return response()->json(['status' => 200, 'houses' => $houses], 200);
+    }
+
+    public function clubs() 
+    {
+        $data = Club::where('status', true)->get();
+        $clubs = [];
+        foreach ($data as $value) {
+            $clubs[] = [
+                'id' => $value->id,
+                'title' => $value->slug,
+            ];
+        }
+        return response()->json(['status' => 200, 'clubs' => $clubs], 200);
+    }
+
+    public function schedules()
+    {
+        $data = Schedule::get();
+        $schedules = [];
+        foreach ($data as $value) {
+            $schedules[] = [
+                'id' => $value->id,
+                'title' => $value->title,
+            ];
+        }
+        return response()->json(['status' => 200, 'schedules' => $schedules], 200);
     }
 
     public function midtermFormat()

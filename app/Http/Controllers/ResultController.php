@@ -1712,7 +1712,6 @@ class ResultController extends Controller
         }
     }
 
-
     public function midtermPublish(Request $request)
     {
         try {

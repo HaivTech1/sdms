@@ -34,7 +34,7 @@ class StudentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'])->except(['getStudentsByClass', 'assignSubject', 'subject', 'getPerformanceByStudent', 'cognitiveStudents', 'psychomotorStudents', 'affectiveStudents']);
+        $this->middleware(['auth', 'admin'])->except(['store', 'getStudentsByClass', 'assignSubject', 'subject', 'getPerformanceByStudent', 'cognitiveStudents', 'psychomotorStudents', 'affectiveStudents']);
     }
     
     
@@ -75,6 +75,8 @@ class StudentController extends Controller
                     $user->save();
                 }
 
+                $grade = Grade::findOrFail($request->grade_id);
+
                 $student = new Student([
                     'first_name'  => $request->first_name,
                     'last_name'  => $request->last_name,
@@ -98,6 +100,7 @@ class StudentController extends Controller
                 $student->authoredBy(auth()->user());
                 $student->save();
                 $student->schedules()->sync($request->schedule_id);
+                $student->user->roles()->attach([5]);
 
                 if($request->father_name !== null){
                     $father = new Father([
@@ -122,9 +125,22 @@ class StudentController extends Controller
                     ]);
                     $mother->save();
                 }
+
+                //generate qrcode
+                $slugName = Str::slug($student->fullName());
+                $qrcode = $this->generateQrcode($slugName, $code);
+                $student->qrcode = $qrcode;
+                $student->save();
+
+                //assign subject
+                $subjectIds = $grade->subjects()->pluck('subjects.id')->all();
+                if(count($subjectIds) > 0){
+                    $student->subjects()->sync($subjectIds);
+                }
             });
             return response()->json(['status' => true, 'message' => 'Student submitted successfully!'], 200);
         } catch (\Throwable $th) {
+            info($th);
             DB::rollback();
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }

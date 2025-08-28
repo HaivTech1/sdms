@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Scopes\HasActiveScope;
 use App\Models\Grade as ClientGrade;
+use App\Models\Subject;
 
 class Grade extends Component
 {
@@ -87,6 +88,7 @@ class Grade extends Component
     {
         return view('livewire.components.admin.grade', [
             'grades' => $this->grades,
+            'subjects' => Subject::where("status", true)->get()
         ]);
     }
 }

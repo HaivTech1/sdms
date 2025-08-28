@@ -125,6 +125,7 @@ class StudentController extends Controller
     {
         try {
             $student = Student::withoutGlobalScope(new HasActiveScope)->findOrFail($id);
+            $student->user->delete();
             $student->delete();
             return response()->json(['status' => true, 'message' => 'Student deleted successfully!'], 200);
         } catch (\Throwable $th) {

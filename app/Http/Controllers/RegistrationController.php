@@ -322,7 +322,19 @@ class RegistrationController extends Controller
                 }
                 
                 $student->schedules()->sync(1);
-                $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+                $name = $student->fullName();
+
+                $qrcode = $this->generateQrcode($name, $code);
+                $student->qrcode = $qrcode;
+                $student->save();
+
+                $grade = Grade::findOrFail($registration->grade_id);
+
+                $subjectIds = $grade->subjects()->pluck('subjects.id')->all();
+                if(count($subjectIds) > 0){
+                    $student->subjects()->sync($subjectIds);
+                }
+
                 $message = "<p>
                     We are pleased to inform your that your child: 
                     " . $registration->first_name. " " .$registration->last_name.

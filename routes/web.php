@@ -137,7 +137,6 @@ Route::get('/calculate-status-totals', function () {
     return response()->json(['message' => 'Totals saved to text file successfully!']);
 });
 
-
 Route::get('/filter-transactions', function () {
     $inputFile = public_path('filtered_transactions.json'); // Output directory
 
@@ -523,6 +522,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('club', ClubController::class);
 
         Route::get('/grade/students/{grade}', [GradeController::class, 'gradeStudents'])->name('grade.students');
+        Route::post('/assign/grade/subjects/{grade}', [GradeController::class, 'assignGradeSubjects'])->name('grade.subjects.assign');
+        Route::get('/grade/subjects/{grade}', [GradeController::class, 'gradeSubjects'])->name('grade.subjects');
+        Route::post('/grade/update-status', [GradeController::class, 'updateStatus'])->name('grade.update.status');
+        Route::post('/grade/delete-all', [GradeController::class, 'deleteAll'])->name('grade.delete.all');
 
         Route::group(['prefix' => 'student', 'as' => 'student.'], function () {
             Route::get('/', [StudentController::class, 'index'])->name('index');

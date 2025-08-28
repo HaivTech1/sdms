@@ -188,5 +188,15 @@ class HomeController extends Controller
                 $table->enum('state', ['pending', 'approved', 'rejected'])->default('pending')->after('status');
             });
         }
+
+        if (!Schema::hasTable('grade_subjects')) {
+            Schema::create('grade_subjects', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('grade_id')->constrained()->cascadeOnDelete();
+                $table->foreignId('subject_id')->constrained()->cascadeOnDelete();
+                $table->unique(['grade_id', 'subject_id']);
+                $table->timestamps();
+            });
+        }
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SubGrade extends Model
 {
@@ -18,7 +19,6 @@ class SubGrade extends Model
 
     protected $fillable = [
         'title', 
-        'grade_id',
         'status'
     ];
 
@@ -46,9 +46,9 @@ class SubGrade extends Model
         return $this->status;
     }
 
-    public function grade(): BelongsTo
+    public function grades(): HasMany
     {
-        return $this->belongsTo(Grade::class, 'grade_id');
+        return $this->hasMany(Grade::class, 'grade_id');
     }
 
     public function scopeSearch($query, $term)
