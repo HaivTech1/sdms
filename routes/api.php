@@ -13,6 +13,7 @@ use App\Http\Controllers\API\v1\{
     AttendanceController,
     RegistrationController
 };
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ResultController as WebResultController;
 use App\Http\Controllers\StudentController as WebStudentController;
 use App\Http\Controllers\AttendanceController as WebAttendanceController;
@@ -108,6 +109,12 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/midterm/format', [SettingController::class, 'midtermFormat']);
         Route::get('/exam/format', [SettingController::class, 'examFormat']);
         Route::get("/dashboard/summary", [SettingController::class, 'dashboardSummary']);
+
+        Route::get("/term-settings", [ApplicationController::class, 'getTermSetting']);
+        Route::get("/single/term-settings/{id}", [ApplicationController::class, 'getSingleTermSetting']);
+        Route::post("/term-settings", [ApplicationController::class, 'termSetting']);
+        Route::delete("/term-settings/{id}", [ApplicationController::class, 'deleteTermSetting']);
+        Route::put("/term-settings/{id}", [ApplicationController::class, 'updateTermSetting']);
     });
 
     Route::group(['prefix' => 'staffs', 'namespace' => 'Staffs'], function () {

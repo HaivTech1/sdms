@@ -277,7 +277,9 @@ class RegistrationController extends Controller
                     'grade_id'  => $registration->grade_id,
                     'house_id'  => 1,
                     'club_id'  => 1,
-                    'user_id' => $user->id()
+                    'user_id' => $user->id(),
+                    'status' => 1,
+                    'category' => $registration->category
                 ]);
 
                 $student->authoredBy(auth()->user());
@@ -322,6 +324,7 @@ class RegistrationController extends Controller
                 }
                 
                 $student->schedules()->sync(1);
+                $student->user->roles()->attach([5]);
                 $name = $student->fullName();
 
                 $qrcode = $this->generateQrcode($name, $code);
@@ -402,7 +405,12 @@ class RegistrationController extends Controller
                             'type' => '4'
                         ]);
                 
-                        $code = SaveCode::Generator(application('alias').'/', 4, 'reg_no', $user);
+                        // Determine appType based on student category
+                        $appType = app('appType');
+                        if (isset($value->category) && $value->category) {
+                            $appType = app('appType.' . $value->category);
+                        }
+                        $code = SaveCode::Generator($appType->code . '/', 4, 'reg_no', $user);
                         $user->reg_no = $code;
                         $user->profile_photo_path = $value->image;
                         $user->save();
@@ -430,7 +438,9 @@ class RegistrationController extends Controller
                             'grade_id' => $value->grade_id,
                             'house_id' => 1,
                             'club_id' => 1,
-                            'user_id' => $user->id()
+                            'user_id' => $user->id(),
+                            'status' => 1,
+                            'category' => $value->category
                         ]);
 
                         $student->authoredBy(auth()->user());
@@ -475,6 +485,21 @@ class RegistrationController extends Controller
                         }
 
                         $student->schedules()->sync(1);
+                        $student->user->roles()->attach([5]);
+                        $name = $student->fullName();
+
+                        $controller = new \App\Http\Controllers\StudentController();
+                        $qrcode = $controller->generateQrcode($name, $code);
+                        $student->qrcode = $qrcode;
+                        $student->save();
+
+                        $grade = Grade::findOrFail($value->grade_id);
+
+                        $subjectIds = $grade->subjects()->pluck('subjects.id')->all();
+                        if(count($subjectIds) > 0){
+                            $student->subjects()->sync($subjectIds);
+                        }
+
                         $message = "<p>
                                     We are pleased to inform your that your child: 
                                     " . $value->first_name . " " . $value->last_name .
@@ -485,7 +510,7 @@ class RegistrationController extends Controller
                                     </p>";
                         $subject = 'Admission Status from ' . application('name');
 
-                        // NotifiableParentsTrait::notifyParents($student, $message, $subject);
+                        NotifiableParentsTrait::notifyParents($student, $message, $subject);
                 }
             }
 

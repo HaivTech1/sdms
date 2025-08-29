@@ -26,7 +26,7 @@ class Index extends Component
 
     public $selectedRows = [];
     public $selectPageRows = false;
-    public $per_page = 10;
+    public $per_page = 50;
     public $search = '';
     public $gender = '';
     public $sortBy = 'asc';
@@ -129,7 +129,8 @@ class Index extends Component
                                 'grade_id'  => $value->grade_id,
                                 'house_id'  => 1,
                                 'club_id'  => 1,
-                                'user_id' => $user->id()
+                                'user_id' => $user->id(),
+                                'status' => 1
                             ]);
             
                             $student->authoredBy(auth()->user());
@@ -172,8 +173,24 @@ class Index extends Component
                                 ]);
                                 $guardian->save();
                             }
-                            
+
                             $student->schedules()->sync(1);
+                            $student->user->roles()->attach([5]);
+                            $name = $student->fullName();
+                            dd($name);
+
+                            $controller = new \App\Http\Controllers\StudentController();
+                            $qrcode = $controller->generateQrcode($name, $code);
+                            $student->qrcode = $qrcode;
+                            $student->save();
+
+                            $grade = Grade::findOrFail($value->grade_id);
+
+                            $subjectIds = $grade->subjects()->pluck('subjects.id')->all();
+                            if(count($subjectIds) > 0){
+                                $student->subjects()->sync($subjectIds);
+                            }
+                            
                             $message = "<p>
                                 We are pleased to inform your that your child: 
                                 " . $value->first_name. " " .$value->last_name.

@@ -545,6 +545,38 @@ class ApplicationController extends Controller
         }
     }
 
+    public function getTermSetting()
+    {
+        try {
+            $termSettings = TermSetting::with(['term', 'period'])->orderBy('period_id', 'desc')->get();
+            return response()->json([
+                'status' => true,
+                'data' => $termSettings
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getSingleTermSetting($id)
+    {
+        try {
+            $termSetting = TermSetting::find($id);
+            if (!$termSetting) {
+            return response()->json(['status' => false, 'message' => 'Term setting not found.'], 404);
+            }
+            return response()->json(['status' => true, 'data' => $termSetting], 200);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching the term setting.'
+            ], 500);
+        }
+    }
 
     public function termSetting(Request $request)
     {
@@ -611,6 +643,66 @@ class ApplicationController extends Controller
         } catch (\Exception $e) {
             info('Term setting error: ' . $e->getMessage());
             return response()->json(['status' => false, 'message' => "Sorry, There was an error creating the setting."], 500);
+        }
+    }
+
+    public function deleteTermSetting($id)
+    {
+        try {
+            $termSetting = TermSetting::find($id);
+            if (!$termSetting) {
+                return response()->json(['status' => false, 'message' => 'Term setting not found.'], 404);
+            }
+            $termSetting->delete();
+            return response()->json(['status' => true, 'message' => 'Term setting deleted successfully.'], 200);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting the term setting.'
+            ], 500);
+        }
+    }
+
+    public function updateTermSetting(Request $request, $id)
+    {
+        try {
+            $termSetting = TermSetting::find($id);
+            if (!$termSetting) {
+                return response()->json(['status' => false, 'message' => 'Term setting not found.'], 404);
+            }
+
+            $data = [];
+
+            if (isset($request->resumption_date)) {
+                $data['resumption_date'] = $request->resumption_date;
+            }
+
+            if (isset($request->vacation_date)) {
+                $data['vacation_date'] = $request->vacation_date;
+            }
+
+            if (isset($request->no_school_opened)) {
+                $data['no_school_opened'] = $request->no_school_opened;
+            }
+
+            if (isset($request->next_term_resumption)) {
+                $data['next_term_resumption'] = $request->next_term_resumption;
+            }
+
+            if (isset($request->class_count)) {
+                $data['class_count'] = $request->class_count;
+            }
+
+            $termSetting->update($data);
+
+            return response()->json(['status' => true, 'message' => 'Term setting updated successfully.'], 200);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the term setting.'
+            ], 500);
         }
     }
 

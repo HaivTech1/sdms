@@ -198,5 +198,17 @@ class HomeController extends Controller
                 $table->timestamps();
             });
         }
+
+        if (!Schema::hasColumn('students', 'category')) {
+            Schema::table('students', function (Blueprint $table) {
+                $table->enum('category', ['primary', 'junior', 'secondary'])->default('primary')->after('gender');
+            });
+        }
+
+        if (!Schema::hasColumn('registrations', 'category')) {
+            Schema::table('registrations', function (Blueprint $table) {
+                $table->enum('category', ['primary', 'junior', 'secondary'])->default('primary')->after('gender');
+            });
+        }
     }
 }

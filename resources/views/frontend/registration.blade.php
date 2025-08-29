@@ -124,6 +124,26 @@
                         </div>
 
                         <div class="col-sm-6 mb-3">
+                            <x-form.label for="category" value="{{ __('Category') }}" />
+                            <br />
+                            <select class="form-control" name="category" :value="old('category')">
+                                <option>Select</option>
+                                <option value="primary">Primary</option>
+                                <option value="secondary">Secondary</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-6 mb-3">
+                            <x-form.label for="gender" value="{{ __('Gender') }}" />
+                            <br />
+                            <select class="form-control" name="gender" :value="old('gender')">
+                                <option>Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-6 mb-3">
                             <x-form.label for="grade_id" value="{{ __('Class') }}" />
                             <br />
                             <select class="form-control" name="grade_id">

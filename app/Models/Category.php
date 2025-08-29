@@ -24,4 +24,24 @@ class Category extends Model
     {
         return (string) $this->title;
     }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'category', 'title');
+    }
+
+    public function getStudentsCountAttribute(): int
+    {
+        return $this->students()->count();
+    }
+
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class, 'category', 'title');
+    }
+
+    public function grades()
+    {
+        return $this->hasMany(Grade::class, 'category', 'title');
+    }
 }

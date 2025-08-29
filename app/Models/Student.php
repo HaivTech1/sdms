@@ -60,7 +60,8 @@ class Student extends Authenticatable
         'registration_id',
         'outstanding',
         'type',
-        'qrcode'
+        'qrcode',
+        'category'
     ];
 
     protected $casts = [

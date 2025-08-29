@@ -11,6 +11,7 @@ class GradeResource extends JsonResource
         return [
             'id'            => $this->id(),
             'title'          => $this->title(),
+            'total_students' => $this->students()->count()
         ];
     }
 }

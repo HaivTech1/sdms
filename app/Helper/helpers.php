@@ -225,7 +225,6 @@ function calculateStudentPosition($studentIndex, $session, $term, $grade)
     return $positionWithSuffix;
 }
 
-
 function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
 {
     $studentsData = Student::with([
@@ -277,7 +276,6 @@ function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
     $positionWithSuffix = $studentPosition . $suffix;
     return $positionWithSuffix;
 }
-
 
 function studentSubjectPositionInGrade($studentIndex, $session, $term, $grade, $subjectId)
 {
@@ -332,7 +330,6 @@ function studentSubjectPositionInGrade($studentIndex, $session, $term, $grade, $
     return $positionWithSuffix;
 }
 
-
 function calculateStudentGradeSubjectPosition($studentIndex, $session, $term, $grade, $subjectId)
 {
     $studentsData = Student::with([
@@ -386,7 +383,6 @@ function calculateStudentGradeSubjectPosition($studentIndex, $session, $term, $g
     return $positionWithSuffix;
 }
 
-
 function calculateAdminGradePosition($studentTotalScores, $studentId)
 {
     arsort($studentTotalScores);
@@ -419,6 +415,25 @@ function secondary_average($first, $second, $third, $by)
     return ceil($twoResult);
 }
 
+function appType()
+{
+    $types = get_settings('app_type');
+    $result = [];
+    if (!empty($types)) {
+        $pairs = explode(',', $types);
+        foreach ($pairs as $pair) {
+            $parts = explode(':', trim($pair));
+            if (count($parts) === 3) {
+                $result[] = [
+                    'app' => trim($parts[0]),
+                    'code' => trim($parts[1]),
+                    'file' => trim($parts[2])
+                ];
+            }
+        }
+    }
+    return $result;
+}
 
 function examRemark($remark, $type)
 {

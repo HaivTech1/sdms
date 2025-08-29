@@ -57,7 +57,8 @@ class Registration extends Model
         'guardian_office_address',
         'guardian_home_address',
         'guardian_relationship',
-        'state'
+        'state',
+        'category'
     ];
 
     protected $casts = [
@@ -193,7 +194,7 @@ class Registration extends Model
         });
     }
 
-    public function scopeLoadLatest(Builder $query, $count = 4, $orderBy, $status, $sortBy)
+    public function scopeLoadLatest(Builder $query, $count = 50, $orderBy, $status, $sortBy)
     {
         return $query->when($status, function($query, $status) {
             return $query->whereStatus($status);

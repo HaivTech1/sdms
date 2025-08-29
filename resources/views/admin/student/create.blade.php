@@ -66,6 +66,16 @@
                                     </div>
 
                                     <div class="col-sm-3 mb-3">
+                                        <x-form.label for="category" value="{{ __('Category') }}" />
+                                        <br />
+                                        <select class="form-control" name="category" :value="old('category')">
+                                            <option>Select</option>
+                                            <option value="primary">Primary</option>
+                                            <option value="secondary">Secondary</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-3 mb-3">
                                         <x-form.label for="grade_id" value="{{ __('Class') }}" />
                                         <select class="form-control" name="grade_id">
                                             <option>Select</option>
@@ -75,12 +85,6 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-sm-3 mb-3">
-                                        <x-form.label for="sub_grade_id" value="{{ __('Sub Class') }}" />
-                                        <select class="form-control" name="sub_grade_id">
-                                            
-                                        </select>
-                                    </div>
 
                                     <div class="col-sm-3 mb-3">
                                         <x-form.label for="house_id" value="{{ __('Sport House') }}" />
