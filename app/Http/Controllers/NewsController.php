@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\News;
+use App\Scopes\HasActiveScope;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
@@ -14,18 +15,18 @@ class NewsController extends Controller
 
     public function index()
     {
-        $news = News::with('author')->latest()->get();
+        $news = News::with(['period', 'term'])->withoutGlobalScope(new HasActiveScope)->orderBy('created_at', 'desc')->get();
         return response()->json(['status' => true, 'news' => $news], 200);
     }
 
     public function store(Request $request)
     {
-        $status = $request->get('status') === 'on' ? 1 : 0;
         try {
             $news = News::create([
                 'title' => $request->title,
                 'description' => $request->description,
-                'status' => $status,
+                'status' => $request->status,
+                'category' => $request->category,
                 'period_id' => period('id'),
                 'term_id' => term('id'),
                 'author_id' => auth()->id()
@@ -41,9 +42,8 @@ class NewsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $status = $request->get('status') === 'on' ? 1 : 0;
         try {
-            $news = News::find($id);
+            $news = News::withoutGlobalScope(new HasActiveScope)->where('id', $id)->first();
             if (!$news) {
                 return response()->json(['status' => false, 'message' => 'News not found.'], 404);
             }
@@ -51,7 +51,8 @@ class NewsController extends Controller
             $news->update([
                 'title' => $request->title,
                 'description' => $request->description,
-                'status' => $status,
+                'status' => $request->status,
+                'category' => $request->category
             ]);
 
             return response()->json(['status' => true, 'message' => 'News updated successfully!'], 200);
@@ -63,7 +64,7 @@ class NewsController extends Controller
     public function delete($id)
     {
         try {
-            $news = News::find($id);
+            $news = News::withoutGlobalScope(new HasActiveScope)->where('id', $id)->first();
             if (!$news) {
                 return response()->json(['status' => false, 'message' => 'News not found.'], 404);
             }

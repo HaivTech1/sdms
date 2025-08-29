@@ -23,7 +23,8 @@ class News extends Model
         'period_id',
         'term_id',
         'author_id',
-        'status'
+        'status',
+        'category'
     ];
 
     protected $casts = [

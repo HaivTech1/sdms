@@ -210,5 +210,11 @@ class HomeController extends Controller
                 $table->enum('category', ['primary', 'junior', 'secondary'])->default('primary')->after('gender');
             });
         }
+
+        if (!Schema::hasColumn('news', 'category')) {
+            Schema::table('news', function (Blueprint $table) {
+                $table->enum('category', ['parent', 'teacher', 'admin'])->default('parent')->after('status');
+            });
+        }
     }
 }
