@@ -31,16 +31,40 @@ class StaffController extends Controller
     {
         try {
             $type = $request->input('type');
+            $search = $request->input('search');
+            $perPage = $request->input('per_page', 20);
+            $page = $request->input('page', 1);
+
             $query = User::whereNotIn('type', [User::SUPERADMIN, User::STUDENT]);
-        
+
             if ($type !== null) {
                 $query->where('type', $type);
             }
-        
-            $users = $query->get();
+
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('reg_no', 'like', "%{$search}%")
+                      ->orWhere('phone_number', 'like', "%{$search}%");
+                });
+            }
+
+            $users = $query->paginate($perPage, ['*'], 'page', $page);
             $staffs = StaffResource::collection($users);
-        
-            return response()->json(['status' => true, 'staffs' => $staffs], 200);
+
+            return response()->json([
+                'status' => true,
+                'staffs' => $staffs,
+                'pagination' => [
+                    'total' => $users->total(),
+                    'per_page' => $users->perPage(),
+                    'current_page' => $users->currentPage(),
+                    'last_page' => $users->lastPage(),
+                    'from' => $users->firstItem(),
+                    'to' => $users->lastItem(),
+                ]
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
@@ -118,14 +142,122 @@ class StaffController extends Controller
         }
     }
 
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => ['sometimes', 'string'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
+            'phone_number' => ['sometimes', 'string'],
+            'type' => ['sometimes', 'integer'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->all(),
+            ], 400);
+        }
+
+        try {
+            DB::transaction(function () use ($request, $id) {
+                $user = User::findOrFail($id);
+                $user->update($request->only(['title', 'name', 'email', 'phone_number', 'type']));
+
+                if ($request->hasFile('image')) {
+                    $uploadedFile = $request->file('image');
+                    $fileName = $uploadedFile->getClientOriginalName();
+                    $filePath = 'users/' . $fileName;
+
+                    if ($uploadedFile->storeAs('public', $filePath)) {
+                        $user->profile_photo_path = $filePath;
+                    } else {
+                        return response()->json(['status' => false, 'message' => 'Failed to upload the file'], 400);
+                    }
+                }
+
+                $user->save();
+            });
+            return response()->json(['status' => true, 'message' => 'Staff updated successfully'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function updatePassword(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->all(),
+            ], 400);
+        }
+
+        try {
+            DB::transaction(function () use ($request, $id) {
+                $user = User::findOrFail($id);
+                $user->password = Hash::make($request->password);
+                $user->save();
+            });
+            return response()->json(['status' => true, 'message' => 'Password updated successfully'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
+
     public function assignClass(Request $request)
     {
-        try{
-            $teacher = User::findOrFail($request->teacher_id);
-            $teacher->gradeClassTeacher()->syncWithoutDetaching($request->grade_id);
-            return response()->json(['status' => true, 'message' => 'Classes synced successfully!'], 200);
-        }catch(\Throwable $th){
-            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        try {
+            $data = $request->validate([
+                'teacher_id' => ['required', 'exists:users,id'],
+                'grades'     => ['array'],
+                'grades.*'   => ['integer', 'exists:grades,id'],
+            ]);
+
+            $teacher  = User::findOrFail($data['teacher_id']);
+            $gradeIds = $data['grades'] ?? [];
+
+            $teacher->gradeClassTeacher()->sync($gradeIds);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Classes synced successfully!',
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status'  => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function assignSubject(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'teacher_id' => ['required', 'exists:users,id'],
+                'subjects'     => ['array'],
+                'subjects.*'   => ['integer', 'exists:subjects,id'],
+            ]);
+
+            $teacher  = User::findOrFail($data['teacher_id']);
+            $subjectIds = $data['subjects'] ?? [];
+
+            $teacher->assignedSubjects()->sync($subjectIds);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Subjects synced successfully!',
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status'  => false,
+                'message' => $th->getMessage(),
+            ], 500);
         }
     }
     
@@ -161,7 +293,7 @@ class StaffController extends Controller
 
             return response()->json(['status' => true, 'message' => 'Staff status updated successfully!'], 200);
 
-       }catch(Exception $th){
+       }catch(\Exception $th){
             DB::rollback();
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
        }

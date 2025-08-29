@@ -122,9 +122,12 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/single/{id}', [StaffController::class, 'single']);
         Route::post('/', [StaffController::class, 'store']);
         Route::post('/assign/grade', [StaffController::class, 'assignClass']);
+        Route::post('/assign/subject', [StaffController::class, 'assignSubject']);
         Route::get('/grade/{id}/delete/{staff}', [StaffController::class, 'deleteGrade']);
         Route::post('/activate', [StaffController::class, 'activate']);
         Route::get('/delete/{id}', [StaffController::class, 'delete']);
+        Route::put('/{staff}', [StaffController::class, 'update'])->name('update');
+        Route::post('/update/password', [StaffController::class, 'updatePassword']);
     });
 
     Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {

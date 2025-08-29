@@ -21,7 +21,8 @@ class StaffResource extends JsonResource
             'image'                 => $this->image(),
             'has2FA'                => $this->two_factor_secret ? true : false,
             'status'                => $this->isAvailable,
-            'assigned_grades'       => GradeResource::collection($this->gradeClassTeacher)
+            'assigned_grades'       => GradeResource::collection($this->gradeClassTeacher),
+            'assigned_subjects'     => SubjectResource::collection($this->assignedSubjects),
             // 'profile'               => [
             //     'back_account' => $this->profile->ACCTN() ?? '',
             //     'account_number' => $this->profile->ACCTNO() ?? '',
