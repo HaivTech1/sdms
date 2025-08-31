@@ -9,6 +9,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceDaily;
 use Illuminate\Http\Request;
 use App\Models\AttendanceStudent;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
@@ -188,30 +189,54 @@ class AttendanceController extends Controller
 
             DB::transaction(function () use ($data, &$notifications) {
                 foreach ($data as $scan) {
-                    if (!isset($scan['student_id']) || !isset($scan['scanned_at'])) {
-                        throw new \Exception("Invalid payload: student_id and scanned_at are required.");
+                    // accept payload keys student_id, user_id or id
+                    $identifier =  $scan['user_id'];
+                    if (!$identifier || !isset($scan['scanned_at'])) {
+                        throw new \Exception("Invalid payload: identifier and scanned_at are required.");
                     }
 
-                    $scanId = $scan['student_id'];
-                    $student = Student::where('uuid', $scanId)->orWhereHas('user', function ($query) use ($scanId) {
-                        $query->where('reg_no', $scanId);
-                    })->first();
-                    $studentId = $student->id();
                     $scannedAt = Carbon::parse($scan['scanned_at']);
                     $date = $scannedAt->toDateString();
-
-                    $attendance = AttendanceDaily::where('student_id', $studentId)
-                        ->where('date', $date)
-                        ->first();
-
                     $note = $scan['note'] ?? null;
                     $action = null;
+
+                    // Resolve as Student first (by uuid or reg_no via user), then fallback to User (staff)
+                    $student = Student::where('uuid', $identifier)
+                        ->orWhereHas('user', function ($q) use ($identifier) {
+                            $q->where('reg_no', $identifier)->orWhere('phone_number', $identifier);
+                        })->first();
+
+                    $isStudent = false;
+                    $user = null;
+
+                    if ($student) {
+                        $isStudent = true;
+                        $user = $student->user; // may be null; handle below
+                    } else {
+                        // try staff/user by reg_no, phone_number or id
+                        $user = User::where('reg_no', $identifier)
+                                    ->orWhere('phone_number', $identifier)
+                                    ->orWhere('id', $identifier)
+                                    ->first();
+                    }
+
+                    if (!$user) {
+                        throw new \Exception("User/Student not found for identifier: {$identifier}");
+                    }
+
+                    $userId = $user->id;
+
+                    // find existing daily attendance by user_id and date
+                    $attendance = AttendanceDaily::where('user_id', $userId)
+                        ->where('date', $date)
+                        ->first();
 
                     if (!$attendance) {
                         $attendance = new AttendanceDaily([
                             'period_id' => period("id"),
                             'term_id' => term("id"),
-                            'student_id' => $studentId,
+                            'type' => $isStudent ? AttendanceDaily::TYPE_STUDENT : AttendanceDaily::TYPE_STAFF,
+                            'user_id' => $userId,
                             'date' => $date,
                             'am_check_in_at' => $scannedAt,
                             'am_status' => 1,
@@ -226,6 +251,7 @@ class AttendanceController extends Controller
                                 'pm_check_out_at' => $scannedAt,
                                 'pm_status' => 1,
                                 'note' => $note ?? $attendance->note,
+                                'type' => $isStudent ? AttendanceDaily::TYPE_STUDENT : AttendanceDaily::TYPE_STAFF,
                             ]);
                             $action = 'pm_check_out';
                         } else {
@@ -233,9 +259,11 @@ class AttendanceController extends Controller
                         }
                     }
 
+                    // Build notification payloads
                     try {
-                        if ($student) {
-                            $name = trim($student->lastName() . ' ' . $student->firstName() . ' ' . $student->otherName());
+                        if ($isStudent) {
+                            $s = $student;
+                            $name = trim($s->lastName() . ' ' . $s->firstName() . ' ' . $s->otherName());
                             $when = $scannedAt->format('g:i A, D j M Y');
                             $subject = $action === 'am_check_in' ? 'Attendance Check-In' : 'Attendance Check-Out';
 
@@ -245,20 +273,22 @@ class AttendanceController extends Controller
                                 ($note ? "Note: $note\n" : '') .
                                 "Thank you.";
 
-                            $watTitle = trim($subject);
-
-                            $watMessage = "*" . $watTitle . "*\n\n" .
+                            $watMessage = "*" . $subject . "*\n\n" .
                                 "$name " . ($action === 'am_check_in' ? 'checked in' : 'checked out') . " at $when.";
                             if ($note) {
                                 $watMessage .= "\nNote: $note";
                             }
 
                             $notifications[] = [
-                                'student' => $student,
+                                'student' => $s,
                                 'message' => $message,
                                 'watMessage' => $watMessage,
                                 'subject' => $subject
                             ];
+                        } else {
+                            // staff scan: we persist attendance but do not notify parents or staff here
+                            // (Notifications are only intended for student parents)
+                            continue;
                         }
                     } catch (\Throwable $inner) {
                         info("Attendance notification build error: " . $inner->getMessage());
@@ -266,21 +296,16 @@ class AttendanceController extends Controller
                 }
             });
 
+            // Dispatch notifications
             foreach ($notifications as $n) {
+                // only student parent notifications are enqueued
                 $student = $n['student'];
                 $message = $n['message'];
                 $subject = $n['subject'];
-
                 $watMessage = $n['watMessage'];
-
                 $emailJob = new NotifyParentsJob($student, $message, $subject);
                 $whatsappJob = new SendWhatsappJob($student, $watMessage, "parent");
-
-                // Dispatch them as a chain
-                Bus::chain([
-                    $emailJob,
-                    $whatsappJob,
-                ])->dispatch();
+                Bus::chain([$emailJob, $whatsappJob])->dispatch();
             }
 
             return response()->json([
@@ -329,51 +354,65 @@ class AttendanceController extends Controller
             $user = auth()->user();
             $authorId = $user->id;
 
-            $adminTypes = [];
-            if (defined(\App\Models\User::class.'::ADMIN')) {
-                $adminTypes[] = \App\Models\User::ADMIN;
-            }
-            
-            if (defined(\App\Models\User::class.'::SUPERADMIN')) {
-                $adminTypes[] = \App\Models\User::SUPERADMIN;
-            }
+            // admins can see all records
+            $adminTypes = [User::SUPERADMIN, User::ADMIN];
 
-            $query = AttendanceDaily::with('student')
-            ->when(!in_array($user->type, $adminTypes), fn($q) => $q->where('author_id', $authorId))
-            ->orderByDesc('date');
+            $query = AttendanceDaily::with('user.student')
+                ->when(! in_array($user->type, $adminTypes), fn($q) => $q->where('author_id', $authorId))
+                ->orderByDesc('date');
 
             $date = $request->input('date');
-            $from = Carbon::parse($date)->toDateString();
+            $from = $date ? Carbon::parse($date)->toDateString() : now()->toDateString();
             $query->whereDate('date', '>=', $from);
-           
+            
+            // optional filter: type=student|staff
+            $type = $request->input('type');
+            if ($type && in_array($type, [AttendanceDaily::TYPE_STUDENT, AttendanceDaily::TYPE_STAFF])) {
+                $query->where('type', $type);
+            }
 
             $records = $query->get()->map(function ($a) {
+                $user = $a->user;
+                $studentModel = $user?->student;
+
                 return [
                     'id' => $a->id,
                     'date' => $a->date,
+                    'type' => $a->type,
                     'am_check_in_at' => optional($a->am_check_in_at)->toDateTimeString(),
                     'pm_check_out_at' => optional($a->pm_check_out_at)->toDateTimeString(),
                     'am_status' => (bool) $a->am_status,
                     'pm_status' => (bool) $a->pm_status,
                     'note' => $a->note,
                     'author_id' => $a->author_id,
+                    'information' => (function() use ($user, $studentModel) {
+                        if ($studentModel) {
+                            return [
+                                'id' => $studentModel->id(),
+                                'name' => trim($studentModel->lastName() . ' ' . $studentModel->firstName() . ' ' . $studentModel->otherName()),
+                                'reg_no' => optional($studentModel->user)->code(),
+                                'grade' => optional($studentModel->grade)->title(),
+                                'is_student' => true,
+                            ];
+                        }
 
-                    // ✅ Student details
-                    'student' => $a->student ? [
-                        'id' => $a->student->id(),
-                        'name' => trim($a->student->lastName() . ' ' . $a->student->firstName() . ' ' . $a->student->otherName()),
-                        'grade' => optional($a->student->grade)->title(),
-                        'reg_no' => optional($a->student->user)->code(),
-                    ] : null,
+                        if ($user) {
+                            return [
+                                'id' => $user->id,
+                                'name' => $user->name,
+                                'reg_no' => $user->code(),
+                                'grade' => null,
+                                'is_student' => false,
+                            ];
+                        }
+
+                        return null;
+                    })(),
                 ];
             });
 
             return response()->json([
                 'status' => true,
-                'author' => [
-                    'id' => $authorId,
-                    'name' => $user->name,
-                ],
                 'attendance' => $records,
             ], 200);
 
@@ -383,5 +422,84 @@ class AttendanceController extends Controller
                 'errors' => $th->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Export attendance as PDF for a student, staff, or whole grade and send to email.
+     * Query params: type=student|staff, user_id, grade_id, date (YYYY-mm-dd)
+     */
+    public function exportAttendance(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $type = $request->input('type');
+        $userId = $request->input('user_id');
+        $gradeId = $request->input('grade_id');
+        $date = $request->input('date') ? Carbon::parse($request->input('date'))->toDateString() : null;
+
+        $query = AttendanceDaily::with('user.student')
+            ->when($date, fn($q) => $q->whereDate('date', $date))
+            ->when($type && in_array($type, [AttendanceDaily::TYPE_STUDENT, AttendanceDaily::TYPE_STAFF]), fn($q) => $q->where('type', $type))
+            ->orderBy('date');
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        if ($gradeId) {
+            // join via student relation if present
+            $query->whereHas('user.student', fn($q) => $q->where('grade_id', $gradeId));
+        }
+
+        $records = $query->get()->map(function ($a) {
+            $user = $a->user;
+            $studentModel = $user?->student;
+
+            $person = null;
+            if ($studentModel) {
+                $person = [
+                    'id' => $studentModel->id(),
+                    'name' => trim($studentModel->lastName() . ' ' . $studentModel->firstName() . ' ' . $studentModel->otherName()),
+                    'reg_no' => optional($studentModel->user)->code(),
+                    'grade' => optional($studentModel->grade)->title(),
+                    'is_student' => true,
+                ];
+            } elseif ($user) {
+                $person = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'reg_no' => $user->code(),
+                    'grade' => null,
+                    'is_student' => false,
+                ];
+            }
+
+            return [
+                'id' => $a->id,
+                'date' => $a->date,
+                'type' => $a->type,
+                'am_status' => (bool) $a->am_status,
+                'pm_status' => (bool) $a->pm_status,
+                'note' => $a->note,
+                'person' => $person,
+            ];
+        })->toArray();
+
+        $title = 'Attendance Export';
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdfs.attendance', [
+            'title' => $title,
+            'records' => $records,
+            'type' => $type,
+        ])->setPaper('a4', 'portrait');
+
+        $pdfBytes = $pdf->output();
+
+        // Send via email
+        $subject = $title . ($date ? " - $date" : '');
+        \Illuminate\Support\Facades\Mail::to($request->email)->send(new \App\Mail\SendAttendancePdf('Please find attached the attendance PDF.', $subject, $pdfBytes, "attendance-{$date}.pdf"));
+
+        return response()->json(['status' => true, 'message' => 'PDF generated and emailed.'], 200);
     }
 }

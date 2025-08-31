@@ -68,7 +68,8 @@ class User extends Authenticatable
         'password',
         'phone_number',
         'isAvailable',
-        'pincode'
+        'pincode',
+        'device_token'
     ];
 
     /**

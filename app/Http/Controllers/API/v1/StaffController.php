@@ -99,7 +99,7 @@ class StaffController extends Controller
                             'type' => $request->type
                         ]);
                         
-                        $initial = '';
+                        $initial = 'TCH/';
                 
                         if($request->input('type') === 2){
                             $initial = 'ADM/';
@@ -111,7 +111,7 @@ class StaffController extends Controller
                             $initial = 'WOR/';
                         }
                 
-                        $code = SaveCode::Generator($initial, 5, 'reg_no', $user);
+                        $code = SaveCode::Generator($initial, 3, 'reg_no', $user);
                         $user->reg_no = $code;
                 
                         $message = "<p>You are welcome to ".application('name')." portal. Please visit ".application('website')." to login with your credentials. Id: ".$code." and your password: password1234</p>";
@@ -303,11 +303,16 @@ class StaffController extends Controller
     {
         try {
             $teacher = User::findOrFail($id);
+
+            // Unlink profile photo if exists
+            if ($teacher->profile_photo_path && Storage::disk('public')->exists($teacher->profile_photo_path)) {
+                Storage::disk('public')->delete($teacher->profile_photo_path);
+            }
+
             $teacher->delete();
             return response()->json(['status' => true, 'message' => 'Staff deleted successfully!'], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
-
     }
 }

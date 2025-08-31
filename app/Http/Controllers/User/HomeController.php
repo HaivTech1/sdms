@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -169,9 +170,10 @@ class HomeController extends Controller
                 $table->boolean('pm_status')->default(0); 
 
                 $table->text('note')->nullable();
+                $table->enum('type', ['student', 'staff'])->default('student');
 
                 // 🔹 Relationships
-                $table->foreignUuid('student_id')->constrained('students')->onDelete('cascade');
+                $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
                 $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');
                 $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
                 $table->foreignId('author_id')->constrained('users')->onDelete('cascade');
@@ -179,7 +181,7 @@ class HomeController extends Controller
                 $table->timestamps();
 
                 // 🔹 Ensure one record per student per day
-                $table->unique(['student_id', 'date']);
+                $table->unique(['user_id', 'date']);
             });
         }
 
@@ -214,6 +216,90 @@ class HomeController extends Controller
         if (!Schema::hasColumn('news', 'category')) {
             Schema::table('news', function (Blueprint $table) {
                 $table->enum('category', ['parent', 'teacher', 'admin'])->default('parent')->after('status');
+            });
+        }
+
+        if (Schema::hasTable('events')) {
+            // description
+            if (!Schema::hasColumn('events', 'description')) {
+                Schema::table('events', function (Blueprint $table) {
+                    $table->text('description')->nullable()->after('title');
+                });
+            }
+
+            // start_date
+            if (!Schema::hasColumn('events', 'start_date')) {
+                Schema::table('events', function (Blueprint $table) {
+                    $table->dateTime('start_date')->nullable()->after('description');
+                });
+
+                if (Schema::hasColumn('events', 'start')) {
+                    DB::statement("UPDATE events SET start_date = `start` WHERE `start` IS NOT NULL");
+                }
+            }
+
+            // end_date
+            if (!Schema::hasColumn('events', 'end_date')) {
+                Schema::table('events', function (Blueprint $table) {
+                    $table->dateTime('end_date')->nullable()->after('start_date');
+                });
+
+                if (Schema::hasColumn('events', 'end')) {
+                    DB::statement("UPDATE events SET end_date = `end` WHERE `end` IS NOT NULL");
+                }
+            }
+
+            // time
+            if (!Schema::hasColumn('events', 'time')) {
+                Schema::table('events', function (Blueprint $table) {
+                    $table->time('time')->nullable()->after('end_date');
+                });
+
+                if (Schema::hasColumn('events', 'start')) {
+                    DB::statement("UPDATE events SET `time` = TIME(`start`) WHERE `start` IS NOT NULL");
+                } elseif (Schema::hasColumn('events', 'start_date')) {
+                    DB::statement("UPDATE events SET `time` = TIME(`start_date`) WHERE `start_date` IS NOT NULL");
+                }
+            }
+
+            // category (ensure it's there and string-based)
+            if (!Schema::hasColumn('events', 'category')) {
+                Schema::table('events', function (Blueprint $table) {
+                    $table->string('category')->nullable()->after('time');
+                });
+            }
+
+            // Drop week_id if still exists
+            if (Schema::hasColumn('events', 'week_id')) {
+                try {
+                    Schema::table('events', function (Blueprint $table) {
+                        $table->dropConstrainedForeignId('week_id');
+                    });
+                } catch (\Throwable $e) {
+                    try {
+                        Schema::table('events', function (Blueprint $table) {
+                            $table->dropForeign(['week_id']);
+                        });
+                    } catch (\Throwable $ignored) {}
+                    Schema::table('events', function (Blueprint $table) {
+                        $table->dropColumn('week_id');
+                    });
+                }
+            }
+
+            // Drop old start/end if they still exist
+            foreach (['start', 'end'] as $col) {
+                if (Schema::hasColumn('events', $col)) {
+                    Schema::table('events', function (Blueprint $table) use ($col) {
+                        $table->dropColumn($col);
+                    });
+                }
+            }
+        }
+
+        if (!Schema::hasColumn('users', 'device_token')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('device_token')->nullable()->after('api_token');
             });
         }
     }

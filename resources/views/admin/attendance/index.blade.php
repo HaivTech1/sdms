@@ -5,13 +5,13 @@
 
         <div class="page-title-right">
             <ol class="breadcrumb m-0">
-                <li class="breadcrumb-item active">Sheet</li>
+                <li class="breadcrumb-item active">Daily Attendance</li>
             </ol>
         </div>
     </x-slot>
 
-    <livewire:components.admin.attendance.index />
-    {{-- <div class="card">
+    <!-- <livewire:components.admin.attendance.index /> -->
+    <div class="card">
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -28,25 +28,26 @@
                                             <th data-priority="1">Date</th>
                                             <th data-priority="3">Name</th>
                                             <th data-priority="4">Attendance</th>
-                                            <th data-priority="6">Time In</th>
+                                            <th data-priority="6">Type</th>
+                                            <th data-priority="7">Time In</th>
                                             <th data-priority="7">Time Out</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($attendances as $attendance)
                                         <tr>
-                                            <td>{{ $attendance->attendance_date }}</td>
+                                            <td>{{ $attendance->create_at }}</td>
                                             <td>{{ $attendance->student->fullName() }}</td>
-                                            <td>{{ $attendance->attendance_time }}
-                                                @if ($attendance->status == 1)
-                                                <span class="badge badge-primary badge-pill float-right">On Time</span>
+                                            <td>
+                                                @if ($attendance->type == "student")
+                                                <span class="badge badge-primary badge-pill float-right">Student</span>
                                                 @else
-                                                <span class="badge badge-danger badge-pill float-right">Late</span>
+                                                <span class="badge badge-danger badge-pill float-right">Staff</span>
                                                 @endif
                                             </td>
 
-                                            <td>{{ $attendance->student->schedules->first()->time_in }} </td>
-                                            <td>{{ $attendance->student->schedules->first()->time_out }}</td>
+                                            <td>{{ $attendance->am_check_in }} </td>
+                                            <td>{{ $attendance->pm_check_out}}</td>
                                         </tr>
 
                                         @endforeach
@@ -60,5 +61,5 @@
                 </div>
             </div> <!-- end col -->
         </div>
-    </div> --}}
+    </div>
 </x-app-layout>

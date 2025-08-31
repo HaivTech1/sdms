@@ -17,6 +17,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ResultController as WebResultController;
 use App\Http\Controllers\StudentController as WebStudentController;
 use App\Http\Controllers\AttendanceController as WebAttendanceController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\OtherBrowserSessionsController;
@@ -96,6 +97,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     Route::post('/user/sessions/purge', [OtherBrowserSessionsController::class, 'destroy']);
     Route::put('/update/user/{id}', [UserController::class, 'update']);
     Route::put('/profile/update/image/{id}', [UserController::class, 'updateImage']);
+    Route::post('/update/device-token', [UserController::class, 'updateDeviceToken']);
 
     Route::group(['prefix' => 'settings', 'namespace' => 'Settings'], function () {
         Route::get('/', [SettingController::class, 'index']);
@@ -125,9 +127,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::post('/assign/subject', [StaffController::class, 'assignSubject']);
         Route::get('/grade/{id}/delete/{staff}', [StaffController::class, 'deleteGrade']);
         Route::post('/activate', [StaffController::class, 'activate']);
-        Route::get('/delete/{id}', [StaffController::class, 'delete']);
-        Route::put('/{staff}', [StaffController::class, 'update'])->name('update');
-        Route::post('/update/password', [StaffController::class, 'updatePassword']);
+        Route::delete('/delete/{id}', [StaffController::class, 'delete']);
+        Route::put('/{id}', [StaffController::class, 'update'])->name('update');
+        Route::post('/update/password/{id}', [StaffController::class, 'updatePassword']);
     });
 
     Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {
@@ -173,6 +175,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get("/daily", [WebAttendanceController::class, "myAttendance"]);
         Route::post("/daily", [WebAttendanceController::class, 'storeDailyAttendance']);
         Route::delete("/daily", [WebAttendanceController::class, 'deleteDailyAttendance']);
+        Route::get("/daily/export", [WebAttendanceController::class, 'exportAttendance']);
     });
 
     Route::group(['prefix' => 'result', 'namespace' => 'Result'], function () {
@@ -218,5 +221,12 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::post('/create', [NewsController::class, 'store']);
         Route::put('/update/{id}', [NewsController::class, 'update']);
         Route::delete('/delete/{id}', [NewsController::class, 'delete']);
+    });
+
+    Route::group(['prefix' => 'events', 'namespace' => 'events'], function () {
+        Route::get('/', [EventController::class, 'list']);
+        Route::post('/create', [EventController::class, 'store']);
+        Route::put('/update/{id}', [EventController::class, 'update']);
+        Route::delete('/delete/{id}', [EventController::class, 'delete']);
     });
 });

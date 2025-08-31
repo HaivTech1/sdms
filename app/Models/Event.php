@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
-use App\Cast\TitleCast;
+use App\Cast\{
+    TitleCast, 
+    TimeCast
+};
 use App\Traits\HasAuthor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,9 +21,9 @@ class Event extends Model
 
     protected $fillable = [
         'title', 
-        'start', 
-        'end',
-        'week_id', 
+        'start_date', 
+        'end_date',
+        'time',
         'category',
         'period_id',
         'term_id',
@@ -28,8 +31,9 @@ class Event extends Model
     ];
 
     protected $casts = [
-        'start' => 'datetime',
-        'end' => 'datetime',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'time' => TimeCast::class,
         'title' => TitleCast::class,
     ];
 
@@ -43,19 +47,14 @@ class Event extends Model
         return (string) $this->title;
     }
 
+    public function description(): string
+    {
+        return (string) $this->description;
+    }
+
     public function category(): string
     {
         return $this->category;
-    }
-
-    public function start(): string
-    {
-        return $this->start->format('d-m-Y');
-    }
-
-    public function end(): string
-    {
-        return $this->end->format('d-m-Y');
     }
 
     public function period()
@@ -66,11 +65,6 @@ class Event extends Model
     public function term()
     {
         return $this->belongsTo(Term::class, 'term_id');
-    }
-
-    public function week()
-    {
-        return $this->belongsTo(Week::class, 'week_id');
     }
     
 }

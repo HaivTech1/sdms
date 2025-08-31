@@ -14,7 +14,8 @@ class AttendanceDaily extends Model
     protected $fillable = [
         'period_id',
         'term_id',
-        'student_id',
+        'type',
+        'user_id',
         'date', 
         'am_check_in_at',
         'pm_check_out_at',
@@ -40,9 +41,28 @@ class AttendanceDaily extends Model
         'pm_check_out_at',
     ];
 
-    public function student()
+    public function user()
     {
-        return $this->belongsTo(Student::class, 'student_id', 'uuid');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Attendance types
+    public const TYPE_STUDENT = 'student';
+    public const TYPE_STAFF = 'staff';
+
+    public function isStudent(): bool
+    {
+        return $this->type === self::TYPE_STUDENT;
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->type === self::TYPE_STAFF;
+    }
+
+    public function typeLabel(): string
+    {
+        return $this->type ? ucfirst((string) $this->type) : '';
     }
 
     public function period()
