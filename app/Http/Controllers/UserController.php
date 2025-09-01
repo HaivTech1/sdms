@@ -295,14 +295,14 @@ class UserController extends Controller
             $data = $request->all();
 
             $validator = Validator::make($data, [
-                'token' => ['required']
+                'device_token' => ['required']
             ]);
 
             if($validator->fails()){
                 return response()->json(['status' => false, "message" => $validator->errors()->toArray()], 400);
             }
 
-            $token = $data['token'];
+            $token = $data['device_token'];
             $user = User::findOrFail(auth()->id());
             $user->update(['device_token' => $token]);
             return response()->json(['status' => true, "message" => "Device token updated successfully."], 200);

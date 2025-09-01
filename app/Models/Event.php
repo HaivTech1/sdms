@@ -21,6 +21,7 @@ class Event extends Model
 
     protected $fillable = [
         'title', 
+        'description',
         'start_date', 
         'end_date',
         'time',
@@ -31,8 +32,8 @@ class Event extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
+        'start_date' => 'datetime:Y-m-d H:i:s',
+        'end_date' => 'datetime:Y-m-d H:i:s',
         'time' => TimeCast::class,
         'title' => TitleCast::class,
     ];

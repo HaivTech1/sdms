@@ -4,18 +4,13 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Models\User;
 use App\Models\Grade;
-use App\Models\Profile;
 use App\Services\SaveCode;
 use Illuminate\Http\Request;
-use App\Scopes\HasActiveScope;
 use App\Mail\SendTeacherDetails;
-use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use App\Traits\NotifiableParentsTrait;
-use App\Http\Resources\v1\UserResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\v1\StaffResource;
 use Illuminate\Support\Facades\Validator;

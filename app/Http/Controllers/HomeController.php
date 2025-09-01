@@ -7,6 +7,7 @@ use App\Models\Term;
 use App\Models\Event;
 use App\Models\Grade;
 use App\Models\Period;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -85,5 +86,37 @@ class HomeController extends Controller
         $balance_amount = $data['data'][0]['balance'];
 
         return $balance_amount;
+    }
+
+     /**
+     * AJAX endpoint for Select2 remote-search of students/users.
+     * Query params: q (search term), grade_id (optional), limit (optional)
+     */
+    public function searchStudents(Request $request)
+    {
+        $q = trim($request->input('q', ''));
+        $gradeId = $request->input('grade_id');
+        $limit = min(100, (int) $request->input('limit', 30));
+
+        $query = Student::with('user')
+            ->when($gradeId, fn($qq) => $qq->where('grade_id', $gradeId));
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->whereRaw("concat_ws(' ', last_name, first_name, coalesce(other_name,'')) like ?", ["%{$q}%"])
+                    ->orWhereHas('user', fn($u) => $u->where('reg_no', 'like', "%{$q}%")->orWhere('name', 'like', "%{$q}%"));
+            });
+        }
+
+        $students = $query->orderBy('last_name')->limit($limit)->get();
+
+        $results = $students->map(function ($s) {
+            $text = trim($s->lastName() . ' ' . $s->firstName() . ' ' . ($s->otherName() ?? ''));
+            $code = optional($s->user)->code();
+            if ($code) $text .= ' (' . $code . ')';
+            return ['id' => $s->id(), 'text' => $text];
+        })->values();
+
+        return response()->json(['results' => $results]);
     }
 }

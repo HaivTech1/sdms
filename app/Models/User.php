@@ -69,7 +69,8 @@ class User extends Authenticatable
         'phone_number',
         'isAvailable',
         'pincode',
-        'device_token'
+        'device_token',
+        'qrcode'
     ];
 
     /**

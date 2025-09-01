@@ -244,6 +244,17 @@
                                                 <button class="dropdown-item" type="button" id="assignRole" data-id="{{ $teacher->id() }}">
                                                     <i class="fas fa-compress-arrows-alt"></i> Assign Role Privilege
                                                 </button>
+                                                @if ($teacher->qrcode)
+                                                 <button class="dropdown-item" type="button" id="showQrcode"
+                                                     value="{{ $teacher->qrcode }}">
+                                                     <i class="fa fa-eye"></i> Show Qrcode
+                                                 </button>
+                                                @else
+                                                 <button class="dropdown-item" type="button" id="generateQrcode"
+                                                     value="{{ $teacher->id() }}">
+                                                     <i class="fa fa-qrcode"></i> Generate Qrcode
+                                                 </button>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
@@ -382,6 +393,22 @@
                             </form>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="showQrcodeModal" tabindex="-1" aria-labelledby="showQrcodeModalLabel"
+        aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Student QR Code</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="qr-preview" src="" alt="QR Code" class="img-fluid mx-auto d-block"
+                        style="max-width:200px;">
                 </div>
             </div>
         </div>
@@ -664,6 +691,67 @@
                         toastr.error(xhr.responseText, 'Failed!');
                     }
                 });
+            });
+
+            $(document).on('click', '#generateQrcode', function() {
+                var teacherId = $(this).val();
+                var button = $(this); 
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This will delete the old QR code and generate a new one.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, regenerate it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        toggleAble(button, true);
+
+                        // Show loading modal
+                        Swal.fire({
+                            title: "Generating QR Code...",
+                            text: "Please wait a moment.",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/staff/generate-qrcode/' + teacherId,
+                            type: 'GET',
+                            dataType: 'json',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                toggleAble(button, false);
+                                Swal.close(); // close loading modal
+                                toastr.success(response.message, 'Success!');
+                                $('#qr-preview').attr('src', response.file);
+                                $('#showQrcodeModal').modal('show');
+                            },
+                            error: function(xhr, status, error) {
+                                toggleAble(button, false);
+                                Swal.close(); // close loading modal
+                                toastr.error("Failed to generate QR code", 'Error!');
+                            }
+                        });
+                    }
+                });
+            });
+
+            $(document).on('click', '#showQrcode', function() {
+                var qrPath = $(this).val(); 
+                
+                if (qrPath) {
+                    $('#qr-preview').attr('src', '/storage/' + qrPath);
+                    $('#showQrcodeModal').modal('show');
+                } else {
+                    toastr.error("QR code not found for this student.", "Error!");
+                }
             });
 
         </script>

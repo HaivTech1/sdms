@@ -674,20 +674,20 @@
         </div>
     </div>
 
-  <div class="modal fade" id="showQrcodeModal" tabindex="-1" aria-labelledby="showQrcodeModalLabel" aria-hidden="true"
-      wire:ignore.self>
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  <h5 class="modal-title" id="editModalLabel">Student QR Code</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body text-center">
-                  <img id="qr-preview" src="" alt="QR Code" class="img-fluid mx-auto d-block" style="max-width:200px;">
-              </div>
-          </div>
-      </div>
-  </div>
+    <div class="modal fade" id="showQrcodeModal" tabindex="-1" aria-labelledby="showQrcodeModalLabel" aria-hidden="true"
+        wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Student QR Code</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="qr-preview" src="" alt="QR Code" class="img-fluid mx-auto d-block" style="max-width:200px;">
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 

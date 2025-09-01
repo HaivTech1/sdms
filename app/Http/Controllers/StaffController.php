@@ -6,8 +6,8 @@ use App\Models\User;
 use App\Models\Week;
 use App\Models\Profile;
 use Illuminate\Http\Request;
-use App\Http\Requests\ProfileRequest;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 class StaffController extends Controller
 {
 
@@ -186,5 +186,28 @@ class StaffController extends Controller
         $week->teachers()->attach($teacher);
 
         return response()->json(['status' => true, 'message' => 'Teacher has been re-assigned']);
+    }
+
+    public function generateQr($id)
+    {
+        $staff = User::where('id', $id)->firstOrFail();
+        $regNo = $staff->code();
+        $staffName = $staff->name();
+
+        // Delete old QR if exists
+        if ($staff->qrcode && Storage::disk('public')->exists($staff->qrcode)) {
+            Storage::disk('public')->delete($staff->qrcode);
+        }
+
+        $slugName = Str::slug($staffName);
+        $controller = app()->make(\App\Http\Controllers\StudentController::class);
+        $path = $controller->generateQrcode($slugName, $regNo);
+        $staff->update(['qrcode' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "QR code generated successfully.",
+            'file' => asset('storage/' . $path),
+        ]);
     }
 }

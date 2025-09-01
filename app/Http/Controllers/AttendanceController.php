@@ -13,6 +13,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -371,10 +373,14 @@ class AttendanceController extends Controller
                 $query->where('type', $type);
             }
 
-            $records = $query->get()->map(function ($a) {
+            $perPage = (int) $request->input('per_page', 15);
+            $page = (int) $request->input('page', 1);
+
+            $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+
+            $records = $paginator->getCollection()->map(function ($a) {
                 $user = $a->user;
                 $studentModel = $user?->student;
-
                 return [
                     'id' => $a->id,
                     'date' => $a->date,
@@ -414,6 +420,12 @@ class AttendanceController extends Controller
             return response()->json([
                 'status' => true,
                 'attendance' => $records,
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
             ], 200);
 
         } catch (\Throwable $th) {
@@ -424,82 +436,126 @@ class AttendanceController extends Controller
         }
     }
 
-    /**
-     * Export attendance as PDF for a student, staff, or whole grade and send to email.
-     * Query params: type=student|staff, user_id, grade_id, date (YYYY-mm-dd)
-     */
     public function exportAttendance(Request $request)
     {
-        $request->validate([
-            'email' => ['required', 'email'],
-        ]);
+            try {
+                $request->validate([
+                'email' => ['required', 'email'],
+            ]);
 
-        $type = $request->input('type');
-        $userId = $request->input('user_id');
-        $gradeId = $request->input('grade_id');
-        $date = $request->input('date') ? Carbon::parse($request->input('date'))->toDateString() : null;
+            $type = $request->input('type');
+            $userId = $request->input('user_id');
+            $gradeId = $request->input('grade_id');
 
-        $query = AttendanceDaily::with('user.student')
-            ->when($date, fn($q) => $q->whereDate('date', $date))
-            ->when($type && in_array($type, [AttendanceDaily::TYPE_STUDENT, AttendanceDaily::TYPE_STAFF]), fn($q) => $q->where('type', $type))
-            ->orderBy('date');
+            $date = $request->input('date') ? Carbon::parse($request->input('date'))->toDateString() : Carbon::now()->toDateString();
 
-        if ($userId) {
-            $query->where('user_id', $userId);
-        }
+            $query = AttendanceDaily::with('user.student')
+                ->when($date, fn($q) => $q->whereDate('date', $date))
+                ->when($type && in_array($type, [AttendanceDaily::TYPE_STUDENT, AttendanceDaily::TYPE_STAFF]), fn($q) => $q->where('type', $type))
+                ->orderBy('date');
 
-        if ($gradeId) {
-            // join via student relation if present
-            $query->whereHas('user.student', fn($q) => $q->where('grade_id', $gradeId));
-        }
-
-        $records = $query->get()->map(function ($a) {
-            $user = $a->user;
-            $studentModel = $user?->student;
-
-            $person = null;
-            if ($studentModel) {
-                $person = [
-                    'id' => $studentModel->id(),
-                    'name' => trim($studentModel->lastName() . ' ' . $studentModel->firstName() . ' ' . $studentModel->otherName()),
-                    'reg_no' => optional($studentModel->user)->code(),
-                    'grade' => optional($studentModel->grade)->title(),
-                    'is_student' => true,
-                ];
-            } elseif ($user) {
-                $person = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'reg_no' => $user->code(),
-                    'grade' => null,
-                    'is_student' => false,
-                ];
+            if ($userId) {
+                $query->where('user_id', $userId);
             }
 
-            return [
-                'id' => $a->id,
-                'date' => $a->date,
-                'type' => $a->type,
-                'am_status' => (bool) $a->am_status,
-                'pm_status' => (bool) $a->pm_status,
-                'note' => $a->note,
-                'person' => $person,
-            ];
-        })->toArray();
+            if ($gradeId) {
+                // join via student relation if present
+                $query->whereHas('user.student', fn($q) => $q->where('grade_id', $gradeId));
+            }
 
-        $title = 'Attendance Export';
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdfs.attendance', [
-            'title' => $title,
-            'records' => $records,
-            'type' => $type,
-        ])->setPaper('a4', 'portrait');
+            $records = $query->get()->map(function ($a) {
+                $user = $a->user;
+                $studentModel = $user?->student;
 
-        $pdfBytes = $pdf->output();
+                $person = null;
+                if ($studentModel) {
+                    $person = [
+                        'id' => $studentModel->id(),
+                        'name' => trim($studentModel->lastName() . ' ' . $studentModel->firstName() . ' ' . $studentModel->otherName()),
+                        'reg_no' => optional($studentModel->user)->code(),
+                        'grade' => optional($studentModel->grade)->title(),
+                        'is_student' => true,
+                    ];
+                } elseif ($user) {
+                    $person = [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'reg_no' => $user->code(),
+                        'grade' => null,
+                        'is_student' => false,
+                    ];
+                }
 
-        // Send via email
-        $subject = $title . ($date ? " - $date" : '');
-        \Illuminate\Support\Facades\Mail::to($request->email)->send(new \App\Mail\SendAttendancePdf('Please find attached the attendance PDF.', $subject, $pdfBytes, "attendance-{$date}.pdf"));
+                    return [
+                        'id' => $a->id,
+                        'date' => $a->date,
+                        'type' => $a->type,
+                        'am_status' => (bool) $a->am_status,
+                        'pm_status' => (bool) $a->pm_status,
+                        'am_check_in_at' => optional($a->am_check_in_at)->toDateTimeString(),
+                        'pm_check_out_at' => optional($a->pm_check_out_at)->toDateTimeString(),
+                        'note' => $a->note,
+                        'person' => $person,
+                    ];
+            })->toArray();
 
-        return response()->json(['status' => true, 'message' => 'PDF generated and emailed.'], 200);
+            $title = 'Attendance Export';
+            // Render blade to HTML first (helps debug rendering issues)
+            $viewData = ['title' => $title, 'records' => $records, 'type' => $type];
+            $html = view('pdfs.attendance', $viewData)->render();
+
+            // Log and keep a copy of the rendered HTML for debugging
+            try {
+                Storage::put('exports/debug-attendance-' . uniqid() . '.html', $html);
+            } catch (\Throwable $e) {
+                info('Failed to save debug HTML: ' . $e->getMessage());
+            }
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)->setPaper('a4', 'portrait');
+            $pdfBytes = $pdf->output();
+
+            // Ensure PDF was generated
+            if (empty($pdfBytes) || strlen($pdfBytes) === 0) {
+                return response()->json(['status' => false, 'errors' => 'PDF generation failed (empty output)'], 500);
+            }
+
+            // Save PDF to temporary storage so queued mailable doesn't carry binary payload
+            $filename = "attendance-{$date}-" . uniqid() . '.pdf';
+            $relativePath = 'exports/' . $filename;
+            Storage::put($relativePath, $pdfBytes);
+
+            // Also keep an archive copy so a permanent PDF remains available for downloads/record
+            try {
+                $archivePath = 'exports/archives/' . $filename;
+                Storage::put($archivePath, $pdfBytes);
+            } catch (\Throwable $e) {
+                info('Failed to save archive PDF: ' . $e->getMessage());
+            }
+
+            // Verify storage write
+            try {
+                $size = Storage::size($relativePath);
+            } catch (\Throwable $e) {
+                $size = 0;
+            }
+
+            if (! $size || $size === 0) {
+                // cleanup if exists
+                if (Storage::exists($relativePath)) {
+                    Storage::delete($relativePath);
+                }
+                return response()->json(['status' => false, 'errors' => 'Failed to save generated PDF (zero size)'], 500);
+            }
+
+            // Queue email with PDF attachment (non-blocking) using file path
+            $subject = $title . ($date ? " - $date" : '');
+            // Dispatch a job that will send the mailable and cleanup the temp PDF file
+            dispatch(new \App\Jobs\SendAttendancePdfJob($request->email, $relativePath, $filename, $subject, 'Please find attached the attendance PDF.'));
+
+            return response()->json(['status' => true, 'message' => 'PDF generated and emailed.'], 200);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
+        }
     }
 }

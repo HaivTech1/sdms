@@ -7,14 +7,17 @@ use App\Http\Controllers\FeeController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
-use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TermController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckController;
 use App\Http\Controllers\EventController;
+
+// Event notification batch admin routes
+Route::get('/admin/events/batch/{batchId}', [EventController::class, 'batchView'])->name('admin.events.batch.view');
+Route::get('/admin/events/batch-info/{batchId}', [EventController::class, 'getBatchInfo'])->name('admin.events.batch.info');
+Route::post('/admin/events/{id}/notify-parents', [EventController::class, 'sendNotificationToParents'])->name('admin.events.notify.parents');
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\HouseController;
-use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PeriodController;
@@ -71,6 +74,8 @@ use Laravel\Fortify\Http\Controllers\ConfirmedTwoFactorAuthenticationController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
+
+Route::get('/search-students', [HomeController::class, 'searchStudents']);
 
 Route::get('/check-student', function () {
    $result = \App\Models\MidTerm::where("student_id", "38919144-3dcc-4a8c-8a5e-ab9411bba625")->where('period_id', '5')->where('term_id', '2')->get();
@@ -735,6 +740,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/bank/single/{code}', [StaffController::class, 'bankSingle']);
             Route::get('/profile/edit/{id}', [StaffController::class, 'editProfile']);
             Route::post('/update/profile', [StaffController::class, 'updateProfile'])->name('update');
+            Route::get('/generate-qrcode/{id}', [StaffController::class, 'generateQr']);
         });
 
         Route::group(['prefix' => 'schedule', 'as' => 'schedule.'], function () {
@@ -755,6 +761,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/{id}', [AttendanceController::class, 'showAttendance']);
             Route::get('/students/fetch', [AttendanceController::class, 'fetch']);
             Route::get('/class/{attendance}', [AttendanceController::class, 'classAttendance'])->name('classAttendance');
+            Route::get('/daily/all', [AttendanceController::class, 'myAttendance']);
+            Route::post('/daily/export', [AttendanceController::class, 'exportAttendance']);
         });
 
         Route::group(['prefix' => 'check', 'as' => 'check.'], function () {

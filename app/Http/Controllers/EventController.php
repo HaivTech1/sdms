@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\v1\EventResource;
 use App\Models\Term;
 use App\Models\Event;
 use App\Models\Period;
+use App\Jobs\SendEventNotificationJob;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Validator;
 
 class EventController extends Controller
@@ -38,7 +41,7 @@ class EventController extends Controller
     public function list(Request $request)
     {
         try {
-            $query = Event::query();
+            $query = Event::with(['period', 'term']);
             $perPage = $request->input('per_page', 20);
             $page = $request->input('page', 1);
 
@@ -75,7 +78,8 @@ class EventController extends Controller
     public function store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
+            $data = $request->all();
+            $validator = Validator::make($data, [
                 'title' => 'required|string',
                 'description' => 'required|string',
                 'start_date' => 'required',
@@ -92,20 +96,23 @@ class EventController extends Controller
                 ], 500);
             }
 
-            Event::create([
+            $event = Event::create([
                 'title' => $request->title,
                 'description' => $request->description,
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
+                'time' => $request->time,
                 'category' => $request->category,
                 'period_id' => $request->period_id,
                 'term_id'=> $request->term_id,
                 'author_id' => auth()->id()
             ]);
-        
-            return response()->json([ 'status' => true, 'message' => 'Event saved successfully!'], 200);
+
+            return response()->json([ 'status' => true, 'message' => 'Event saved successfully!', 'event' =>
+            new EventResource($event)], 200);
 
         } catch (\Throwable $th) {
+            info($th);
             return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
     }
@@ -125,6 +132,7 @@ class EventController extends Controller
             'description' => $request->description,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
+            'time' => $request->time,
             'category' => $request->category,
             'period_id' => $request->period_id,
             'term_id' => $request->term_id,
@@ -135,7 +143,7 @@ class EventController extends Controller
         ], 200);
     }
 
-    public function destroy($id)
+    public function delete($id)
     {
         $event = Event::findOrFail($id);
         $event->delete();
@@ -143,5 +151,82 @@ class EventController extends Controller
             'status' => true,
             'message' => 'Event deleted successfully!'
         ], 200);
+    }
+
+    public function notify($id)
+    {
+        $event = Event::findOrFail($id);
+
+        $batch = Bus::batch([
+            new SendEventNotificationJob($event->id)
+        ])->name('event_notification_' . $event->id)
+          ->dispatch();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Notification batch dispatched',
+            'batch_id' => $batch->id,
+        ], 200);
+    }
+
+    public function batchView($batchId)
+    {
+        return view('admin.event.batch', ['batchId' => $batchId]);
+    }
+
+    public function getBatchInfo($batchId)
+    {
+        try {
+            $batch = Bus::findBatch($batchId);
+            if (! $batch) {
+                return response()->json(['status' => false, 'message' => 'Batch not found'], 404);
+            }
+
+            return response()->json(['status' => true, 'batch' => [
+                'id' => $batch->id,
+                'name' => $batch->name,
+                'total_jobs' => $batch->totalJobs,
+                'pending' => $batch->pendingJobs,
+                'failed' => $batch->failedJobs,
+                'processed' => $batch->processedJobs,
+                'cancelled' => $batch->cancelledJobs,
+                'finished' => $batch->finished(),
+                'created_at' => $batch->createdAt,
+                'finished_at' => $batch->finishedAt,
+            ]]);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function sendNotificationToParents(Request $request, $eventId)
+    {
+        $event = Event::findOrFail($eventId);
+
+        $subject = 'Event: ' . ($event->title ?? 'School Event');
+        $body = $event->description ?? '';
+        $watMessage = $subject . "\n" . strip_tags($body);
+
+        // Optional grade filter: pass grade_ids as an array in the request to limit targets.
+        $gradeIds = $request->input('grade_ids');
+
+        if (is_array($gradeIds) && count($gradeIds) > 0) {
+            $students = \App\Models\Student::whereIn('grade_id', $gradeIds)->get();
+        } else {
+            // No grades provided: notify all students' parents
+            $students = \App\Models\Student::all();
+        }
+
+        foreach ($students as $student) {
+            try {
+                dispatch(new \App\Jobs\NotifyParentsJob($student, $body, $subject, null, $eventId));
+                dispatch(new \App\Jobs\SendWhatsappJob($student, $watMessage, 'parent', $eventId));
+            } catch (\Exception $e) {
+                info('sendNotificationToParents error: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json(['status' => true, 'message' => 'Notifications queued']);
     }
 }

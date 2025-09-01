@@ -302,5 +302,11 @@ class HomeController extends Controller
                 $table->string('device_token')->nullable()->after('api_token');
             });
         }
+
+        if (!Schema::hasColumn('users', 'qrcode')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('qrcode')->nullable()->after('device_token');
+            });
+        }
     }
 }

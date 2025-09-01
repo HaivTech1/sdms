@@ -17,11 +17,16 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ResultController as WebResultController;
 use App\Http\Controllers\StudentController as WebStudentController;
 use App\Http\Controllers\AttendanceController as WebAttendanceController;
+use App\Http\Controllers\StaffController as WebStaffController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\FeeController;
 use App\Http\Controllers\GeneralController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\OtherBrowserSessionsController;
 use App\Scopes\HasActiveScope;
+
+Route::get('/search-students', [HomeController::class, 'searchStudents']);
 
 Route::middleware('guest')->group(
     function () {
@@ -130,6 +135,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::delete('/delete/{id}', [StaffController::class, 'delete']);
         Route::put('/{id}', [StaffController::class, 'update'])->name('update');
         Route::post('/update/password/{id}', [StaffController::class, 'updatePassword']);
+        Route::get('/generate-qrcode/{id}', [WebStaffController::class, 'generateQr']);
     });
 
     Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {
@@ -174,8 +180,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 
         Route::get("/daily", [WebAttendanceController::class, "myAttendance"]);
         Route::post("/daily", [WebAttendanceController::class, 'storeDailyAttendance']);
-        Route::delete("/daily", [WebAttendanceController::class, 'deleteDailyAttendance']);
-        Route::get("/daily/export", [WebAttendanceController::class, 'exportAttendance']);
+        Route::delete("/daily/{id}", [WebAttendanceController::class, 'deleteDailyAttendance']);
+        Route::post("/daily/export", [WebAttendanceController::class, 'exportAttendance']);
     });
 
     Route::group(['prefix' => 'result', 'namespace' => 'Result'], function () {
@@ -228,5 +234,16 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::post('/create', [EventController::class, 'store']);
         Route::put('/update/{id}', [EventController::class, 'update']);
         Route::delete('/delete/{id}', [EventController::class, 'delete']);
+        Route::get('/notify/{id}', [EventController::class, 'notify']);
+    });
+
+    Route::group(['prefix' => 'fees', 'namespace' => 'fees'], function () {
+        Route::get('/', [FeeController::class, 'list']);
+        Route::get('/single/{id}', [FeeController::class, 'single']);
+        Route::post('/create', [FeeController::class, 'store']);
+        Route::put('/update', [FeeController::class, 'update']); 
+        Route::delete('/delete/{id}', [FeeController::class, 'delete']);
+        Route::get('/notify/{id}', [FeeController::class, 'notify']);
+        Route::get('/toggle/{id}', [FeeController::class, 'toggle']);
     });
 });
