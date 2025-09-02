@@ -251,5 +251,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::delete('/payments/{id}', [FeeController::class, 'deletePayment']);
         Route::get('/payments/receipt/download/{id}', [FeeController::class,
         'downloadReceipt'])->name('receipt.download');
+        Route::get('/outstandings', [FeeController::class, 'outstandings']);
+        Route::post('/outstandings/create', [FeeController::class, 'addOutstanding']);
+        Route::post('/outstandings/delete', [FeeController::class, 'deleteOutstanding']);
     });
 });

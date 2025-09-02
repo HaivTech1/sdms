@@ -326,36 +326,52 @@ class FeeController extends Controller
 
     public function downloadDebtorListPDF()
     {
-        $data = Student::where('outstanding', '!=', null)->get();
-        $debtors = [];
+        try {
+            $data = Student::whereNotNull('outstanding')->get();
+            $debtors = [];
 
-        foreach ($data as $value){
-            $debtors[] = [
-                'student_id' => $value->id(),
-                'student_name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
-                'outstanding' => $value->outstanding,
-                'class' => $value->grade->title(),
-            ];
+            foreach ($data as $value){
+                $debtors[] = [
+                    'student_id' => $value->id(),
+                    'student_name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
+                    'outstanding' => $value->outstanding,
+                    'class' => $value->grade->title(),
+                ];
+            }
+
+            $pdf = PDF::loadHTML('generate.debtor_list');
+            $options = new Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $pdf->getDomPDF()->setOptions($options);
+            $pdf->setPaper('a4', 'portrait');
+            $pdf->setWarnings(false);
+            $pdf->getDomPDF()->setHttpContext(
+                stream_context_create([
+                    'ssl' => [
+                        'allow_self_signed' => true,
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                    ],
+                ])
+            );
+            $pdf->loadView('generate.debtor_list', ['debtors' => $debtors]);
+            $pdfBytes = $pdf->output();
+            $filename = 'outstanding-fee-' . uniqid() . '.pdf';
+            $relativePath = 'receipts/' . $filename;
+            Storage::put($relativePath, $pdfBytes);
+            $publicUrl = asset('storage/' . $relativePath);
+            // return $pdf->download('debtor_list.pdf');
+            return response()->json([
+                'status' => true,
+                'file_path' => $publicUrl
+            ]);
+        } catch (\Throwable $th) {
+            info($th);
+             return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ]);
         }
-
-    $pdf = PDF::loadHTML('generate.debtor_list');
-    $options = new Options();
-    $options->set('isHtml5ParserEnabled', true);
-    $pdf->getDomPDF()->setOptions($options);
-    $pdf->setPaper('a4', 'portrait');
-    $pdf->setWarnings(false);
-    $pdf->getDomPDF()->setHttpContext(
-            stream_context_create([
-                'ssl' => [
-                    'allow_self_signed' => true,
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                ],
-            ])
-        );
-        $pdf->loadView('generate.debtor_list', ['debtors' => $debtors]);
-
-        return $pdf->download('debtor_list.pdf');
     }
 
     public function updateOutstanding(Request $request)
@@ -377,6 +393,95 @@ class FeeController extends Controller
                 'message' => $th->getMessage(),
             ], 500);
        }
+    }
+
+    public function outstandings()
+    {
+        try{
+            $students = Student::whereNotNull("outstanding")->get();
+
+            $outstandings = [];
+            foreach($students as $student){
+                $term = Term::findOrFail($student->outstanding['term_id']);
+                $period = Period::findOrFail($student->outstanding['period_id']);
+
+                $outstandings[]= [
+                    'id' => $student->uuid,
+                    'name' => $student->fullName(),
+                    'outstanding' => [
+                        'amount' => intval($student->outstanding['outstanding']),
+                        'term' => $term->title,
+                        'period' => $period->title
+                    ]
+                ];
+            }
+
+            return response()->json([
+                'status' => true,
+                'outstandings' => $outstandings
+            ], 200);
+        }catch(\Throwable $th){
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ]. 500);
+        }
+    }
+
+    public function addOutstanding(Request $request)
+    {
+        try {
+            $data = $request->all();
+            $validator = Validator::make($data, [
+                'student_id' => ['required', 'exists:students,uuid'],
+                'outstanding' => ['required', 'numeric', 'min:0'],
+                'grade_id' => ['required', 'exists:grades,id'],
+            ]);
+
+            if($validator->fails()){
+                return response()->json([
+                    'status' => false,
+                    'message' => $validator->errors()->toArray()
+                ], 400);
+            }
+
+            $student = Student::where('uuid', $data['student_id'])->first();
+            $student->update([
+                'outstanding' => $data,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Outstanding submitted successfully!'
+            ], 201);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 201);
+        }
+    }
+
+    public function deleteOutstanding(Request $request)
+    {
+        try {
+            $student = Student::findOrFail($request->student_id);
+            $student->update([
+                'outstanding' => null,
+            ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Outstanding deleted successfully!'
+            ], 200);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 201);
+        }
     }
 
     public function notifyParents(Request $request)
@@ -419,7 +524,7 @@ class FeeController extends Controller
                 $watMessage .= "Your child *$name*'s school fees for $term->title term is as follows:\\ \\";
                 $watMessage .= "Outstanding Feespublic function notifyParents(Request $request)
     
-    }: *₦ " . number_format($outstanding, 2) . "*\\";
+        }: *₦ " . number_format($outstanding, 2) . "*\\";
                 $watMessage .= "Fees: *₦ " . number_format($feeAmount, 2) . "*\\";
                 $watMessage .= "Total Fees: *₦ " . number_format($total, 2) . "*\\ \\";
                 $watMessage .= "The school's account number details is below:\\*Acccount Number:* 1012048635\\*Bank Name:* Zenith Bank\\*Account Name:* St Louis Nursery and Primary School Ondo.";
@@ -571,117 +676,140 @@ class FeeController extends Controller
                 'type' => 'required|in:full,partial',
             ]);
 
-        if($validator->fails()){
-            return response()->json(['status' => false, 'message' => $validator->errors()->toArray()], 400);
-        }
-
-        $period = Period::find($request->period_id);
-        $term = Term::find($request->term_id);
-        $amount = intval($request->amount);
-        $balance = intval($request->balance);
-        $type = $request->type;
-
-        $student = Student::where('uuid', $request->student_uuid)->first();
-        $check = Payment::where('student_uuid', $student->uuid)->where('period_id', $period->id)->where('term_id', $term->id)->first();
-
-        if ($check && $check->type === 'full') {
-            return response()->json([
-                    'status' => false, 
-                    'message' => "{$student->fullName()} is not owing for {$period->title} - {$term->title}"
-            ], 400);
-        } elseif($check && $check->type === 'partial') {
-            $current = $check->amount + $amount;
-            $check->update(['amount' => $current, 'type' => $type, 'balance' => $balance]);
-            return response()->json([
-                'status' => false,
-                'message' => "Payment updated successfully for {$student->fullName()}"
-            ], 200);
-        }else{
-            $payment = new Payment([
-             'paid_by'  => $request->paid_by,
-             'initial'  => $amount,
-             'payable'  => $amount,
-             'amount'   => $amount,
-             'balance'   => $balance,
-             'method' => 'cash',
-             'period_id'   => $period->id,
-             'term_id'   => $term->id,
-             'type'   => $type,
-             'category' => $request->category,
-             'student_uuid' => $student->uuid,
-             'author_id' => auth()->id(),
-            ]);
-
-            $payment->trans_id = 'TRX'.rand(0000,9999);
-            $payment->ref_id = 'REF'.rand(0000,9999);
-            $payment->save();
-
-            // generate PDF receipt using existing receipt blade
-            try {
-                $pdf = Pdf::loadView('student.receipt', ['payment' => $payment, 'student' => $student]);
-                $options = new Options();
-                $options->set('isHtml5ParserEnabled', true);
-                $pdf->getDomPDF()->setOptions($options);
-                $pdf->setPaper('a4', 'portrait');
-                $pdf->setWarnings(false);
-                $pdf->getDomPDF()->setHttpContext(
-                    stream_context_create([
-                        'ssl' => [
-                            'allow_self_signed' => true,
-                            'verify_peer' => false,
-                            'verify_peer_name' => false,
-                        ],
-                    ])
-                );
-
-                $pdfBytes = $pdf->output();
-                $filename = 'receipt-' . $payment->id . '-' . uniqid() . '.pdf';
-                $relativePath = 'receipts/' . $filename;
-                Storage::put($relativePath, $pdfBytes);
-                $publicUrl = asset('storage/' . $relativePath);
-
-                // persist receipt filename/path on the payment record
-                try {
-                    $payment->receipt = $relativePath;
-                    $payment->save();
-                } catch (\Throwable $e) {
-                    info('Failed to save receipt path on payment: ' . $e->getMessage());
-                }
-
-                // dispatch notifications to parents: email (with attachment path) and whatsapp (with public URL)
-                try {
-                    $subject = "Payment Receipt for " . $student->fullName();
-                    $body = "Dear Parent/Guardian,\n\nPlease find attached the payment receipt for your child " . $student->fullName() . ".\n\nThank you.";
-
-                    // NotifyParentsJob expects ($student, $body, $subject, $path = null, $eventId = null)
-                    // pass the storage relative path so the job/mailable can attach by path; include eventId null
-                    dispatch(new NotifyParentsJob($student, $body, $subject, storage_path('app/' . $relativePath)));
-
-                    // SendWhatsappJob expects ($student = null, string $message, string $type = 'parent', $eventId = null)
-                    $waMessage = "Payment receipt for " . $student->fullName() . ": " . $publicUrl;
-                    dispatch(new SendWhatsappJob($student, $waMessage, 'parent'));
-                } catch (\Throwable $notifEx) {
-                    info('Payment notifications dispatch failed: ' . $notifEx->getMessage());
-                }
-            } catch (\Throwable $e) {
-                // fall back to empty receipt url if PDF generation fails
-                info('Receipt PDF generation failed: ' . $e->getMessage());
-                $publicUrl = '';
+            if($validator->fails()){
+                return response()->json(['status' => false, 'message' => $validator->errors()->toArray()], 400);
             }
 
-            return response()->json([
-                'status' => true,
-                'message' => "Payment created successfully! for {$student->fullName()}",
-                'receipt' => $publicUrl,
-            ], 201);
-        }
+            $period = Period::find($request->period_id);
+            $term = Term::find($request->term_id);
+            $amount = intval($request->amount);
+            $balance = intval($request->balance);
+            $type = $request->type;
+
+            $student = Student::where('uuid', $request->student_uuid)->first();
+            $check = Payment::where('student_uuid', $student->uuid)->where('period_id', $period->id)->where('term_id', $term->id)->first();
+
+            $getFee = Fee::where([
+                'grade_id' => $request->grade_id,
+                'type' => $student->type,
+                'term_id' => $term->id,
+            ])->first();
+
+            if(!$getFee){
+                return response()->json([
+                    'status' => false,
+                    'message' => "There is no fee set yet for the given term. Please add first."
+                ], 400);
+            }
+
+            $fee = 0; 
+            $fee += $getFee->details->sum('price');
+
+            $outstanding = $student->outstanding !== null
+            ? intval($student->outstanding['outstanding'])
+            : 0;
+
+            $totalPayable = $fee += $outstanding;
+            $feeBalance = $totalPayable - $amount;
+
+            if ($check && $check->type === 'full') {
+                return response()->json([
+                        'status' => false, 
+                        'message' => "{$student->fullName()} is not owing for {$period->title} - {$term->title}"
+                ], 400);
+            } elseif($check && $check->type === 'partial') {
+                $current = $check->amount + $amount;
+                $check->update(['amount' => $current, 'type' => $type, 'balance' => $balance]);
+                return response()->json([
+                    'status' => false,
+                    'message' => "Payment updated successfully for {$student->fullName()}"
+                ], 200);
+            }else{
+                $payment = new Payment([
+                'paid_by'  => $request->paid_by,
+                'initial'  => $amount,
+                'payable'   => $totalPayable,
+                'amount'   => $amount,
+                'balance' =>  $balance ? $balance : $feeBalance,
+                'method' => 'cash',
+                'period_id'   => $period->id,
+                'term_id'   => $term->id,
+                'type'   => $type,
+                'category' => $request->category,
+                'student_uuid' => $student->uuid,
+                'author_id' => auth()->id(),
+                ]);
+
+                $payment->trans_id = 'TRX'.rand(0000,9999);
+                $payment->ref_id = 'REF'.rand(0000,9999);
+                $payment->save();
+
+                // generate PDF receipt using existing receipt blade
+                try {
+                    $pdf = Pdf::loadView('student.receipt', ['payment' => $payment, 'student' => $student]);
+                    $options = new Options();
+                    $options->set('isHtml5ParserEnabled', true);
+                    $pdf->getDomPDF()->setOptions($options);
+                    $pdf->setPaper('a4', 'portrait');
+                    $pdf->setWarnings(false);
+                    $pdf->getDomPDF()->setHttpContext(
+                        stream_context_create([
+                            'ssl' => [
+                                'allow_self_signed' => true,
+                                'verify_peer' => false,
+                                'verify_peer_name' => false,
+                            ],
+                        ])
+                    );
+
+                    $pdfBytes = $pdf->output();
+                    $filename = 'receipt-' . $payment->id . '-' . uniqid() . '.pdf';
+                    $relativePath = 'receipts/' . $filename;
+                    Storage::put($relativePath, $pdfBytes);
+                    $publicUrl = asset('storage/' . $relativePath);
+
+                    // persist receipt filename/path on the payment record
+                    try {
+                        $payment->receipt = $relativePath;
+                        $payment->save();
+                    } catch (\Throwable $e) {
+                        info('Failed to save receipt path on payment: ' . $e->getMessage());
+                    }
+
+                    // dispatch notifications to parents: email (with attachment path) and whatsapp (with public URL)
+                    try {
+                        $subject = "Payment Receipt for " . $student->fullName();
+                        $body = "Dear Parent/Guardian,\n\nPlease find attached the payment receipt for your child " . $student->fullName() . ".\n\nThank you.";
+
+                        // NotifyParentsJob expects ($student, $body, $subject, $path = null, $eventId = null)
+                        // pass the storage relative path so the job/mailable can attach by path; include eventId null
+                        dispatch(new NotifyParentsJob($student, $body, $subject, storage_path('app/' . $relativePath)));
+
+                        // SendWhatsappJob expects ($student = null, string $message, string $type = 'parent', $eventId = null)
+                        $waMessage = "Payment receipt for " . $student->fullName() . ": " . $publicUrl;
+                        dispatch(new SendWhatsappJob($student, $waMessage, 'parent'));
+                    } catch (\Throwable $notifEx) {
+                        info('Payment notifications dispatch failed: ' . $notifEx->getMessage());
+                    }
+                } catch (\Throwable $e) {
+                    // fall back to empty receipt url if PDF generation fails
+                    info('Receipt PDF generation failed: ' . $e->getMessage());
+                    $publicUrl = '';
+                }
+
+                return response()->json([
+                    'status' => true,
+                    'message' => "Payment created successfully! for {$student->fullName()}",
+                    'receipt' => $publicUrl,
+                ], 201);
+            }
         } catch (\Throwable $th) {
             info($th);
             return response()->json([
                 'status' => false,
                 'message' => "There was a problem creating the payment. Please contact the administrator or try again later.",
                 'error' => $th->getMessage()
-            ]);
+            ], 500);
         }
     }
 
