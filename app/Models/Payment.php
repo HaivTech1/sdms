@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasAuthor;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,11 +26,12 @@ class Payment extends Model
         'initial',
         'balance',
         'payable',
-        'payment_type',
-        'payment_category',
         'trans_id',
         'ref_id',
-        'channel',
+        'type',
+        'category',
+        'method',
+        'receipt',
         'author_id'
     ];
 
@@ -121,7 +123,7 @@ class Payment extends Model
     {
         $term = "%$term%";
         return  $query->whereHas('student', function($query) use ($term){
-            $query->where('first_name', $term)
+            $query->where('first_name', 'like', $term)
                 ->orWhere('last_name', 'like', $term)
                 ->orWhere('other_name', 'like', $term)
                 ->orWhere('uuid', 'like', $term);
@@ -144,6 +146,22 @@ class Payment extends Model
         ];
 
         return $category[$this->payment_category];
+    }
+
+    /**
+     * Return full public URL to receipt if exists
+     */
+    public function getReceiptUrlAttribute()
+    {
+        if (empty($this->receipt)) {
+            return null;
+        }
+
+        if (Storage::exists($this->receipt)) {
+            return asset('storage/' . $this->receipt);
+        }
+
+        return null;
     }
 
     public function getPaymentStatusAttribute()

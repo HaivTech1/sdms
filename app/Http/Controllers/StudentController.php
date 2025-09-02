@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreStudentRequest;
 use PDF;
+use Dompdf\Options;
 use App\Traits\NotifiableParentsTrait;
 use App\Traits\NumberBroadcast;
 
@@ -352,11 +353,13 @@ class StudentController extends Controller
             'grade_id' => $request->get('grade_id'),
         ])->get();
 
-        $pdf = PDF::loadHTML('generate.student_list');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setWarnings(false);
-        $pdf->getDomPDF()->setHttpContext(
+    $pdf = PDF::loadHTML('generate.student_list');
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $pdf->getDomPDF()->setOptions($options);
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setWarnings(false);
+    $pdf->getDomPDF()->setHttpContext(
             stream_context_create([
                 'ssl' => [
                     'allow_self_signed' => true,

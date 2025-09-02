@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use PDF;
+use Dompdf\Options;
 use App\Models\Term;
 use App\Models\Trip;
 use App\Models\Grade;
@@ -51,11 +52,13 @@ class TripController extends Controller
     {
         $trips = Trip::get();
 
-        $pdf = PDF::loadHTML('generate.trip_list');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setWarnings(false);
-        $pdf->getDomPDF()->setHttpContext(
+    $pdf = PDF::loadHTML('generate.trip_list');
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $pdf->getDomPDF()->setOptions($options);
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setWarnings(false);
+    $pdf->getDomPDF()->setHttpContext(
             stream_context_create([
                 'ssl' => [
                     'allow_self_signed' => true,
@@ -82,11 +85,13 @@ class TripController extends Controller
                 $paymentQuery->where('payment_type', 'full');
         })->whereTrip_id($request->trip_id)->where('term_id', $term->id())->where('period_id', $period->id())->get();
 
-        $pdf = PDF::loadHTML('generate.trip_paid_list');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setWarnings(false);
-        $pdf->getDomPDF()->setHttpContext(
+    $pdf = PDF::loadHTML('generate.trip_paid_list');
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $pdf->getDomPDF()->setOptions($options);
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setWarnings(false);
+    $pdf->getDomPDF()->setHttpContext(
             stream_context_create([
                 'ssl' => [
                     'allow_self_signed' => true,
@@ -117,11 +122,13 @@ class TripController extends Controller
         ->whereTrip_id($request->trip_id)->where('term_id', $term->id())->where('period_id', $period->id())
         ->get();
 
-        $pdf = PDF::loadHTML('generate.trip_paid_list');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setWarnings(false);
-        $pdf->getDomPDF()->setHttpContext(
+    $pdf = PDF::loadHTML('generate.trip_paid_list');
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $pdf->getDomPDF()->setOptions($options);
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setWarnings(false);
+    $pdf->getDomPDF()->setHttpContext(
             stream_context_create([
                 'ssl' => [
                     'allow_self_signed' => true,

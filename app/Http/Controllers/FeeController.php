@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\v1\PaymentResource;
 use App\Models\Fee;
-use App\Jobs\CreateFee;
 use App\Models\Student;
 use App\Models\FeeDetail;
 use App\Traits\WhatsappMessageTrait;
 use Illuminate\Http\Request;
-use App\Http\Requests\FeeRequest;
+use App\Models\Payment;
+use App\Models\Period;
 use App\Models\Term;
 use App\Scopes\HasActiveScope;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Dompdf\Options;
+use App\Jobs\NotifyParentsJob;
+use App\Jobs\SendWhatsappJob;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use PDF;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 class FeeController extends Controller
 {
@@ -333,11 +338,13 @@ class FeeController extends Controller
             ];
         }
 
-        $pdf = PDF::loadHTML('generate.debtor_list');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setWarnings(false);
-        $pdf->getDomPDF()->setHttpContext(
+    $pdf = PDF::loadHTML('generate.debtor_list');
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $pdf->getDomPDF()->setOptions($options);
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setWarnings(false);
+    $pdf->getDomPDF()->setHttpContext(
             stream_context_create([
                 'ssl' => [
                     'allow_self_signed' => true,
@@ -465,5 +472,253 @@ class FeeController extends Controller
                 'message' => $th->getMessage(),
             ], 500);
         }
+    }
+
+    public function payments(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 30);
+            $page = $request->input('page', 1);
+            $search = trim((string) $request->input("search", ""));
+            $query = Payment::with(['student', 'period', 'term'])->orderBy('created_at', 'desc');
+
+            if($search){
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('student', function($sq) use ($search) {
+                        $sq->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]) 
+                           ->orWhere('last_name', 'like', "%{$search}%")
+                           ->orWhere('first_name', 'like', "%{$search}%")
+                           ->orWhere('uuid', $search)
+                           ->orWhereHas('user', function($u) use ($search) {
+                                $u->where('reg_no', 'like', "%{$search}%");
+                           });
+                    })
+                    ->orWhere('student_uuid', $search)
+                    ->orWhere('paid_by', 'like', "%{$search}%")
+                    ->orWhere('trans_id', 'like', "%{$search}%")
+                    ->orWhere('ref_id', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('grade_id')) {
+                $query->where('grade_id', $request->grade_id);
+            }
+
+            // Filter: term_id
+            if ($request->filled('term_id')) {
+                $query->where('term_id', $request->term_id);
+            }
+
+            // Filter: type
+            if ($request->filled('type')) {
+                $query->where('type', $request->type);
+            }
+
+            if ($request->filled('method')) {
+                $query->where('method', $request->method);
+            }
+
+            if ($request->filled('category')) {
+                $query->where('category', $request->category);
+            }
+
+            $total = $query->count();
+            $payments = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
+
+            return response()->json([
+                'status' => true,
+                'payments' => $payments,
+                'total' => $total,
+                'current_page' => (int) $page,
+                'per_page' => (int) $perPage,
+                'last_page' => ceil($total / $perPage),
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function paymentDetails($id)
+    {
+        try {
+            $payment = Payment::with(['student', 'period', 'term'])->findOrFail($id);
+
+            return response()->json([
+                'status' => true,
+                'payment' => new PaymentResource($payment)
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function createPayment(Request $request)
+    {
+        try {
+            $data = $request->all();
+            $validator = Validator::make($data, [
+                'student_uuid' => 'required|exists:students,uuid',
+                'paid_by' => 'required|string|max:255',
+                'amount' => 'required|numeric|min:0',
+                'period_id' => 'required|exists:periods,id',
+                'term_id' => 'required|exists:terms,id',
+                'type' => 'required|in:full,partial',
+            ]);
+
+        if($validator->fails()){
+            return response()->json(['status' => false, 'message' => $validator->errors()->toArray()], 400);
+        }
+
+        $period = Period::find($request->period_id);
+        $term = Term::find($request->term_id);
+        $amount = intval($request->amount);
+        $balance = intval($request->balance);
+        $type = $request->type;
+
+        $student = Student::where('uuid', $request->student_uuid)->first();
+        $check = Payment::where('student_uuid', $student->uuid)->where('period_id', $period->id)->where('term_id', $term->id)->first();
+
+        if ($check && $check->type === 'full') {
+            return response()->json([
+                    'status' => false, 
+                    'message' => "{$student->fullName()} is not owing for {$period->title} - {$term->title}"
+            ], 400);
+        } elseif($check && $check->type === 'partial') {
+            $current = $check->amount + $amount;
+            $check->update(['amount' => $current, 'type' => $type, 'balance' => $balance]);
+            return response()->json([
+                'status' => false,
+                'message' => "Payment updated successfully for {$student->fullName()}"
+            ], 200);
+        }else{
+            $payment = new Payment([
+             'paid_by'  => $request->paid_by,
+             'initial'  => $amount,
+             'payable'  => $amount,
+             'amount'   => $amount,
+             'balance'   => $balance,
+             'method' => 'cash',
+             'period_id'   => $period->id,
+             'term_id'   => $term->id,
+             'type'   => $type,
+             'category' => $request->category,
+             'student_uuid' => $student->uuid,
+             'author_id' => auth()->id(),
+            ]);
+
+            $payment->trans_id = 'TRX'.rand(0000,9999);
+            $payment->ref_id = 'REF'.rand(0000,9999);
+            $payment->save();
+
+            // generate PDF receipt using existing receipt blade
+            try {
+                $pdf = Pdf::loadView('student.receipt', ['payment' => $payment, 'student' => $student]);
+                $options = new Options();
+                $options->set('isHtml5ParserEnabled', true);
+                $pdf->getDomPDF()->setOptions($options);
+                $pdf->setPaper('a4', 'portrait');
+                $pdf->setWarnings(false);
+                $pdf->getDomPDF()->setHttpContext(
+                    stream_context_create([
+                        'ssl' => [
+                            'allow_self_signed' => true,
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                        ],
+                    ])
+                );
+
+                $pdfBytes = $pdf->output();
+                $filename = 'receipt-' . $payment->id . '-' . uniqid() . '.pdf';
+                $relativePath = 'receipts/' . $filename;
+                Storage::put($relativePath, $pdfBytes);
+                $publicUrl = asset('storage/' . $relativePath);
+
+                // persist receipt filename/path on the payment record
+                try {
+                    $payment->receipt = $relativePath;
+                    $payment->save();
+                } catch (\Throwable $e) {
+                    info('Failed to save receipt path on payment: ' . $e->getMessage());
+                }
+
+                // dispatch notifications to parents: email (with attachment path) and whatsapp (with public URL)
+                try {
+                    $subject = "Payment Receipt for " . $student->fullName();
+                    $body = "Dear Parent/Guardian,\n\nPlease find attached the payment receipt for your child " . $student->fullName() . ".\n\nThank you.";
+
+                    // NotifyParentsJob expects ($student, $body, $subject, $path = null, $eventId = null)
+                    // pass the storage relative path so the job/mailable can attach by path; include eventId null
+                    dispatch(new NotifyParentsJob($student, $body, $subject, storage_path('app/' . $relativePath)));
+
+                    // SendWhatsappJob expects ($student = null, string $message, string $type = 'parent', $eventId = null)
+                    $waMessage = "Payment receipt for " . $student->fullName() . ": " . $publicUrl;
+                    dispatch(new SendWhatsappJob($student, $waMessage, 'parent'));
+                } catch (\Throwable $notifEx) {
+                    info('Payment notifications dispatch failed: ' . $notifEx->getMessage());
+                }
+            } catch (\Throwable $e) {
+                // fall back to empty receipt url if PDF generation fails
+                info('Receipt PDF generation failed: ' . $e->getMessage());
+                $publicUrl = '';
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => "Payment created successfully! for {$student->fullName()}",
+                'receipt' => $publicUrl,
+            ], 201);
+        }
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => "There was a problem creating the payment. Please contact the administrator or try again later.",
+                'error' => $th->getMessage()
+            ]);
+        }
+    }
+
+    public function deletePayment($id)
+    {
+        try {
+            $payment = Payment::findOrFail($id);
+
+            if (!empty($payment->receipt) && Storage::exists($payment->receipt)) {
+                Storage::delete($payment->receipt);
+            }
+
+            $payment->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Payment deleted successfully!'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function downloadReceipt($payment)
+    {
+        $check = Payment::findOrFail($payment);
+        if (empty($check->receipt) || !\Illuminate\Support\Facades\Storage::exists($check->receipt)) {
+            abort(404);
+        }
+
+        $path = storage_path('app/' . $check->receipt);
+        $name = basename($check->receipt);
+        return response()->download($path, $name, [
+            'Content-Type' => 'application/pdf'
+        ]);
     }
 }

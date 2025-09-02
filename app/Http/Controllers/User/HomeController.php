@@ -308,5 +308,18 @@ class HomeController extends Controller
                 $table->string('qrcode')->nullable()->after('device_token');
             });
         }
+
+        if (!Schema::hasColumn('payments', 'category')) {
+            Schema::table('payments', function (Blueprint $table) {
+                $table->string('category')->nullable()->after('type');
+            });
+        }
+
+        if (!Schema::hasColumn('payments', 'receipt')) {
+            Schema::table('payments', function (Blueprint $table) {
+                $table->string('receipt')->nullable()->after('method');
+            });
+        }
+
     }
 }

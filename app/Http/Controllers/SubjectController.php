@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use PDF;
+use Dompdf\Options;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Jobs\CreateSubject;
@@ -58,11 +59,13 @@ class SubjectController extends Controller
             'status' => 1,
         ])->get();
 
-        $pdf = PDF::loadHTML('generate.subject_list');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true]);
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setWarnings(false);
-        $pdf->getDomPDF()->setHttpContext(
+    $pdf = PDF::loadHTML('generate.subject_list');
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $pdf->getDomPDF()->setOptions($options);
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setWarnings(false);
+    $pdf->getDomPDF()->setHttpContext(
             stream_context_create([
                 'ssl' => [
                     'allow_self_signed' => true,

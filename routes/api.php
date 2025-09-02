@@ -245,5 +245,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::delete('/delete/{id}', [FeeController::class, 'delete']);
         Route::get('/notify/{id}', [FeeController::class, 'notify']);
         Route::get('/toggle/{id}', [FeeController::class, 'toggle']);
+        Route::get('/payments', [FeeController::class, 'payments']);
+        Route::get('/payments/{id}', [FeeController::class, 'paymentDetails']);
+        Route::post('/payments/create', [FeeController::class, 'createPayment']);
+        Route::delete('/payments/{id}', [FeeController::class, 'deletePayment']);
+        Route::get('/payments/receipt/download/{id}', [FeeController::class,
+        'downloadReceipt'])->name('receipt.download');
     });
 });

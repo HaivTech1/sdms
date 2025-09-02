@@ -383,7 +383,6 @@ Route::post('/payment/paystack', [PaymentController::class, 'makePayment'])->nam
 Route::get('/payment/callback/paystack', [PaymentController::class, 'callback'])->name('payment.paystack.callback');
 Route::get('/payment/receipt/{payment}', [PaymentController::class, 'receipt'])->name('receipt');
 
-
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/assign-student-roles', function(){
         $users = \App\Models\User::where('type', \App\Models\User::STUDENT)->get();

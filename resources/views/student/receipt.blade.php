@@ -1,308 +1,169 @@
-<div id="invoice-POS">
-    <div class="hero">
-        <img src="{{ asset('storage/' .application('image')) }}" alt="{{ application('name') }}" width="100px">
-    </div>
-    <div>
-        {{-- prit section --}}
-        <div class="print_content">
-            <div style="display: flex; justify-content: center">
-                <img src="{{ asset('storage/' .application('image')) }}" alt="{{ application('name') }}" width="100px">
-            </div>
-            <center id="top">
-                <div class="info">
-                    <h2 style="font-size: 10px; font-weight: semibold; text-decoration: uppercase;">{{ application('name')}}</h2>
-                    <address style="font-size: 8px">{{ application('address')}}</address>
-                </div>
-            </center>
+ <!doctype html>
+ <html>
 
-            <div class="mid">
-                <div class="info">
-                    <address style="font-size: 8px">
-                        {{ application('description')}} <br>
-                        {{ application('email')}} <br>
-                        {{ application('line1') }}, {{ application('line2') }}
-                    </address>
-                </div>
-            </div>
-        </div>
-        <!-- end of receipt mid -->
-        
-        <div class="customer">
-            <div class="table-wrapper">
-                <table class="table table-condensed">
-                    <tbody>
-                        <tr>
-                            <th style="text-align: left">Paid By:</th>
-                            <td>{{ $payment->paidBy() }}</td>
-                        </tr>
-                        <tr>
-                            <th style="text-align: left">Ref. No:</th>
-                            <td>{{ $payment->referenceId() }}</td>
-                        </tr>
-                        <tr>
-                            <th style="text-align: left">Trasac. Id:</th>
-                            <td>{{ $payment->transactionId() }}</td>
-                        </tr>
-                        <tr>
-                            <th style="text-align: left">Term/Session:</th>
-                            <td>{{ $payment->term->title() }}-{{ $payment->period->title() }}</td>
-                        </tr>
-                        <tr>
-                            <th style="text-align: left">Paid for:</th>
-                            <td>{{ $payment->category }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+ <head>
+     <meta charset="utf-8">
+     <title>{{ 'Payment Receipt' }}</title>
+     <style>
+         body {
+             font-family: DejaVu Sans, sans-serif;
+             font-size: 12px;
+             color: #000;
+         }
 
-        <div class="bot">
-            <div id="table">
-                <table>
-                    <tr class="tabletitle">
-                        <td class="" style="width: 20%">
-                            <h2>Name</h2>
-                        </td>
-                        <td class="Hours">
-                            <h2>Class</h2>
-                        </td>
-                        <td class="Rate">
-                            <h2>Payable</h2>
-                        </td>
-                        <td class="Rate">
-                            <h2>Paid</h2>
-                        </td>
-                    </tr>
-                    @php
-                        $student = \App\Models\Student::findOrFail($payment->student_uuid);
-                    @endphp
-                    
-                    <tr class="service">
-                        <td class="tableitem">
-                            <h5 class="itemtext">{{ $student->fullName() }}</h5>
-                        </td>
-                        <td class="tableitem">
-                            <h5 class="itemtext">{{ $student->grade->title() }}</h5>
-                        </td>
-                        <td class="tableitem">
-                            <h5 class="itemtext">{{ trans('global.naira') }}{{ number_format($payment->payable(), 2) }}</h5>
-                        </td>
-                        <td class="tableitem">
-                            <h5 class="itemtext">{{ trans('global.naira') }}{{ number_format($payment->amount(), 2) }}</h5>
-                        </td>
-                    </tr>
-                    <tr class="tabletitle">
-                        <td></td>
-                        <td class="itemtext" colspan="2">To Balance</td>
-                        <td class="itemtext">  {{ trans('global.naira') }}{{ number_format($payment->balance(), 2) }} </h2>
-                        </td>
-                    </tr>
-                </table>
+         table {
+             width: 100%;
+             border-collapse: collapse;
+         }
 
-                @if ($payment->balance() > 0)
-                    <div id="legalcopy">
-                        <address class="legal" style="font-size: 8px">
-                        ** Please endeviour to pay your balance early. **
-                            <br>
-                            <span>** Thanks you! **</span>
-                        </address>
-                    </div>
-                @endif
+         th,
+         td {
+             padding: 6px;
+             vertical-align: top;
+         }
 
-                <div class="serial-number" style="font-size:10px; ">
-                    <span>{{ Date('d:m:Y h:i:s') }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="d-print-none">
-            <div class="float-end">
-                <a href="javascript:window.print()"
-                    class="btn btn-success waves-effect waves-light me-1"><i
-                        class="fa fa-print"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+         th {
+             background: #f4f4f4;
+             font-weight: 700;
+         }
 
-<div style="display: flex; justify-content: center; align-items: baseline" class="hidden-print">
-    <div style="margin-top: 10px; font-size: 10px">
-        <div class="downloadcontainer downloadfile" style="display: flex; justify-content: center">
-            <div style="margin-left: 5px">
-                <button id="downloadbutton" class="button">Print Reciept</button>
-            </div>
-        </div>
-        {{-- <button type="button">download Receipt</button> --}}
-    </div>
+         .muted {
+             color: #666;
+             font-size: 11px
+         }
 
-    <a style='text-decoration: none; color: #000000; margin-left: 5px' href="{{ route('dashboard') }}">Go back home</a>
-</div>
+         .right {
+             text-align: right
+         }
 
-<style>
-    .hero {
-        position: absolute;
-        opacity: 0.1;
-        background-repeat: no-repeat;
-    }
+         .center {
+             text-align: center
+         }
 
-    #invoice-POS {
-        position: relative;
-        padding: 1em;
-        margin: 0 auto;
-        width: 15em;
-        background: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.5em;
-        font-family: monospace;
-        line-height: 10px;
-        border: 1px dashed #000000
-    }
+         .watermark {
+             position: fixed;
+             top: 180px;
+             left: 0;
+             right: 0;
+             text-align: center;
+             opacity: 0.08;
+             z-index: 0
+         }
 
-    #invoice-POS ::selection {
-        background: #f315f3;
-        color: #fff;
-    }
+         .header-table td {
+             vertical-align: middle;
+         }
 
-    #invoice-POS ::-moz-selection {
-        background: rgb(2, 15, 133);
-        color: #fff;
-    }
+         .note {
+             font-size: 10px;
+             margin-top: 8px
+         }
 
-    #invoice-POS h1 {
-        font-size: 1.5em;
-        color: #222;
-    }
+         @media print {
+             .no-print {
+                 display: none !important
+             }
+         }
+     </style>
+ </head>
 
-    #invoice-POS h2 {
-        font-size: 0.9em;
-    }
+ <body>
 
-    #invoice-POS h3 {
-        font-size: 1.2em;
-        font-weight: 300;
-        line-height: 2em;
-    }
-
-    #invoice-POS p {
-        font-size: 0.7em;
-        line-height: 1.2em;
-        color: #666;
-    }
-
-    #invoice-POS .top,
-    #invoice-POS .mid,
-    #invoice-POS .bot {
-        border-bottom: 1px solid #eee;
-    }
-
-    #invoice-POS .top {
-        min-height: 100px;
-    }
-
-    #invoice-POS .mid {
-        min-height: 50px;
-    }
-
-    #invoice-POS .bot {
-        min-height: 50px;
-        font-size: 0.8em;
-    }
-
-    #invoice-POS #top .logo img {
-        height: 10px;
-        width: 60px;
-        background-image: url('/images/logo.png') no-repeat;
-        background-size: 60px 60px;
-    }
-
-    #invoice-POS .info {
-        display: block;
-        margin-left: 0;
-        text-align: center;
-    }
-
-    #invoice-POS .title {
-        float: right;
-    }
-
-    #invoice-POS .title p {
-        text-align: right;
-    }
-
-    #invoice-POS table {
-        width: 100%;
-        border-collapse: #eee;
-    }
-
-    #invoice-POS .tabletitle {
-        font-size: 1.0em;
-        background: #eee;
-    }
-
-    #invoice-POS .service {
-        border-bottom: 1px solid #eee;
-    }
-
-    #invoice-POS .service {
-        border-bottom: 1px solid #eee;
-    }
-
-    #invoice-POS .item {
-        width: 24mm;
-    }
-
-    #invoice-POS .itemtext {
-        font-size: 10px;
-        font-weight: 500;
-        text-align: center
-    }
-
-    #invoice-POS #legalcopy {
-        margin-top: 5mm;
-        text-align: center;
-    }
-
-    .serial-number {
-        margin-top: 5px;
-        margin-bottom: 2mm;
-        text-align: center;
-        font-size: 12px;
-    }
-
-    .serial {
-        margin-top: 5mm;
-        margin-bottom: 2mm;
-        text-align: center;
-        font-size: 10px !important;
-    }
-
-    .customer{
-        display: flex;
-        justify-content: space-between;
-        margin: 2px 0;
-        padding: 2px 0px;
-        border-top: 1px dashed black;
-        border-bottom: 1px dashed black
-    }
-
-    @media print {
-        .hidden-print,
-        .hidden-print * {
-            display: none !important;
+    {{-- faint background watermark like attendance export --}}
+    @php
+        // attempt to embed the logo as a base64 data URI so DomPDF can render it reliably
+        $logoDataUri = null;
+        $logoRel = application('image') ?? '';
+        if (!empty($logoRel)) {
+            $publicPath = public_path('storage/' . $logoRel);
+            $storagePath = storage_path('app/' . $logoRel);
+            if (file_exists($publicPath)) {
+                $mime = @mime_content_type($publicPath) ?: 'image/png';
+                $logoDataUri = 'data:'.$mime.';base64,'.base64_encode(file_get_contents($publicPath));
+            } elseif (file_exists($storagePath)) {
+                $mime = @mime_content_type($storagePath) ?: 'image/png';
+                $logoDataUri = 'data:'.$mime.';base64,'.base64_encode(file_get_contents($storagePath));
+            }
         }
-    }
-</style>
+    @endphp
+    <div class="watermark">
+        <img src="{{ $logoDataUri ?? asset('storage/' . application('image')) }}" alt="logo"
+            style="width: 300px; height: auto; display: inline-block;" />
+    </div>
 
-<script>
-    var downloadButton = document.getElementById("downloadbutton");
+     {{-- header with logo + school details (table layout for DomPDF) --}}
+     <div style="position: relative; z-index: 1; margin-bottom: 6px;">
+         <table style="width:100%; border-collapse: collapse; border: none;">
+             <tr>
+                <td style="width:15%; vertical-align: middle; text-align: left; border: none; padding: 0;">
+                    <img src="{{ $logoDataUri ?? asset('storage/' . application('image')) }}" alt="{{ application('name') }}"
+                        style="max-width: 80px; height: auto;" />
+                </td>
+                 <td style="width:70%; text-align: center; vertical-align: middle; border: none; padding: 0;">
+                     <div style="margin:0; font-size:18px; font-weight:700; text-transform:uppercase">
+                         {{ application('name') }}</div>
+                     <div style="font-size:12px">{{ application('address') }}</div>
+                     @if(application('local'))
+                     <div style="font-size:11px">{{ application('local') }}</div>
+                     @endif
+                 </td>
+                 <td
+                     style="width:15%; vertical-align: middle; text-align: right; border: none; padding: 0; font-size: 11px;">
+                     <div>Receipt</div>
+                     <div class="muted">{{ $payment->referenceId() }}</div>
+                 </td>
+             </tr>
+         </table>
+     </div>
 
-    downloadButton.addEventListener("click", function () {
-        downloadButton.type = 'hidden'; 
-        window.print();
-    });
+     <h2 style="margin-bottom:6px">Payment Receipt</h2>
 
-</script>
+     <table style="margin-bottom:6px; border: 1px solid #eee">
+         <tbody>
+             <tr>
+                 <th style="width:25%">Paid By</th>
+                 <td style="width:40%">{{ $payment->paidBy() }}</td>
+                 <th style="width:15%">Trans Id</th>
+                 <td style="width:20%">{{ $payment->transactionId() }}</td>
+             </tr>
+             <tr>
+                 <th>Term / Session</th>
+                 <td>{{ $payment->term->title() ?? '-' }} - {{ $payment->period->title() ?? '-' }}</td>
+                 <th>Paid For</th>
+                 <td>{{ $payment->category ?? '-' }}</td>
+             </tr>
+         </tbody>
+     </table>
+
+     <table style="border: 1px solid #ddd; margin-bottom:8px;">
+         <thead>
+             <tr>
+                 <th style="width:40%">Name</th>
+                 <th style="width:20%">Class</th>
+                 <th style="width:20%">Payable</th>
+                 <th style="width:20%">Paid</th>
+             </tr>
+         </thead>
+         <tbody>
+             <tr>
+                 <td>{{ $student?->fullName() ?? '-' }}</td>
+                 <td class="center">{{ $student?->grade?->title() ?? '-' }}</td>
+                 <td class="right">{{ trans('global.naira') }}{{ number_format($payment->payable(), 2) }}</td>
+                 <td class="right">{{ trans('global.naira') }}{{ number_format($payment->amount(), 2) }}</td>
+             </tr>
+             <tr>
+                 <td colspan="2" class="right">To Balance</td>
+                 <td colspan="2" class="right">{{ trans('global.naira') }}{{ number_format($payment->balance(), 2) }}
+                 </td>
+             </tr>
+         </tbody>
+     </table>
+
+     @if ($payment->balance() > 0)
+     <div class="note">** Please endeavour to pay your balance early. Thank you. **</div>
+     @endif
+
+     <div style="margin-top:8px; font-size:11px;">Generated: {{ \Carbon\Carbon::now()->format('j M Y g:i A') }}</div>
+ </body>
+
+ </html>
