@@ -28,6 +28,44 @@ class ApplicationController extends Controller
         return view('manager.application.index');
     }
 
+    /**
+     * Regenerate theme.css from settings and write to public/css/theme.css
+     */
+    public function regenerateTheme(Request $request)
+    {
+        // read settings
+        $primary = get_settings('primary_color') ?: '#377dff';
+        $secondary = get_settings('secondary_color') ?: '#6c757d';
+        $appbg = get_settings('app_background_color') ?: '#ffffff';
+        $contrast = get_settings('primary_contrast') ?: '#ffffff';
+
+        $css = "/* theme.css - generated from settings */\n";
+        $css .= ":root{\n";
+        $css .= "  --primary-color: {$primary};\n";
+        $css .= "  --secondary-color: {$secondary};\n";
+        $css .= "  --app-bg: {$appbg};\n";
+        $css .= "  --primary-contrast: {$contrast};\n";
+        $css .= "}\n\n";
+    $css .= ".btn-primary, .btn-primary:focus, .btn-primary:hover { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; color: var(--primary-contrast) !important; }\n";
+    $css .= ".btn-secondary, .btn-secondary:focus, .btn-secondary:hover { background-color: var(--secondary-color) !important; border-color: var(--secondary-color) !important; color: #fff !important; }\n";
+    $css .= "body{ background-color: var(--app-bg) !important; }\n";
+    $css .= ".vertical-menu, body[data-sidebar=\"dark\"] .navbar-brand-box { background-color: var(--primary-color) !important; color: var(--primary-contrast) !important; }\n";
+    $css .= "#sidebar-menu ul li .badge { background-color: var(--secondary-color) !important; color: #fff !important; }\n";
+
+    // Frontend-specific selectors (welcome page, auth links, cards)
+    $css .= ".home-btn .btn-primary, .auth-link .btn-primary, .auth-link .btn-primary.btn-rounded, .card .btn-primary { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; color: var(--primary-contrast) !important; }\n";
+    $css .= "a, a:hover { color: var(--primary-color) !important; }\n";
+    $css .= ".card, .wel-hero, .auth-card { background-color: rgba(255,255,255,0.02) !important; border: 1px solid rgba(0,0,0,0.04) !important; }\n";
+
+        try {
+            $path = public_path('css/theme.css');
+            file_put_contents($path, $css);
+            return response()->json(['status' => true, 'message' => 'Theme regenerated'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
     public function mail_config(Request $request)
     {
         Setting::updateOrInsert(

@@ -21,6 +21,16 @@
 
 <link rel="stylesheet" type="text/css" href="{{ asset('frontend/fonts/linea-fonts.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ asset('frontend/fonts/flaticon.css') }}">
+<!-- Theme overrides generated from settings (loaded after frontend styles) -->
+<link rel="stylesheet" href="{{ asset('css/theme.css') }}?v={{ filemtime(public_path('css/theme.css')) ?? time() }}" />
+<style>
+	:root{
+		--primary-color: {{ get_settings('primary_color') ?? '#377dff' }};
+		--secondary-color: {{ get_settings('secondary_color') ?? '#6c757d' }};
+		--app-bg: {{ get_settings('app_background_color') ?? '#ffffff' }};
+		--primary-contrast: {{ get_settings('primary_contrast') ?? '#ffffff' }};
+	}
+</style>
 
 <link href="{{ asset('css/toastr.min.css') }}" rel="stylesheet">
 <link href="{{ asset('css/notiflix.css') }}" rel="stylesheet">

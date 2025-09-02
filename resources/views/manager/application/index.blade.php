@@ -34,6 +34,12 @@
                                 <span class="d-none d-sm-block">Payment method</span>    
                             </a>
                         </li>
+                        <li @click.prevent="currentTab = 'formats'" class="nav-item">
+                            <a class="nav-link" :class="currentTab === 'formats' ? 'active' : ''" data-bs-toggle="tab" href="#formats" role="tab">
+                                <span class="d-block d-sm-none"><i class="fas fa-th-large"></i></span>
+                                <span class="d-none d-sm-block">Formats</span>
+                            </a>
+                        </li>
                         <li @click.prevent="currentTab = 'notification'" class="nav-item">
                             <a class="nav-link" :class="currentTab === 'notification' ? 'active' : ''" data-bs-toggle="tab" href="#notification" role="tab">
                                 <span class="d-block d-sm-none"><i class="fas fa-cog"></i></span>
@@ -71,6 +77,306 @@
                                 @endsuperadmin
                                 <livewire:manager.application>
                             </div> 
+                        </div>
+
+                        <!-- New Formats tab-pane -->
+                        <div class="tab-pane" :class="currentTab === 'formats' ? 'active' : ''" id="formats" role="tabpanel">
+                            <div class="card">
+                            <div class="card-body">
+                                <h1 class="card-title mt-2 mb-2">Marks format for midterm and exam control unit</h1>
+
+                                <div class="row mb-2">
+                                    <button type="button" onclick="copyDataFormat()" class="btn btn-sm btn-primary">Copy marks format</button>
+                                </div>
+
+                                <form id="settingForm" enctype="multipart/form-data" method="POST">
+                                    @csrf
+                                    <div class="row">
+                                        <table class="table table-bordered" id="settingTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Value</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach(\App\Models\Setting::all() as $setting)
+                                                    @if (!in_array($setting->key, ['mail_config', 'digital_payment',
+                                                    'paystack', 'cash', 'over_ten', 'over_twenty', 'over_fourty',
+                                                    'over_sixty', 'over_hundred', 'exam_grade', 'exam_grade_jun',
+                                                    'exam_remark', 'exam_remark_jun', 'affective_domain',
+                                                    'psychomotor_domain', 'app_type', "paypal"]) && $setting->value != 1
+                                                    && $setting->value != 0)
+                                                        <?php $data = json_decode($setting->value, true); ?>
+                                                        <tr>
+                                                            <td>
+                                                                <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $setting->key }}" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="addmore[{{ $loop->index }}][value]"
+                                                                    value="{{ implode(',', array_map(function ($key, $value) { $v = is_array($value) ? $value : ['full_name' => (string)$value, 'mark' => '']; return $key.':'.($v['full_name'] ?? '').':'.($v['mark'] ?? ''); }, array_keys((array)$data), (array)$data)) }}"
+                                                                    class="form-control"
+                                                                    placeholder="Enter data in the format: code:title:mark eg - first_test:First Test:15,entry_2:Entry 2:20,ca:Continuous Assessment:30,project:Project:25"
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" name="add" id="add" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                @endforeach
+
+                                                @if (\App\Models\Setting::count() == 0)
+                                                    <tr>
+                                                        <td>
+                                                            <input type="text" name="addmore[0][key]"
+                                                                placeholder="Enter your name" class="form-control" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="addmore[0][value]"
+                                                                placeholder="Enter data in the format: code:title:mark eg - first_test:First Test:15,entry_2:Entry 2:20,ca:Continuous Assessment:30,project:Project:25" class="form-control" />
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" name="add" id="add" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div>
+
+                                    <div class="float-right">
+                                        <button id="settingBtn" class="btn btn-success" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <h1 class="card-title mt-2 mb-2">Grading and Color control unit</h1>
+                                    <div class="row mb-2">
+                                        <div class="col-sm-6">
+                                            <button type="button" onclick="copyColorFormat()" class="btn btn-sm btn-primary">Copy color format</button>
+                                        </div>
+                                        <div class="col-sm-6">
+
+                                            @foreach(colorArray() as $name => $hex)
+                                                <button onclick="copyToColorClipboard('{{ $hex }}')" class="btn btn-sm text-white" style="background-color: {{$hex}};">{{$name}}</button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <form id="colorForm" enctype="multipart/form-data" method="POST">
+                                        @csrf
+                                        <div class="row">
+                                            <table class="table table-bordered" id="colorTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Value</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php 
+                                                        $settings = \App\Models\Setting::whereIn('key', [
+                                                            'over_ten', 'over_twenty', 'over_fourty', 'over_sixty', 'over_hundred',
+                                                        ])->get();
+                                                    ?>
+                                                    
+                                                    @foreach( $settings as $setting)
+                                                            <?php $data = json_decode($setting->value, true); ?>
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $setting->key }}" class="form-control" />
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][value]"
+                                                                        value="{{ implode(',', array_map(function ($key, $value) { $v = is_array($value) ? $value : ['from' => '', 'color' => (string)$value]; return $key.':'.($v['from'] ?? '').':'.($v['color'] ?? ''); }, array_keys((array)$data), (array)$data)) }}"
+                                                                        class="form-control"
+                                                                        placeholder="Enter data in the format: markfrom:markto:color eg - 8.5:10:#ff0022"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" name="add" id="addColor" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                                </td>
+                                                            </tr>
+                                                    @endforeach
+
+                                                    @if ($settings->count() == 0)
+                                                        <tr>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][key]"
+                                                                    placeholder="Enter your name" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][value]"
+                                                                    placeholder="Enter data in the format: markfrom:markto:color eg - 8.5:10:#ff0022" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" name="add" id="addColor" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                            
+                                        </div>
+
+                                        <div class="float-right">
+                                            <button id="colorBtn" class="btn btn-success" type="submit">Save</button>
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <h1 class="card-title mt-2 mb-2">Exam grade and remark control unit</h1>
+                                    <div class="row mb-2">
+                                        <div class="col-sm-6">
+                                            <button type="button" onclick="copyToGradeClipboard()" class="btn btn-sm btn-primary">Copy grade format</button>
+                                        </div>
+                                    </div>
+                                    <form id="gradeForm" enctype="multipart/form-data" method="POST">
+                                        @csrf
+                                        <div class="row">
+                                            <table class="table table-bordered" id="gradeTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Value</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php 
+                                                        $settings = \App\Models\Setting::whereIn('key', [
+                                                            'exam_grade', 'exam_remark', 'exam_grade_jun', 'exam_remark_jun'
+                                                        ])->get();
+                                                    ?>
+                                                    
+                                                    @foreach( $settings as $setting)
+                                                            <?php $data = json_decode($setting->value, true); ?>
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $setting->key }}" class="form-control" />
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][value]"
+                                                                        value="{{ implode(',', array_map(function ($key, $value) { $v = is_array($value) ? $value : ['from' => '', 'text' => (string)$value]; return $key.':'.($v['from'] ?? '').':'.($v['text'] ?? ''); }, array_keys((array)$data), (array)$data)) }}"
+                                                                        class="form-control"
+                                                                        placeholder="Enter data in the format: markfrom:markto:text eg - 8.5:10:A"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" name="add" id="addGrade" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                                </td>
+                                                            </tr>
+                                                    @endforeach
+
+                                                    @if ($settings->count() == 0)
+                                                        <tr>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][key]"
+                                                                    placeholder="Enter your name" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][value]"
+                                                                    placeholder="Enter data in the format: markfrom:markto:text eg - 8.5:10:A" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" name="add" id="addGrade" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                            
+                                        </div>
+
+                                        <div class="float-right">
+                                            <button id="gradeBtn" class="btn btn-success" type="submit">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <h1 class="card-title mt-2 mb-2">Affective and Psychomotor Domain</h1>
+
+                                    <form id="affectiveForm" method="POST">
+                                        @csrf
+                                        <div class="row">
+                                            <table class="table table-bordered" id="affectiveTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Value</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                        $domains = \App\Models\Setting::whereIn('key', [
+                                                            'affective_domain', 'psychomotor_domain'
+                                                        ])->get();
+                                                    ?>
+                                                    
+                                                    @foreach( $domains as $domain)
+                                                            <?php $data = json_decode($domain->value, true); ?>
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $domain->key }}" class="form-control" />
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="addmore[{{ $loop->index }}][value]"
+                                                                        value="{{ 
+                                                                            implode(',', array_map(function ($key, $value) { 
+                                                                                return is_array($value) ? implode('|', $value) : (string)$value; 
+                                                                            }, 
+                                                                            array_keys((array)$data), (array)$data)) 
+                                                                        }}"
+                                                                        class="form-control"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" name="add" id="addAffective" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                                </td>
+                                                            </tr>
+                                                    @endforeach
+
+                                                    @if ($domains->count() == 0)
+                                                        <tr>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][key]"
+                                                                    placeholder="Enter domain" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="addmore[0][value]"
+                                                                    placeholder="eg. hand-writing" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" name="add" id="addAffective" class="btn btn-success"><i class="bx bx-plus"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                            
+                                        </div>
+
+                                        <div class="float-right">
+                                            <button id="affectiveBtn" class="btn btn-success" type="submit">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="tab-pane" :class="currentTab === 'mail' ? 'active' : ''" id="mail" role="tabpanel">
@@ -315,148 +621,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="col-md-6 pt-4">
-                                        <div class="card">
-                                            <div class="card-body" style="padding: 20px">
-                                                <h5 class="text-center">{{translate('messages.flutterwave')}}</h5>
-                                                @php($config=get_application_settings('flutterwave'))
-                                                <form action="{{env('APP_MODE')!='demo'?route('appSetting.payment-method-update',['flutterwave']):'javascript:'}}"
-                                                    method="post">
-                                                    @csrf
-                                                    @if(isset($config))
-                                                        <div class="form-group mb-2">
-                                                            <label class="control-label">{{translate('messages.flutterwave')}}</label>
-                                                        </div>
-                                                        <div class="form-group mb-2 mt-2">
-                                                            <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
-                                                            <label style="padding-left: 10px">{{translate('messages.active')}}</label>
-                                                            <br>
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
-                                                            <label style="padding-left: 10px">{{translate('messages.inactive')}} </label>
-                                                            <br>
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <label class="text-capitalize"
-                                                                style="padding-left: 10px">{{translate('messages.publicKey')}}</label><br>
-                                                            <input type="text" class="form-control" name="public_key"
-                                                                value="{{env('APP_MODE')!='demo'?$config['public_key']:''}}">
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <label class="text-capitalize"
-                                                                style="padding-left: 10px">{{translate('messages.secret')}} {{translate('messages.key')}}</label><br>
-                                                            <input type="text" class="form-control" name="secret_key"
-                                                                value="{{env('APP_MODE')!='demo'?$config['secret_key']:''}}">
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <label class="text-capitalize"
-                                                                style="padding-left: 10px">{{translate('messages.hash')}}</label><br>
-                                                            <input type="text" class="form-control" name="hash"
-                                                                value="{{env('APP_MODE')!='demo'?$config['hash']:''}}">
-                                                        </div>
-
-                                                        <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}" onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}" class="btn btn-primary mb-2">{{translate('messages.save')}}</button>
-                                                    @else
-                                                        <button type="submit"
-                                                                class="btn btn-primary mb-2">{{translate('messages.configure')}}</button>
-                                                    @endif
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 pt-4">
-                                        <div class="card">
-                                            <div class="card-body" style="padding: 20px">
-                                                <h5 class="text-center">{{translate('messages.paypal')}}</h5>
-                                                @php($config=get_application_settings('paypal'))
-                                                <form
-                                                    action="{{env('APP_MODE')!='demo'?route('appSetting.payment-method-update',['paypal']):'javascript:'}}"
-                                                    method="post">
-                                                    @csrf
-                                                    @if(isset($config))
-                                                        <div class="form-group mb-2">
-                                                            <label class="control-label">{{translate('messages.paypal')}}</label>
-                                                        </div>
-                                                        <div class="form-group mb-2 mt-2">
-                                                            <input type="radio" name="status" value="1" {{$config?($config['status']==1?'checked':''):''}}>
-                                                            <label style="padding-left: 10px">{{translate('messages.active')}}</label>
-                                                            <br>
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <input type="radio" name="status" value="0" {{$config?($config['status']==0?'checked':''):''}}>
-                                                            <label style="padding-left: 10px">{{translate('messages.inactive')}}</label>
-                                                            <br>
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <label
-                                                                style="padding-left: 10px">{{translate('messages.paypal')}} {{translate('messages.client')}} {{translate('messages.id')}}</label><br>
-                                                            <input type="text" class="form-control" name="paypal_client_id"
-                                                                value="{{env('APP_MODE')!='demo'?($config?$config['paypal_client_id']:''):''}}">
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <label style="padding-left: 10px">{{translate('messages.paypalsecret')}} </label><br>
-                                                            <input type="text" class="form-control" name="paypal_secret"
-                                                                value="{{env('APP_MODE')!='demo'?$config['paypal_secret']??'':''}}">
-                                                        </div>
-                                                        <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
-                                                                onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
-                                                                class="btn btn-primary mb-2">{{translate('messages.save')}}</button>
-                                                    @else
-                                                        <button type="submit"
-                                                                class="btn btn-primary mb-2">{{translate('messages.configure')}}</button>
-                                                    @endif
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 pt-4">
-                                        <div class="card">
-                                            <div class="card-body" style="padding: 20px">
-                                                <h5 class="text-center">{{translate('messages.stripe')}}</h5>
-                                                @php($config=get_application_settings('stripe'))
-                                                <form action="{{env('APP_MODE')!='demo'?route('appSetting.payment-method-update',['stripe']):'javascript:'}}"
-                                                    method="post">
-                                                    @csrf
-                                                    @if(isset($config))
-                                                        <div class="form-group mb-2">
-                                                            <label class="control-label">{{translate('messages.stripe')}}</label>
-                                                        </div>
-                                                        <div class="form-group mb-2 mt-2">
-                                                            <input type="radio" name="status" value="1" {{$config?($config['status']==1?'checked':''):''}}>
-                                                            <label style="padding-left: 10px">{{translate('messages.active')}}</label>
-                                                            <br>
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <input type="radio" name="status" value="0" {{$config?($config['status']==0?'checked':''):''}}>
-                                                            <label style="padding-left: 10px">{{translate('messages.inactive')}} </label>
-                                                            <br>
-                                                        </div>
-                                                        <div class="form-group mb-2">
-                                                            <label
-                                                                style="padding-left: 10px">{{translate('messages.published')}} {{translate('messages.key')}}</label><br>
-                                                            <input type="text" class="form-control" name="published_key"
-                                                                value="{{env('APP_MODE')!='demo'?($config?$config['published_key']:''):''}}">
-                                                        </div>
-
-                                                        <div class="form-group mb-2">
-                                                            <label
-                                                                style="padding-left: 10px">{{translate('messages.api')}} {{translate('messages.key')}}</label><br>
-                                                            <input type="text" class="form-control" name="api_key"
-                                                                value="{{env('APP_MODE')!='demo'?($config?$config['api_key']:''):''}}">
-                                                        </div>
-                                                        <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}" onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}" class="btn btn-primary mb-2">{{translate('messages.save')}}</button>
-                                                        @else
-                                                        <button type="submit"
-                                                                class="btn btn-primary mb-2">{{translate('messages.configure')}}</button>
-                                                    @endif
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -555,297 +719,7 @@
                                 </div>
                             </div>
 
-                            <div class="card">
-                            <div class="card-body">
-                                <h1 class="card-title mt-2 mb-2">Marks format for midterm and exam control unit</h1>
-
-                                <div class="row mb-2">
-                                    <button type="button" onclick="copyDataFormat()" class="btn btn-sm btn-primary">Copy marks format</button>
-                                </div>
-
-                                <form id="settingForm" enctype="multipart/form-data" method="POST">
-                                    @csrf
-                                    <div class="row">
-                                        <table class="table table-bordered" id="settingTable">
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>Value</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach(\App\Models\Setting::all() as $setting)
-                                                    @if (!in_array($setting->key, ['mail_config', 'digital_payment', 'paystack', 'cash', 'over_ten', 'over_twenty', 'over_fourty', 'over_sixty', 'over_hundred', 'exam_grade', 'exam_grade_jun', 'exam_remark', 'exam_remark_jun', 'affective_domain', 'psychomotor_domain', 'next_term_resume', 'no_school_open']) && $setting->value != 1 && $setting->value != 0)
-                                                        <?php $data = json_decode($setting->value, true); ?>
-                                                        <tr>
-                                                            <td>
-                                                                <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $setting->key }}" class="form-control" />
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="addmore[{{ $loop->index }}][value]"
-                                                                    value="{{ implode(',', array_map(function ($key, $value) { return $key.':'.$value['full_name'].':'.$value['mark']; }, array_keys($data), $data)) }}"
-                                                                    class="form-control"
-                                                                    placeholder="Enter data in the format: code:title:mark eg - first_test:First Test:15,entry_2:Entry 2:20,ca:Continuous Assessment:30,project:Project:25"
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" name="add" id="add" class="btn btn-success"><i class="bx bx-plus"></i></button>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                @endforeach
-
-                                                @if (\App\Models\Setting::count() == 0)
-                                                    <tr>
-                                                        <td>
-                                                            <input type="text" name="addmore[0][key]"
-                                                                placeholder="Enter your name" class="form-control" />
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" name="addmore[0][value]"
-                                                                placeholder="Enter data in the format: code:title:mark eg - first_test:First Test:15,entry_2:Entry 2:20,ca:Continuous Assessment:30,project:Project:25" class="form-control" />
-                                                        </td>
-                                                        <td>
-                                                            <button type="button" name="add" id="add" class="btn btn-success"><i class="bx bx-plus"></i></button>
-                                                        </td>
-                                                    </tr>
-                                                @endif
-                                            </tbody>
-                                        </table>
-                                        
-                                    </div>
-
-                                    <div class="float-right">
-                                        <button id="settingBtn" class="btn btn-success" type="submit">Save</button>
-                                    </div>
-                                </form>
-                            </div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <h1 class="card-title mt-2 mb-2">Grading and Color control unit</h1>
-                                    <div class="row mb-2">
-                                        <div class="col-sm-6">
-                                            <button type="button" onclick="copyColorFormat()" class="btn btn-sm btn-primary">Copy color format</button>
-                                        </div>
-                                        <div class="col-sm-6">
-
-                                            @foreach(colorArray() as $name => $hex)
-                                                <button onclick="copyToColorClipboard('{{ $hex }}')" class="btn btn-sm text-white" style="background-color: {{$hex}};">{{$name}}</button>
-                                            @endforeach
-                                        </div>
-                                    </div>
-
-                                    <form id="colorForm" enctype="multipart/form-data" method="POST">
-                                        @csrf
-                                        <div class="row">
-                                            <table class="table table-bordered" id="colorTable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Name</th>
-                                                        <th>Value</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php 
-                                                        $settings = \App\Models\Setting::whereIn('key', [
-                                                            'over_ten', 'over_twenty', 'over_fourty', 'over_sixty', 'over_hundred',
-                                                        ])->get();
-                                                    ?>
-                                                    
-                                                    @foreach( $settings as $setting)
-                                                            <?php $data = json_decode($setting->value, true); ?>
-                                                            <tr>
-                                                                <td>
-                                                                    <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $setting->key }}" class="form-control" />
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="addmore[{{ $loop->index }}][value]"
-                                                                        value="{{ implode(',', array_map(function ($key, $value) { return $key.':'.$value['from'].':'.$value['color']; }, array_keys($data), $data)) }}"
-                                                                        class="form-control"
-                                                                        placeholder="Enter data in the format: markfrom:markto:color eg - 8.5:10:#ff0022"
-                                                                    />
-                                                                </td>
-                                                                <td>
-                                                                    <button type="button" name="add" id="addColor" class="btn btn-success"><i class="bx bx-plus"></i></button>
-                                                                </td>
-                                                            </tr>
-                                                    @endforeach
-
-                                                    @if ($settings->count() == 0)
-                                                        <tr>
-                                                            <td>
-                                                                <input type="text" name="addmore[0][key]"
-                                                                    placeholder="Enter your name" class="form-control" />
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="addmore[0][value]"
-                                                                    placeholder="Enter data in the format: markfrom:markto:color eg - 8.5:10:#ff0022" class="form-control" />
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" name="add" id="addColor" class="btn btn-success"><i class="bx bx-plus"></i></button>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                            
-                                        </div>
-
-                                        <div class="float-right">
-                                            <button id="colorBtn" class="btn btn-success" type="submit">Save</button>
-                                        </div>
-                                    </form>
-
-                                </div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <h1 class="card-title mt-2 mb-2">Exam grade and remark control unit</h1>
-                                    <div class="row mb-2">
-                                        <div class="col-sm-6">
-                                            <button type="button" onclick="copyToGradeClipboard()" class="btn btn-sm btn-primary">Copy grade format</button>
-                                        </div>
-                                    </div>
-                                    <form id="gradeForm" enctype="multipart/form-data" method="POST">
-                                        @csrf
-                                        <div class="row">
-                                            <table class="table table-bordered" id="gradeTable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Name</th>
-                                                        <th>Value</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php 
-                                                        $settings = \App\Models\Setting::whereIn('key', [
-                                                            'exam_grade', 'exam_remark', 'exam_grade_jun', 'exam_remark_jun'
-                                                        ])->get();
-                                                    ?>
-                                                    
-                                                    @foreach( $settings as $setting)
-                                                            <?php $data = json_decode($setting->value, true); ?>
-                                                            <tr>
-                                                                <td>
-                                                                    <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $setting->key }}" class="form-control" />
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="addmore[{{ $loop->index }}][value]"
-                                                                        value="{{ implode(',', array_map(function ($key, $value) { return $key.':'.$value['from'].':'.$value['text']; }, array_keys($data), $data)) }}"
-                                                                        class="form-control"
-                                                                        placeholder="Enter data in the format: markfrom:markto:text eg - 8.5:10:A"
-                                                                    />
-                                                                </td>
-                                                                <td>
-                                                                    <button type="button" name="add" id="addGrade" class="btn btn-success"><i class="bx bx-plus"></i></button>
-                                                                </td>
-                                                            </tr>
-                                                    @endforeach
-
-                                                    @if ($settings->count() == 0)
-                                                        <tr>
-                                                            <td>
-                                                                <input type="text" name="addmore[0][key]"
-                                                                    placeholder="Enter your name" class="form-control" />
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="addmore[0][value]"
-                                                                    placeholder="Enter data in the format: markfrom:markto:text eg - 8.5:10:A" class="form-control" />
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" name="add" id="addGrade" class="btn btn-success"><i class="bx bx-plus"></i></button>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                            
-                                        </div>
-
-                                        <div class="float-right">
-                                            <button id="gradeBtn" class="btn btn-success" type="submit">Save</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <h1 class="card-title mt-2 mb-2">Affective and Psychomotor Domain</h1>
-
-                                    <form id="affectiveForm" method="POST">
-                                        @csrf
-                                        <div class="row">
-                                            <table class="table table-bordered" id="affectiveTable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Name</th>
-                                                        <th>Value</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php
-                                                        $domains = \App\Models\Setting::whereIn('key', [
-                                                            'affective_domain', 'psychomotor_domain'
-                                                        ])->get();
-                                                    ?>
-                                                    
-                                                    @foreach( $domains as $domain)
-                                                            <?php $data = json_decode($domain->value, true); ?>
-                                                            <tr>
-                                                                <td>
-                                                                    <input type="text" name="addmore[{{ $loop->index }}][key]" value="{{ $domain->key }}" class="form-control" />
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="addmore[{{ $loop->index }}][value]"
-                                                                        value="{{ 
-                                                                            implode(',', array_map(function ($key, $value) { 
-                                                                                return $value; 
-                                                                            }, 
-                                                                            array_keys($data), $data)) 
-                                                                        }}"
-                                                                        class="form-control"
-                                                                    />
-                                                                </td>
-                                                                <td>
-                                                                    <button type="button" name="add" id="addAffective" class="btn btn-success"><i class="bx bx-plus"></i></button>
-                                                                </td>
-                                                            </tr>
-                                                    @endforeach
-
-                                                    @if ($domains->count() == 0)
-                                                        <tr>
-                                                            <td>
-                                                                <input type="text" name="addmore[0][key]"
-                                                                    placeholder="Enter domain" class="form-control" />
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="addmore[0][value]"
-                                                                    placeholder="eg. hand-writing" class="form-control" />
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" name="add" id="addAffective" class="btn btn-success"><i class="bx bx-plus"></i></button>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                            
-                                        </div>
-
-                                        <div class="float-right">
-                                            <button id="affectiveBtn" class="btn btn-success" type="submit">Save</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+                            <!-- Formats moved to the Formats tab -->
 
                             @can('settings_create')
                                 <div class="card">
@@ -1176,9 +1050,20 @@
                 }).then((response) => {
                     toggleAble('#colorBtn', false);
                     toastr.success(response.message);
-                    setTimeout(() =>{
-                        window.location.reload();
-                    }, 1000)
+                    // regenerate theme.css so the new colors are written to public/css/theme.css
+                    $.ajax({
+                        url: '{{ route('admin.theme.regenerate') }}',
+                        method: 'POST',
+                        data: {},
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    }).done(function(res){
+                        toastr.success(res.message || 'Theme regenerated');
+                        setTimeout(() =>{ window.location.reload(); }, 800);
+                    }).fail(function(err){
+                        // non-fatal: notify user but still reload so inline CSS vars pick up
+                        toastr.warning('Theme regenerate failed: '+ (err.responseJSON?.message || '')); 
+                        setTimeout(() =>{ window.location.reload(); }, 800);
+                    });
                 }).catch((error) => {
                     toggleAble('#colorBtn', false);
                     toastr.error(error.responseJSON.message);

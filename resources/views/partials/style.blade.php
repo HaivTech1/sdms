@@ -20,6 +20,105 @@
 <!-- App Css-->
 <link href="{{ asset('css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 
+<!-- Dynamic theme overrides (uses server settings, loaded after app.min.css so it can override compiled rules) -->
+<link href="{{ asset('css/theme.css') }}?v={{ filemtime(public_path('css/theme.css')) ?? time() }}" rel="stylesheet" type="text/css" />
+<style>
+    :root {
+        /* Fallbacks provided if settings are not set */
+        --app-bg: {{  '#ffffff' }};
+        --primary-color: {{ get_settings('primary_color') ?? '#377dff' }};
+        --secondary-color: {{ get_settings('secondary_color') ?? '#6c757d' }};
+        --primary-contrast: {{ get_settings('secondary_color') ?? '#ffffff' }};
+    }
+
+    /* Common overrides that mirror variables used in the app stylesheet */
+    body {
+        /* background-color: var(--app-bg) !important; */
+    }
+
+    .btn-primary,
+    .btn-primary:focus,
+    .btn-primary:hover {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        color: var(--primary-contrast) !important;
+    }
+
+    .navbar,
+    .topbar {
+        background-color: var(--primary-color) !important;
+    }
+
+    .btn-secondary,
+    .btn-secondary:focus,
+    .btn-secondary:hover {
+        background-color: var(--secondary-color) !important;
+        border-color: var(--secondary-color) !important;
+        color: #fff !important;
+    }
+
+    /* Sidebar overrides (map to selectors from app.min.css) */
+    body[data-sidebar="dark"] .navbar-brand-box,
+    .vertical-menu {
+        background-color: var(--primary-color) !important;
+        color: var(--primary-contrast) !important;
+    }
+
+    #sidebar-menu ul li a {
+        color: rgba(255,255,255,0.9) !important;
+    }
+
+    #sidebar-menu ul li a:hover,
+    #sidebar-menu ul li a.active,
+    #sidebar-menu ul li a:focus {
+        background-color: rgba(0,0,0,0.08) !important;
+        color: var(--primary-contrast) !important;
+    }
+
+    #sidebar-menu ul li .badge {
+        background-color: var(--secondary-color) !important;
+        color: #fff !important;
+    }
+
+    /* Sub-menu background subtle tint */
+    #sidebar-menu ul li ul.sub-menu {
+        background-color: rgba(255,255,255,0.03) !important;
+    }
+
+    /* small utility for color chips used in admin UI */
+    .color-chip {
+        display:inline-block;
+        width:22px;
+        height:22px;
+        border-radius:3px;
+        vertical-align:middle;
+        margin-right:6px;
+        border:1px solid rgba(0,0,0,0.05);
+    }
+
+    /* Website/public-facing overrides */
+    .home-btn .btn-primary,
+    .auth-link .btn-primary,
+    .auth-link .btn-primary.btn-rounded,
+    .card .btn-primary {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        color: var(--primary-contrast) !important;
+    }
+
+    .card,
+    .wel-hero,
+    .auth-card {
+        background-color: rgba(255,255,255,0.02);
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    a,
+    a:hover {
+        color: var(--primary-color) !important;
+    }
+</style>
+
 <link href="{{ asset('css/toastr.min.css') }}" rel="stylesheet">
 <link href="{{ asset('css/notiflix.css') }}" rel="stylesheet">
 <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet">

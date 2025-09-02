@@ -20,12 +20,12 @@
     @endcan
 
     @can('lesson_create')
-        <li>
+        <!-- <li>
             <a href="{{ route('lesson.teacher') }}" class="waves-effect">
                 <i class="bx bx-video"></i>
                 <span key="t-chat">Virtual Lesson</span>
             </a>
-        </li>
+        </li> -->
     @endcan
     @can('assignment_create')
         <li>

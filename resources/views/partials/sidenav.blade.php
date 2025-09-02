@@ -30,7 +30,7 @@
                 @endcan
 
                 @can('scratchcard_access')
-                    <li>
+                    <!-- <li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bxs-devices"></i>
                             <span key="t-ecommerce">Scratch Card</span>
@@ -40,7 +40,7 @@
                             </li>
                             <li><a href="{{ route('user.pins') }}" key="t-products">Print Pins</a></li>
                         </ul>
-                    </li> 
+                    </li>  -->
                 @endcan
                 @can('setting_access')
                 <li>
@@ -61,7 +61,7 @@
                         <li><a href="{{ route('subject.index') }}" key="t-products">Subjects</a></li>
                         <li><a href="{{ route('schedule.index') }}" key="t-products">Schedule</a></li>
                         @can('fingerprint_access')
-                            <li><a href="{{ route('finger_device.index') }}" key="t-products">Biometric Device</a></li>
+                            <!-- <li><a href="{{ route('finger_device.index') }}" key="t-products">Biometric Device</a></li> -->
                         @endcan
                         <li><a href="{{ route('admin.period.setting') }}" key="t-products">Session Settings</a></li>
                     </ul>
@@ -75,7 +75,7 @@
                         <span key="t-ecommerce">Website Management</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <!-- <li><a href="{{ route('design.index') }}" key="t-products">School Homepage</a></li> -->
+                        <li><a href="{{ route('design.index') }}" key="t-products">School Homepage</a></li>
                         <li><a href="{{ route('admin.about.index') }}" key="t-products">Website Design</a></li>
                         <li><a href="{{ route('admin.gallery.index') }}" key="t-products">School Gallery</a></li>
                     </ul>
@@ -138,7 +138,7 @@
                 </li>
             @endcan
             @can('transport_access')
-                <li>
+                <!-- <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="bx bx-car"></i>
                         <span key="t-ecommerce">Transport Management</span>
@@ -148,10 +148,10 @@
                         <li><a href="{{ route('driver.index') }}" key="t-add-product">Drivers</a></li>
                         <li><a href="{{ route('trip.index') }}" key="t-add-product">Trips</a></li>
                     </ul>
-                </li>
+                </li> -->
             @endcan
             @can('ecommerce_access')
-                <li>
+                <!-- <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="bx bx-store-alt"></i>
                         <span key="t-ecommerce">Ecommerce Management</span>
@@ -160,10 +160,10 @@
                         <li><a href="{{ route('product.index') }}" key="t-add-product">Products</a></li>
                         <li><a href="{{ route('order.index') }}" key="t-add-product">Orders</a></li>
                     </ul>
-                </li>
+                </li> -->
             @endcan
             @can('whatsapp_access')
-                <li>
+                <!-- <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="bx bxl-whatsapp"></i>
                         <span key="t-ecommerce">Bot Management</span>
@@ -172,7 +172,7 @@
                         <li><a href="{{ route('admin.whatsapp.messages') }}" key="t-add-product">Sent Messages</a></li>
                         <li><a href="{{ route('admin.whatsapp.contacts') }}" key="t-add-product">Contacts</a></li>
                     </ul>
-                </li>
+                </li> -->
             @endcan
 
                 @can('result_access')
@@ -308,12 +308,12 @@
                     </li>
                 @endcan
                 @can('schoolbus_access')
-                    <li>
+                    <!-- <li>
                         <a class="waves-effect" href="{{ route('user.schoolbus.index') }}">
                             <i class="bx bx-car"></i> 
                             <span key="t-chat">School Bus</span>
                         </a>
-                    </li>
+                    </li> -->
                 @endcan
             </ul>
         </div>

@@ -204,6 +204,11 @@ Route::get('/filter-service-type', function () {
     return "Filtered transactions with 'service_type: Data Topup' saved back to the file.";
 });
 
+// Theme regeneration endpoint (admin only)
+Route::post('/admin/theme/regenerate', [ApplicationController::class, 'regenerateTheme'])
+    ->middleware(['auth','admin'])
+    ->name('admin.theme.regenerate');
+
 Route::get("/action", function(){
     $students = \App\Models\User::where('type', 4)->get();
     foreach($students as $student){
