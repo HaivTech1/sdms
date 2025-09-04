@@ -3,23 +3,54 @@
 namespace App\Traits;
 
 use App\Mail\SendMidtermMail;
+use App\Jobs\SendExpoPushJob;
+use App\Services\ExpoPushService;
 use Illuminate\Support\Facades\Mail;
 
 trait NotifiableParentsTrait
 {
     public static function notifyParents($student, $body, $subject, $path = null)
     {
-        
-        if (get_settings('father_notification') === 1 && isset($student->father) && !empty($student->father->email)) {
-            Mail::to($student->father->email())->send(new SendMidtermMail($body, $subject, $path));
+        $pushMessages = [];
+
+        if (get_settings('father_notification') === 1 && isset($student->father)) {
+            // keep existing email flow
+            if (!empty($student->father->email)) {
+                Mail::to($student->father->email())->send(new SendMidtermMail($body, $subject, $path));
+            }
+
+            // if this parent is a user with device_token, queue push
+            if (isset($student->father->user) && !empty($student->father->user->device_token)) {
+                $expo = app(ExpoPushService::class);
+                $pushMessages[] = $expo->makeMessage($student->father->user->device_token, $subject, $body, ['student_uuid' => $student->uuid ?? null]);
+            }
         }
 
-        if (get_settings('mother_notification') === 1 && isset($student->mother) && !empty($student->mother->email)) {
-            Mail::to($student->mother->email())->send(new SendMidtermMail($body, $subject, $path));
+        if (get_settings('mother_notification') === 1 && isset($student->mother)) {
+            if (!empty($student->mother->email)) {
+                Mail::to($student->mother->email())->send(new SendMidtermMail($body, $subject, $path));
+            }
+
+            if (isset($student->mother->user) && !empty($student->mother->user->device_token)) {
+                $expo = app(ExpoPushService::class);
+                $pushMessages[] = $expo->makeMessage($student->mother->user->device_token, $subject, $body, ['student_uuid' => $student->uuid ?? null]);
+            }
         }
 
-        if (get_settings('guardian_notification') === 1 && isset($student->guardian) && !empty($student->guardian->email)) {
-            Mail::to($student->guardian->email())->send(new SendMidtermMail($body, $subject, $path));
+        if (get_settings('guardian_notification') === 1 && isset($student->guardian)) {
+            if (!empty($student->guardian->email)) {
+                Mail::to($student->guardian->email())->send(new SendMidtermMail($body, $subject, $path));
+            }
+
+            if (isset($student->guardian->user) && !empty($student->guardian->user->device_token)) {
+                $expo = app(ExpoPushService::class);
+                $pushMessages[] = $expo->makeMessage($student->guardian->user->device_token, $subject, $body, ['student_uuid' => $student->uuid ?? null]);
+            }
+        }
+
+        if (!empty($pushMessages)) {
+            // dispatch job to send in background
+            SendExpoPushJob::dispatch($pushMessages);
         }
     }
 }

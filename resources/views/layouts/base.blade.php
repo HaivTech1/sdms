@@ -20,7 +20,7 @@
             @if (isset($header))
                 <div class="rs-breadcrumbs breadcrumbs-overlay">
                     <div class="breadcrumbs-img">
-                        <img src="{{ asset('storage/'.getAboutSetting('header_image')) }}" alt="Breadcrumb" style="height: 300px;">
+                        <!-- <img src="{{ asset('storage/'.getAboutSetting('header_image')) }}" alt="Breadcrumb" style="height: 300px;"> -->
                     </div>
                     <div class="breadcrumbs-text white-color">
                         <h1 class="page-title">{{ $header }}</h1>

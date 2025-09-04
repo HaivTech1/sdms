@@ -107,7 +107,8 @@
                         </div>
 
                         <div class="col-sm-6 mb-3">
-                            <x-form.label for="denomination" value="{{ __('Denomination') }}" /> <span style="color: red; font-size: 10px">(if Catholic)</span>
+                            <x-form.label for="denomination" value="{{ __('Denomination') }}" /> 
+                            <!-- <span style="color: red; font-size: 10px">(if Catholic)</span> -->
                             <x-form.input class="block w-full mt-1" type="text" name="denomination"
                                 :value="old('denomination')" />
                             <x-form.error for="denomination" />

@@ -133,14 +133,52 @@
 </head>
 <body>
     <div id="body_content">
+        @php
+            // Prepare logo from application settings as base64 for DomPDF; fallback to asset URL
+            $logoData = null;
+            $logo = application('image');
+            if ($logo) {
+                $logoPath = storage_path('app/public/' . $logo);
+                if (!file_exists($logoPath)) {
+                    $logoPath = public_path('storage/' . $logo);
+                }
+
+                if (file_exists($logoPath)) {
+                    $type = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION)) ?: 'png';
+                    $data = @file_get_contents($logoPath);
+                    if ($data !== false) {
+                        $logoData = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    }
+                }
+            }
+
+            // Prepare authenticated user's image as base64 if available
+            $userLogoData = null;
+            $userImage = optional(auth()->user())->image();
+            if ($userImage) {
+                $uPath = storage_path('app/public/' . $userImage);
+                if (!file_exists($uPath)) {
+                    $uPath = public_path('storage/' . $userImage);
+                }
+
+                if (file_exists($uPath)) {
+                    $uType = strtolower(pathinfo($uPath, PATHINFO_EXTENSION)) ?: 'png';
+                    $uData = @file_get_contents($uPath);
+                    if ($uData !== false) {
+                        $userLogoData = 'data:image/' . $uType . ';base64,' . base64_encode($uData);
+                    }
+                }
+            }
+        @endphp
+
         <div class="bg_img">
-            <img src="{{ asset('storage/' .application('image')) }}" alt="{{ application('name') }}" width="300px">
+            <img src="{{ $logoData ?? asset('storage/' . application('image')) }}" alt="{{ application('name') }}" width="300px">
         </div>
 
         <div>
             <div class="header">
                 <div class="header-item">
-                    <img src="{{ public_path('storage/'.application('image')) }}" width="70" height="70" alt="Profile Image">
+                    <img src="{{ $logoData ?? asset('storage/' . application('image')) }}" width="70" height="70" alt="Profile Image">
                 </div>
                 <div class="header-item">
                     <div style="font-weight: bold; text-align: center; text-transform: uppercase">{{ application('name') }}</div>
@@ -152,12 +190,12 @@
                     </div>
                 </div>
                  <div class="header-item">
-                    <img src="{{ public_path('storage/'.auth()->user()->image()) }}" width="70" height="70" alt="user">
+                    <img src="{{ $userLogoData ?? asset('storage/' . optional(auth()->user())->image()) }}" width="70" height="70" alt="user">
                 </div>
             </div>
 
             <div style="margin: 10px 0">
-                <div style="font-weight: 500; text-align: center; text-transform: uppercase">{{ application('name') }} {{ $grade->title() }} List</div>
+                <div style="font-weight: 500; text-align: center; text-transform: uppercase">{{ $grade->title() }} List</div>
             </div>
 
 

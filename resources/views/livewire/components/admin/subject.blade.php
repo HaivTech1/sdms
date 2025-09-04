@@ -175,7 +175,7 @@
                 
                 $.ajax({
                     method: 'GET',
-                    url: '{{ route('grade.subjects', ["grade_id" => ":grade_id"]) }}'.replace(':grade_id', id),
+                    url: '/get/grade/subjects'+ id,
                 }).done((response) => {
                     var subjects = response.subjects;
                     console.log(subjects);
