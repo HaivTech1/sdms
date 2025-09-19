@@ -321,5 +321,32 @@ class HomeController extends Controller
             });
         }
 
+        if (!Schema::hasTable('curriculums')) {
+            Schema::create('curriculums', function (Blueprint $table) {
+                $table->id();
+                $table->string('name')->nullable();
+                $table->foreignId('grade_id')->nullable()->constrained()->nullOnDelete();
+                $table->foreignId('subject_id')->nullable()->constrained()->nullOnDelete();
+                $table->foreignId('period_id')->nullable()->constrained()->nullOnDelete();
+                $table->foreignId('term_id')->nullable()->constrained()->nullOnDelete();
+                $table->text('description')->nullable();
+                $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasTable('curriculum_topics')) {
+            Schema::create('curriculum_topics', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('curriculum_id')->constrained('curriculums')->cascadeOnDelete();
+                $table->foreignId('week_id')->nullable()->constrained('weeks')->nullOnDelete();
+                $table->string('title')->nullable();
+                $table->text('objectives')->nullable();
+                $table->string('bloom_level')->nullable();
+                $table->text('resources')->nullable();
+                $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
+                $table->timestamps();
+            });
+        }
     }
 }

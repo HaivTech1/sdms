@@ -203,11 +203,11 @@
                     </div>
                     <div class="result-item">
                         <b>Class:</b>
-                        <span>{{ $student->grade->title()}}</span>
+                        <span>{{ $grade->title()}}</span>
                     </div>
                     <div class="result-item">
                         <b>Students in class:</b>
-                        <span>{{ $student->grade->students->count()}}</span>
+                        <span>{{ $gradeStudentsCount }}</span>
                     </div>
                     {{-- <div class="result-item">
                         <b>Admission No.:</b>
@@ -262,8 +262,8 @@
                         $midterm = get_settings('midterm_format');
                         $exam = get_settings('exam_format');
 
-                        $remarkFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_remark') : get_settings('exam_remark');
-                        $gradingFormat = \Illuminate\Support\Str::startsWith($student->grade->title, "SSS") ? get_settings('exam_grade') : get_settings('exam_grade');
+                        $remarkFormat = \Illuminate\Support\Str::startsWith($grade->title, "SSS") ? get_settings('exam_remark') : get_settings('exam_remark');
+                        $gradingFormat = \Illuminate\Support\Str::startsWith($grade->title, "SSS") ? get_settings('exam_grade') : get_settings('exam_grade');
 
                         $midtermTotal = 0;
                         $examTotal = 0;
@@ -405,10 +405,10 @@
                                         @endif
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(calculateResult($result), $student->grade->title()) }}</td>
+                                            {{ examGrade(calculateResult($result), $grade->title()) }}</td>
                                         <td
                                         style="font-size: 10px; width: 20%; font-weight: 500; text-align: center">
-                                        {{ examRemark(calculateResult($result), $student->grade->title()) }}</td>
+                                        {{ examRemark(calculateResult($result), $grade->title()) }}</td>
 
                                         
                                     @endif
@@ -439,11 +439,11 @@
 
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2), $student->grade->title()) }}
+                                            {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2), $grade->title()) }}
                                         </td>
                                         <td
                                             style="font-size: 10px; font-weight: 500; width: 20%; text-align: center">
-                                            {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2), $student->grade->title()) }}
+                                            {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2), $grade->title()) }}
                                         </td>
                                     @endif
 
@@ -468,10 +468,10 @@
                                         @endif
 
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $student->grade->title()) }}
+                                            {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $grade->title()) }}
                                         </td>
                                         <td style="font-size: 8px; font-weight: 500; width: 30%; text-align: center">
-                                            {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $student->grade->title()) }}
+                                            {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $grade->title()) }}
                                         </td>
                                     @endif
                                 </tr>
@@ -495,7 +495,9 @@
             <div style="text-align: center; margin: 7px 0">
                 <div><b style="font-size: 14px; text-align: center">Aggregate:</b> <span style="font-size: 12px;">{{ round($aggregate)}}/100</span></div>
                 @if($resultPosition == 1)
-                    <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of {{ $student->grade->students->count() }} students</span></div>
+                    <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span
+                            style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of
+                            {{ $gradeStudentsCount }} students</span></div>
                 @endif
             </div>
 

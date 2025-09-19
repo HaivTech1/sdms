@@ -704,7 +704,8 @@ class ResultController extends Controller
 
     public function primaryShow(Student $student, Request $request)
     {
-        $data = $this->generateStudentResultData($student, $request->period_id, $request->term_id);
+        $grade = Grade::find($request->grade_id);
+        $data = $this->generateStudentResultData($student, $request->period_id, $request->term_id, $grade);
         return view('admin.result.secondary', $data);
     }
 
@@ -716,7 +717,9 @@ class ResultController extends Controller
                 ? filter_var($request->publish, FILTER_VALIDATE_BOOLEAN)
                 : false;
 
-                $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
+                $grade = Grade::findOrFail($request->grade_id);
+                $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id',
+                $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $grade->id())->get();
                 $student = Student::findOrfail($request->student_id);
                 $idNumber = $student->user->code();
                 $name = $student->last_name . " " . $student->first_name . " " . $student->other_name;
@@ -749,7 +752,7 @@ class ResultController extends Controller
                 }
 
                 if($publish){
-                    $path = $this->generateExamResultLink($student, $request->period_id, $request->term_id);
+                    $path = $this->generateExamResultLink($student, $request->period_id, $request->term_id, $grade);
                     $publicUrl = null;
                     if ($path && file_exists($path)) {
                         $filename = basename($path);
@@ -774,9 +777,9 @@ class ResultController extends Controller
         }
     }
 
-    public function generateExamResultLink($student, $period_id, $term_id)
+    public function generateExamResultLink($student, $period_id, $term_id, $grade = null)
     {
-        $resultData = $this->generateStudentResultData($student, $period_id, $term_id);
+        $resultData = $this->generateStudentResultData($student, $period_id, $term_id, $grade);
         
         $resultData['student'] = $student;
 
@@ -793,7 +796,8 @@ class ResultController extends Controller
     public function generateSingleExamPDF(Request $request)
     {
         $student = Student::findOrFail($request->student_id);
-        $data = $this->generateStudentResultData($student, $request->period_id, $request->term_id);
+        $grade = Grade::find($request->grade_id);
+        $data = $this->generateStudentResultData($student, $request->period_id, $request->term_id, $grade);
 
         $filename = "{$data['student']->last_name}_{$data['student']->first_name}_result.pdf";
         
@@ -802,17 +806,13 @@ class ResultController extends Controller
         return $pdf->download($filename);
     }
 
-    private function generateStudentResultData(Student $student, string $period_id, string $term_id)
+    public function generateStudentResultData(Student $student, string $period_id, string $term_id, $grade = null)
     {
         $period = Period::find($period_id);
         $term = Term::find($term_id);
         $termSetting = termSetting($term_id, $period_id);
         
-        $studentGrade = get_grade($student->grade->title());
-        $gradeStudents = Student::whereHas('grade', function ($query) use ($studentGrade) {
-                $query->where('title', 'like', $studentGrade . '%');
-            })->count();
-
+        $studentGrade = $grade;
         $psychomotors = $student->psychomotors->where('period_id', $period_id)->where('term_id', $term_id);
         $affectives = $student->affectives->where('period_id', $period_id)->where('term_id', $term_id);
 
@@ -949,9 +949,27 @@ class ResultController extends Controller
             return [$item['subject_id'] => $total_score];
         })->toArray();
 
+        // Use the termSetting mapping to determine class size for the grade (expected shape: ["grade_id" => ["count"]])
+        $gradeStudentsCount = 0;
+        if (!empty($termSetting) && $grade) {
+            $gradeIdKey = (string) $grade->id();
+
+            if (array_key_exists($gradeIdKey, $termSetting->class_count)) {
+                $value = $termSetting->class_count[$gradeIdKey];
+                // value might be an array like ["40"] or a scalar
+                if (is_array($value)) {
+                    // take first element and cast to int
+                    $gradeStudentsCount = intval($value[0] ?? 0);
+                } else {
+                    $gradeStudentsCount = intval($value);
+                }
+            }
+        }
+
         $comment = generate_comment($scores, "Dear {$student->first_name}, based on your current term score, you need to improve in the following subject(s):", 0.5, 100);
 
-        return compact('student', 'period', 'term', 'psychomotors', 'affectives', 'results', 'studentAttendance', 'gradeStudents', 'aggregate', 'comment', 'termSetting');
+        return compact('student', 'period', 'term', 'psychomotors', 'affectives', 'results', 'studentAttendance',
+        'gradeStudentsCount', 'grade', 'aggregate', 'comment', 'termSetting');
     }
 
 

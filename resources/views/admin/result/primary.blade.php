@@ -91,7 +91,7 @@
                             </tr>
                             <tr>
                                 <th>Class:</th>
-                                <td>{{ $student->grade->title()}}</td>
+                                <td>{{ $grade->title()}}</td>
                                 <th colspan="2"></th>
                             </tr>
                             <tr>
@@ -117,7 +117,7 @@
                             </tr>
                             <tr>
                                 <th>No. In Class:</th>
-                                <td>{{ $student->grade->count()}}</td>
+                                <td>{{ $gradeStudentsCount }}</td>
                             </tr>
                             <tr>
                                 <th>Age:</th>
@@ -254,7 +254,7 @@
                                         @endif
                                     @endforeach
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ $result['total'] }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student->grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examGrade($result['total']) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color($result['total']) }}">{{ examRemark($result['total']) }}</td>
                                 </tr>
@@ -337,7 +337,7 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center;">{{ sum($result['total'], $result['first_term_cummulative']) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ divnum(sum($result['total'], $result['first_term_cummulative']), 2) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examGrade(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student->grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center; width: 20%; color: {{ exam100Color(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}">{{ examRemark(divnum(sum($result['total'], $result['first_term_cummulative']), 2)) }}</td>
                                 </tr>
                             @endforeach
@@ -421,7 +421,7 @@
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3)) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examGrade(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
-                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($student->grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
+                                    <td style="font-size: 10px; font-weight: 500; text-align: center">{{ class_average($grade->id(), $result['subject'], $term->id(), $period->id() ) }}</td>
                                     <td style="font-size: 10px; font-weight: 500; text-align: center">{{ examRemark(round(divnum(sum($result['total'] + $result['first_term_cummulative'], $result['second_term_cummulative']), 3))) }}</td>
                                 </tr>
                             @endforeach

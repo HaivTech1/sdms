@@ -706,9 +706,25 @@ function generate_comment($scores, $info = '', $ratio = 0.4, $max = 100, $type =
 function class_average($grade, $subject, $term, $period)
 {
     $subject = Subject::where('title', $subject)->first();
-    $students = Student::withoutGlobalScope(new HasActiveScope)->where('grade_id', $grade)->get();
     $midterm = get_settings('midterm_format');
     $exam = get_settings('exam_format');
+    $termSetting = termSetting($term, $period);
+
+    $gradeStudentsCount = 0;
+    if (!empty($termSetting) && $grade) {
+        $gradeIdKey = (string) $grade;
+
+        if (array_key_exists($gradeIdKey, $termSetting->class_count)) {
+            $value = $termSetting->class_count[$gradeIdKey];
+            // value might be an array like ["40"] or a scalar
+            if (is_array($value)) {
+                // take first element and cast to int
+                $gradeStudentsCount = intval($value[0] ?? 0);
+            } else {
+                $gradeStudentsCount = intval($value);
+            }
+        }
+    }
 
     $results = PrimaryResult::where('grade_id', $grade)
         ->where('term_id', $term)
@@ -725,7 +741,7 @@ function class_average($grade, $subject, $term, $period)
         $total_score += $result->total_score;
     }
 
-    $average = $total_score / count($students);
+    $average = $total_score / $gradeStudentsCount;
 
     return ceil($average);
 }

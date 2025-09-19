@@ -492,6 +492,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/subject/{id}', [TeacherController::class, 'showSubject']);
             Route::get('/subject/{subjectId}/teacher/{teacherId}', [TeacherController::class, 'removeSubject']);
             Route::get('/grade/{gradeId}/teacher/{teacherId}', [TeacherController::class, 'removeGrade']);
+
+            Route::get('/curriculum', [TeacherController::class, 'curriculum'])->name('curriculum');
+            Route::post('/curriculum', [TeacherController::class, 'storeCurriculum'])->name('curriculum.store');
+            Route::get('/curriculum/{curriculum}/edit', [TeacherController::class, 'editCurriculum'])->name('curriculum.edit');
+            Route::put('/curriculum/{curriculum}', [TeacherController::class, 'updateCurriculum'])->name('curriculum.update');
+            Route::delete('/curriculum/{curriculum}', [TeacherController::class, 'destroyCurriculum'])->name('curriculum.destroy'); 
+
+            Route::get("curriculum/{curriculum}/topics", [TeacherController::class, 'curriculumTopics'])->name('curriculum.topics');
+            Route::post("curriculum/{curriculum}/topics", [TeacherController::class, 'storeCurriculumTopic'])->name('curriculum.topics.store');
+            Route::get("curriculum/{curriculum}/topics/{topic}/edit", [TeacherController::class, 'editCurriculumTopic'])->name('curriculum.topics.edit');
+            Route::put("curriculum/{curriculum}/topics/{topic}", [TeacherController::class, 'updateCurriculumTopic'])->name('curriculum.topics.update');
+            Route::delete("curriculum/{curriculum}/topics/{topic}", [TeacherController::class, 'destroyCurriculumTopic'])->name('curriculum.topics.destroy');
+            
         });
 
         Route::group(['prefix' => 'driver', 'as' => 'driver.'], function () {

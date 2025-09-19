@@ -27,6 +27,7 @@
             </a>
         </li> -->
     @endcan
+
     @can('assignment_create')
         <li>
             <a href="{{ route('assignment.index') }}" class="waves-effect">
@@ -35,3 +36,10 @@
             </a>
         </li>
     @endcan
+
+    <li>
+        <a href="{{ route('teacher.curriculum') }}" class="waves-effect">
+            <i class="bx bx-book"></i>
+            <span key="t-chat">Curriculum Management</span>
+        </a>
+    </li>

@@ -436,8 +436,12 @@
 
             <div style="text-align: center; margin: 7px 0">
                 <div><b style="font-size: 14px; text-align: center">Aggregate:</b> <span style="font-size: 12px;">{{ round($aggregate)}}/100</span></div>
-                <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of {{ $student->grade->students->count() }} students</span></div>
-                <div><b style="font-size: 14px; text-align: center">Position in grade:</b> <span style="font-size: 12px">{{ $studentAttendance->position_in_grade ?? '' }} of {{ $gradeStudents }} students</span></div>
+                        <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span
+                        style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of
+                        {{ $gradeStudentsCount }} students</span></div>
+                <div><b style="font-size: 14px; text-align: center">Position in grade:</b> <span
+                        style="font-size: 12px">{{ $studentAttendance->position_in_grade ?? '' }} of
+                        {{ $gradeStudentsCount }} students</span></div>
             </div>
 
             <div class="majorContainer">
