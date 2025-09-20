@@ -6,6 +6,7 @@ use App\Http\Resources\v1\UserResource;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TokenAuthController;
 use App\Http\Controllers\API\v1\{
+    AssessmentController,
     StaffController,
     ResultController,
     SettingController,
@@ -259,5 +260,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/outstandings', [FeeController::class, 'outstandings']);
         Route::post('/outstandings/create', [FeeController::class, 'addOutstanding']);
         Route::post('/outstandings/delete', [FeeController::class, 'deleteOutstanding']);
+    });
+
+    Route::group(['prefix' => 'assessment', 'namespace' => 'Assessment'], function () {
+        Route::get('/weeks', [AssessmentController::class, 'weeks']);
+        Route::get('/question/{grade_id}', [AssessmentController::class, 'gradeQuestions']);
     });
 });

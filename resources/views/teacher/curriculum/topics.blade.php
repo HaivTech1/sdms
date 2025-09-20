@@ -142,7 +142,12 @@
                     const $btn = $form.find('button[type=submit]');
                     toggleAble($btn, true, 'Adding...');
                     $.post($form.attr('action'), $form.serialize())
-                        .done(function(){ toggleAble($btn, false); $('#createTopicModal').modal('hide'); Swal.fire('Added','Topic added','success'); loadPage(listUrl); })
+                        .done(function(){ toggleAble($btn, false); $('#createTopicModal').modal('hide'); Swal.fire('Added','Topic added','success'); loadPage(listUrl);
+                            setTimeout(function(){
+                                window.location.reload();
+                            }, 1500);
+
+                         })
                         .fail(function(xhr){ toggleAble($btn, false); if (xhr.responseJSON && xhr.responseJSON.errors) { let html = Object.values(xhr.responseJSON.errors).flat().join('<br/>'); Swal.fire({ title: 'Validation error', html: html, icon: 'error' }); } else { Swal.fire('Error','Failed to add topic','error'); } });
                 });
 

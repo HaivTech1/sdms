@@ -143,7 +143,6 @@ class TeacherController extends Controller
         $periods = Period::all();
         $terms = Term::all();
 
-        // Prepare a simple map of gradeId => subjects array (id/title) for use in the view JS
         $gradeSubjectsMap = [];
         foreach ($grades as $g) {
             $gradeSubjectsMap[$g->id] = $g->subjects->map(function($s){

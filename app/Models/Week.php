@@ -90,4 +90,9 @@ class Week extends Model
     {
         return $this->belongsTo(Term::class, 'term_id');
     }
+
+    public function topics()
+    {
+        return $this->hasMany(CurriculumTopic::class, 'week_id');
+    }
 }

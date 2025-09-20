@@ -33,7 +33,7 @@
                     </div>
             </div>
 
-                                <div id="curriculum-wrap" data-list-url="<?php echo e(route('teacher.curriculum')); ?>" data-grade-subjects="<?php echo e(htmlspecialchars(json_encode($gradeSubjectsMap ?? []), ENT_QUOTES, 'UTF-8')); ?>">
+                <div id="curriculum-wrap" data-list-url="<?php echo e(route('teacher.curriculum')); ?>" data-grade-subjects='<?php echo json_encode($gradeSubjectsMap ?? [], 15, 512) ?>'>
                     
                     <?php echo $__env->make('teacher.curriculum._list', ['curriculums' => $curriculums], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
             </div>
@@ -116,8 +116,13 @@
                 const listUrl = $wrap.data('list-url');
 
                 try {
-                    const raw = $wrap.data('grade-subjects') || '{}';
-                    window.gradeSubjects = JSON.parse(raw);
+                    const gsData = $wrap.data('grade-subjects');
+                    if (typeof gsData === 'string') {
+                        window.gradeSubjects = JSON.parse(gsData || '{}');
+                    } else {
+                        // already an object (jQuery may auto-parse JSON)
+                        window.gradeSubjects = gsData || {};
+                    }
                 } catch (e) {
                     window.gradeSubjects = {};
                 }
@@ -127,6 +132,7 @@
                     const $select = $(targetSelector);
                     $select.empty();
                     const subs = (window.gradeSubjects && window.gradeSubjects[gradeId]) || [];
+                    console.log(subs)
                     if (subs.length === 0) {
                         $select.append($('<option>').text('No subjects for selected grade').attr('value',''));
                         $select.prop('disabled', true);
@@ -154,7 +160,7 @@
                     // show overlay loader
                     try {
                         $wrap.css('position', 'relative');
-                        $wrap.append($('<div class="overlay-loader">').css({position: 'absolute', top:0, left:0, width:'100%', height:'100%', background:'rgba(255,255,255,0.6)', 'z-index': 9999}).append(divLoader()));
+                        // $wrap.append($('<div class="overlay-loader">').css({position: 'absolute', top:0, left:0, width:'100%', height:'100%', background:'rgba(255,255,255,0.6)', 'z-index': 9999}).append(divLoader()));
                     } catch (e) { /* ignore if divLoader not available */ }
 
                     $.ajax({ url: url, data: params, method: 'GET' })
