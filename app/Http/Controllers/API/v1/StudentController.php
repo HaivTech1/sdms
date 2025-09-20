@@ -13,7 +13,10 @@ use App\Http\Resources\v1\StudentCollection;
 use App\Models\Fee;
 use App\Models\Grade;
 use App\Models\Term;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class StudentController extends Controller
 {
@@ -292,6 +295,85 @@ class StudentController extends Controller
                 "status" => false,
                 "message" => "There was an error gettting the classes.",
                 "error" => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function login(Request $request)
+    {
+        try {
+            $data = $request->all();
+            $validator = Validator::make($data, [
+                'reg_no' => 'required',
+                'password' => 'required',
+            ], [
+                'reg_no.required' => 'Registration number is required.',
+                    'password.required' => 'Password is required.'
+                ]
+            );
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validator->errors()->first()
+                ], 400);
+            }
+
+            $user = User::where('reg_no', $data['reg_no'])->first();
+
+
+            if (!$user || !$user->student) {
+                return response()->json(['status' => false, 'message' => 'No account found for this student id.'], 401);
+            }
+
+            if (!Hash::check($data['password'], $user->password)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "The password you entered is incorrect. Please try again."
+                ], 400);
+            }
+
+            $accessToken = $user->api_token;
+            if (!$accessToken) {
+                $token = $user->createToken(application('name'))->plainTextToken;
+                $user->api_token = $token;
+                $user->save();
+                $accessToken = $user->api_token;
+            } else {
+                $accessToken = $user->api_token;
+            }
+
+            return response()->json([
+                'status' => true,
+                'user' => new StudentResource($user->student),
+                'token' => $accessToken,
+                'message' => 'Authorization successful! Welcome back ' . $user->student->first_name,
+            ]);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'There was an error logging in. Please try again.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }   
+
+    public function me()
+    {
+        try {
+            $user = auth()->user();
+            if (!$user || !$user->student) {
+                return response()->json(['status' => false, 'message' => 'No account found for this student id.'], 401);
+            }
+
+            return response()->json(new StudentResource($user->student), 200);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status' => false,
+                'message' => 'There was an error fetching your information. Please try again.',
+                'error' => $th->getMessage(),
             ], 500);
         }
     }

@@ -1,0 +1,2 @@
+<img src="<?php echo e($url()); ?>" <?php echo e($attributes); ?>/>
+<?php /**PATH C:\laragon\www\primary\vendor\blade-ui-kit\blade-ui-kit\resources\views\components\support\avatar.blade.php ENDPATH**/ ?>

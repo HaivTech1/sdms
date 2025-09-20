@@ -64,7 +64,7 @@ class StudentController extends Controller
                     'name' => $request->last_name. ' '. $request->first_name. ' '. $request->other_name,
                     'email' => $request->last_name. $request->first_name.'@gmail.com',
                     'phone_number' => '',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('123456'),
                     'type' => '4'
                 ]);
 

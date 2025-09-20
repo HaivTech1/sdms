@@ -35,6 +35,10 @@ Route::middleware('guest')->group(
         Route::post('/auth/login', [TokenAuthController::class, 'store'])->middleware(
             array_filter([$limiter ? 'throttle:' . $limiter : null])
         );
+
+        Route::post('/auth/student/login', [StudentController::class, 'login'])->middleware(
+            array_filter([$limiter ? 'throttle:' . $limiter : null])
+        );
     }
 );
 
@@ -139,6 +143,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     });
 
     Route::group(['prefix' => 'student', 'namespace' => 'Student'], function () {
+        Route::get("/me", [StudentController::class, "me"]);
         Route::get('/all', [StudentController::class, 'index']);
         Route::post('/', [WebStudentController::class, 'store']);
         Route::get('/single/{id}', [StudentController::class, 'single']);

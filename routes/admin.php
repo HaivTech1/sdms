@@ -6,7 +6,9 @@ use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\WhatsappController;
 use App\Http\Controllers\Admin\ResultController;
+use App\Http\Controllers\Admin\WeekController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\HairstyleController;
 use App\Http\Controllers\RegistrationController;
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
@@ -57,6 +59,21 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::group(['prefix' => 'period', 'as' => 'period.'], function () {
             Route::get('/setting', [ApplicationController::class, 'setting'])->name('setting');
             Route::post('/setting/deleteAll', [ApplicationController::class, 'deleteAll'])->name('setting.deleteAll');
+        });
+
+        Route::group(['prefix' => 'hairstyle', 'as' => 'hairstyle.'], function () {
+            Route::get('/', [HairstyleController::class, 'index'])->name('index');
+            Route::get('/list', [HairstyleController::class, 'list'])->name('list');
+            Route::get('/all', [HairstyleController::class, 'all'])->name('all');
+            Route::post('/', [HairstyleController::class, 'store'])->name('store');
+            Route::delete('/{id}', [HairstyleController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::group(['prefix' => 'week', 'as' => 'week.'], function () {
+            Route::get('/', [WeekController::class, 'index'])->name('index');
+            Route::get('/list', [WeekController::class, 'list'])->name('list');
+            Route::post('/', [WeekController::class, 'store'])->name('store');
+            Route::put('/{id}', [WeekController::class, 'update'])->name('update');
         });
 
     });

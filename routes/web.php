@@ -504,6 +504,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get("curriculum/{curriculum}/topics/{topic}/edit", [TeacherController::class, 'editCurriculumTopic'])->name('curriculum.topics.edit');
             Route::put("curriculum/{curriculum}/topics/{topic}", [TeacherController::class, 'updateCurriculumTopic'])->name('curriculum.topics.update');
             Route::delete("curriculum/{curriculum}/topics/{topic}", [TeacherController::class, 'destroyCurriculumTopic'])->name('curriculum.topics.destroy');
+            Route::post("curriculum/{curriculum}/topics/generate", [TeacherController::class, 'generateTopicQuestions'])->name('curriculum.topics.generate');
+            Route::post("curriculum/{curriculum}/topics/save-questions", [TeacherController::class, 'storeGeneratedQuestions'])->name('curriculum.topics.save_questions');
+            // Save a single question from preview
+            Route::post("curriculum/{curriculum}/topics/save-question", [TeacherController::class, 'storeSingleQuestion'])->name('curriculum.topics.save_question');
+            // List saved questions for a topic
+            Route::get("curriculum/{curriculum}/topics/{topic}/questions", [TeacherController::class, 'questions'])->name('curriculum.topics.questions');
+            // Update / delete saved question
+            Route::put("curriculum/{curriculum}/questions/{question}", [TeacherController::class, 'updateQuestion'])->name('curriculum.topics.question.update');
+            Route::delete("curriculum/{curriculum}/questions/{question}", [TeacherController::class, 'destroyQuestion'])->name('curriculum.topics.question.destroy');
             
         });
 

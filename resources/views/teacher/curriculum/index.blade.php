@@ -28,7 +28,7 @@
                     </div>
             </div>
 
-                <div id="curriculum-wrap" data-list-url="{{ route('teacher.curriculum') }}">
+                                <div id="curriculum-wrap" data-list-url="{{ route('teacher.curriculum') }}" data-grade-subjects="{{ htmlspecialchars(json_encode($gradeSubjectsMap ?? []), ENT_QUOTES, 'UTF-8') }}">
                     {{-- AJAX loaded list will go here --}}
                     @include('teacher.curriculum._list', ['curriculums' => $curriculums])
             </div>
@@ -49,14 +49,14 @@
                             <label class="form-label">Name</label>
                             <input name="name" class="form-control" required />
                         </div>
-                                                <div class="mb-3">
-                                                        <label class="form-label">Grade</label>
-                                                        <select name="grade_id" id="grade_id" class="form-control" required>
-                                                                        @foreach($grades as $grade)
-                                                                                <option value="{{ $grade->id }}">{{ $grade->title }}</option>
-                                                                        @endforeach
-                                                        </select>
-                                                </div>
+                        <div class="mb-3">
+                                <label class="form-label">Grade</label>
+                                <select name="grade_id" id="grade_id" class="form-control" required>
+                                @foreach($grades as $grade)
+                                        <option value="{{ $grade->id }}">{{ $grade->title }}</option>
+                                @endforeach
+                                </select>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Subject</label>
                             <select name="subject_id" class="form-control" id="subject_id" required>
@@ -93,88 +93,210 @@
         </div>
     </div>
 
+        <!-- Edit modal (will be populated via AJAX) -->
+        <div class="modal fade" id="editCurriculumModal" tabindex="-1">
+                <div class="modal-dialog">
+                        <div class="modal-content">
+                                <div class="modal-body" id="editCurriculumBody">
+                                        <!-- edit form will be injected here -->
+                                </div>
+                        </div>
+                </div>
+        </div>
+
     @section('scripts')
     <script>
             (function($){
                 const $wrap = $('#curriculum-wrap');
-                        const listUrl = $wrap.data('list-url');
+                const listUrl = $wrap.data('list-url');
 
-                        // Map of gradeId => subjects (preloaded server-side)
-                        const gradeSubjects = @json($grades->mapWithKeys(function($g){
-                                return [$g->id => $g->subjects->map(function($s){ return ['id' => $s->id, 'title' => $s->title]; })->toArray()];
-                        })->toArray());
+                try {
+                    const raw = $wrap.data('grade-subjects') || '{}';
+                    window.gradeSubjects = JSON.parse(raw);
+                } catch (e) {
+                    window.gradeSubjects = {};
+                }
 
-                        function populateSubjects(gradeId){
-                                const $select = $('#subject_id');
-                                $select.empty();
-                                const subs = gradeSubjects[gradeId] || [];
-                                if (subs.length === 0) {
-                                        $select.append($('<option>').text('No subjects for selected grade').attr('value',''));
-                                        $select.prop('disabled', true);
-                                } else {
-                                        $select.prop('disabled', false);
-                                        $select.append($('<option>').text('-- Select subject --').attr('value',''));
-                                        subs.forEach(function(s){
-                                                $select.append($('<option>').attr('value', s.id).text(s.title));
-                                        });
-                                }
-                        }
-
-                        // When grade changes, load subjects
-                        $(document).on('change', '#grade_id', function(){
-                                populateSubjects($(this).val());
-                        });
-
-                        // When modal opens, populate subjects for currently selected grade (or first)
-                        $('#openCreate').on('click', function(){
-                                const firstGrade = $('#grade_id').val();
-                                populateSubjects(firstGrade);
-                                $('#createCurriculum').modal('show');
-                        });
-
-                    function loadPage(url, params = {}){
-                            params._token = '{{ csrf_token() }}';
-                            $.get(url, params, function(html){
-                                    // Expect the server to return the partial HTML for the list
-                                    $wrap.html(html);
-                            }).fail(function(xhr){
-                                    alert('Failed to load data');
-                            });
+                // Helper to populate a target select for a given gradeId
+                function populateSubjectsFor(gradeId, targetSelector){
+                    const $select = $(targetSelector);
+                    $select.empty();
+                    const subs = (window.gradeSubjects && window.gradeSubjects[gradeId]) || [];
+                    if (subs.length === 0) {
+                        $select.append($('<option>').text('No subjects for selected grade').attr('value',''));
+                        $select.prop('disabled', true);
+                    } else {
+                        $select.prop('disabled', false);
+                        $select.append($('<option>').text('-- Select subject --').attr('value',''));
+                        subs.forEach(function(s){ $select.append($('<option>').attr('value', s.id).text(s.title)); });
                     }
+                }
 
-                    // Search key
-                    $('#search').on('keyup', function(e){
-                            const q = $(this).val();
-                            // load fresh results (page param removed)
-                            loadPage(listUrl + '?search=' + encodeURIComponent(q));
+                // When grade changes in create modal, load subjects
+                $(document).on('change', '#grade_id', function(){
+                    populateSubjectsFor($(this).val(), '#subject_id');
+                });
+
+                // Open create modal: populate subjects for the selected grade
+                $('#openCreate').on('click', function(){
+                    const firstGrade = $('#grade_id').val();
+                    populateSubjectsFor(firstGrade, '#subject_id');
+                    $('#createCurriculum').modal('show');
+                });
+
+                function loadPage(url, params = {}){
+                    params._token = '{{ csrf_token() }}';
+                    // show overlay loader
+                    try {
+                        $wrap.css('position', 'relative');
+                        $wrap.append($('<div class="overlay-loader">').css({position: 'absolute', top:0, left:0, width:'100%', height:'100%', background:'rgba(255,255,255,0.6)', 'z-index': 9999}).append(divLoader()));
+                    } catch (e) { /* ignore if divLoader not available */ }
+
+                    $.ajax({ url: url, data: params, method: 'GET' })
+                        .done(function(html){
+                            // Expect the server to return the partial HTML for the list
+                            $wrap.html(html);
+                        })
+                        .fail(function(xhr){
+                            let msg = 'Failed to load data';
+                            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                            Swal.fire('Error', msg, 'error');
+                        })
+                        .always(function(){
+                            $wrap.find('.overlay-loader').remove();
+                        });
+                }
+
+                // Search key
+                $('#search').on('keyup', function(e){
+                    const q = $(this).val();
+                    // load fresh results (page param removed)
+                    loadPage(listUrl + '?search=' + encodeURIComponent(q));
+                });
+
+                // Submit create form via AJAX with spinner + SweetAlert
+                $('#createForm').on('submit', function(e){
+                    e.preventDefault();
+                    const $form = $(this);
+                    const $btn = $form.find('button[type=submit]');
+                    toggleAble($btn, true, 'Creating...');
+                    const data = $form.serialize();
+                    $.post($form.attr('action'), data)
+                        .done(function(){
+                            toggleAble($btn, false);
+                            $('#createCurriculum').modal('hide');
+                            Swal.fire('Created!', 'Curriculum created', 'success');
+                            loadPage(listUrl);
+                        })
+                        .fail(function(xhr){
+                            toggleAble($btn, false);
+                            // handle validation errors if present
+                            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                const errs = xhr.responseJSON.errors;
+                                let html = Object.values(errs).flat().join('<br/>');
+                                Swal.fire({ title: 'Validation error', html: html, icon: 'error' });
+                            } else {
+                                let msg = 'Failed to create curriculum';
+                                if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                                Swal.fire('Error', msg, 'error');
+                            }
+                        });
+                });
+
+                // Delegate pagination/link clicks inside the wrap
+                $wrap.on('click', '.pagination a', function(e){
+                    e.preventDefault();
+                    const href = $(this).attr('href');
+                    loadPage(href);
+                });
+
+                // Delegate delete button clicks
+                $wrap.on('click', '.delete-curriculum', function(e){
+                    e.preventDefault();
+                    const $btn = $(this);
+                    const url = $btn.data('url');
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'This will permanently delete the curriculum',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#502179',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            toggleAble($btn, true, 'Deleting...');
+                            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+                            // some servers don't accept DELETE verbs via AJAX; send as POST with _method override
+                            $.ajax({ url: url, method: 'POST', data: { _method: 'DELETE' } })
+                                .done(function(resp){
+                                    toggleAble($btn, false);
+                                    Swal.fire('Deleted!', resp.message || 'Curriculum deleted', 'success');
+                                    loadPage(listUrl);
+                                })
+                                .fail(function(xhr){
+                                    toggleAble($btn, false);
+                                    let msg = 'Failed to delete';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                                    Swal.fire('Error', msg, 'error');
+                                });
+                        }
                     });
+                });
 
-                    // Open create modal
-                    $('#openCreate').on('click', function(){
-                            $('#createCurriculum').modal('show');
-                    });
+                // Delegate edit button clicks - load form into modal
+                $wrap.on('click', '.edit-curriculum', function(e){
+                    e.preventDefault();
+                    const $btn = $(this);
+                    const url = $btn.data('url');
+                    // fetch edit form
+                    $.get(url, {}, function(html){
+                        $('#editCurriculumBody').html(html);
+                        $('#editCurriculumModal').modal('show');
 
-                    // Submit create form via AJAX
-                    $('#createForm').on('submit', function(e){
+                        // Attach submit handler
+                        $('#editCurriculumForm').on('submit', function(e){
                             e.preventDefault();
                             const $form = $(this);
+                            const $submit = $form.find('button[type=submit]');
+                            toggleAble($submit, true, 'Saving...');
                             const data = $form.serialize();
-                            $.post($form.attr('action'), data, function(){
-                                    $('#createCurriculum').modal('hide');
+                            $.post($form.attr('action'), data)
+                                .done(function(resp){
+                                    toggleAble($submit, false);
+                                    $('#editCurriculumModal').modal('hide');
+                                    Swal.fire('Updated!', resp.message || 'Curriculum updated', 'success');
                                     loadPage(listUrl);
-                            }).fail(function(xhr){
-                                    alert('Failed to create curriculum');
-                            });
+                                })
+                                .fail(function(xhr){
+                                    toggleAble($submit, false);
+                                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                        let html = Object.values(xhr.responseJSON.errors).flat().join('<br/>');
+                                        Swal.fire({ title: 'Validation error', html: html, icon: 'error' });
+                                    } else {
+                                        let msg = 'Failed to update';
+                                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                                        Swal.fire('Error', msg, 'error');
+                                    }
+                                });
+                        });
+                    }).fail(function(xhr){
+                        // Surface server message when possible
+                        let msg = 'Failed to load edit form';
+                        try {
+                            if (xhr && xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                            else if (xhr && xhr.responseText) {
+                                // try to extract simple text from HTML response
+                                const m = /<title>(.*?)<\/title>/i.exec(xhr.responseText);
+                                if (m && m[1]) msg = m[1];
+                            }
+                        } catch(e) { /* ignore */ }
+                        Swal.fire('Error', msg, 'error');
                     });
+                });
 
-                    // Delegate pagination/link clicks inside the wrap
-                    $wrap.on('click', '.pagination a', function(e){
-                            e.preventDefault();
-                            const href = $(this).attr('href');
-                            loadPage(href);
-                    });
-
-                    // Initial behaviour: nothing to do; server-rendered initial list included
+                // Initial behaviour: nothing to do; server-rendered initial list included
             })(jQuery);
     </script>
     @endsection

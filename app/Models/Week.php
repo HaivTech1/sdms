@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Week extends Model
 {
     use HasFactory, HasAuthor;
-    protected $fillable = ['start_date', 'end_date', 'period_id', 'term_id', 'author_id'];
+    protected $fillable = ['start_date', 'end_date', 'hairstyle_id', 'period_id', 'term_id', 'author_id'];
 
     protected $casts = [
         'start_date' => 'datetime',
@@ -79,5 +79,15 @@ class Week extends Model
     public function teachers()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function period()
+    {
+        return $this->belongsTo(Period::class, 'period_id');
+    }
+
+    public function term()
+    {
+        return $this->belongsTo(Term::class, 'term_id');
     }
 }

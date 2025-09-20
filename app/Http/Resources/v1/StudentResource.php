@@ -25,7 +25,7 @@ class StudentResource extends JsonResource
             'last_name' => $this->lastName(),
             'other_name' => $this->otherName(),
             'name'         => $this->lastName() . ' ' . $this->firstName() . ' ' . $this->otherName(),
-            'reg_no'                => $this->user->code(),
+            'reg_no'                => $this?->user?->code(),
             'gender'                => $this->gender(),
             'qrcode' => $this->qrcode,
             'type' => $this->type,
@@ -43,7 +43,7 @@ class StudentResource extends JsonResource
             'father_info' => new FatherResource($this->father),
             'guardian_info' => new GuardianResource($this->guardian),
             'subjects' => SubjectResource::collection($this->subjects),
-            'payments' => PaymentResource::collection($this->payments),
+            // 'payments' => PaymentResource::collection($this->payments),
         ];
     }
 }

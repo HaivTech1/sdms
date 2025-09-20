@@ -23,4 +23,9 @@ class CurriculumTopic extends Model
     public function week() {
         return $this->belongsTo(Week::class);
     }
+
+    public function questions()
+    {
+        return $this->hasMany(\App\Models\Question::class, 'curriculum_topic_id');
+    }
 }

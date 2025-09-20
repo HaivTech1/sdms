@@ -60,7 +60,8 @@
                         {{-- <li><a href="{{ route('subgrade.index') }}" key="t-products">Sub Class</a></li> --}}
                         <li><a href="{{ route('subject.index') }}" key="t-products">Subjects</a></li>
                         <li><a href="{{ route('schedule.index') }}" key="t-products">Schedule</a></li>
-                        <li><a href="{{ route('schedule.index') }}" key="t-products">Weeks</a></li>
+                        <li><a href="{{ route('admin.hairstyle.index') }}" key="t-products">Hairstyles</a></li>
+                        <li><a href="{{ route('admin.week.index') }}" key="t-products">Weeks</a></li>
                         @can('fingerprint_access')
                             <!-- <li><a href="{{ route('finger_device.index') }}" key="t-products">Biometric Device</a></li> -->
                         @endcan

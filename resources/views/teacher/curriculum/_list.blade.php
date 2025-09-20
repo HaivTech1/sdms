@@ -13,18 +13,17 @@
         @forelse($curriculums as $curriculum)
             <tr>
                 <td>{{ $curriculum->name }}</td>
-                <td>{{ optional($curriculum->grade)->name }}</td>
+                <td>{{ optional($curriculum->grade)->title }}</td>
                 <td>{{ optional($curriculum->subject)->title }}</td>
-                <td>{{ optional($curriculum->period)->name }}</td>
-                <td>{{ optional($curriculum->term)->name }}</td>
+                <td>{{ optional($curriculum->period)->title }}</td>
+                <td>{{ optional($curriculum->term)->title }}</td>
                 <td>
-                    <a href="{{ route('teacher.curriculum.edit', $curriculum) }}" class="btn btn-sm btn-secondary">Edit</a>
+                    @php $me = auth()->user(); @endphp
+                    @if($me->isAdmin() || $curriculum->isAuthoredBy($me))
+                        <button type="button" class="btn btn-sm btn-primary edit-curriculum" data-url="{{ route('teacher.curriculum.edit', $curriculum) }}"><i class="bx bx-edit"></i></button>
+                        <button class="btn btn-sm btn-danger delete-curriculum" type="button" data-url="{{ route('teacher.curriculum.destroy', $curriculum) }}"><i class="bx bx-trash"></i></button>
+                    @endif
                     <a href="{{ route('teacher.curriculum.topics', $curriculum) }}" class="btn btn-sm btn-info">Topics</a>
-                    <form method="POST" action="{{ route('teacher.curriculum.destroy', $curriculum) }}" style="display:inline-block">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-sm btn-danger" onclick="return confirm('Delete curriculum?')">Delete</button>
-                    </form>
                 </td>
             </tr>
         @empty
