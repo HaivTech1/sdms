@@ -3,6 +3,7 @@
         <tr>
             <th>Week</th>
             <th>Title</th>
+            <th>Duration</th>
             <th>Objectives</th>
             <th>Bloom</th>
             <th>Resources</th>
@@ -15,6 +16,7 @@
             <tr data-id="<?php echo e($topic->id); ?>">
                 <td><?php echo e(optional($topic->week)->name ?? $topic->week_id); ?></td>
                 <td class="topic-title"><?php echo e($topic->title); ?></td>
+                <td class="topic-duration"><?php echo e($topic->test_duration); ?> minutes</td>
                 <td class="topic-objectives"><?php echo e(\Str::limit(strip_tags($topic->objectives), 100)); ?></td>
                 <td class="topic-bloom"><?php echo e($topic->bloom_level); ?></td>
                 <td class="topic-resources"><?php echo e($topic->resources); ?></td>

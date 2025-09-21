@@ -369,5 +369,39 @@ class HomeController extends Controller
                 $table->index('author_id');
             });
         }
+
+        if (!Schema::hasColumn('curriculum_topics', 'test_duration')) {
+            Schema::table('curriculum_topics', function (Blueprint $table) {
+                $table->integer('test_duration')->default(30)->after('resources');
+            });
+        }
+
+        if (!Schema::hasTable('assessment_attempts')) {
+            Schema::create('assessment_attempts', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('attempt_id')->index();
+                $table->unsignedBigInteger('student_id')->nullable()->index();
+                $table->unsignedBigInteger('subject_id')->nullable()->index();
+                $table->unsignedBigInteger('week_id')->nullable()->index();
+                $table->string('client')->nullable();
+                $table->timestamp('submitted_at')->nullable();
+                $table->json('meta')->nullable();
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasTable('attempt_answers')) {
+            Schema::create('attempt_answers', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->unsignedBigInteger('attempt_id')->index();
+                $table->unsignedBigInteger('question_id')->index();
+                $table->unsignedTinyInteger('answer_index')->nullable();
+                $table->boolean('is_correct')->nullable();
+                $table->json('question_snapshot')->nullable();
+                $table->timestamps();
+
+                $table->foreign('attempt_id')->references('id')->on('assessment_attempts')->onDelete('cascade');
+            });
+        }
     }
 }

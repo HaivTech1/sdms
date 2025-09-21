@@ -269,6 +269,7 @@ class TeacherController extends Controller
             'objectives' => 'nullable|string',
             'bloom_level' => 'nullable|string',
             'resources' => 'nullable|string',
+            'test_duration' => 'nullable|integer|min:5|max:180',
         ]);
 
         $data['curriculum_id'] = $curriculum->id;
@@ -312,6 +313,7 @@ class TeacherController extends Controller
             'objectives' => 'nullable|string',
             'bloom_level' => 'nullable|string',
             'resources' => 'nullable|string',
+            'test_duration' => 'nullable|integer|min:5|max:180',
         ]);
 
         $topic->update($data);

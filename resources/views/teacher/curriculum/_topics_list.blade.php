@@ -3,6 +3,7 @@
         <tr>
             <th>Week</th>
             <th>Title</th>
+            <th>Duration</th>
             <th>Objectives</th>
             <th>Bloom</th>
             <th>Resources</th>
@@ -15,6 +16,7 @@
             <tr data-id="{{ $topic->id }}">
                 <td>{{ optional($topic->week)->name ?? $topic->week_id }}</td>
                 <td class="topic-title">{{ $topic->title }}</td>
+                <td class="topic-duration">{{ $topic->test_duration }} minutes</td>
                 <td class="topic-objectives">{{ \Str::limit(strip_tags($topic->objectives), 100) }}</td>
                 <td class="topic-bloom">{{ $topic->bloom_level }}</td>
                 <td class="topic-resources">{{ $topic->resources }}</td>

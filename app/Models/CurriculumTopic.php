@@ -13,7 +13,7 @@ class CurriculumTopic extends Model
     use HasAuthor;
 
     protected $fillable = [
-        'curriculum_id','week_id','title','objectives','bloom_level','resources','author_id'
+        'curriculum_id','week_id','title','objectives','bloom_level','resources', 'test_duration','author_id'
     ];
 
     public function curriculum() {

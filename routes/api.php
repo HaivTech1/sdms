@@ -263,7 +263,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
     });
 
     Route::group(['prefix' => 'assessment', 'namespace' => 'Assessment'], function () {
+        Route::get("/", [AssessmentController::class, "index"]);
         Route::get('/weeks', [AssessmentController::class, 'weeks']);
-        Route::get('/question/{grade_id}', [AssessmentController::class, 'gradeQuestions']);
+        Route::get('/question/{week_id}', [AssessmentController::class, 'gradeQuestions']);
+        Route::post('/submit', [AssessmentController::class, 'submit']);
+        Route::get('/result/{key}', [AssessmentController::class, 'result']);
     });
 });

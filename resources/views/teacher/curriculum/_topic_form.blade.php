@@ -30,6 +30,15 @@
             </select>
         </div>
         <div class="col-md-6 mb-3">
+            <label>Test Duration (minutes)</label>
+            <select name="test_duration" class="form-control" required>
+                <option value="" disabled selected>Select duration</option>
+                @for($min=5; $min<=180; $min+=5)
+                    <option value="{{ $min }}">{{ $min }} minutes</option>
+                @endfor
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
             <label>Resources</label>
             <input name="resources" class="form-control" placeholder="e.g., worksheet URL or notes" />
         </div>

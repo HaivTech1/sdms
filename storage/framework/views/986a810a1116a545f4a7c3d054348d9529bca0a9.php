@@ -32,6 +32,16 @@
     </div>
 
     <div class="mb-3">
+        <label>Test Duration (minutes)</label>
+        <select name="test_duration" class="form-control" required>
+            <option value="" disabled <?php echo e(old('test_duration', $topic->test_duration) ? '' : 'selected'); ?>>Select duration</option>
+            <?php for($min=5; $min<=180; $min+=5): ?>
+                <option value="<?php echo e($min); ?>" <?php echo e(old('test_duration', $topic->test_duration) == $min ? 'selected' : ''); ?>><?php echo e($min); ?> minutes</option>
+            <?php endfor; ?>
+        </select>
+    </div>
+
+    <div class="mb-3">
         <label>Resources</label>
         <input name="resources" class="form-control" value="<?php echo e(old('resources', $topic->resources)); ?>" />
     </div>

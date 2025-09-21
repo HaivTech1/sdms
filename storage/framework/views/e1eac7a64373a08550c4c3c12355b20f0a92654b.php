@@ -37,9 +37,12 @@
         </li>
     <?php endif; ?>
 
-    <li>
-        <a href="<?php echo e(route('teacher.curriculum')); ?>" class="waves-effect">
-            <i class="bx bx-book"></i>
-            <span key="t-chat">Curriculum Management</span>
-        </a>
-    </li><?php /**PATH C:\laragon\www\primary\resources\views/partials/nav/teacher.blade.php ENDPATH**/ ?>
+    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('lesson_create')): ?>
+        <li>
+            <a href="<?php echo e(route('teacher.curriculum')); ?>" class="waves-effect">
+                <i class="bx bx-book"></i>
+                <span key="t-chat">Curriculum Management</span>
+            </a>
+        </li>
+    <?php endif; ?>
+<?php /**PATH C:\laragon\www\primary\resources\views/partials/nav/teacher.blade.php ENDPATH**/ ?>

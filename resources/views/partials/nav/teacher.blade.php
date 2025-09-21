@@ -37,9 +37,11 @@
         </li>
     @endcan
 
-    <li>
-        <a href="{{ route('teacher.curriculum') }}" class="waves-effect">
-            <i class="bx bx-book"></i>
-            <span key="t-chat">Curriculum Management</span>
-        </a>
-    </li>
+    @can('lesson_create')
+        <li>
+            <a href="{{ route('teacher.curriculum') }}" class="waves-effect">
+                <i class="bx bx-book"></i>
+                <span key="t-chat">Curriculum Management</span>
+            </a>
+        </li>
+    @endcan

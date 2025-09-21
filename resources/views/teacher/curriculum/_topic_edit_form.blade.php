@@ -32,6 +32,16 @@
     </div>
 
     <div class="mb-3">
+        <label>Test Duration (minutes)</label>
+        <select name="test_duration" class="form-control" required>
+            <option value="" disabled {{ old('test_duration', $topic->test_duration) ? '' : 'selected' }}>Select duration</option>
+            @for($min=5; $min<=180; $min+=5)
+                <option value="{{ $min }}" {{ old('test_duration', $topic->test_duration) == $min ? 'selected' : '' }}>{{ $min }} minutes</option>
+            @endfor
+        </select>
+    </div>
+
+    <div class="mb-3">
         <label>Resources</label>
         <input name="resources" class="form-control" value="{{ old('resources', $topic->resources) }}" />
     </div>
