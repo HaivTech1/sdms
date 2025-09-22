@@ -510,6 +510,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post("curriculum/{curriculum}/topics/save-question", [TeacherController::class, 'storeSingleQuestion'])->name('curriculum.topics.save_question');
             // List saved questions for a topic
             Route::get("curriculum/{curriculum}/topics/{topic}/questions", [TeacherController::class, 'questions'])->name('curriculum.topics.questions');
+                Route::get("curriculum/{curriculum}/topics/{topic}/attempts", [TeacherController::class, 'topicAttempts'])->name('curriculum.topics.attempts');
             // Update / delete saved question
             Route::put("curriculum/{curriculum}/questions/{question}", [TeacherController::class, 'updateQuestion'])->name('curriculum.topics.question.update');
             Route::delete("curriculum/{curriculum}/questions/{question}", [TeacherController::class, 'destroyQuestion'])->name('curriculum.topics.question.destroy');

@@ -1,3 +1,42 @@
+    /**
+     * Show assessment attempts for a curriculum topic (for creator/teacher).
+     * Lists all attempts for questions in this topic, grouped by student.
+     */
+    public function topicAttempts(Curriculum $curriculum, CurriculumTopic $topic, Request $request)
+    {
+        $user = auth()->user();
+        // Only allow if teacher is author or assigned
+        if (!($user->isAdmin() || ($curriculum->author_id ?? null) == $user->id)) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Find all question ids for this topic
+        $questionIds = $topic->questions()->pluck('id')->all();
+        // Find all AttemptAnswers for these questions
+        $answers = \App\Models\AttemptAnswer::whereIn('question_id', $questionIds)
+            ->with(['attempt'])
+            ->get();
+
+        // Group by student (attempt.user_id)
+        $grouped = $answers->groupBy(function($a){ return $a->attempt->user_id ?? null; });
+
+        // For each student, collect attempts and answers
+        $students = [];
+        foreach ($grouped as $studentId => $studentAnswers) {
+            $student = \App\Models\User::find($studentId);
+            $attempts = $studentAnswers->groupBy('attempt_id');
+            $students[] = [
+                'student' => $student,
+                'attempts' => $attempts,
+            ];
+        }
+
+        return view('teacher.curriculum.topic_attempts', [
+            'curriculum' => $curriculum,
+            'topic' => $topic,
+            'students' => $students,
+        ]);
+    }
 <?php
 
 namespace App\Http\Controllers;

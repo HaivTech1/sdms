@@ -268,5 +268,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
         Route::get('/question/{week_id}', [AssessmentController::class, 'gradeQuestions']);
         Route::post('/submit', [AssessmentController::class, 'submit']);
         Route::get('/result/{key}', [AssessmentController::class, 'result']);
+        Route::get('/creator/{studentId}/attempts', [AssessmentController::class, 'creatorStudentAttempts']);
     });
 });

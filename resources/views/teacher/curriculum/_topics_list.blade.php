@@ -28,6 +28,7 @@
                     <button class="btn btn-sm btn-primary edit-topic" data-url="{{ route('teacher.curriculum.topics.edit', [$curriculum, $topic]) }}">Edit</button>
                     <button class="btn btn-sm btn-danger delete-topic" data-url="{{ route('teacher.curriculum.topics.destroy', [$curriculum, $topic]) }}">Delete</button>
                     <button class="btn btn-sm btn-success generate-questions">Questions</button>
+                    <a href="{{ route('teacher.curriculum.topics.attempts', [$curriculum, $topic]) }}" class="btn btn-sm btn-info">View Attempts</a>
                 </td>
             </tr>
         @empty

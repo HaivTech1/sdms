@@ -463,4 +463,79 @@ class AssessmentController extends Controller
 
         return response()->json(['status' => true, 'data' => $attempts]);
     }
+
+    /**
+     * For creators: list assessment attempts for a specific student across curricula the creator authored.
+     * Accepts student id as parameter. Paginated. Only attempts that contain questions from curricula
+     * authored by the authenticated user will be returned.
+     */
+    public function creatorStudentAttempts(Request $request, $studentId)
+    {
+        $user = auth()->user();
+
+        $perPage = (int) $request->query('per_page', 20);
+        $page = (int) $request->query('page', 1);
+
+        \Illuminate\Pagination\Paginator::currentPageResolver(function () use ($page) {
+            return $page;
+        });
+
+        // find curriculum ids authored by this user
+        $authoredCurriculumIds = \App\Models\Curriculum::where('author_id', $user->id)->pluck('id')->all();
+
+        // find topic ids that belong to those curricula
+        $topicIds = [];
+        if (!empty($authoredCurriculumIds)) {
+            $topicIds = \App\Models\CurriculumTopic::whereIn('curriculum_id', $authoredCurriculumIds)->pluck('id')->all();
+        }
+
+        // find question ids that are within those topics
+        $questionIds = [];
+        if (!empty($topicIds)) {
+            $questionIds = \App\Models\Question::whereIn('curriculum_topic_id', $topicIds)->pluck('id')->all();
+        }
+
+        // build base query: attempts that belong to the requested student and which have answers matching the question ids
+        $query = AssessmentAttempt::query()
+            ->where('user_id', $studentId)
+            ->whereHas('answers', function ($q) use ($questionIds) {
+                if (!empty($questionIds)) {
+                    $q->whereIn('question_id', $questionIds);
+                } else {
+                    // if no authored curricula/questions, no attempts should be returned
+                    $q->whereRaw('0 = 1');
+                }
+            })
+            ->withCount([
+                'answers as total_questions',
+                'answers as correct' => function ($q) {
+                    $q->where('is_correct', 1);
+                }
+            ])
+            ->orderBy('created_at', 'desc');
+
+        $attempts = $query->paginate($perPage);
+
+        $attempts->getCollection()->transform(function ($a) {
+            $meta = is_array($a->meta) ? $a->meta : (is_string($a->meta) ? json_decode($a->meta, true) : (array) $a->meta);
+            $status = isset($meta['scored_at']) ? 'ready' : 'processing';
+
+            $total = intval($a->total_questions ?? 0);
+            $correct = intval($a->correct ?? 0);
+            $percent = $total > 0 ? round(($correct / $total) * 100, 2) : 0;
+
+            return [
+                'id' => $a->id,
+                'attempt_id' => $a->attempt_id,
+                'week_id' => $a->week_id,
+                'submitted_at' => optional($a->submitted_at)->toISOString(),
+                'status' => $status,
+                'total_questions' => $total,
+                'correct' => $correct,
+                'percent' => $percent,
+            ];
+        });
+
+        return response()->json(['status' => true, 'data' => $attempts]);
+    }
 }
