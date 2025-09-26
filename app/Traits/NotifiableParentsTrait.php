@@ -12,28 +12,18 @@ trait NotifiableParentsTrait
     public static function notifyParents($student, $body, $subject, $path = null)
     {
         $pushMessages = [];
+        
 
         if (get_settings('father_notification') === 1 && isset($student->father)) {
             // keep existing email flow
             if (!empty($student->father->email)) {
                 Mail::to($student->father->email())->send(new SendMidtermMail($body, $subject, $path));
-            }
-
-            // if this parent is a user with device_token, queue push
-            if (isset($student->father->user) && !empty($student->father->user->device_token)) {
-                $expo = app(ExpoPushService::class);
-                $pushMessages[] = $expo->makeMessage($student->father->user->device_token, $subject, $body, ['student_uuid' => $student->uuid ?? null]);
-            }
+            }            
         }
 
         if (get_settings('mother_notification') === 1 && isset($student->mother)) {
             if (!empty($student->mother->email)) {
                 Mail::to($student->mother->email())->send(new SendMidtermMail($body, $subject, $path));
-            }
-
-            if (isset($student->mother->user) && !empty($student->mother->user->device_token)) {
-                $expo = app(ExpoPushService::class);
-                $pushMessages[] = $expo->makeMessage($student->mother->user->device_token, $subject, $body, ['student_uuid' => $student->uuid ?? null]);
             }
         }
 
@@ -41,11 +31,11 @@ trait NotifiableParentsTrait
             if (!empty($student->guardian->email)) {
                 Mail::to($student->guardian->email())->send(new SendMidtermMail($body, $subject, $path));
             }
+        }
 
-            if (isset($student->guardian->user) && !empty($student->guardian->user->device_token)) {
-                $expo = app(ExpoPushService::class);
-                $pushMessages[] = $expo->makeMessage($student->guardian->user->device_token, $subject, $body, ['student_uuid' => $student->uuid ?? null]);
-            }
+        if (isset($student->user) && !empty($student->user->device_token)) {
+            $expo = app(ExpoPushService::class);
+            $pushMessages[] = $expo->makeMessage($student->user->device_token, $subject, $body, ['student_uuid' => $student->uuid ?? null]);
         }
 
         if (!empty($pushMessages)) {

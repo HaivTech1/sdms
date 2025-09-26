@@ -7,7 +7,8 @@ use App\Models\{
     Period,
     Term,
     Cognitive,
-    Cummulative
+    Cummulative,
+    Grade
 };
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -234,6 +235,7 @@ class ResultController extends Controller
                 'student_id' => ['required', 'regex:/^SLNP/'],  // Must start with SLNP uppercase
                 'session' => ['required'],
                 'term' => ['required', 'in:first,second,third'],
+                'grade' => ['required', 'integer', 'exists:grades,id'],
                 'type' => ['required', 'in:midterm,exam'],
             ], [
                 'student_id.required' => 'Student Registration number is required.',
@@ -243,6 +245,7 @@ class ResultController extends Controller
                 'term.in' => 'Term must be one of: First, Second, or Third.',
                 'type.required' => 'Type of result is required.',
                 'type.in' => 'Type must be either "midterm" or "exam".',
+                'grade.required' => 'Please select a class.',
             ]);
 
             if ($validateData->fails()) {
@@ -283,15 +286,18 @@ class ResultController extends Controller
                 ], 404);
             }
 
+            $grade = Grade::findOrFail($request->grade);
+
             $link = "";
 
             $resultController = app()->make(ControllersResultController::class);
             switch ($data['type']) {
                 case 'midterm':
-                    $link = $resultController->generateMidtermResultLink($student, $student->grade_id, $period->id, $term->id);
+                    $link = $resultController->generateMidtermResultLink($student, $grade->id(), $student->grade_id, $period->id, $term->id);
                     break;
                 case 'exam':
-                    $link = $resultController->generateExamResultLink($student, $period->id, $term->id);
+                    $link = $resultController->generateExamResultLink($student, $period->id,
+                    $term->id, $grade);
                     break;
             }
 

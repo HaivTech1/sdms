@@ -41,10 +41,11 @@
                         <div class="logo-cat-wrap">
                             <div class="logo-part pr-90">
                                 <a class="dark-logo" href="<?php echo e(url('/')); ?>">
-                                    <img src="<?php echo e(asset('storage/'.application('image'))); ?>" alt="<?php echo e(application('name')); ?>">
+                                    <img src="<?php echo e(asset('storage/'.application('image'))); ?>" style="width: 60px;" alt="<?php echo e(application('name')); ?>">
                                 </a>
                                 <a class="light-logo" href="<?php echo e(url('/')); ?>">
-                                    <img src="<?php echo e(asset('storage/'.application('image'))); ?>" alt="<?php echo e(application('name')); ?>">
+                                    <img src="<?php echo e(asset('storage/'.application('image'))); ?>"
+                                        style="width: 60px;"  alt="<?php echo e(application('name')); ?>">
                                 </a>
                             </div>
                             <!-- <div class="categories-btn">

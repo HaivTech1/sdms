@@ -765,7 +765,12 @@ class FeeController extends Controller
                     $pdfBytes = $pdf->output();
                     $filename = 'receipt-' . $payment->id . '-' . uniqid() . '.pdf';
                     $relativePath = 'receipts/' . $filename;
-                    Storage::put($relativePath, $pdfBytes);
+
+                    Storage::disk('public')->put($relativePath, $pdfBytes, [
+                    'visibility' => 'public',
+                    'ContentType' => 'application/pdf',
+                    ]);
+
                     $publicUrl = asset('storage/' . $relativePath);
 
                     // persist receipt filename/path on the payment record

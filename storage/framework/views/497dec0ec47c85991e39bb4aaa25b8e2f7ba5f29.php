@@ -24,6 +24,7 @@
                         <button class="btn btn-sm btn-danger delete-curriculum" type="button" data-url="<?php echo e(route('teacher.curriculum.destroy', $curriculum)); ?>"><i class="bx bx-trash"></i></button>
                     <?php endif; ?>
                     <a href="<?php echo e(route('teacher.curriculum.topics', $curriculum)); ?>" class="btn btn-sm btn-info">Topics</a>
+                    <button class="btn btn-sm btn-primary download-questions" type="button" data-url="<?php echo e(route('teacher.curriculum.download_questions', $curriculum)); ?>">Download Questions</button>
                 </td>
             </tr>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
@@ -35,4 +36,24 @@
 <div class="d-flex justify-content-center">
     <?php echo $curriculums->links(); ?>
 
-</div><?php /**PATH C:\laragon\www\primary\resources\views/teacher/curriculum/_list.blade.php ENDPATH**/ ?>
+</div>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.download-questions');
+    if (!btn) return;
+    e.preventDefault();
+    const url = btn.getAttribute('data-url');
+    if (!url) return;
+
+    // Optional: add query params e.g., week_id or order
+    const params = new URLSearchParams();
+    // Example: keep sequential order; to randomize use params.set('order','random')
+    // if you want to filter by week, set params.set('week_id', someWeekId)
+
+    const fullUrl = params.toString() ? (url + '?' + params.toString()) : url;
+    window.open(fullUrl, '_blank');
+});
+</script>
+<?php $__env->stopPush(); ?><?php /**PATH C:\laragon\www\primary\resources\views/teacher/curriculum/_list.blade.php ENDPATH**/ ?>

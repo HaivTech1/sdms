@@ -23,6 +23,7 @@ use App\Http\Resources\v1\GradeResource;
 use App\Http\Resources\v1\SessionResource;
 use App\Http\Resources\v1\SettingResource;
 use App\Http\Resources\v1\SubjectResource;
+use App\Scopes\ExcludeLastRecordService;
 use App\Scopes\HasActiveScope;
 
 class SettingController extends Controller
@@ -40,7 +41,15 @@ class SettingController extends Controller
 
     public function grade()
     {
-        $data = Grade::all();
+        $user = auth()->user();
+
+        $query = Grade::withoutGlobalScope(new ExcludeLastRecordService);
+
+        if (! $user || (!method_exists($user, 'isAdmin') || (! $user->isAdmin() && ! (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin())))) {
+            $query->whereNotIn('title', ['Testing', 'Graduated']);
+        }
+
+        $data = $query->get();
         $grades = GradeResource::collection($data);
         return response()->json(['status' => 200, 'grades' => $grades], 200);
     }

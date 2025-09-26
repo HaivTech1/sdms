@@ -19,87 +19,110 @@ class AssessmentController extends Controller
 {
     public function weeks(Request $request)
     {
-        $user = auth()->user();
-        $gradeId = optional($user)->student->grade_id ?? null;
-        $termId = term('id');
-        $periodId = period('id');
+        try {
+            $user = auth()->user();
+            $gradeId = optional($user)->student->grade_id ?? null;
+            $termId = term('id');
+            $periodId = period('id');
 
-        $date = $request->query('date') ? Carbon::parse($request->query('date')) : Carbon::today();
+            $date = $request->query('date') ? Carbon::parse($request->query('date')) : Carbon::today();
 
-        $weeks = Week::select('id', 'start_date', 'end_date')
+            $weeks = Week::select('id','start_date','end_date')
             ->where('term_id', $termId)
             ->where('period_id', $periodId)
             ->orderBy('start_date')
-            ->with(['topics' => function ($q) use ($gradeId, $termId) {
-                $q->select('id', 'title', 'curriculum_id', 'week_id', 'test_duration')
+            ->with([
+                'topics' => function ($q) use ($gradeId, $termId) {
+                    $q->select('id','title','curriculum_id','week_id','test_duration')
                     ->whereHas('curriculum', function ($cq) use ($gradeId, $termId) {
-                        $cq->where('grade_id', $gradeId)
+                        $cq->when($gradeId, fn($x) => $x->where('grade_id', $gradeId))
                             ->where('term_id', $termId);
                     })
-                    ->with(['curriculum' => function ($cq) {
-                        $cq->select('id', 'name', 'grade_id', 'subject_id', 'term_id');
-                    }]);
-            }, 'hairstyle' => function($q){
-                $q->select('id', 'title', 'description', 'front_view', 'back_view', 'side_view');
-            }])->get();
+                    ->with([
+                        'curriculum:id,name,grade_id,subject_id,term_id',
+                        'curriculum.subject:id,title',
+                    ]);
+                },
+                'hairstyle:id,title,description,front_view,back_view,side_view',
+            ])
+            ->with([
+                'userAttempt' => fn($q) => $q->where('user_id', $user->id)->latest('id'),
+            ])
+            ->withCount([
+                'attempts as user_attempts_count' => function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                }
+            ])
+            ->get();
 
-        $activeWeek = null;
-        try {
-            $dateStart = $date->copy()->startOfDay();
-            $dateEnd = $date->copy()->endOfDay();
 
-            $activeWeek = $weeks->first(function ($w) use ($dateStart, $dateEnd) {
-                $start = Carbon::parse($w->start_date)->startOfDay();
-                $end = Carbon::parse($w->end_date)->endOfDay();
-                return $start <= $dateEnd && $end >= $dateStart;
-            });
-
-            if (empty($activeWeek)) {
-                $activeWeek = $weeks->first(function ($w) use ($dateStart) {
-                    return Carbon::parse($w->start_date)->startOfDay() >= $dateStart;
-                });
-            }
-        } catch (\Exception $e) {
             $activeWeek = null;
-        }
+            try {
+                $dateStart = $date->copy()->startOfDay();
+                $dateEnd = $date->copy()->endOfDay();
 
-        $payload = [];
-        foreach ($weeks as $index => $week) {
-            $weekTopics = [];
-            $topics = $week->topics ?? [];
-            foreach ($topics as $t) {
-                $topicArray = [
-                    'id' => $t->id,
-                    'title' => $t->title,
-                    'curriculum_id' => $t->curriculum_id,
-                    'subject' => $t->curriculum->subject->title ?? null,
-                    'week_id' => $t->week_id,
-                    'duration' => $t->test_duration,
-                ];
+                $activeWeek = $weeks->first(function ($w) use ($dateStart, $dateEnd) {
+                    $start = Carbon::parse($w->start_date)->startOfDay();
+                    $end = Carbon::parse($w->end_date)->endOfDay();
+                    return $start <= $dateEnd && $end >= $dateStart;
+                });
 
-                if (!empty($t->curriculum)) {
-                    $topicArray['curriculum'] = [
-                        'id' => $t->curriculum->id,
-                        'name' => $t->curriculum->name ?? null,
+                if (empty($activeWeek)) {
+                    $activeWeek = $weeks->first(function ($w) use ($dateStart) {
+                        return Carbon::parse($w->start_date)->startOfDay() >= $dateStart;
+                    });
+                }
+            } catch (\Exception $e) {
+                $activeWeek = null;
+            }
+
+            $payload = [];
+            foreach ($weeks as $index => $week) {
+
+                $weekTopics = [];
+                $topics = $week->topics ?? [];
+                foreach ($topics as $t) {
+                    $topicArray = [
+                        'id' => $t->id,
+                        'title' => $t->title,
+                        'curriculum_id' => $t->curriculum_id,
+                        'subject' => $t->curriculum->subject->title ?? null,
+                        'week_id' => $t->week_id,
+                        'duration' => $t->test_duration,
                     ];
+
+                    if (!empty($t->curriculum)) {
+                        $topicArray['curriculum'] = [
+                            'id' => $t->curriculum->id,
+                            'name' => $t->curriculum->name ?? null,
+                        ];
+                    }
+
+                    $weekTopics[] = $topicArray;
                 }
 
-                $weekTopics[] = $topicArray;
+                $isActive = $week->id === ($activeWeek->id ?? null);
+
+                $payload[] = [
+                    'id' => $index + 1,
+                    'week_id' => $week->id,
+                    'start_date' => $week->start_date,
+                    'end_date' => $week->end_date,
+                    'topics' => array_values($weekTopics),
+                    'active' => (bool) $isActive,
+                    'week_assessment' => [
+                        // robust attempted flag using counted relation filtered by current user
+                        'attempted'  => (bool) (($week->user_attempts_count ?? 0) > 0),
+                        'attempt_id' => $week->userAttempt?->id,
+                    ]
+                ];
             }
 
-            $isActive = $week->id === ($activeWeek->id ?? null);
-
-            $payload[] = [
-                'id' => $index,
-                'week_id' => $week->id,
-                'start_date' => $week->start_date,
-                'end_date' => $week->end_date,
-                'topics' => array_values($weekTopics),
-                'active' => (bool) $isActive,
-            ];
+            return response()->json(['status' => true, 'data' => $payload]);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json(['status' => false, 'message' => "There was an error getting the weekly assessments", 'error' => $th->getMessage()], 500);
         }
-
-        return response()->json(['status' => true, 'data' => $payload]);
     }
 
     public function gradeQuestions($week_id)

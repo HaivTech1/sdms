@@ -3405,16 +3405,16 @@ class ResultController extends Controller
                     $cognitive = Cognitive::where('student_uuid', $student->id())->where('period_id', $period)->where('term_id', $term)->first();
                     if ($cognitive) {
                         $cognitive->update([
-                            'position_in_class' => calculateStudentPosition($student->id(), $period, $term, $student->grade->id()),
-                            'position_in_grade' => calculateStudentGradePosition($student->id(), $period, $term, $student->grade->title()),
+                            'position_in_class' => calculateStudentPosition($student->id(), $period, $term, $grade->id()),
+                            'position_in_grade' => calculateStudentGradePosition($student->id(), $period, $term, $grade->title()),
                         ]);
                     } else {
                         Cognitive::create([
                             'student_uuid' => $student->id(),
                             'period_id' => $period,
                             'term_id' => $term,
-                            'position_in_class' => calculateStudentPosition($student->id(), $period, $term, $student->grade->id()),
-                            'position_in_grade' => calculateStudentGradePosition($student->id(), $period, $term, $student->grade->title()),
+                            'position_in_class' => calculateStudentPosition($student->id(), $period, $term, $grade->id()),
+                            'position_in_grade' => calculateStudentGradePosition($student->id(), $period, $term, $grade->title()),
                         ]);
                     }
                 }

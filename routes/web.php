@@ -511,6 +511,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             // List saved questions for a topic
             Route::get("curriculum/{curriculum}/topics/{topic}/questions", [TeacherController::class, 'questions'])->name('curriculum.topics.questions');
                 Route::get("curriculum/{curriculum}/topics/{topic}/attempts", [TeacherController::class, 'topicAttempts'])->name('curriculum.topics.attempts');
+            // Download curriculum questions as PDF
+            Route::get("curriculum/{curriculum}/download-questions", [TeacherController::class, 'downloadCurriculumQuestionsPdf'])->name('curriculum.download_questions');
             // Update / delete saved question
             Route::put("curriculum/{curriculum}/questions/{question}", [TeacherController::class, 'updateQuestion'])->name('curriculum.topics.question.update');
             Route::delete("curriculum/{curriculum}/questions/{question}", [TeacherController::class, 'destroyQuestion'])->name('curriculum.topics.question.destroy');

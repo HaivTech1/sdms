@@ -1,42 +1,3 @@
-    /**
-     * Show assessment attempts for a curriculum topic (for creator/teacher).
-     * Lists all attempts for questions in this topic, grouped by student.
-     */
-    public function topicAttempts(Curriculum $curriculum, CurriculumTopic $topic, Request $request)
-    {
-        $user = auth()->user();
-        // Only allow if teacher is author or assigned
-        if (!($user->isAdmin() || ($curriculum->author_id ?? null) == $user->id)) {
-            abort(403, 'Unauthorized');
-        }
-
-        // Find all question ids for this topic
-        $questionIds = $topic->questions()->pluck('id')->all();
-        // Find all AttemptAnswers for these questions
-        $answers = \App\Models\AttemptAnswer::whereIn('question_id', $questionIds)
-            ->with(['attempt'])
-            ->get();
-
-        // Group by student (attempt.user_id)
-        $grouped = $answers->groupBy(function($a){ return $a->attempt->user_id ?? null; });
-
-        // For each student, collect attempts and answers
-        $students = [];
-        foreach ($grouped as $studentId => $studentAnswers) {
-            $student = \App\Models\User::find($studentId);
-            $attempts = $studentAnswers->groupBy('attempt_id');
-            $students[] = [
-                'student' => $student,
-                'attempts' => $attempts,
-            ];
-        }
-
-        return view('teacher.curriculum.topic_attempts', [
-            'curriculum' => $curriculum,
-            'topic' => $topic,
-            'students' => $students,
-        ]);
-    }
 <?php
 
 namespace App\Http\Controllers;
@@ -54,6 +15,8 @@ use App\Models\Week;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Services\QuestionGeneratorService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class TeacherController extends Controller
 {
@@ -284,8 +247,8 @@ class TeacherController extends Controller
             abort(403);
         }
 
-    // paginate topics so AJAX list supports links
-    $topics = $curriculum->topics()->with('week')->withCount('questions')->orderBy('week_id')->paginate(10);
+        // paginate topics so AJAX list supports links
+        $topics = $curriculum->topics()->with('week')->withCount('questions')->orderBy('week_id')->paginate(10);
         $weeks = Week::where('term_id', term("id"))->where('period_id', period("id"))->orderBy('start_date')->get();
 
         if (request()->ajax()) {
@@ -380,6 +343,66 @@ class TeacherController extends Controller
     }
 
     /**
+     * Download all saved questions for a curriculum as a question paper PDF.
+     * Optional filters: week_id (only that week's topics), order (random|sequential)
+     */
+    public function downloadCurriculumQuestionsPdf(Request $request, Curriculum $curriculum)
+    {
+        $user = auth()->user();
+        if (!($user->isAdmin() || $curriculum->isAuthoredBy($user))) {
+            abort(403);
+        }
+
+        $weekId = $request->query('week_id');
+        $order = $request->query('order', 'sequential');
+
+        $topicsQuery = $curriculum->topics()->with(['questions','week'])->orderBy('week_id');
+        if ($weekId) {
+            $topicsQuery->where('week_id', $weekId);
+        }
+
+        $topics = $topicsQuery->get();
+
+        $questions = [];
+        foreach ($topics as $topic) {
+            foreach ($topic->questions as $q) {
+                $questions[] = [
+                    'topic_title' => $topic->title,
+                    'question' => $q->question,
+                    'options' => is_array($q->options) ? $q->options : (is_string($q->options) ? json_decode($q->options, true) : []),
+                ];
+            }
+        }
+
+        if ($order === 'random') {
+            shuffle($questions);
+        }
+
+        $title = sprintf('%s - %s Question Paper', optional($curriculum->grade)->title, optional($curriculum->subject)->title);
+
+        $data = [
+            'title' => $title,
+            'school' => [
+                'name' => application('name'),
+                'address' => application('address'),
+                'logo' => asset('storage/' . application('image')),
+            ],
+            'meta' => [
+                'grade' => optional($curriculum->grade)->title,
+                'subject' => optional($curriculum->subject)->title,
+                'term' => optional($curriculum->term)->title,
+                'period' => optional($curriculum->period)->title,
+                'generated_at' => now()->format('j M Y g:i A'),
+            ],
+            'questions' => $questions,
+        ];
+
+        $pdf = Pdf::loadView('pdfs.question_paper', $data)->setPaper('A4', 'portrait');
+
+        $safeName = Str::slug($curriculum->name . '-' . ($data['meta']['subject'] ?? 'subject'));
+        return $pdf->download($safeName . '.pdf');
+    }
+    /**
      * Generate questions for a given topic using OpenAI (preview only).
      */
     public function generateTopicQuestions(Request $request, Curriculum $curriculum)
@@ -395,6 +418,7 @@ class TeacherController extends Controller
             'types' => 'nullable|string',
             'difficulty_mix' => 'nullable|string',
             'model' => 'nullable|string',
+            'genOpenAIKey' => 'nullable|string',
         ]);
 
         $topic = CurriculumTopic::with('week')->findOrFail($data['topic_id']);
@@ -420,6 +444,10 @@ class TeacherController extends Controller
 
         if (!empty($data['model'])) {
             $options['model'] = $data['model'];
+        }
+
+        if(!empty($data['genOpenAIKey'])) {
+            $options['openai_key'] = $data['genOpenAIKey'];
         }
 
         $svc = new QuestionGeneratorService();

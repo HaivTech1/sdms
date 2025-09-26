@@ -9,6 +9,6 @@ class ExcludeLastRecordService implements Scope
 {
     public function apply(Builder $builder, Model $model): void
     {
-        $builder->orderBy('id', 'asc')->withoutGlobalScope($this);
+        $builder->orderBy('title', 'asc')->withoutGlobalScope($this);
     }
 }

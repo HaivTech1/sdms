@@ -20,12 +20,21 @@ class QuestionGeneratorService
 
     public function generateForTopic(string $topicTitle, string $topicObjectives = '', int $count = 5, array $options = []): array
     {
-        $apiKey = get_settings('openai_api_key') ?? config('services.openai.key', '');
+        $apiKey = get_settings('openai_api_key');
         if (empty($apiKey)) {
             throw new \RuntimeException('OpenAI API key not configured (OPENAI_API_KEY).');
         }
 
-        $model = get_settings('openai_model') ?? config('services.openai.model', 'gpt-4o-mini');
+        if($options['openai_key'] ?? false) {
+            $apiKey = $options['openai_key'];
+        }
+
+        $model = get_settings('openai_model');
+
+        if($options['model'] ?? false) {
+            $model = $options['model'];
+        }
+
 
         // Construct prompt asking for strict JSON array output using SYSTEM/USER pattern required by the product
         $system = "You are an expert K-12 assessment writer. Produce objective, grade-appropriate multiple-choice questions when asked.";
@@ -143,9 +152,6 @@ class QuestionGeneratorService
                 $indexUsage[$optionCount][$newCorrectIndex]++;
             }
         }
-
-        // Log a compact summary for debugging
-        info($validated);
 
         return $validated;
     }

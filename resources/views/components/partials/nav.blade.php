@@ -41,10 +41,11 @@
                         <div class="logo-cat-wrap">
                             <div class="logo-part pr-90">
                                 <a class="dark-logo" href="{{ url('/') }}">
-                                    <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}">
+                                    <img src="{{ asset('storage/'.application('image')) }}" style="width: 60px;" alt="{{ application('name') }}">
                                 </a>
                                 <a class="light-logo" href="{{ url('/') }}">
-                                    <img src="{{ asset('storage/'.application('image')) }}" alt="{{ application('name') }}">
+                                    <img src="{{ asset('storage/'.application('image')) }}"
+                                        style="width: 60px;"  alt="{{ application('name') }}">
                                 </a>
                             </div>
                             <!-- <div class="categories-btn">

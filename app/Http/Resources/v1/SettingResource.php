@@ -25,6 +25,7 @@ class SettingResource extends JsonResource
             'session' => new SessionResource(Period::where('status', true)->first()),
             'affective_domain' => get_settings('affective_domain'),
             'psychomotor_domain' => get_settings('psychomotor_domain'),
+            'paystackPublic' => get_settings("paystackPublic")
         ];
     }
 }

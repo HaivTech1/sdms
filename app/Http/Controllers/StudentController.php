@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreStudentRequest;
+use App\Http\Resources\v1\StudentResource;
 use PDF;
 use Dompdf\Options;
 use App\Traits\NotifiableParentsTrait;
@@ -35,7 +36,9 @@ class StudentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin'])->except(['store', 'getStudentsByClass', 'assignSubject', 'subject', 'getPerformanceByStudent', 'cognitiveStudents', 'psychomotorStudents', 'affectiveStudents']);
+        $this->middleware(['auth', 'admin'])->except(['store', 'getStudentsByClass', 'assignSubject', 'subject',
+        'getPerformanceByStudent', 'cognitiveStudents', 'psychomotorStudents', 'affectiveStudents', 'updateProfile',
+        "updateUserPassword"]);
     }
     
     
@@ -527,4 +530,32 @@ class StudentController extends Controller
             return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
     }
+
+    public function updateProfile(Request $request, $studentUuid)
+    {
+        try {
+            $validated = $request->validate([
+                'first_name'    => 'sometimes|required|string|max:255',
+                'last_name'     => 'sometimes|required|string|max:255',
+                'other_name'    => 'sometimes|nullable|string|max:255',
+                'date_of_birth' => 'sometimes|nullable|date',
+            ]);
+
+            $student = Student::where('uuid', $studentUuid)->firstOrFail();
+
+            $student->update($validated);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Profile updated successfully.',
+                'student' => new StudentResource($student),
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status'  => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
 }

@@ -180,7 +180,6 @@ class StudentController extends Controller
     {
         try {
             $data = $request->all();
-
             $validateData = Validator::make($data, [
                 'student_id' => ['required', 'regex:/^SLNP/'],
                 'term' => ['required', 'in:first,second,third'],
@@ -264,7 +263,28 @@ class StudentController extends Controller
             $watMessage .= "*Bank Name:* Zenith Bank\n";
             $watMessage .= "*Account Name:* St Louis Nursery and Primary School Ondo.";
 
-            return response()->json(["status" => true, "message" => $watMessage], 200);
+            $hasPaid = $student->payments()
+                ->where('term_id', $term->id)
+                ->where('period_id', period('id'))
+                ->where('category', 'school_fees')
+                ->exists();
+
+            return response()->json([
+                "status" => true, 
+                "message" => $watMessage, 
+                "fee" => [
+                    "outstanding" => $outstanding,
+                    "fee" => $feeAmount,
+                    "total" => $total,
+                    "details" => $feeDetails,
+                ],
+                "account_details" => [
+                    "account_number" => get_settings('school_account_number', ''),
+                    "bank_name" => get_settings('school_bank_name', ''),
+                    "account_name" => get_settings('school_account_name', '')
+                ],
+                "has_paid" => $hasPaid,
+            ], 200);
 
         } catch (\Throwable $th) {
             info($th);

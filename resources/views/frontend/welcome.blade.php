@@ -5,6 +5,40 @@
     @endphp
 
     <div id="rs-banner" class="rs-banner style7">
+            <style>
+                    /* Page-specific banner image declaration (overrides global stylesheet for style7) */
+                    .rs-banner.style7 {
+                        position: relative;
+                        background-image: url('{{ asset("storage/".getAboutSetting("home_banner_image")) }}') !important;
+                        background-size: cover !important;
+                        background-position: center center !important;
+                        background-repeat: no-repeat !important;
+                        overflow: hidden;
+                    }
+
+                    /* Overlay to darken the background so text is readable */
+                    .rs-banner.style7::before {
+                        content: "";
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.35));
+                        z-index: 1;
+                        pointer-events: none;
+                    }
+
+                    /* Ensure content sits above the overlay */
+                    .rs-banner.style7 .container,
+                    .rs-banner.style7 .banner-content {
+                        position: relative;
+                        z-index: 2;
+                    }
+
+                    /* Keep the .img-part element available; hide it visually to avoid duplicate display if needed */
+                    .rs-banner.style7 .img-part { visibility: hidden; width: 0; height: 0; overflow: hidden; }
+                </style>
         <div class="container">
             <div class="row">
                 <div class="col-lg-6">
@@ -34,7 +68,7 @@
             </div>
         </div>
         <div class="img-part">
-            <img src="{{ asset('storage/'.getAboutSetting('home_banner_image') ) }} }}" alt="Banner Image">
+            <img src="{{ asset('storage/'.getAboutSetting('home_banner_image') ) }}" alt="Banner Image">
         </div>
     </div>
 
@@ -66,17 +100,24 @@
 
     @registrationLinkEnabled
         <div class="rs-cta  style2 gray-bg3 pt-100 pb-100 md-pt-70 md-pb-70">
+            <style>
+                /* Responsive padding for the admission description */
+                .admission-desc { padding: 0 200px; }
+                @media (max-width: 768px) {
+                    .admission-desc { padding: 0 20px; }
+                }
+            </style>
                 <div class=" wow fadeInUp" data-wow-delay="300ms" data-wow-duration="2000ms">
                 <div class="content  text-center">
                     <div class="sec-title2 mb-40 ">
                         <div class="sub-title purple-color">{{ application('name')}} Admission</div>
-                        <h2 class="title purple-color">Admission Open for {{ date('Y') }}</h2>
+                        <h2 class="title purple-color">Admission Open for {{ period('title') }}</h2>
                         <div class="desc purple-color">
-                            {{ getAboutSetting('admission_description') }}
+                            <p class="admission-desc">{{ getAboutSetting('admission_description') }}</p>
                         </div>
                     </div>
                     <div class="btn-part">
-                        <a class="readon purple-color" href="{{ url('registration') }}">Contact Now</a>
+                        <a class="readon purple-color" href="{{ url('registration') }}">Register Now</a>
                     </div>
                 </div>
             </div>

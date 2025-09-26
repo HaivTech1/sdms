@@ -40,5 +40,6 @@ class Curriculum extends Model
     public function weeks() {
         return $this->hasManyThrough(Week::class, CurriculumTopic::class);
     }
+
 }
 

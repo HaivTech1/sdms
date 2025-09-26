@@ -15,7 +15,7 @@ class EventController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'admin']);
+        $this->middleware(['auth', 'admin'])->except(['allEvents']);
     }
 
     public function index()
@@ -228,5 +228,17 @@ class EventController extends Controller
         }
 
         return response()->json(['status' => true, 'message' => 'Notifications queued']);
+    }
+
+    public function allEvents()
+    {
+        try {
+            $query = Event::where('period_id', period('id'))->where('term_id', term('id'));
+            $events = $query->orderByDesc('start_date')->get();
+            return response()->json($events);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
     }
 }

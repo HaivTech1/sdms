@@ -2,24 +2,14 @@
 
 namespace App\Traits;
 
-use Carbon\Carbon;
 use App\Models\Fee;
-use App\Models\Cart;
 use App\Models\Trip;
-use App\Models\User;
-use App\Models\Order;
-use App\Mail\SendMail;
-use App\Models\Debtor;
 use App\Models\Payment;
 use App\Models\Setting;
 use App\Models\Student;
-use App\Models\Referral;
 use App\Models\StudentTrip;
-use App\Events\UserReferred;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 use App\Traits\NotifiableParentsTrait;
 
 trait PaystackPaymentTrait

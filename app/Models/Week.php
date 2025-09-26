@@ -95,4 +95,13 @@ class Week extends Model
     {
         return $this->hasMany(CurriculumTopic::class, 'week_id');
     }
+
+    public function attempts()
+    {
+        return $this->hasMany(AssessmentAttempt::class, 'week_id');
+    }
+
+    public function userAttempt() { 
+        return $this->hasOne(AssessmentAttempt::class);
+    }
 }

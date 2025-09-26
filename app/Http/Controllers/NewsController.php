@@ -10,7 +10,7 @@ class NewsController extends Controller
 {
     public function __construct()
     {
-        return $this->middleware(['auth', 'admin']);
+        return $this->middleware(['auth', 'admin'])->except(['allNews']);
     }
 
     public function index()
@@ -74,5 +74,19 @@ class NewsController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
+    }
+
+    public function allNews()
+    {
+        $newsData = News::withoutGlobalScope(new HasActiveScope)->orderBy('created_at', 'desc')->get();
+        $news = [];
+        foreach ($newsData as $item) {
+            $news[] = [
+                'title' => $item->title,
+                'description' => $item->description,
+            ];
+        }
+
+        return response()->json(['status' => true, 'news' => $news], 200);
     }
 }

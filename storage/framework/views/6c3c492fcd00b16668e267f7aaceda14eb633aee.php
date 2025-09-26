@@ -28,6 +28,7 @@
                     <button class="btn btn-sm btn-primary edit-topic" data-url="<?php echo e(route('teacher.curriculum.topics.edit', [$curriculum, $topic])); ?>">Edit</button>
                     <button class="btn btn-sm btn-danger delete-topic" data-url="<?php echo e(route('teacher.curriculum.topics.destroy', [$curriculum, $topic])); ?>">Delete</button>
                     <button class="btn btn-sm btn-success generate-questions">Questions</button>
+                    <a href="<?php echo e(route('teacher.curriculum.topics.attempts', [$curriculum, $topic])); ?>" class="btn btn-sm btn-info">View Attempts</a>
                 </td>
             </tr>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
