@@ -27,6 +27,7 @@ use App\Jobs\CreateSingleResult;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use App\Services\OpenAICommentService;
 use App\Traits\{
     NotifiableParentsTrait,
     WhatsappMessageTrait
@@ -35,7 +36,9 @@ use App\Exports\MidtermResultDataExport;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
 use App\Jobs\NotifyParentsJob;
+use App\Jobs\PublishExamResults;
 use App\Jobs\SendWhatsappJob;
+use App\Models\AIResultComment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Services\MidtermService;
@@ -712,69 +715,62 @@ class ResultController extends Controller
     public function primaryPublish(Request $request)
     {
         try {
-            DB::transaction(function () use ($request) {
-                $publish = $request->has('publish')
-                ? filter_var($request->publish, FILTER_VALIDATE_BOOLEAN)
-                : false;
+            $grade = Grade::findOrFail($request->grade_id);
 
-                $grade = Grade::findOrFail($request->grade_id);
-                $results = PrimaryResult::where('student_id', $request->student_id)->where('term_id',
-                $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $grade->id())->get();
-                $student = Student::findOrfail($request->student_id);
-                $idNumber = $student->user->code();
-                $name = $student->last_name . " " . $student->first_name . " " . $student->other_name;
-                $message = "
-                <p>
-                    Dear Parent/Guardian,
-                </p>
-                <p>
-                    The examination result for <strong>{$name}</strong> is now available.
-                </p>
-                <p>
-                    You may conveniently view the result through your child’s online dashboard on
-                    <a href='" . application(' website') . "/result'>". "</a>.
-                    </p>
-                    <p>
-                        For your ease, result updates are also shared via your registered WhatsApp number.
-                    </p>
-                    <p>
-                        To log in directly, you can still use the following credentials:<br>
-                        <strong>ID Number:</strong> {$idNumber}<br>
-                    </p>
-                " ;
-                $subject = 'Examination Report Sheet';
+            if (!empty($request->student_id)) {
+                $studentsQuery = Student::where('uuid', $request->student_id);
+            } else {
+                $studentsQuery = Student::where('grade_id', $grade->id());
+            }
 
-                $period = Period::where('id', $request->period_id)->first();
-                $term = Term::where('id', $request->term_id)->first();
+            // Only include students who still have unpublished results for this period/term/grade
+            $students = $studentsQuery->get()->filter(function ($student) use ($request, $grade) {
+                return PrimaryResult::where('student_id', $student->id())
+                    ->where('period_id', $request->period_id)
+                    ->where('term_id', $request->term_id)
+                    ->where('grade_id', $grade->id())
+                    ->where('published', false)
+                    ->exists();
+            })->values();
 
-                foreach ($results as $result) {
-                    $result->update(['published' => $publish]);
-                }
+            if ($students->isEmpty()) {
+                return response()->json(['status' => true, 'message' => 'No unpublished results found for the requested scope.'], 200);
+            }
 
-                if($publish){
-                    $path = $this->generateExamResultLink($student, $request->period_id, $request->term_id, $grade);
-                    $publicUrl = null;
-                    if ($path && file_exists($path)) {
-                        $filename = basename($path);
-                        $publicUrl = asset('storage/results/' . $filename);
+            // Prepare job instances
+            $jobs = $students->map(function ($student) use ($request, $grade) {
+                return new PublishExamResults((string) $student->id(), (int) $request->period_id, (int) $request->term_id, $grade->id());
+            })->toArray();
+
+            $batchId = null;
+            if (!empty($jobs)) {
+                try {
+                    // Dispatch as a single batch for easier monitoring and fewer queue churns
+                    $batch = Bus::batch($jobs)
+                        ->name('publish_results_grade_' . $grade->id() . '_' . time())
+                        ->dispatch();
+
+                    $batchId = $batch->id ?? null;
+                } catch (\Throwable $e) {
+                    // Likely missing job_batches table or unsupported driver — fallback to individual dispatch
+                    foreach ($jobs as $job) {
+                        dispatch($job);
                     }
-                    $watMessage = "*" . $term->title . " " . $period->title . " $subject*\\ \\$name's result is now
-                    available. Please click the link below to view the result\\ \\ $publicUrl";
-
-
-                    $emailJob = new NotifyParentsJob($student, $message, $subject, storage_path("app/public/$path"));
-                    $whatsappJob = new SendWhatsappJob($student, $watMessage, "parent");
-                    Bus::chain([
-                        $emailJob,
-                        $whatsappJob,
-                    ])->dispatch();
                 }
+            }
 
-            });
-            return response()->json(['status' => true, 'message' => 'Result Published successfully!'], 200);
+            $response = ['status' => true, 'message' => 'Publish queued successfully!'];
+            if ($batchId) {
+                $response['batch_id'] = $batchId;
+            } else {
+                $response['dispatched_jobs'] = count($jobs);
+            }
+
+            return response()->json($response, 200);
         } catch (\Exception $th) {
             return response()->json(['status' => false, 'message' => $th->getMessage()], 200);
         }
+
     }
 
     public function generateExamResultLink($student, $period_id, $term_id, $grade = null)
@@ -966,7 +962,109 @@ class ResultController extends Controller
             }
         }
 
-        $comment = generate_comment($scores, "Dear {$student->first_name}, based on your current term score, you need to improve in the following subject(s):", 0.5, 100);
+        $comment = "";
+
+        try {
+            $existing = AIResultComment::where('student_uuid', $student->id())
+                ->where('period_id', $period_id)
+                ->where('term_id', $term_id)
+                ->where('result_type', 'exam')
+                ->first();
+
+            if (!$existing || empty(trim((string) $existing->comment))) {
+                $service = app(OpenAICommentService::class);
+
+                $subjects = [];
+                $outOf = 100; 
+
+                foreach ($results as $r) {
+                    $subScore = calculateResult($r);
+                    // choose previous-term score based on the current term
+                    $prevScore = null;
+                    if ((int) $term_id === 2) {
+                        $prevScore = $r['first_term'] ?? null;
+                    } elseif ((int) $term_id === 3) {
+                        $prevScore = $r['second_term'] ?? null;
+                    }
+
+                    $subjects[] = [
+                        'title' => $r['subject'] ?? 'Subject',
+                        'score' => $subScore,
+                        'out_of' => $outOf,
+                        'prev_score' => $prevScore,
+                    ];
+                }
+
+                $studentPayload = [
+                    'name' => $student->fullname(),
+                    'grade' => $grade->title ?? null,
+                    'term' => $term->title ?? null,
+                    'period' => $period->title ?? null,
+                    'total' => $marksObtained,
+                    'average' => $aggregate,
+                ];
+
+                $preview = $service->previewComment($studentPayload, $subjects, ['variants' => 2, 'max_sentences' => 2]);
+                $variants = $preview['comments'] ?? [];
+
+                if (!empty($variants)) {
+                    $primary = $variants[0] ?? null;
+                    $comment = $primary ?? $comment;
+
+                    // persist the AIResultComment (teacher can review variants later)
+                    try {
+                        AIResultComment::create([
+                            'student_uuid' => $student->id(),
+                            'period_id' => $period_id,
+                            'term_id' => $term_id,
+                            'result_type' => 'exam',
+                            'author_id' => auth()->id() ?? null,
+                            'comment' => $primary,
+                            'generated_at' => now(),
+                            'status' => 'ready',
+                            'notes' => json_encode(['variants' => $variants, 'model' => $preview['model'] ?? null]),
+                        ]);
+                        // Persist the AI primary comment into the Cognitive.principal_comment field
+                        try {
+                            // If this is term 3, also generate a short promotion comment
+                            $promotionComment = null;
+                            if ((int) $term_id === 3) {
+                                try {
+                                    $promoPreview = $service->previewComment($studentPayload, $subjects, ['variants' => 1, 'max_sentences' => 2]);
+                                    $promotionComment = $promoPreview['comments'][0] ?? null;
+                                } catch (\Throwable $promoEx) {
+                                    info('Promotion comment generation failed: ' . $promoEx->getMessage());
+                                }
+                            }
+
+                            $cognitiveData = ['principal_comment' => $primary];
+                            if (!empty($promotionComment)) {
+                                $cognitiveData['promotion_comment'] = $promotionComment;
+                            }
+
+                            Cognitive::updateOrCreate(
+                                [
+                                    'student_uuid' => $student->id(),
+                                    'period_id' => $period_id,
+                                    'term_id' => $term_id,
+                                ],
+                                $cognitiveData
+                            );
+                        } catch (\Throwable $cogEx) {
+                            info('Failed to update Cognitive with AI comments: ' . $cogEx->getMessage());
+                        }
+                    } catch (\Throwable $ex) {
+                        info('Failed to persist AIResultComment in generateStudentResultData: ' . $ex->getMessage());
+                    }
+                }
+            } else {
+                // If an existing AIResultComment is present, use it as comment
+                $comment = $existing->comment ?? $comment;
+            }
+        } catch (\Throwable $e) {
+            info('AI preview generation failed in generateStudentResultData: ' . $e->getMessage());
+            // fall back to the original generated comment
+        }
 
         return compact('student', 'period', 'term', 'psychomotors', 'affectives', 'results', 'studentAttendance',
         'gradeStudentsCount', 'grade', 'aggregate', 'comment', 'termSetting');
@@ -989,8 +1087,15 @@ class ResultController extends Controller
             $subject_id = $item->subject_id;
             $scores[$subject_id] = $total_score;
         }
-        $weakness_info = "Dear $student->first_name, based on your current term score, you need to improve in the following subject(s):";
-        $comment = generate_comment($scores, $weakness_info, 0.5, 40);
+        
+        $comment = "";
+
+        $aicomment = AIResultComment::where('term_id', $request->term_id)->where('period_id',
+        $request->period_id)->where('result_type', 'midterm')->first();
+
+        if($aicomment){
+            $comment = $aicomment->comment;
+        }
 
         return view('admin.result.midterm_show', [
             'student' => $student,
@@ -1732,58 +1837,57 @@ class ResultController extends Controller
 
     public function midtermPublish(Request $request)
     {
+
         try {
-            DB::transaction(function () use ($request) {
-                $publish = $request->has('publish')
-                ? filter_var($request->publish, FILTER_VALIDATE_BOOLEAN)
-                : false;
+           
+            $results = MidTerm::where('student_id', $request->student_id)
+                ->where('term_id', $request->term_id)
+                ->where('period_id', $request->period_id)
+                ->where('grade_id', $request->grade_id)
+                ->get();
 
-                $results = MidTerm::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
-                $student = Student::findOrfail($request->student_id);
-                $idNumber = $student->user->code();
-                $name = $student->last_name . " " . $student->first_name . " " . $student->other_name;
-                $message = "
-                    <p>
-                        Dear Parent/Guardian,
-                    </p>
-                    <p>
-                        The midterm result for <strong>{$name}</strong> is now available.
-                    </p>
-                    <p>
-                        You may conveniently view the result through your child’s online dashboard on
-                        <a href='" . application(' website') . "/result/view/midterm'>" . application('website') . "</a>.
-                    </p>
-                    <p>
-                        For your ease, result updates are also shared via your registered WhatsApp number.
-                    </p>
-                    <p>
-                        To log in directly, you can still use the following credentials:<br>
-                        <strong>ID Number:</strong> {$idNumber}<br>
-                    </p>
-                " ;
+            $student = Student::findOrFail($request->student_id);
 
-                $subject = 'Mid-term Result';
-
-                $period = Period::where('id', $request->period_id)->first();
-                $term = Term::where('id', $request->term_id)->first();
-
-
+            DB::transaction(function () use ($results, $student, $request) {
                 foreach ($results as $result) {
-                    $result->update(['published' => $publish]);
+                    $result->update(['published' => true]);
                 }
 
-                if($publish){
+                    $period = Period::where('id', $request->period_id)->first();
+                    $term = Term::where('id', $request->term_id)->first();
 
-                    $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id,
-                    $request->term_id);
+                    $message = "
+                        <p>
+                            Dear Parent/Guardian,
+                        </p>
+                        <p>
+                            The midterm result for <strong>{$student->fullname()}</strong> is now available.
+                        </p>
+                        <p>
+                            You may conveniently view the result through your child’s online dashboard on
+                            <a href='" . application(' website') . "/result/view/midterm'>" . application('website') . "</a>.
+                        </p>
+                        <p>
+                            For your ease, result updates are also shared via your registered WhatsApp number.
+                        </p>
+                        <p>
+                            To log in directly, you can still use the following credentials:<br>
+                            <strong>ID Number:</strong> {$student->user->code()}<br>
+                        </p>
+                    ";
+
+                    $subject = 'Mid-term Result';
+
+                    $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id, $request->term_id);
                     $publicUrl = null;
                     if ($path && file_exists($path)) {
                         $filename = basename($path);
                         $publicUrl = asset('storage/results/' . $filename);
                     }
-                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\$name's result is now
-                    available. Please click the link below to view the result\\ \\ $publicUrl \\ \\Kind Regards,
-                    \\Management.";
+
+                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\\$name's result is now
+                    available. Please click the link below to view the result\\ \\\ $publicUrl \\\Kind Regards,
+                    \\\Management.";
 
                     $emailJob = new NotifyParentsJob($student, $message, $subject, storage_path("app/public/$path"));
                     $whatsappJob = new SendWhatsappJob($student, $watMessage, "parent");
@@ -1791,8 +1895,6 @@ class ResultController extends Controller
                         $emailJob,
                         $whatsappJob,
                     ])->dispatch();
-                }
-
             });
 
             return response()->json(['status' => true, 'message' => 'Result made available successfully! And email sent to parent.'], 200);
@@ -1828,15 +1930,107 @@ class ResultController extends Controller
             }
         });
 
+        $midtermFormat = get_settings('midterm_format') ?? [];
         $scores = [];
-        foreach ($student->midTermResults as $item) {
-            $total_score = $item->ca1 + $item->ca2;
+        // Use the filtered $result set (already narrowed by period/term/grade)
+        foreach ($result as $item) {
+            $total_score = 0;
+
+            if (is_array($midtermFormat) && count($midtermFormat) > 0) {
+                foreach (array_keys($midtermFormat) as $key) {
+                    $total_score += (int) ($item->{$key} ?? 0);
+                }
+            } else {
+                // fallback for older data/schema
+                $total_score = (int) (($item->ca1 ?? 0) + ($item->ca2 ?? 0));
+            }
+
             $subject_id = $item->subject_id;
             $scores[$subject_id] = $total_score;
         }
 
-        $weakness_info = "Dear $student->first_name $student->last_name, based on your current term score, you need to improve in the following subject(s):";
-        $commentResult = generate_comment($scores, $weakness_info, 0.5, 40, 'midterm');
+        $cognitive = AIResultComment::where('student_uuid', $student->id())
+            ->where('period_id', $period_id)
+            ->where('term_id', $term_id)
+            ->first();
+
+        $commentResult = $cognitive && !empty(trim((string) $cognitive->comment)) ? $cognitive->comment : '';
+
+        if (empty(trim((string) $commentResult))) {
+            try {
+                $service = app(OpenAICommentService::class);
+                $subjects = [];
+                $midtermOutOf = 40;
+                if (is_array($midtermFormat) && count($midtermFormat) > 0) {
+                    $out = 0;
+                    foreach ($midtermFormat as $k => $v) {
+                        if (is_array($v) && array_key_exists('mark', $v)) {
+                            $out += (int) $v['mark'];
+                        } elseif (is_numeric($v)) {
+                            $out += (int) $v;
+                        }
+                    }
+                    if ($out > 0) {
+                        $midtermOutOf = $out;
+                    }
+                }
+
+                foreach ($result as $r) {
+                    $score = 0;
+                    if (is_array($midtermFormat) && count($midtermFormat) > 0) {
+                        foreach (array_keys($midtermFormat) as $key) {
+                            $score += (int) ($r->{$key} ?? 0);
+                        }
+                    } else {
+                        $score = (int) (($r->ca1 ?? 0) + ($r->ca2 ?? 0));
+                    }
+
+                    $subjects[] = [
+                        'title' => $r->subject->title() ?? 'Subject',
+                        'score' => $score,
+                        'out_of' => $midtermOutOf,
+                    ];
+                }
+
+                $studentPayload = [
+                    'name' => $student->fullname(),
+                    'grade' => $grade->title ?? null,
+                    'term' => $term->title ?? null,
+                    'period' => $period->title ?? null,
+                    'total' => collect($subjects)->sum('score'),
+                    'average' => $subjects ? (collect($subjects)->sum('score') / max(1, count($subjects))) : 0,
+                ];
+
+
+                $preview = $service->previewComment($studentPayload, $subjects, ['variants' => 3, 'max_sentences' => 2]);
+
+                $variants = $preview['comments'] ?? [];
+
+                if (!empty($variants)) {
+                    $primary = $variants[0] ?? null;
+                    $commentResult = $primary ?? '';
+
+                    // persist an AIResultComment for teacher review (variants stored in notes)
+                    try {
+                        AIResultComment::create([
+                            'student_uuid' => $student->id(),
+                            'period_id' => $period_id,
+                            'term_id' => $term_id,
+                            'result_type' => 'midterm',
+                            'author_id' => auth()->id() ?? null,
+                            'comment' => $primary,
+                            'generated_at' => now(),
+                            'status' => 'ready',
+                            'notes' => json_encode(['variants' => $variants, 'model' => $preview['model'] ?? null]),
+                        ]);
+                    } catch (\Throwable $e) {
+                        info('Failed to persist AIResultComment in generateMidtermResultLink: ' . $e->getMessage());
+                    }
+                }
+            } catch (\Throwable $e) {
+                info('AI preview generation failed in generateMidtermResultLink (pre-pdf): ' . $e->getMessage());
+            }
+        }
 
         $filename = $student->id() . "_midterm_report_" . Carbon::today()->format('Y-m-d') . '.pdf';
         $filePath = storage_path('app/public/results/' . $filename);
@@ -1850,6 +2044,8 @@ class ResultController extends Controller
             'term' => $term,
             'grade' => $grade,
         ]);
+
+        // AI variants already generated and persisted before rendering the PDF
 
         $pdf->save($filePath);
         return $filePath;
@@ -2145,16 +2341,23 @@ class ResultController extends Controller
                 $scores[$subject_id] = $total_score;
             }
 
-            $weakness_info = "Dear $student->first_name $student->last_name, based on your current term score, you need to improve in the following subject(s):";
-            $commentResult = generate_comment($scores, $weakness_info, 0.5, 40);
+            $comment = "";
+            $aicomment = AIResultComment::where('student_uuid', $student->id())
+                ->where('period_id', $request->period_id)
+                ->where('term_id', $request->term_id)
+                ->where('result_type', 'midterm')
+                ->first();
+
+            if ($aicomment && !empty(trim((string) $aicomment->comment))) {
+                $comment = $aicomment->comment;
+            }
 
             $filename = "{$student->id()}_result.pdf";
-
             $pdf = PDF::loadView('admin.result.midterm_pdf_result', [
                 'results' => $result,
                 'student' => $student,
                 'scores' => $scores,
-                'comment' => $commentResult,
+                'comment' => $comment,
                 'period' => $period,
                 'term' => $term,
                 'grade' => $grade,
@@ -2424,76 +2627,6 @@ class ResultController extends Controller
         }
     }
 
-    // public function gradeResultStatistic($grade_id, $period_id)
-    // {
-    //     try {
-    //         $grade = Grade::findOrFail($grade_id);
-    //         $studentsData = Student::whereHas('grade', function ($query) use ($grade) {
-    //             $query->where('title', 'like', get_grade($grade->title()) . '%');
-    //         })->orderBy('last_name', 'asc')->get();
-
-    //         $students = [];
-
-    //         foreach ($studentsData as $student) {
-    //             $studentData = [
-    //                 'student_id' => $student->id(),
-    //                 'student_name' => $student->last_name . ' ' . $student->first_name . ' ' . $student->other_name,
-    //                 'first_term_total' => 0,
-    //                 'second_term_total' => 0,
-    //                 'third_term_total' => 0,
-    //                 'total' => 0,
-    //             ];
-
-    //             for ($term_id = 1; $term_id <= 3; $term_id++) {
-    //                 $examResults = $student->primaryResults->where('period_id', $period_id)
-    //                     ->where('term_id', $term_id);
-
-    //                 $examTotalScores = $examResults->map(function ($result) {
-    //                     return $result->ca1 + $result->ca2 + $result->ca3 + $result->pr + $result->exam;
-    //                 });
-
-    //                 $totalScores = $examTotalScores->sum();
-
-
-    //                 if ($term_id == 1) {
-    //                     $studentData['first_term_total'] = $totalScores;
-    //                 } elseif ($term_id == 2) {
-    //                     $studentData['second_term_total'] = $totalScores;
-    //                 } elseif ($term_id == 3) {
-    //                     $studentData['third_term_total'] = $totalScores;
-    //                 }
-
-    //                 $studentData['total'] += $totalScores;
-    //                 $studentTotalScores[$student->id()] = $studentData['total'];
-    //             }
-
-    //             $students[] = $studentData;
-    //         }
-
-    //         foreach ($students as &$studentData) {
-    //             $studentId = $studentData['student_id'];
-    //             $positionWithSuffix = calculateAdminGradePosition($studentTotalScores, $studentId);
-    //             $studentData['position'] = $positionWithSuffix;
-    //         }
-
-    //         usort($students, function ($a, $b) {
-    //             $positionA = (int) substr($a['position'], 0, -2);
-    //             $positionB = (int) substr($b['position'], 0, -2);
-    //             return $positionA - $positionB;
-    //         });
-
-    //         return response()->json([
-    //             'status' => true,
-    //             'students' => $students,
-    //         ], 200);
-    //     } catch (\Throwable $th) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => $th->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
     public function gradeResultStatistic($grade_id, $period_id)
     {
         try {
@@ -2564,76 +2697,6 @@ class ResultController extends Controller
             ], 500);
         }
     }
-
-    // public function getHighestScoreBySubject($grade_id, $period_id, $subject_id)
-    // {
-    //     try {
-    //         $grade = Grade::findOrFail($grade_id);
-    //         $studentsData = Student::whereHas('grade', function ($query) use ($grade) {
-    //             $query->where('title', 'like', get_grade($grade->title()) . '%');
-    //         })->orderBy('last_name', 'asc')->get();
-
-    //         $students = [];
-
-    //         foreach ($studentsData as $student) {
-    //             $studentData = [
-    //                 'student_id' => $student->id(),
-    //                 'student_name' => $student->last_name . ' ' . $student->first_name . ' ' . $student->other_name,
-    //                 'first_term_total' => 0,
-    //                 'second_term_total' => 0,
-    //                 'third_term_total' => 0,
-    //                 'total' => 0,
-    //             ];
-
-    //             for ($term_id = 1; $term_id <= 3; $term_id++) {
-    //                 $subjectScore = 0;
-
-    //                 $examSubjectResult = $student->primaryResults->where('period_id', $period_id)
-    //                     ->where('subject_id', $subject_id)->where('term_id', $term_id)->first();
-
-    //                 if ($examSubjectResult) {
-    //                     $subjectScore += $examSubjectResult->ca1 + $examSubjectResult->ca2 + $examSubjectResult->ca3 + $examSubjectResult->pr + $examSubjectResult->exam;
-    //                 }
-
-    //                 if ($term_id == 1) {
-    //                     $studentData['first_term_total'] = $subjectScore;
-    //                 } elseif ($term_id == 2) {
-    //                     $studentData['second_term_total'] = $subjectScore;
-    //                 } elseif ($term_id == 3) {
-    //                     $studentData['third_term_total'] = $subjectScore;
-    //                 }
-
-    //                 $studentData['total'] += $subjectScore;
-    //                 $studentTotalScores[$student->id()] = $studentData['total'];
-    //             }
-
-    //             $students[] = $studentData;
-    //         }
-
-    //         foreach ($students as &$studentData) {
-    //             $studentId = $studentData['student_id'];
-    //             $positionWithSuffix = calculateAdminGradePosition($studentTotalScores, $studentId);
-    //             $studentData['position'] = $positionWithSuffix;
-    //         }
-
-    //         usort($students, function ($a, $b) {
-    //             $positionA = (int) substr($a['position'], 0, -2);
-    //             $positionB = (int) substr($b['position'], 0, -2);
-    //             return $positionA - $positionB;
-    //         });
-
-    //         return response()->json([
-    //             'status' => true,
-    //             'students' => $students,
-    //         ], 200);
-    //     } catch (\Throwable $th) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => $th->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
 
     public function getHighestScoreBySubject($grade_id, $period_id, $subject_id)
     {

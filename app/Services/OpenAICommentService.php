@@ -4,6 +4,9 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use App\Models\AIResultComment;
+use App\Jobs\GenerateAIComments;
+use Illuminate\Support\Facades\Log;
 
 class OpenAICommentService
 {
@@ -11,10 +14,10 @@ class OpenAICommentService
     protected string $model;
     protected string $endpoint = 'https://api.openai.com/v1/chat/completions';
 
-    public function __construct(?string $apiKey = null, ?string $model = null)
+    public function __construct()
     {
-        $this->apiKey = $apiKey ?? config('services.openai.key') ?? env('OPENAI_API_KEY');
-        $this->model  = $model ?? config('services.openai.model') ?? env('OPENAI_MODEL', 'gpt-4o-mini');
+        $this->apiKey = get_settings('openai_api_key');
+        $this->model =  get_settings('openai_model');
     }
 
     /**
@@ -34,9 +37,9 @@ class OpenAICommentService
     * ]
      * @param array $options optional keys: tone, max_sentences, include_parent_note (bool)
      *
-     * @return string generated comment (fallback local comment on failure)
+     * @return array generated comments (one or more variants). Each entry is a plain text comment.
      */
-    public function generateComment(array $student, array $subjects, array $options = []): string
+    public function generateComment(array $student, array $subjects, array $options = []): array
     {
         // Basic local fallback generator which also considers prev_score if provided
         $localFallback = function () use ($student, $subjects, $options) {
@@ -61,7 +64,8 @@ class OpenAICommentService
             if ($improved) $sentences[] = "Notable improvement seen in: {$improved}.";
             if ($declined) $sentences[] = "Decline observed in: {$declined}.";
             $sentences[] = "Recommended: regular revision, targeted practice in weak subjects and reading for comprehension.";
-            return implode(' ', $sentences);
+            // Return as a single-entry array for compatibility with the multi-variant API
+            return [implode(' ', $sentences)];
         };
 
         if (empty($this->apiKey)) {
@@ -71,6 +75,7 @@ class OpenAICommentService
         // Build prompt
         $maxSentences = (int) ($options['max_sentences'] ?? 6);
         $tone = $options['tone'] ?? 'positive, encouraging and professional';
+        $variants = max(1, (int) ($options['variants'] ?? 1));
 
         // Build subject lines including previous score and delta when available for term comparison
         $subjectLines = collect($subjects)
@@ -134,6 +139,11 @@ class OpenAICommentService
                 'max_tokens' => $options['max_tokens'] ?? 300,
             ];
 
+            if ($variants > 1) {
+                // request multiple variants where supported
+                $payload['n'] = $variants;
+            }
+
             $response = Http::withToken($this->apiKey)
                 ->timeout(20)
                 ->post($this->endpoint, $payload);
@@ -143,22 +153,35 @@ class OpenAICommentService
             }
 
             $json = $response->json();
-            $text = data_get($json, 'choices.0.message.content') ?? data_get($json, 'choices.0.text');
+            $choices = data_get($json, 'choices', []);
 
-            if (is_array($text)) {
-                $text = implode("\n", $text);
+            $comments = [];
+            foreach ($choices as $choice) {
+                $text = data_get($choice, 'message.content') ?? data_get($choice, 'text');
+                if (is_array($text)) {
+                    $text = implode("\n", $text);
+                }
+
+                // Trim and sanitize whitespace
+                $comment = Str::of($text)->trim()->replaceMatches('/\s+/', ' ')->__toString();
+
+                // Ensure short output: truncate to maxSentences if model returns long text
+                $sentences = preg_split('/(?<=[.?!])\s+/', $comment, -1, PREG_SPLIT_NO_EMPTY);
+                if (count($sentences) > $maxSentences) {
+                    $comment = implode(' ', array_slice($sentences, 0, $maxSentences));
+                }
+
+                if (!empty($comment)) {
+                    $comments[] = $comment;
+                }
             }
 
-            // Trim and sanitize whitespace
-            $comment = Str::of($text)->trim()->replaceMatches('/\s+/', ' ')->__toString();
-
-            // Ensure short output: truncate to maxSentences if model returns long text
-            $sentences = preg_split('/(?<=[.?!])\s+/', $comment, -1, PREG_SPLIT_NO_EMPTY);
-            if (count($sentences) > $maxSentences) {
-                $comment = implode(' ', array_slice($sentences, 0, $maxSentences));
+            // If API returned nothing useful, fall back
+            if (empty($comments)) {
+                return $localFallback();
             }
 
-            return $comment ?: $localFallback();
+            return $comments;
         } catch (\Throwable $e) {
             // on any error fall back to local generator
             return $localFallback();
@@ -170,7 +193,7 @@ class OpenAICommentService
      *
      * @param array $students array of ['student' => [...], 'subjects' => [...]]
      * @param array $options passed to generateComment
-     * @return array mapping student identifier => comment
+     * @return array mapping student identifier => array of comments
      */
     public function generateBulkComments(array $students, array $options = []): array
     {
@@ -183,5 +206,55 @@ class OpenAICommentService
             usleep(150_000); // 150ms
         }
         return $results;
+    }
+
+    /**
+     * Create a pending AIResultComment record and dispatch a queued job to generate it.
+     *
+     * @param string $studentUuid
+     * @param int $periodId
+     * @param int $termId
+     * @param string $resultType
+     * @param array $payload minimal payload containing 'student' and 'subjects' used by the job
+     * @param int|null $authorId
+     * @param array $options passed to the generator
+     * @return AIResultComment the placeholder record
+     */
+    public function createAndDispatch(string $studentUuid, int $periodId, int $termId, string $resultType, array $payload = [], ?int $authorId = null, array $options = []): AIResultComment
+    {
+        // Create a placeholder record with status 'pending' and store the payload in notes
+        $record = AIResultComment::create([
+            'student_uuid' => $studentUuid,
+            'period_id' => $periodId,
+            'term_id' => $termId,
+            'result_type' => $resultType,
+            'author_id' => $authorId,
+            'status' => 'pending',
+            'notes' => is_array($payload) ? json_encode($payload) : $payload,
+        ]);
+
+        // Dispatch the queued job to generate the comment asynchronously
+        GenerateAIComments::dispatch($studentUuid, $periodId, $termId, $resultType, $authorId, $options);
+
+        return $record;
+    }
+
+    /**
+     * Convenience wrapper for teachers to generate a preview comment synchronously
+     * without persisting it. Returns an array with the comment and some metadata.
+     *
+     * @param array $student
+     * @param array $subjects
+     * @param array $options
+     * @return array ['comments' => array, 'model' => string, 'generated_at' => string]
+     */
+    public function previewComment(array $student, array $subjects, array $options = []): array
+    {
+        $comments = $this->generateComment($student, $subjects, $options);
+
+        return [
+            'comments' => $comments,
+            'generated_at' => now()->toDateTimeString(),
+        ];
     }
 }

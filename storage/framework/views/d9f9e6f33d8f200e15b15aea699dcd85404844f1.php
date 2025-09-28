@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @section('title', $student->last_name." | Exam Result Page")
-    <link href="{{ asset('css/toastr.min.css') }}" rel="stylesheet">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <?php $__env->startSection('title', $student->last_name." | Exam Result Page"); ?>
+    <link href="<?php echo e(asset('css/toastr.min.css')); ?>" rel="stylesheet">
 
     <style>
         #body_content {
@@ -168,91 +168,76 @@
 <body style="padding: 0 250px">
     <div id="body_content">
         <div class="bg_img">
-            <img src="{{ asset('storage/' .application('image')) }}" alt="{{ application('name') }}" width="300px">
+            <img src="<?php echo e(asset('storage/' .application('image'))); ?>" alt="<?php echo e(application('name')); ?>" width="300px">
         </div>
 
         <div>
             <div class="header">
                 <div class="header-item">
-                    <img src="{{ asset('storage/'.application('image')) }}" width="70" height="70" alt="Profile Image">
+                    <img src="<?php echo e(asset('storage/'.application('image'))); ?>" width="70" height="70" alt="Profile Image">
                 </div>
                 <div class="header-item">
-                    <div style="font-weight: bold; text-align: center; text-transform: uppercase">{{ application('name') }}</div>
+                    <div style="font-weight: bold; text-align: center; text-transform: uppercase"><?php echo e(application('name')); ?></div>
                     <div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif">
-                        {{ application('address') }}
+                        <?php echo e(application('address')); ?>
+
                     </div>
                     <div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif">
-                        {{ application('line1') }}, {{ application('line2') }}
+                        <?php echo e(application('line1')); ?>, <?php echo e(application('line2')); ?>
+
                     </div>
                 </div>
                 <div class="header-item">
-                    <img src="{{ asset('storage/'.$student->user->image()) }}" width="70" height="70" alt="{{ $student->last_name }}">
+                    <img src="<?php echo e(asset('storage/'.$student->user->image())); ?>" width="70" height="70" alt="<?php echo e($student->last_name); ?>">
                 </div>
             </div>
 
             <div style="margin: 10px 0">
-                <div style="font-weight: 500; text-align: center; text-transform: uppercase">REPORT SHEET FOR {{ $term->title() }} {{ $period->title() }} Academic Session</div>
+                <div style="font-weight: 500; text-align: center; text-transform: uppercase">REPORT SHEET FOR <?php echo e($term->title()); ?> <?php echo e($period->title()); ?> Academic Session</div>
             </div>
 
             <div class="majorContainer">
                 <div class="mainContainer">
                     <div class="result-item">
-                        <b>Name:</b> <span>{{ ucfirst($student->lastName()) }} {{ ucfirst($student->firstName()) }} {{ ucfirst($student->otherName()) }}</span>
+                        <b>Name:</b> <span><?php echo e(ucfirst($student->lastName())); ?> <?php echo e(ucfirst($student->firstName())); ?> <?php echo e(ucfirst($student->otherName())); ?></span>
                     </div>
                     <div class="result-item">
                         <b>Class:</b>
-                        <span>{{ $grade->title()}}</span>
+                        <span><?php echo e($grade->title()); ?></span>
                     </div>
                     <div class="result-item">
                         <b>Students in class:</b>
-                        <span>{{ $gradeStudentsCount }}</span>
+                        <span><?php echo e($gradeStudentsCount); ?></span>
                     </div>
-                    {{-- <div class="result-item">
-                        <b>Admission No.:</b>
-                        <span>{{ $student->user->code()}}</span>
-                    </div> --}}
+                    
                 </div>
                 <div class="mainContainer">
                    <div class="result-item">
                         <b>No. of times school opened:</b>
-                        <span>{{ get_settings('no_school_open') }}</span>
+                        <span><?php echo e(get_settings('no_school_open')); ?></span>
                     </div>
                     <div class="result-item">
                         <b>No. of times present:</b>
-                        <span>{{ $studentAttendance->attendance_present ?? '' }}</span>
+                        <span><?php echo e($studentAttendance->attendance_present ?? ''); ?></span>
                     </div>
                     <div class="result-item">
                         <b>Attendance Average:</b>
-                        <span>{{ round(calculatePercentage($studentAttendance->attendance_present, get_settings('no_school_open'), 100)) }}%</span>
+                        <span><?php echo e(round(calculatePercentage($studentAttendance->attendance_present, get_settings('no_school_open'), 100))); ?>%</span>
                     </div>
 
-                    {{-- <div class="result-item">
-                        <b>Aggregate:</b><span class="s-avg aggregate"> {{ number_format($aggregate , 1)}}</span>
-                    </div>
-                    <div class="result-item">
-                        <b>Mark obtainable:</b>
-                        <span>{{ $student->subjects->count() * 100 }}</span>
-                    </div>
-                    <div class="result-item">
-                        <b>Mark obtained:</b>
-                        <span class="s-avg grand_total"> {{ $marksObtained }}</span>
-                    </div>
-                    <div class="result-item">
-                        <b>Position in class:</b>
-                        <span>{!! $position !!}</span>
-                    </div> --}}
+                    
                 </div>
                 <div class="minorContainer">
                     <div class="result-item">
                         <b>Next term resumes:</b>
-                        <span>{{ \Carbon\carbon::parse(get_settings('next_term_resume'))->format('d F, Y') ?? 'Not set'}}</span>
+                        <span><?php echo e(\Carbon\carbon::parse(get_settings('next_term_resume'))->format('d F, Y') ?? 'Not set'); ?></span>
                     </div>
                 </div>
             </div>
 
             <div>
                 <table class="result-table">
-                    @php
+                    <?php
                         $classPositionAllow = get_application_settings('class_position');
                         $gradePositionAllow = get_application_settings('class_position');
                         $resultPosition = get_application_settings('result_position');
@@ -284,23 +269,24 @@
 
                         $expectedTotal = $examTotal + $midtermTotal;
                         $mapping = generate_mapping($gradingFormat, $remarkFormat);
-                    @endphp
+                    ?>
 
                     <thead>
                         <tr>
                             <th style="width: 40%; padding-left: 10px; text-align: left">Subjects</th>
-                            @foreach ($midterm as $key => $value)
+                            <?php $__currentLoopData = $midterm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
-                                    {{ $value['full_name'] }}
+                                    <?php echo e($value['full_name']); ?>
+
                                 </th>
-                            @endforeach
-                            @foreach ($exam as $key => $value)
-                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">{{ $value['full_name'] }}</th>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php $__currentLoopData = $exam; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center"><?php echo e($value['full_name']); ?></th>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
                                 Total 
                             </th>
-                            @if ($term->id() === '2')
+                            <?php if($term->id() === '2'): ?>
                                 <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
                                     Brought Forward
                                 </th>
@@ -310,9 +296,9 @@
                                 <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
                                 Average cummulative
                                 </th>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($term->id() === '3')
+                            <?php if($term->id() === '3'): ?>
                                 <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
                                     Brought Forward
                                 </th>
@@ -322,17 +308,17 @@
                                 <th style="width: 10%; font-size: 8px; font-weight: 500; text-align: center">
                                     Average cummulative
                                 </th>
-                            @endif
-                            @if($classPositionAllow == 1)
+                            <?php endif; ?>
+                            <?php if($classPositionAllow == 1): ?>
                             <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
                                 Position 
                             </th>
-                            @endif
-                            @if($gradePositionAllow == 1)
+                            <?php endif; ?>
+                            <?php if($gradePositionAllow == 1): ?>
                             <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
                                 Position in Grade
                             </th>
-                            @endif
+                            <?php endif; ?>
                             <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center">
                             GRADE
                             </th>
@@ -340,140 +326,153 @@
                         </tr>
                         <tr>
                             <th style="font-size: 8px; text-align: left">Marks Obtainable</th>
-                            @foreach ($midterm as $key => $value)
-                                <th style="font-size: 8px">{{ $value['mark'] }}</th>
-                            @endforeach
-                            @foreach ($exam as $key => $value)
-                                <th style="font-size: 8px">{{ $value['mark'] }}</th>
-                            @endforeach
-                            <th style="font-size: 8px">{{ $expectedTotal }}</th>
+                            <?php $__currentLoopData = $midterm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <th style="font-size: 8px"><?php echo e($value['mark']); ?></th>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php $__currentLoopData = $exam; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <th style="font-size: 8px"><?php echo e($value['mark']); ?></th>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <th style="font-size: 8px"><?php echo e($expectedTotal); ?></th>
                             <th style="font-size: 8px"></th>
                             <th style="font-size: 8px"></th>
                             <th style="font-size: 8px"></th>
                             <th style="font-size: 8px"></th>
-                            @if ($term->id() === '2')
+                            <?php if($term->id() === '2'): ?>
                             <th style="font-size: 8px"></th>
                             <th style="font-size: 8px"></th>
                             <th style="font-size: 8px"></th>
-                            @endif
-                            @if ($term->id() === '3')
+                            <?php endif; ?>
+                            <?php if($term->id() === '3'): ?>
                             <th style="font-size: 8px"></th>
                             <th style="font-size: 8px"></th>
                             <th style="font-size: 8px"></th>
-                            @endif
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             
-                            @foreach ($results as $result)
+                            <?php $__currentLoopData = $results; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $result): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <td style="padding-left: 10px; font-weight: 500; width: 40%; text-align: left; font-size: 11px">{{ $result['subject'] }}</td>
-                                    @foreach ($midterm as $key => $value)
-                                        @if (isset($result[$key]))
+                                    <td style="padding-left: 10px; font-weight: 500; width: 40%; text-align: left; font-size: 11px"><?php echo e($result['subject']); ?></td>
+                                    <?php $__currentLoopData = $midterm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(isset($result[$key])): ?>
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result[$key] }}</td>
-                                        @endif
-                                    @endforeach
-                                    @foreach ($exam as $key => $value)
-                                        @if (isset($result[$key]))
-                                        @php
+                                            <?php echo e($result[$key]); ?></td>
+                                        <?php endif; ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php $__currentLoopData = $exam; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(isset($result[$key])): ?>
+                                        <?php
                                             $color = ($examTotal == 40) ? exam40Color($result[$key]) : exam60Color($result[$key]);
-                                        @endphp
+                                        ?>
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result[$key] }}</td>
-                                        @endif
-                                    @endforeach
+                                            <?php echo e($result[$key]); ?></td>
+                                        <?php endif; ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     <td
                                         style="font-size: 10px; font-weight: 500; text-align: center">
-                                        {{ calculateResult($result) }}</td>
+                                        <?php echo e(calculateResult($result)); ?></td>
 
-                                    @if ($term->id() === '1')
-                                        @if($classPositionAllow == 1)
+                                    <?php if($term->id() === '1'): ?>
+                                        <?php if($classPositionAllow == 1): ?>
                                             <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                                {{ $result['position_in_class_subject'] }}
+                                                <?php echo e($result['position_in_class_subject']); ?>
+
                                             </td>
-                                        @endif
-                                        @if($gradePositionAllow == 1)
+                                        <?php endif; ?>
+                                        <?php if($gradePositionAllow == 1): ?>
                                             <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                                {{ $result['position_in_grade_subject'] }}
+                                                <?php echo e($result['position_in_grade_subject']); ?>
+
                                             </td>
-                                        @endif
+                                        <?php endif; ?>
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(calculateResult($result), $grade->title()) }}</td>
+                                            <?php echo e(examGrade(calculateResult($result), $grade->title())); ?></td>
                                         <td
                                         style="font-size: 10px; width: 20%; font-weight: 500; text-align: center">
-                                        {{ examRemark(calculateResult($result), $grade->title()) }}</td>
+                                        <?php echo e(examRemark(calculateResult($result), $grade->title())); ?></td>
 
                                         
-                                    @endif
+                                    <?php endif; ?>
 
-                                    @if ($term->id() === '2')
+                                    <?php if($term->id() === '2'): ?>
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ $result['first_term'] }}</td>
+                                            <?php echo e($result['first_term']); ?></td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ sum($result['first_term'], calculateResult($result)) }}
+                                            <?php echo e(sum($result['first_term'], calculateResult($result))); ?>
+
                                         </td>
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ divnum(sum($result['first_term'], calculateResult($result)), 2) }}
+                                            <?php echo e(divnum(sum($result['first_term'], calculateResult($result)), 2)); ?>
+
                                         </td>
 
-                                        @if($classPositionAllow == 1)
+                                        <?php if($classPositionAllow == 1): ?>
                                             <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                                {{ $result['position_in_class_subject'] }}
-                                            </td>
-                                        @endif
+                                                <?php echo e($result['position_in_class_subject']); ?>
 
-                                        @if($gradePositionAllow == 1)
-                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                                {{ $result['position_in_grade_subject'] }}
                                             </td>
-                                        @endif
+                                        <?php endif; ?>
+
+                                        <?php if($gradePositionAllow == 1): ?>
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                <?php echo e($result['position_in_grade_subject']); ?>
+
+                                            </td>
+                                        <?php endif; ?>
 
                                         <td
                                             style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2), $grade->title()) }}
+                                            <?php echo e(examGrade(divnum(sum($result['first_term'], calculateResult($result)), 2), $grade->title())); ?>
+
                                         </td>
                                         <td
                                             style="font-size: 10px; font-weight: 500; width: 20%; text-align: center">
-                                            {{ examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2), $grade->title()) }}
-                                        </td>
-                                    @endif
+                                            <?php echo e(examRemark(divnum(sum($result['first_term'], calculateResult($result)), 2), $grade->title())); ?>
 
-                                    @if ($term->id() === '3')
+                                        </td>
+                                    <?php endif; ?>
+
+                                    <?php if($term->id() === '3'): ?>
                                         <td
-                                            style="font-size: 10px; font-weight: 500; text-align: center">{{ divnum(sum($result['first_term'], $result['second_term']), 2) }}</td>
+                                            style="font-size: 10px; font-weight: 500; text-align: center"><?php echo e(divnum(sum($result['first_term'], $result['second_term']), 2)); ?></td>
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ ceil(divnum(sum($result['first_term'], $result['second_term']), 2) + calculateResult($result))}}
+                                            <?php echo e(ceil(divnum(sum($result['first_term'], $result['second_term']), 2) + calculateResult($result))); ?>
+
                                         </td>
-                                        <td style="font-size: 10px; font-weight: 500; text-align: center">{{ ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)) }}</td>
+                                        <td style="font-size: 10px; font-weight: 500; text-align: center"><?php echo e(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2))); ?></td>
                                         
-                                        @if($classPositionAllow == 1)
+                                        <?php if($classPositionAllow == 1): ?>
                                             <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                                {{ $result['position_in_class_subject'] }}
-                                            </td>
-                                        @endif
+                                                <?php echo e($result['position_in_class_subject']); ?>
 
-                                        @if($gradePositionAllow == 1)
-                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                                {{ $result['position_in_grade_subject'] }}
                                             </td>
-                                        @endif
+                                        <?php endif; ?>
+
+                                        <?php if($gradePositionAllow == 1): ?>
+                                            <td style="font-size: 10px; font-weight: 500; text-align: center">
+                                                <?php echo e($result['position_in_grade_subject']); ?>
+
+                                            </td>
+                                        <?php endif; ?>
 
                                         <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                            {{ examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $grade->title()) }}
+                                            <?php echo e(examGrade(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $grade->title())); ?>
+
                                         </td>
                                         <td style="font-size: 8px; font-weight: 500; width: 30%; text-align: center">
-                                            {{ examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $grade->title()) }}
+                                            <?php echo e(examRemark(ceil(secondary_average($result['first_term'], $result['second_term'], calculateResult($result), 2)), $grade->title())); ?>
+
                                         </td>
-                                    @endif
+                                    <?php endif; ?>
                                 </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tr>
                     </tbody>
                 </table>
@@ -483,20 +482,20 @@
                 <div style="font-size: 8px; text-align: center">
                     <span><b>Grading system</b>: </span>
                     <span>
-                        @foreach($mapping as $key => $value)
-                            <strong>{{ strtoupper($key) }}</strong>:{{ $value }},
-                        @endforeach
+                        <?php $__currentLoopData = $mapping; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <strong><?php echo e(strtoupper($key)); ?></strong>:<?php echo e($value); ?>,
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </span>
                 </div>
             </div>
 
             <div style="text-align: center; margin: 7px 0">
-                <div><b style="font-size: 14px; text-align: center">Aggregate:</b> <span style="font-size: 12px;">{{ round($aggregate)}}/100</span></div>
-                @if($resultPosition == 1)
+                <div><b style="font-size: 14px; text-align: center">Aggregate:</b> <span style="font-size: 12px;"><?php echo e(round($aggregate)); ?>/100</span></div>
+                <?php if($resultPosition == 1): ?>
                     <div><b style="font-size: 14px; text-align: center">Position in class:</b> <span
-                            style="font-size: 12px">{{ $studentAttendance->position_in_class ?? '' }} of
-                            {{ $gradeStudentsCount }} students</span></div>
-                @endif
+                            style="font-size: 12px"><?php echo e($studentAttendance->position_in_class ?? ''); ?> of
+                            <?php echo e($gradeStudentsCount); ?> students</span></div>
+                <?php endif; ?>
             </div>
 
             <div class="majorContainer">
@@ -516,38 +515,38 @@
                             </tr>
                         </thead>
 
-                        @foreach ($psychomotors as $psychomotor)
+                        <?php $__currentLoopData = $psychomotors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $psychomotor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tbody class="beh-d">
                                 <tr>
-                                    <th style="font-size: 8px; text-align: left">{{ $psychomotor->title() }}</th>
+                                    <th style="font-size: 8px; text-align: left"><?php echo e($psychomotor->title()); ?></th>
                                     <td>
-                                        @if ($psychomotor->rate == 5)
+                                        <?php if($psychomotor->rate == 5): ?>
                                             <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if ($psychomotor->rate == 4)
+                                        <?php if($psychomotor->rate == 4): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if ($psychomotor->rate == 3)
+                                        <?php if($psychomotor->rate == 3): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if ($psychomotor->rate == 2)
+                                        <?php if($psychomotor->rate == 2): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if ($psychomotor->rate == 1)
+                                        <?php if($psychomotor->rate == 1): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             </tbody>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </table>
                 </div>
 
@@ -567,39 +566,39 @@
                             </tr>
                         </thead>
 
-                        @foreach ($affectives as $affective)
+                        <?php $__currentLoopData = $affectives; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $affective): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tbody class="beh-d">
                                 <tr>
-                                    <th style="font-size: 8px; text-align: left">{{ $affective->title() }}</th>
+                                    <th style="font-size: 8px; text-align: left"><?php echo e($affective->title()); ?></th>
                                     <td>
-                                        @if ($affective->rate == 5)
+                                        <?php if($affective->rate == 5): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if ($affective->rate == 4)
+                                        <?php if($affective->rate == 4): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if ($affective->rate == 3)
+                                        <?php if($affective->rate == 3): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if ($affective->rate == 2)
+                                        <?php if($affective->rate == 2): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        @if ($affective->rate == 1)
+                                        <?php if($affective->rate == 1): ?>
                                         <span style="font-size: 8px">V</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
 
                             </tbody>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </table>
                 </div>
             </div>
@@ -608,19 +607,19 @@
                 <span style="font-weight: bold; font-size: 10px">
                     <b>Class Teacher's Remarks</b>: 
                 </span>
-                <b style="font-size: 12px">{{ $studentAttendance?->comment() ?? 'No comment'}}</b>
+                <b style="font-size: 12px"><?php echo e($studentAttendance?->comment() ?? 'No comment'); ?></b>
             </div>
             <div style="margin: 5px 0"
                 id="editContainer"
                 onClick="editPrincipalComment(this)"
-                data-student="{{ $student->id() }}"
-                data-term="{{ $term->id() }}"
-                data-period="{{ $period->id() }}"
+                data-student="<?php echo e($student->id()); ?>"
+                data-term="<?php echo e($term->id()); ?>"
+                data-period="<?php echo e($period->id()); ?>"
             >
                 <span style="font-weight: bold; font-size: 10px">
                 <b>Principal's Remarks</b>: </span>
 
-                <b style="font-size: 12px" id="commentPrincipalDisplay">{{ $studentAttendance?->pcomment() ?? $comment }}</b>
+                <b style="font-size: 12px" id="commentPrincipalDisplay"><?php echo e($studentAttendance?->pcomment() ?? $comment); ?></b>
 
                 <input id="commentPrincipalInput" class="" type="text" style="display: none;" />
 
@@ -632,10 +631,10 @@
     </div>
 </body>
 
-<script src="{{ asset('js/functions.js') }}"></script>
-<script src="{{ asset('libs/jquery/jquery.min.js') }}"></script>
-<script src="{{ asset('libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('js/toastr.min.js') }}"></script>
+<script src="<?php echo e(asset('js/functions.js')); ?>"></script>
+<script src="<?php echo e(asset('libs/jquery/jquery.min.js')); ?>"></script>
+<script src="<?php echo e(asset('libs/bootstrap/js/bootstrap.bundle.min.js')); ?>"></script>
+<script src="<?php echo e(asset('js/toastr.min.js')); ?>"></script>
 
 <script>
     function editPrincipalComment(element){
@@ -672,7 +671,7 @@
 
         toggleAble(button, true, 'Submitting...');
 
-        var url = '{{ route('result.principal.comment.upload') }}';
+        var url = '<?php echo e(route('result.principal.comment.upload')); ?>';
 
         $.ajaxSetup({
             headers: {
@@ -705,3 +704,4 @@
     }
 </script>
 </html>
+<?php /**PATH C:\laragon\www\primary\resources\views/admin/result/secondary.blade.php ENDPATH**/ ?>

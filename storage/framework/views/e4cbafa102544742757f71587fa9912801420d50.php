@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    @section('title', $student->last_name . " | Mid Term Result Page")
+    <?php $__env->startSection('title', $student->last_name . " | Mid Term Result Page"); ?>
     <style>
         .page-break {
             page-break-after: always;
@@ -74,6 +74,8 @@
         }
 
         .rotate-header {
+            /* Rotate text for vertical headers. Using rotate(-90deg) is widely supported
+               and works with DomPDF; writing-mode is kept as a fallback. */
             display: inline-block;
             transform: rotate(-90deg);
             writing-mode: vertical-rl;
@@ -90,58 +92,64 @@
 <body>
     <div class="header">
         <div class="header-item">
-            <img src="{{ public_path('storage/' . application('image')) }}" width="100" height="90" alt="Profile Image">
+            <img src="<?php echo e(public_path('storage/' . application('image'))); ?>" width="100" height="90" alt="Profile Image">
         </div>
         <div class="header-item">
-            <div style="font-weight: bold; text-align: center; text-transform: uppercase">{{ application('name') }}
+            <div style="font-weight: bold; text-align: center; text-transform: uppercase"><?php echo e(application('name')); ?>
+
             </div>
             <div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif">
-                {{ application('address') }}
+                <?php echo e(application('address')); ?>
+
             </div>
             <div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif">
-                {{ application('line1') }}, {{ application('line2') }}
+                <?php echo e(application('line1')); ?>, <?php echo e(application('line2')); ?>
+
             </div>
         </div>
         <div class="header-item">
-            <img src="{{ public_path('storage/' . $student->user->image()) }}" width="100" height="90"
-                alt="{{ $student->last_name }}">
+            <img src="<?php echo e(public_path('storage/' . $student->user->image())); ?>" width="100" height="90"
+                alt="<?php echo e($student->last_name); ?>">
         </div>
     </div>
 
     <div style="margin: 10px 0">
         <div style="font-weight: bold; text-align: center; text-transform: uppercase">Mid-Term Evaluation Report Sheet
         </div>
-        <div style="font-weight: bold; text-align: center; text-transform: uppercase">{{ $term->title() }}
-            {{ $period->title() }} Academic Session</div>
+        <div style="font-weight: bold; text-align: center; text-transform: uppercase"><?php echo e($term->title()); ?>
+
+            <?php echo e($period->title()); ?> Academic Session</div>
     </div>
 
     <div class="majorContainer">
         <div class="mainContainer">
             <div class="result-item">
-                <b>Name:</b> <span>{{ ucfirst($student->lastName()) }} {{ ucfirst($student->firstName()) }}
-                    {{ ucfirst($student->otherName()) }}</span>
+                <b>Name:</b> <span><?php echo e(ucfirst($student->lastName())); ?> <?php echo e(ucfirst($student->firstName())); ?>
+
+                    <?php echo e(ucfirst($student->otherName())); ?></span>
             </div>
             <div class="result-item">
                 <b>Admission No.:</b>
-                <span>{{ $student->user->code()}}</span>
+                <span><?php echo e($student->user->code()); ?></span>
             </div>
             <div class="result-item">
                 <b>Class:</b>
-                <span>{{ $student->grade->title()}}</span>
+                <span><?php echo e($student->grade->title()); ?></span>
             </div>
         </div>
         <div class="minorContainer">
             <div class="result-item">
                 <b>Class Population:</b>
-                <span>{{ $student->grade->students->count()}}</span>
+                <span><?php echo e($student->grade->students->count()); ?></span>
             </div>
             <div class="result-item">
                 <b>Age:</b>
                 <span>
-                    @php
+                    <?php
 $year = Carbon\Carbon::parse($student->dob())->age
-                    @endphp
-                    {{$year}}
+                    ?>
+                    <?php echo e($year); ?>
+
                 </span>
             </div>
 
@@ -150,7 +158,7 @@ $year = Carbon\Carbon::parse($student->dob())->age
 
     <div>
         <table class="result-table">
-            @php
+            <?php
 $midterm = get_settings('midterm_format');
 $midtermTotal = 0;
 
@@ -161,16 +169,16 @@ if (is_array($midterm)) {
         }
     }
 }
-            @endphp
+            ?>
 
             <thead>
                 <tr>
                     <th style="width: 40%; padding-left: 10px; text-align: left">Subjects</th>
-                    @foreach ($midterm as $key => $value)
+                    <?php $__currentLoopData = $midterm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <th style="width: 5%; font-size: 8px; font-weight: 500; text-align: center; vertical-align: bottom; height: 80px;">
-                            <div class="rotate-header">{{ $value['full_name'] }}</div>
+                            <div class="rotate-header"><?php echo e($value['full_name']); ?></div>
                         </th>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     <th style="font-size: 8px; font-weight: 500; text-align: center; vertical-align: bottom; height: 80px;">
                         <div class="rotate-header">Total</div>
                     </th>
@@ -180,51 +188,52 @@ if (is_array($midterm)) {
                 </tr>
             </thead>
             <tbody>
-                @php
+                <?php
 $totalSum = 0;
-                @endphp
+                ?>
                 <tr style="text-align: center; color: green;">
                     <td style="width: 50%"></td>
-                    @foreach ($midterm as $key => $value)
+                    <?php $__currentLoopData = $midterm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">
-                                            {{ $value['mark'] }}
-                                            @php
+                                            <?php echo e($value['mark']); ?>
+
+                                            <?php
     $totalSum += $value['mark'];
-                                            @endphp
+                                            ?>
                                         </td>
-                    @endforeach
-                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">{{ $totalSum }}</td>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center"><?php echo e($totalSum); ?></td>
                     <td style="width: 5%; font-size: 10px; font-weight: 900; text-align: center">100%</td>
                 </tr>
                 <tr>
-                    @foreach ($results as $result)
+                    <?php $__currentLoopData = $results; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $result): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            @if($result->subject->title() != null)
+                            <?php if($result->subject->title() != null): ?>
                                 <td style="padding-left: 10px; width: 50%; text-align: left; font-size: 10px">
-                                    {{ $result->subject->title() }}</td>
-                            @endif
-                            @foreach ($midterm as $key => $value)
-                                @if (isset($result[$key]))
+                                    <?php echo e($result->subject->title()); ?></td>
+                            <?php endif; ?>
+                            <?php $__currentLoopData = $midterm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(isset($result[$key])): ?>
                                     <td
-                                        style="font-size: 10px; font-weight: 400; text-align: center; color: {{ exam20Color($result[$key]) }}">
-                                        {{ $result[$key] }}</td>
-                                @else
+                                        style="font-size: 10px; font-weight: 400; text-align: center; color: <?php echo e(exam20Color($result[$key])); ?>">
+                                        <?php echo e($result[$key]); ?></td>
+                                <?php else: ?>
                                     <td>-</td>
-                                @endif
-                            @endforeach
-                            <td style="font-size: 10px; font-weight: 500; text-align: center">{{ $result->total() }}</td>
+                                <?php endif; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <td style="font-size: 10px; font-weight: 500; text-align: center"><?php echo e($result->total()); ?></td>
                             <td style="font-size: 10px; font-weight: 500; text-align: center">
-                                {{ round(divnum($result->total() * 100, $totalSum))}}</td>
+                                <?php echo e(round(divnum($result->total() * 100, $totalSum))); ?></td>
                         </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tr>
             </tbody>
         </table>
     </div>
 
     <div style="margin: 5px 0" class="page-break">
-        <span style="font-weight: bold; font-size: 15px">Remark: </span><span>{{ $comment }}</span>
+        <span style="font-weight: bold; font-size: 15px">Remark: </span><span><?php echo e($comment); ?></span>
     </div>
 </body>
 
-</html>
+</html><?php /**PATH C:\laragon\www\primary\resources\views/admin/result/midterm_pdf_result.blade.php ENDPATH**/ ?>

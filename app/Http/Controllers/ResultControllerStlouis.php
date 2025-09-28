@@ -882,8 +882,15 @@ class ResultController extends Controller
             $subject_id = $item->subject_id;
             $scores[$subject_id] = $total_score;
         }
-        $weakness_info = "Dear $student->first_name, based on your current term score, you need to improve in the following subject(s):";
-        $comment = generate_comment($scores, $weakness_info, 0.5, 40);
+
+        $comment = "";
+
+        $aicomment = AIResultComment::where('term_id', $request->term_id)->where('period_id',
+        $request->period_id)->where('result_type', 'midterm')->first();
+
+        if($aicomment){
+            $comment = $aicomment->comment;
+        }
 
         return view('admin.result.midterm_show',[
             'student' => $student,
@@ -1777,9 +1784,7 @@ class ResultController extends Controller
             DB::transaction(function () use ($request) {
                 $results = MidTerm::where('student_id', $request->student_id)->where('term_id', $request->term_id)->where('period_id', $request->period_id)->where('grade_id', $request->grade_id)->get();
                 $student = Student::findOrfail($request->student_id);
-                $idNumber = $student->user->code();
-                $password = 'password123';
-                $name = $student->last_name." ".$student->first_name. " ".$student->first_name;
+                $name = $student->fullname();
                 $message = "<p> Dear $name, your mid term result is now available on your portal and attached with this mail is a copy of that result; please download the pdf file attached with this message.</p>";
                 $subject = 'Midterm Result Notification';
                 
@@ -1787,7 +1792,6 @@ class ResultController extends Controller
                 $term = Term::where('id', $request->term_id)->first();
 
                 $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id, $request->term_id);
-                
 
                 foreach($results as $result){
                     $result->update(['published' => true]);

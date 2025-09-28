@@ -355,6 +355,7 @@ class TeacherController extends Controller
 
         $weekId = $request->query('week_id');
         $order = $request->query('order', 'sequential');
+        $mode = $request->query('mode', 'questions'); // questions | questions_answers | answers
 
         $topicsQuery = $curriculum->topics()->with(['questions','week'])->orderBy('week_id');
         if ($weekId) {
@@ -366,10 +367,16 @@ class TeacherController extends Controller
         $questions = [];
         foreach ($topics as $topic) {
             foreach ($topic->questions as $q) {
+                $opts = is_array($q->options) ? $q->options : (is_string($q->options) ? json_decode($q->options, true) : []);
+                $correctIndex = isset($q->correct_index) ? intval($q->correct_index) : null;
+                $correctAnswer = ($correctIndex !== null && isset($opts[$correctIndex])) ? $opts[$correctIndex] : null;
+
                 $questions[] = [
                     'topic_title' => $topic->title,
                     'question' => $q->question,
-                    'options' => is_array($q->options) ? $q->options : (is_string($q->options) ? json_decode($q->options, true) : []),
+                    'options' => $opts,
+                    'correct_index' => $correctIndex,
+                    'correct_answer' => $correctAnswer,
                 ];
             }
         }
@@ -378,7 +385,9 @@ class TeacherController extends Controller
             shuffle($questions);
         }
 
-        $title = sprintf('%s - %s Question Paper', optional($curriculum->grade)->title, optional($curriculum->subject)->title);
+        $title = sprintf('%s%s Question Paper', "", optional($curriculum->subject)->title);
+        $instruction = $request->instruction || "Answer all questions. Choose the correct option for each question.
+        Write your name and Student ID clearly.";
 
         $data = [
             'title' => $title,
@@ -395,13 +404,21 @@ class TeacherController extends Controller
                 'generated_at' => now()->format('j M Y g:i A'),
             ],
             'questions' => $questions,
+            'instruction' => $instruction,
+            'mode' => $mode,
         ];
 
-        $pdf = Pdf::loadView('pdfs.question_paper', $data)->setPaper('A4', 'portrait');
+        $pdf = Pdf::loadView('pdfs.question_paper', $data)
+         ->setPaper('A4', 'portrait')
+         ->setOption('margin-top', 8)
+         ->setOption('margin-bottom', 10)
+         ->setOption('margin-left', 8)
+         ->setOption('margin-right', 8);
 
         $safeName = Str::slug($curriculum->name . '-' . ($data['meta']['subject'] ?? 'subject'));
         return $pdf->download($safeName . '.pdf');
     }
+
     /**
      * Generate questions for a given topic using OpenAI (preview only).
      */
@@ -418,7 +435,8 @@ class TeacherController extends Controller
             'types' => 'nullable|string',
             'difficulty_mix' => 'nullable|string',
             'model' => 'nullable|string',
-            'genOpenAIKey' => 'nullable|string',
+            'openaikey' => 'nullable|string',
+            'instruction' => 'nullable|string',
         ]);
 
         $topic = CurriculumTopic::with('week')->findOrFail($data['topic_id']);
@@ -446,8 +464,12 @@ class TeacherController extends Controller
             $options['model'] = $data['model'];
         }
 
-        if(!empty($data['genOpenAIKey'])) {
-            $options['openai_key'] = $data['genOpenAIKey'];
+        if(!empty($data['openaikey'])) {
+            $options['openaikey'] = $data['openaikey'];
+        }
+
+        if(!empty($data['instruction'])) {
+            $options['instruction'] = $data['instruction'];
         }
 
         $svc = new QuestionGeneratorService();

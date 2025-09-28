@@ -100,6 +100,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/paystack/webhook', [PaymentController::class, 'paystackWebhook']);
     Route::get('/paystack/verify/{transactionRef}', [PaymentController::class, 'verifyPayment']);
 
+    Route::post('/request-password', [UserController::class, 'requestPassword']);
+
     Route::group(['middleware' => 'auth:sanctum'], function () {
 
         //users

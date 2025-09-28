@@ -25,8 +25,8 @@ class QuestionGeneratorService
             throw new \RuntimeException('OpenAI API key not configured (OPENAI_API_KEY).');
         }
 
-        if($options['openai_key'] ?? false) {
-            $apiKey = $options['openai_key'];
+        if($options['openaikey'] ?? false) {
+            $apiKey = $options['openaikey'];
         }
 
         $model = get_settings('openai_model');
@@ -45,11 +45,13 @@ class QuestionGeneratorService
         $week = $options['week'] ?? null;
         $types = $options['types'] ?? 'MCQ';
         $difficultyMix = $options['difficulty_mix'] ?? 'balanced';
+        $instruction = $options['instruction'] ?? null;
 
         // JSON schema the model must follow
         $jsonSchema = '{"question": "string", "options": ["string"], "correct_index": 0, "difficulty": "easy|medium|hard", "bloom_level": "Remember|Understand|Apply|Analyze|Evaluate|Create", "explanation": "short string"}';
 
     $userPrompt = "Create objective questions for";
+        if ($instruction) $userPrompt .= " {$instruction}.";
         if ($grade) $userPrompt .= " Grade {$grade},";
         if ($subject) $userPrompt .= " Subject {$subject},";
         if ($week) $userPrompt .= " Week {$week},";

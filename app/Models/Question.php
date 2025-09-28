@@ -25,6 +25,6 @@ class Question extends Model
 
     public function author()
     {
-        return $this->belongsTo(\App\Models\User::class, 'author_id');
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

@@ -14,6 +14,9 @@ use App\Models\AssessmentAttempt;
 use App\Models\AttemptAnswer;
 use App\Jobs\ProcessAssessmentAttempt;
 use App\Models\Subject;
+use App\Models\User;
+use App\Jobs\SendExpoPushJob;
+use App\Services\ExpoPushService;
 
 class AssessmentController extends Controller
 {
@@ -294,6 +297,54 @@ class AssessmentController extends Controller
 
         // dispatch async job to compute correctness and update attempt
         ProcessAssessmentAttempt::dispatch($attempt->id);
+
+        // send push notification (Expo) to curriculum authors involved in this attempt
+        try {
+            // $questions is an Eloquent Collection keyed by id
+            $curriculumIds = $questions->pluck('curriculum_id')->filter()->unique()->values()->all();
+
+            if (!empty($curriculumIds)) {
+                $authorIds = Curriculum::whereIn('id', $curriculumIds)
+                    ->pluck('author_id')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                if (!empty($authorIds)) {
+                    $recipients = User::whereIn('id', $authorIds)
+                        ->whereNotNull('device_token')
+                        ->where('device_token', '!=', '')
+                        ->get();
+
+                    if ($recipients->isNotEmpty()) {
+                        $expo = app(ExpoPushService::class);
+                        $messages = [];
+                        $title = 'Assessment Submitted';
+                        $body = sprintf("%s submitted an assessment for week %s", optional($user)->name ?? 'A student', $attempt->week_id);
+
+                        foreach ($recipients as $r) {
+                            $messages[] = $expo->makeMessage($r->device_token, $title, $body, [
+                                'attempt_id' => $attempt->attempt_id,
+                                'attempt_db_id' => $attempt->id,
+                                'week_id' => $attempt->week_id,
+                                'student_id' => $attempt->user_id,
+                            ]);
+                        }
+
+                        if (!empty($messages)) {
+                            SendExpoPushJob::dispatch($messages);
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // don't break the response flow if notifications fail; log for later inspection
+            info('Assessment submit push notification error: ' . $e->getMessage());
+        }
+
+        //send notification to the creator
+
 
         return response()->json([
             'status' => true,

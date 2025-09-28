@@ -198,11 +198,13 @@ function calculateStudentPosition($studentIndex, $session, $term, $grade)
             return $result->getTotalScore();
         });
 
-        if ($term === '1') {
+        $totalScores = 0;
+        $t = (int) $term;
+        if ($t === 1) {
             $totalScores = $firstTotalScores;
-        } elseif ($term === '2') {
+        } elseif ($t === 2) {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        } elseif ($term === '3') {
+        } elseif ($t === 3) {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
@@ -250,11 +252,13 @@ function calculateStudentGradePosition($studentIndex, $session, $term, $grade)
             return $result->getTotalScore();
         });
 
-        if ($term === '1') {
+        $totalScores = 0;
+        $t = (int) $term;
+        if ($t === 1) {
             $totalScores = $firstTotalScores;
-        } elseif ($term === '2') {
+        } elseif ($t === 2) {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        } elseif ($term === '3') {
+        } elseif ($t === 3) {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
@@ -303,11 +307,13 @@ function studentSubjectPositionInGrade($studentIndex, $session, $term, $grade, $
             return $result->getTotalScore();
         });
 
-        if ($term === '1') {
+        $totalScores = 0;
+        $t = (int) $term;
+        if ($t === 1) {
             $totalScores = $firstTotalScores;
-        } elseif ($term === '2') {
+        } elseif ($t === 2) {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        } elseif ($term === '3') {
+        } elseif ($t === 3) {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 
@@ -356,11 +362,13 @@ function calculateStudentGradeSubjectPosition($studentIndex, $session, $term, $g
             return $result->getTotalScore();
         });
 
-        if ($term === '1') {
+        $totalScores = 0;
+        $t = (int) $term;
+        if ($t === 1) {
             $totalScores = $firstTotalScores;
-        } elseif ($term === '2') {
+        } elseif ($t === 2) {
             $totalScores = $firstTotalScores + $secondTotalScores / 2;
-        } elseif ($term === '3') {
+        } elseif ($t === 3) {
             $totalScores = secondary_average($firstTotalScores, $secondTotalScores, $thirdTotalScores, 2);
         }
 

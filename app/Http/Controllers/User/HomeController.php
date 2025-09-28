@@ -403,5 +403,23 @@ class HomeController extends Controller
                 $table->foreign('attempt_id')->references('id')->on('assessment_attempts')->onDelete('cascade');
             });
         }
+
+        if(!Schema::hasTable('ai_result_comments')){
+            Schema::create('ai_result_comments', function (Blueprint $table) {
+                $table->id();
+                $table->string('student_uuid')->index();
+                $table->unsignedBigInteger('period_id')->index();
+                $table->unsignedBigInteger('term_id')->index();
+                $table->enum('result_type', ['midterm','exam'])->default('exam');
+                $table->unsignedBigInteger('author_id')->nullable()->index();
+                $table->text('comment')->nullable();
+                $table->timestamp('generated_at')->nullable();
+                $table->enum('status', ['processing','ready','failed'])->default('processing');
+                $table->text('notes')->nullable();
+                $table->timestamps();
+
+                $table->unique(['student_uuid','period_id','term_id','result_type'], 'ai_result_unique');
+            });
+        }
     }
 }
