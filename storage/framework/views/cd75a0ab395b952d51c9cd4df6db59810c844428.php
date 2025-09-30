@@ -46,15 +46,15 @@
             <?php
 if (! isset($_instance)) {
     $html = \Livewire\Livewire::mount('components.student.cart-counter', [])->html();
-} elseif ($_instance->childHasBeenRendered('Q77iW5n')) {
-    $componentId = $_instance->getRenderedChildComponentId('Q77iW5n');
-    $componentTag = $_instance->getRenderedChildComponentTagName('Q77iW5n');
+} elseif ($_instance->childHasBeenRendered('gti56tm')) {
+    $componentId = $_instance->getRenderedChildComponentId('gti56tm');
+    $componentTag = $_instance->getRenderedChildComponentTagName('gti56tm');
     $html = \Livewire\Livewire::dummyMount($componentId, $componentTag);
-    $_instance->preserveRenderedChild('Q77iW5n');
+    $_instance->preserveRenderedChild('gti56tm');
 } else {
     $response = \Livewire\Livewire::mount('components.student.cart-counter', []);
     $html = $response->html();
-    $_instance->logRenderedChild('Q77iW5n', $response->id(), \Livewire\Livewire::getRootElementTagName($html));
+    $_instance->logRenderedChild('gti56tm', $response->id(), \Livewire\Livewire::getRootElementTagName($html));
 }
 echo $html;
 ?>

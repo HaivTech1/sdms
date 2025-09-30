@@ -100,4 +100,4 @@
         } catch (e) { console.log(e); }
     });
 </script>
-<?php /**PATH C:\laragon\www\primary\resources\views\teacher\curriculum\_edit_form.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\primary\resources\views/teacher/curriculum/_edit_form.blade.php ENDPATH**/ ?>

@@ -1,2 +1,0 @@
-A new task <?php echo e($task->name()); ?> has just been created.<br>
-Click here to join: <a href="<?php echo e(route('task.index')); ?>"><?php echo e($task->name()); ?></a><?php /**PATH C:\laragon\www\primary\resources\views\emails\new_task_created.blade.php ENDPATH**/ ?>

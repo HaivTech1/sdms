@@ -44,5 +44,7 @@
             <i class="fa fa-angle-up"></i>
         </div>
         <x-partials.script />
+        {{-- allow pages to inject additional scripts that depend on the core libs above --}}
+        @yield('scripts')
     </body>
 </html>

@@ -1,1 +1,0 @@
-<?php /**PATH C:\laragon\www\primary\resources\views\components\link\primary.blade.php ENDPATH**/ ?>

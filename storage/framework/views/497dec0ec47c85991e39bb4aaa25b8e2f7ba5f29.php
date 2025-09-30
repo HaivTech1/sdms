@@ -38,40 +38,6 @@
 
 </div>
 
-<?php $__env->startSection('scripts'); ?>
-    <script>
-        $(function(){
-                // When user clicks the Download Questions button, show modal to choose mode
-                $(document).on('click', '.download-questions', function(e){
-                        e.preventDefault();
-                        const url = $(this).data('url');
-                        if (!url) return;
-                        $('#downloadQuestionsModal').data('url', url).modal('show');
-                });
-
-                // When user confirms options, open the PDF in new tab
-                $('#downloadQuestionsConfirm').on('click', function(e){
-                        const modal = $('#downloadQuestionsModal');
-                        const url = modal.data('url');
-                        if (!url) return;
-
-                        const mode = modal.find('input[name="dq_mode"]:checked').val();
-                        const order = modal.find('select[name="dq_order"]').val();
-                        const weekId = modal.find('select[name="dq_week"]').val();
-
-                        const params = new URLSearchParams();
-                        if (mode) params.set('mode', mode);
-                        if (order) params.set('order', order);
-                        if (weekId) params.set('week_id', weekId);
-
-                        const finalUrl = url + (params.toString() ? ('?' + params.toString()) : '');
-                        window.open(finalUrl, '_blank');
-                        modal.modal('hide');
-                });
-        });
-    </script>
-<?php $__env->stopSection(); ?>
-
 <!-- Download Questions Modal -->
 <div class="modal fade" id="downloadQuestionsModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">

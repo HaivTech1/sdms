@@ -23,7 +23,7 @@
                             <h3>My Curriculums</h3>
                     </div>
                     <div class="col-md-6 text-end">
-                            <button id="openCreate" class="btn btn-primary">Create Curriculum</button>
+                        <button id="openCreate" class="btn btn-primary">Create Curriculum</button>
                     </div>
             </div>
 
@@ -98,16 +98,16 @@
         </div>
     </div>
 
-        <!-- Edit modal (will be populated via AJAX) -->
-        <div class="modal fade" id="editCurriculumModal" tabindex="-1">
-                <div class="modal-dialog">
-                        <div class="modal-content">
-                                <div class="modal-body" id="editCurriculumBody">
-                                        <!-- edit form will be injected here -->
-                                </div>
-                        </div>
-                </div>
-        </div>
+    <!-- Edit modal (will be populated via AJAX) -->
+    <div class="modal fade" id="editCurriculumModal" tabindex="-1">
+            <div class="modal-dialog">
+                    <div class="modal-content">
+                            <div class="modal-body" id="editCurriculumBody">
+                                    <!-- edit form will be injected here -->
+                            </div>
+                    </div>
+            </div>
+    </div>
 
     <?php $__env->startSection('scripts'); ?>
     <script>
@@ -309,6 +309,37 @@
 
                 // Initial behaviour: nothing to do; server-rendered initial list included
             })(jQuery);
+    </script>
+    <script>
+        $(function(){
+                // When user clicks the Download Questions button, show modal to choose mode
+                $(document).on('click', '.download-questions', function(e){
+                        e.preventDefault();
+                        const url = $(this).data('url');
+                        if (!url) return;
+                        $('#downloadQuestionsModal').data('url', url).modal('show');
+                });
+
+                // When user confirms options, open the PDF in new tab
+                $('#downloadQuestionsConfirm').on('click', function(e){
+                        const modal = $('#downloadQuestionsModal');
+                        const url = modal.data('url');
+                        if (!url) return;
+
+                        const mode = modal.find('input[name="dq_mode"]:checked').val();
+                        const order = modal.find('select[name="dq_order"]').val();
+                        const weekId = modal.find('select[name="dq_week"]').val();
+
+                        const params = new URLSearchParams();
+                        if (mode) params.set('mode', mode);
+                        if (order) params.set('order', order);
+                        if (weekId) params.set('week_id', weekId);
+
+                        const finalUrl = url + (params.toString() ? ('?' + params.toString()) : '');
+                        window.open(finalUrl, '_blank');
+                        modal.modal('hide');
+                });
+        });
     </script>
     <?php $__env->stopSection(); ?>
  <?php echo $__env->renderComponent(); ?>
