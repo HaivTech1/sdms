@@ -375,7 +375,8 @@
                     </div>
 
                     <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
-                        <button disabled="disabled" id="submit" type="submit" class="btn btn-secondary block waves-effect waves-light pull-right">Submit</button>
+                        <button disabled="disabled" id="submit" type="submit"
+                            class="btn btn-primary block waves-effect waves-light pull-right">Submit</button>
                     </div>
                 </form>
             </div>
@@ -417,7 +418,7 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-primary download-btn" target="_blank">Download PDF</a>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

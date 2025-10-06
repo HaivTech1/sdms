@@ -31,6 +31,7 @@ use App\Traits\NumberBroadcast;
 use Endroid\QrCode\Builder\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class StudentController extends Controller
 {
@@ -62,10 +63,17 @@ class StudentController extends Controller
     {
         try {
             DB::transaction(function () use ($request) {
+                $generatedEmail = $this->generateUniqueStudentEmail(
+                    $request->first_name,
+                    $request->last_name,
+                    $request->other_name,
+                    $request->dob
+                );
+
                 $user = new User([
                     'title' => 'student',
                     'name' => $request->last_name. ' '. $request->first_name. ' '. $request->other_name,
-                    'email' => $request->last_name. $request->first_name.'@gmail.com',
+                    'email' => $generatedEmail,
                     'phone_number' => '',
                     'password' => Hash::make('123456'),
                     'type' => '4'
@@ -149,6 +157,39 @@ class StudentController extends Controller
             DB::rollback();
             return response()->json(['status' => false, 'errors' => $th->getMessage()], 500);
         }
+    }
+
+    private function generateUniqueStudentEmail(?string $firstName, ?string $lastName, ?string $otherName, $dob): string
+    {
+        $nameParts = array_filter([$lastName, $firstName, $otherName]);
+        $localPart = Str::slug(implode('.', $nameParts));
+
+        if (empty($localPart)) {
+            $localPart = 'student';
+        }
+
+        if (!empty($dob)) {
+            try {
+                $localPart .= '.' . Carbon::parse($dob)->format('ymd');
+            } catch (\Throwable $ex) {
+                // ignore parse errors and proceed without dob suffix
+            }
+        }
+
+        $domain = config('app.student_generated_email_domain', 'gmail.com');
+        if (empty($domain)) {
+            $domain = 'gmail.com';
+        }
+
+        $candidate = strtolower($localPart . '@' . $domain);
+        $counter = 1;
+
+        while (User::where('email', $candidate)->exists()) {
+            $candidate = strtolower($localPart . '.' . $counter . '@' . $domain);
+            $counter++;
+        }
+
+        return $candidate;
     }
 
     /**

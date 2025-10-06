@@ -132,7 +132,6 @@
                     const $select = $(targetSelector);
                     $select.empty();
                     const subs = (window.gradeSubjects && window.gradeSubjects[gradeId]) || [];
-                    console.log(subs)
                     if (subs.length === 0) {
                         $select.append($('<option>').text('No subjects for selected grade').attr('value',''));
                         $select.prop('disabled', true);
