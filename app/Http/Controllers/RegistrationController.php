@@ -50,7 +50,7 @@ class RegistrationController extends Controller
         }
 
         // Get the filtered registrations with pagination
-        $registrations = $query->orderBy('created_at', 'desc')->paginate(2);
+        $registrations = $query->orderBy('created_at', 'desc')->paginate(100);
 
         // Fetch grades and other registration statistics
         $grades = Grade::all();
@@ -406,11 +406,11 @@ class RegistrationController extends Controller
                         ]);
                 
                         // Determine appType based on student category
-                        $appType = app('appType');
+                        $appType = appType('appType');
                         if (isset($value->category) && $value->category) {
-                            $appType = app('appType.' . $value->category);
+                            $appType = appType($value->category);
                         }
-                        $code = SaveCode::Generator($appType->code . '/', 4, 'reg_no', $user);
+                        $code = SaveCode::Generator($appType['code'] . '/', 4, 'reg_no', $user);
                         $user->reg_no = $code;
                         $user->profile_photo_path = $value->image;
                         $user->save();
@@ -519,9 +519,11 @@ class RegistrationController extends Controller
                 'message' => "Students admitted successfully!",
             ], 200);
         } catch (\Throwable $th) {
+            info($th);
             return response()->json([
                 'status' => false,
-                'message' => $th->getMessage(),
+                'message' => "There was a accepting the registration. Please try again.",
+                'error' => $th->getMessage()
             ], 500);
         }
     }

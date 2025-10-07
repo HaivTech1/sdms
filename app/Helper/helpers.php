@@ -423,10 +423,11 @@ function secondary_average($first, $second, $third, $by)
     return ceil($twoResult);
 }
 
-function appType()
+function appType($category = null)
 {
     $types = get_settings('app_type');
     $result = [];
+
     if (!empty($types)) {
         $pairs = explode(',', $types);
         foreach ($pairs as $pair) {
@@ -440,7 +441,18 @@ function appType()
             }
         }
     }
-    return $result;
+
+    // If category is provided, find the matching one
+    if ($category) {
+        foreach ($result as $type) {
+            if ($type['app'] === $category) {
+                return $type;
+            }
+        }
+        return null; // not found
+    }
+
+    return $result; // return all if no category
 }
 
 function examRemark($remark, $type)
