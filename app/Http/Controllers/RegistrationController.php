@@ -18,6 +18,7 @@ use App\Scopes\HasActiveScope;
 use App\Mail\SendAdmissionMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendNewRegistrationMail;
 use Illuminate\Support\Facades\Storage;
@@ -233,11 +234,8 @@ class RegistrationController extends Controller
         try {
             if ($registration->update(['status' => true])) {
 
-                $randomNumbers = "";
-
-                for ($i = 0; $i < 4; $i++) {
-                    $randomNumbers = rand(0, 9999);
-                }
+                // Generate unique email suffix
+                $randomNumbers = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT) . time();
 
                 $user = new User([
                     'title' => 'student',
@@ -382,6 +380,7 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
+
     public function acceptAll(Request $request)
     {
         try {
@@ -396,10 +395,13 @@ class RegistrationController extends Controller
 
             foreach ($registrations as $key => $value) {
                 if ($value->update(['status' => true])) {
+                        // Generate unique email suffix for each student
+                        $uniqueNumbers = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT) . time() . $key;
+                        
                         $user = new User([
                             'title' => 'student',
                             'name' => $value->lastName(). ' '. $value->firstName(). ' '. $value->otherName(),
-                            'email' => $value->lastName(). $value->firstName().$randomNumbers.'@gmail.com',
+                            'email' => $value->lastName(). $value->firstName().$uniqueNumbers.'@gmail.com',
                             'phone_number' => '',
                             'password' => Hash::make('password123'),
                             'type' => '4'
@@ -413,6 +415,15 @@ class RegistrationController extends Controller
                         $code = SaveCode::Generator($appType['code'] . '/', 4, 'reg_no', $user);
                         $user->reg_no = $code;
                         $user->profile_photo_path = $value->image;
+                        
+                        // Check if user with this email already exists
+                        $existingUser = User::where('email', $user->email)->first();
+                        if ($existingUser) {
+                            // Skip this registration - already processed
+                            \Log::warning("Skipping duplicate user creation for email: " . $user->email);
+                            continue;
+                        }
+                        
                         $user->save();
 
                         $student = new Student([
@@ -625,6 +636,7 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
+
     public function syncAll(Request $request)
     {
         try {
@@ -688,6 +700,7 @@ class RegistrationController extends Controller
             ], 500);
         }
     }
+
     public function pending()
     {
         $new_registration = Registration::withoutGlobalScope(new HasActiveScope)->where('status', false)->count();

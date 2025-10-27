@@ -86,16 +86,13 @@ class Index extends Component
                 foreach ($registrations as $key => $value) {
                     if ($value->update(['status' => true])) {
 
-                            $randomNumbers;
-
-                            for ($i = 0; $i < 4; $i++) {
-                                $randomNumbers = rand(0, 9999);
-                            }
+                            // Generate unique email suffix for each student
+                            $uniqueNumbers = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT) . time() . $key;
 
                             $user = new User([
                                 'title' => 'student',
                                 'name' => $value->lastName(). ' '. $value->firstName(). ' '. $value->otherName(),
-                                'email' => $value->lastName(). $value->firstName().$randomNumbers.'@gmail.com',
+                                'email' => $value->lastName(). $value->firstName().$uniqueNumbers.'@gmail.com',
                                 'phone_number' => '',
                                 'password' => Hash::make('password123'),
                                 'type' => '4'
