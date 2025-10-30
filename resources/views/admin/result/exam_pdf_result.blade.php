@@ -3,6 +3,23 @@
 <head>
     @section('title', $student->last_name." | Exam Result Page")
     <style>
+        @font-face {
+            font-family: 'Amiri';
+            src: url('{{ public_path("fonts/Amiri-Regular.ttf") }}') format('truetype');
+        }
+        body {
+            font-family: 'Amiri', Arial, Helvetica, sans-serif;
+        }
+
+        @page {
+        margin: 0.5in;
+        size: A4 portrait;
+        }
+
+        .page-break {
+        page-break-after: avoid;
+        }
+
         #body_content {
             position: relative;
             background: #fff;

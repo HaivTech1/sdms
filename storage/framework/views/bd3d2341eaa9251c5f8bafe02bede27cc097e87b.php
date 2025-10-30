@@ -1,5 +1,16 @@
 <div>
-    <x-loading />
+    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.loading','data' => []]); ?>
+<?php $component->withName('loading'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
 
     <div class="row">
         <div class="col-lg-12">
@@ -26,14 +37,9 @@
                                     style="display:none" id="publishSelected"><i class="bx bx-publsih"></i> Publish
                                     Results</button>
                                 <button class="btn btn-sm btn-success" data-grade="" data-period="" data-term=""
-                                    style="display:none" id="generateClassPDF"><i class="bx bxs-file-pdf"></i> Generate
-                                    Class PDF
+                                    style="" id="generateClassPDF"><i class="bx bxs-file-pdf"></i> Generate Class PDF
                                 </button>
-                                {{-- <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target=".generatePdfResultModal">
-                                    <i class="bx bxs-file-pdf"></i>
-                                    Generate PDF Result
-                                </button> --}}
+                                
                             </div>
                             <div class="mt-2">
                                 <form id="fetchResultForm">
@@ -41,30 +47,52 @@
                                         <div class="col-lg-3">
                                             <select class="form-control" id="grade_id" name="grade_id">
                                                 <option value=''>Class</option>
-                                                @foreach ($grades as $grade)
-                                                    <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                                @endforeach
+                                                <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option value="<?php echo e($grade->id()); ?>"><?php echo e($grade->title()); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </select>
                                         </div>
 
                                         <div class="col-lg-3">
                                             <select class="form-control" id="period_id" name="period_id">
                                                 <option value=''>Select Session</option>
-                                                @foreach ($periods as $period)
-                                                    <option value="{{  $period->id() }}">{{ $period->title() }}</option>
-                                                @endforeach
+                                                <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option value="<?php echo e($period->id()); ?>"><?php echo e($period->title()); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </select>
-                                            <x-form.error for="period_id" />
+                                            <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'period_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'period_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                         </div>
 
                                         <div class="col-lg-3">
                                             <select class="form-control" id="term_id" name="term_id">
                                                 <option value=''>Select Term</option>
-                                                @foreach ($terms as $term)
-                                                    <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                                @endforeach
+                                                <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option value="<?php echo e($term->id()); ?>"><?php echo e($term->title()); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </select>
-                                            <x-form.error for="term_id" />
+                                            <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'term_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'term_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                         </div>
                                         <div class="col-lg-3">
                                             <div class="d-flex justify-content-center align-item-center">
@@ -139,35 +167,57 @@
                 <div class="modal-body">
                     <div class="row">
                         <form id="pdfResultDownload">
-                            @csrf
+                            <?php echo csrf_field(); ?>
                             <div class="row">
                                 <div class="col-lg-4">
                                     <select class="form-control" name="grade_id" id="pdf_grade_id">
                                         <option value=''>Class</option>
-                                        @foreach ($grades as $grade)
-                                            <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($grade->id()); ?>"><?php echo e($grade->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
 
                                 <div class="col-lg-4">
                                     <select class="form-control" name="period_id" id="pdf_period_id">
                                         <option value=''>Select Session</option>
-                                        @foreach ($periods as $period)
-                                            <option value="{{  $period->id() }}">{{ $period->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($period->id()); ?>"><?php echo e($period->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="period_id" />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'period_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'period_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                 </div>
 
                                 <div class="col-lg-4">
                                     <select class="form-control" name="term_id" id="pdf_term_id">
                                         <option value=''>Select Term</option>
-                                        @foreach ($terms as $term)
-                                            <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($term->id()); ?>"><?php echo e($term->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="term_id" />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'term_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'term_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                 </div>
                             </div>
 
@@ -220,15 +270,15 @@
 
                     <div class="row">
                         <form id="excelResultUpload" method="POST" enctype="multipart/form-data">
-                            @csrf
+                            <?php echo csrf_field(); ?>
 
                             <div class="row">
                                 <div class="col-lg-2">
                                     <select class="form-control" name="grade_id" id="excel_grade_id">
                                         <option value=''>Class</option>
-                                        @foreach ($grades as $grade)
-                                            <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($grade->id()); ?>"><?php echo e($grade->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
 
@@ -240,25 +290,58 @@
                                 <div class="col-lg-2">
                                     <select class="form-control " name="period_id">
                                         <option value=''>Select Session</option>
-                                        @foreach ($periods as $period)
-                                            <option value="{{  $period->id() }}">{{ $period->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($period->id()); ?>"><?php echo e($period->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="period_id" />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'period_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'period_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                 </div>
 
                                 <div class="col-lg-2">
                                     <select class="form-control select2" name="term_id">
                                         <option value=''>Select Term</option>
-                                        @foreach ($terms as $term)
-                                            <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($term->id()); ?>"><?php echo e($term->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="term_id" />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'term_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'term_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                 </div>
 
                                 <div class="col-lg-2">
-                                    <x-form.input id="excel" class="block w-full" type="file" name="excel_file" />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.input','data' => ['id' => 'excel','class' => 'block w-full','type' => 'file','name' => 'excel_file']]); ?>
+<?php $component->withName('form.input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['id' => 'excel','class' => 'block w-full','type' => 'file','name' => 'excel_file']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                 </div>
                             </div>
 
@@ -286,47 +369,80 @@
                     <div class="modalErrorr"></div>
 
                     <div class="row">
-                        <form action="{{ route('result.export.excel') }}" method="POST" target="_blank">
-                            @csrf
+                        <form action="<?php echo e(route('result.export.excel')); ?>" method="POST" target="_blank">
+                            <?php echo csrf_field(); ?>
 
                             <div class="row">
                                 <div class="col-lg-3">
                                     <select class="form-control" name="grade_id" id="excel_grade_id">
                                         <option value=''>Class</option>
-                                        @foreach ($grades as $grade)
-                                            <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($grade->id()); ?>"><?php echo e($grade->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
 
                                 <div class="col-lg-3">
                                     <select class="form-control " name="subject_id">
                                         <option value=''>Select subject</option>
-                                        @foreach ($allsubjects as $subject)
-                                            <option value="{{  $subject->id() }}">{{ $subject->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $allsubjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($subject->id()); ?>"><?php echo e($subject->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="subject_id" />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'subject_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'subject_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                 </div>
 
                                 <div class="col-lg-3">
                                     <select class="form-control " name="period_id">
                                         <option value=''>Select Session</option>
-                                        @foreach ($periods as $period)
-                                            <option value="{{  $period->id() }}">{{ $period->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($period->id()); ?>"><?php echo e($period->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="period_id" />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'period_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'period_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                 </div>
 
                                 <div class="col-lg-3">
                                     <select class="form-control select2" name="term_id">
                                         <option value=''>Select Term</option>
-                                        @foreach ($terms as $term)
-                                            <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($term->id()); ?>"><?php echo e($term->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="term_id" />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.error','data' => ['for' => 'term_id']]); ?>
+<?php $component->withName('form.error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['for' => 'term_id']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                 </div>
                             </div>
 
@@ -364,17 +480,17 @@
                         <input name="result_id" id="result_id" type="hidden" />
 
                         <div class="col-sm-12 mb-2">
-                            @php
+                            <?php
                                 $midtermForm = get_settings('midterm_format');
-                            @endphp
+                            ?>
                             <div class="table-responsive">
                                 <table id="students-result" class="table table-borderless">
                                     <thead>
                                         <tr>
                                             <th>Subject</th>
-                                            @foreach ($midtermForm as $key => $value)
-                                                <th>{{ $value['full_name'] }}</th>
-                                            @endforeach
+                                            <?php $__currentLoopData = $midtermForm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <th><?php echo e($value['full_name']); ?></th>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -421,37 +537,46 @@
 
                     <div class="row">
                         <form id="resultUpload" method="POST">
-                            @csrf
+                            <?php echo csrf_field(); ?>
                             <input name="student_id" id="add_student_id" type="hidden" />
 
-                            @php
+                            <?php
                                 $midtermForm = get_settings('midterm_format');
                                 $subjects = \App\Models\Subject::all();
-                            @endphp
+                            ?>
 
                             <div class="row">
                                 <div class="col-lg-4">
                                     <select class="form-control" name="subject_id">
                                         <option value=''>Subject</option>
-                                        @foreach ($subjects as $subject)
-                                            <option value="{{  $subject->id() }}">{{  $subject->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $subjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($subject->id()); ?>"><?php echo e($subject->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
 
                                 <div class="col-lg-4">
                                     <select id="format-select" class="form-control">
                                         <option value="">Select test type</option>
-                                        @foreach ($midtermForm as $key => $value)
-                                            <option value="{{ $key }}">{{ $value['full_name'] }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $midtermForm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($key); ?>"><?php echo e($value['full_name']); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
 
                                 <div class="col-lg-4">
-                                    <x-form.input style='width: 70px' class="text-center required midterm-input"
-                                        type='number' name='' value="" step="0.01" onblur="validateInput(this)"
-                                        disabled />
+                                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.form.input','data' => ['style' => 'width: 70px','class' => 'text-center required midterm-input','type' => 'number','name' => '','value' => '','step' => '0.01','onblur' => 'validateInput(this)','disabled' => true]]); ?>
+<?php $component->withName('form.input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['style' => 'width: 70px','class' => 'text-center required midterm-input','type' => 'number','name' => '','value' => '','step' => '0.01','onblur' => 'validateInput(this)','disabled' => true]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -469,7 +594,7 @@
         </div>
     </div>
 
-    @section('scripts')
+    <?php $__env->startSection('scripts'); ?>
     <script>
         $.ajaxSetup({
             headers: {
@@ -495,13 +620,13 @@
             $('#generateClassPDF').data('grade', grade);
 
             $.ajax({
-                url: '{{ route("result.check.midterm", ["period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':period_id', period).replace(':term_id', term).replace(':grade_id', grade),
+                url: '<?php echo e(route("result.check.midterm", ["period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"])); ?>'.replace(':period_id', period).replace(':term_id', term).replace(':grade_id', grade),
                 type: 'GET',
                 dataType: 'json',
             }).done((response) => {
                 toggleAble(button, false);
                 var students = response.students;
-                var userPermissions = @json(userPermissions());
+                var userPermissions = <?php echo json_encode(userPermissions(), 15, 512) ?>;
 
                 var html = '';
                 $.each(students, function (index, student) {
@@ -517,7 +642,7 @@
                         html += '<td>';
                         html += '<button class="btn btn-sm btn-primary recorded" data-grade="' + response.grade + '" data-period="' + response.period + '" data-term="' + response.term + '" data-student="' + student.id + '"><i class="fa fa-cogs"></i> View Recorded</button>';
                         if (userPermissions.includes('result_show')) {
-                            html += '<a target="_blank" href="{{ route('result.midterm.show', ['student' => ':student']) }}'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
+                            html += '<a target="_blank" href="<?php echo e(route('result.midterm.show', ['student' => ':student'])); ?>'.replace(':student', student.id) + '?grade_id=' + response.grade + '&period_id=' + response.period + '&term_id=' + response.term + '" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view result" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> View Result</a>';
                         }
 
                         if (userPermissions.includes('result_publish')) {
@@ -533,8 +658,8 @@
                         }
 
                         if (userPermissions.includes('result_download')) {
-                            html += '<form action="{{ route('result.midterm.pdf') }}" method="POST">';
-                            html += '@csrf';
+                            html += '<form action="<?php echo e(route('result.midterm.pdf')); ?>" method="POST">';
+                            html += '<?php echo csrf_field(); ?>';
                             html += '<input type="hidden" name="student_id" value="' + student.id + '" />';
                             html += '<input type="hidden" name="grade_id" value="' + response.grade + '" />';
                             html += '<input type="hidden" name="period_id" value="' + response.period + '" />';
@@ -574,7 +699,7 @@
                     var termId = $(this).data('term');
 
                     $.ajax({
-                        url: '{{ route("result.fetch.midterm", ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"]) }}'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
+                        url: '<?php echo e(route("result.fetch.midterm", ["student_id" => ":student_id", "period_id" => ":period_id", "term_id" => ":term_id", "grade_id" => ":grade_id"])); ?>'.replace(':student_id', id).replace(':period_id', sessionId).replace(':term_id', termId).replace(':grade_id', classId),
                         type: 'GET',
                         dataType: 'json',
                     }).done((response) => {
@@ -642,7 +767,7 @@
                                     });
 
                                     $.ajax({
-                                        url: '{{ route('result.update.midterm') }}',
+                                        url: '<?php echo e(route('result.update.midterm')); ?>',
                                         type: 'POST',
                                         data: { result_id: resultId, subject_id: subjectId, field: midtermKey, score: editedScore },
                                     }).done((response) => {
@@ -691,7 +816,7 @@
             toggleAble('#cummulative' + student_id, true);
 
             $.ajax({
-                url: '{{ route('result.midterm.publish') }}' ,
+                url: '<?php echo e(route('result.midterm.publish')); ?>' ,
                 method: 'GET',
                 data: { student_id, period_id, term_id, grade_id }
             }).done((res) => {
@@ -728,7 +853,7 @@
 
         function validateInput(input) {
             var selectedFormat = $('#format-select').val();
-            var marks = JSON.parse('{!! json_encode($midtermForm) !!}');
+            var marks = JSON.parse('<?php echo json_encode($midtermForm); ?>');
             var mark = parseFloat(marks[selectedFormat].mark);
             var value = parseFloat(input.value);
 
@@ -765,7 +890,7 @@
                     });
 
                     $.ajax({
-                        url: "{{ route('result.delete.midterm', ["result_id" => ":result_id"]) }}".replace(':result_id', resultId),
+                        url: "<?php echo e(route('result.delete.midterm', ["result_id" => ":result_id"])); ?>".replace(':result_id', resultId),
                         method: 'DELETE',
                         success: function (response) {
                             toggleAble(button, false);
@@ -818,7 +943,7 @@
                     return;
                 }
 
-                var url = "{{ route('result.add.midterm') }}";
+                var url = "<?php echo e(route('result.add.midterm')); ?>";
                 var data = $('#resultUpload').serializeArray();
 
                 var period = $('#period_id').val();
@@ -884,7 +1009,7 @@
 
                     $.ajax({
                         method: "POST",
-                        url: "{{ route('result.excel.midterm.upload') }}",
+                        url: "<?php echo e(route('result.excel.midterm.upload')); ?>",
                         data: formData,
                         contentType: false,
                         processData: false,
@@ -911,7 +1036,7 @@
             select.empty();
 
             $.ajax({
-                url: "{{ route("result.get.students", ["grade_id" => ":grade_id"]) }}".replace(':grade_id', grade),
+                url: "<?php echo e(route("result.get.students", ["grade_id" => ":grade_id"])); ?>".replace(':grade_id', grade),
                 method: 'GET',
                 success: function (response) {
                     var students = response;
@@ -945,7 +1070,7 @@
                 var termId = $('#pdf_term_id').val();
 
                 $.ajax({
-                    url: "{{ route('result.generate-pdf.midterm', ["grade_id" => ":grade_id", "period_id" => ":period_id", "term_id" => ":term_id"]) }}".replace(':grade_id', gradeId).replace(':period_id', sessionId).replace(':term_id', termId),
+                    url: "<?php echo e(route('result.generate-pdf.midterm', ["grade_id" => ":grade_id", "period_id" => ":period_id", "term_id" => ":term_id"])); ?>".replace(':grade_id', gradeId).replace(':period_id', sessionId).replace(':term_id', termId),
                     xhr: function () {
                         var xhr = new window.XMLHttpRequest();
 
@@ -1006,7 +1131,7 @@
             toggleAble('#generatePDF' + student_id, true);
 
             $.ajax({
-                url: '{{ route('result.midterm.pdf') }}' ,
+                url: '<?php echo e(route('result.midterm.pdf')); ?>' ,
                 method: 'GET',
                 data: { student_id, period_id, term_id, grade_id }
             }).done((res) => {
@@ -1043,7 +1168,7 @@
                 grade_id: grade_id
             };
 
-            var url = "{{ route('admin.result.multipleMidtermPublish') }}";
+            var url = "<?php echo e(route('admin.result.multipleMidtermPublish')); ?>";
 
             $.ajax({
                 method: "POST",
@@ -1076,7 +1201,7 @@
             }
 
             // Generate the URL for class PDF generation
-            var url = "{{ route('result.generate-class-pdf.midterm', ['grade_id' => ':grade_id', 'period_id' => ':period_id', 'term_id' => ':term_id']) }}"
+            var url = "<?php echo e(route('result.generate-class-pdf.midterm', ['grade_id' => ':grade_id', 'period_id' => ':period_id', 'term_id' => ':term_id'])); ?>"
                 .replace(':grade_id', grade_id)
                 .replace(':period_id', period_id)
                 .replace(':term_id', term_id);
@@ -1091,6 +1216,6 @@
             }, 1000);
         });
     </script>
-    @endsection
+    <?php $__env->stopSection(); ?>
 
-</div>
+</div><?php /**PATH C:\laragon\www\primary\resources\views/livewire/components/admin/result/check-midterm.blade.php ENDPATH**/ ?>

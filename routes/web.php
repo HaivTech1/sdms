@@ -677,6 +677,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             Route::get('/get/students/{grade_id}', [ResultController::class, 'getStudents'])->name('get.students');
             Route::get('/generate/pdf/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'generateMidtermPDF'])->name('generate-pdf.midterm');
+            Route::get('/generate/class/pdf/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'generateClassMidtermPDF'])->name('generate-class-pdf.midterm');
+            Route::get('/generate/class/exam/pdf/{grade_id}/{period_id}/{term_id}', [ResultController::class, 'generateClassExamPDF'])->name('generate-class-pdf.exam');
             Route::post('/pdf/midterm/generate', [ResultController::class, 'generateSingleMidtermPDF'])->name('midterm.pdf');
             Route::post('/pdf/exam/generate', [ResultController::class, 'generateSingleExamPDF'])->name('exam.pdf');
 

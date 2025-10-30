@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Pdf;
 use Excel;
 use App\Models\Term;
 use App\Models\Event;
@@ -43,6 +42,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Services\MidtermService;
 use App\Services\ExamService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Bus;
 
 class ResultController extends Controller
@@ -782,7 +782,19 @@ class ResultController extends Controller
         $filename = "exam_report_" . time() . '.pdf';
         $filePath = storage_path("app/public/results/{$filename}");
 
-        $pdf = \PDF::loadView('admin.result.exam_pdf_result', $resultData);
+        $options = [
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'fontDir' => public_path('fonts'),
+            'fontCache' => public_path('fonts'),
+            'defaultFont' => 'Amiri',
+            'defaultPaperSize' => 'a4',
+            'defaultPaperOrientation' => 'portrait',
+            'dpi' => 96,
+        ];
+
+        Pdf::setOptions($options);
+        $pdf = Pdf::loadView('admin.result.exam_pdf_result', $resultData);
         $pdf->save($filePath);
 
         return $filePath;
@@ -2035,7 +2047,21 @@ class ResultController extends Controller
         $filename = $student->id() . "_midterm_report_" . Carbon::today()->format('Y-m-d') . '.pdf';
         $filePath = storage_path('app/public/results/' . $filename);
 
-        $pdf = PDF::loadView('admin.result.midterm_pdf_result', [
+        // Configure Dompdf options for Arabic font support
+        $options = [
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'fontDir' => public_path('fonts'),
+            'fontCache' => public_path('fonts'),
+            'defaultFont' => 'Amiri',
+            'defaultPaperSize' => 'a4',
+            'defaultPaperOrientation' => 'portrait',
+            'dpi' => 96,
+        ];
+
+        Pdf::setOptions($options);
+
+        $pdf = Pdf::loadView('admin.result.midterm_pdf_result', [
             'results' => $result,
             'student' => $student,
             'scores' => $scores,
@@ -2307,6 +2333,141 @@ class ResultController extends Controller
             'links' => $downloadLinks,
             'message' => "PDF files generated for each student's result.",
         ], 200);
+    }
+
+    public function generateClassMidtermPDF($grade_id, $period_id, $term_id)
+    {
+        $period = Period::where('id', $period_id)->first();
+        $term = Term::where('id', $term_id)->first();
+        $grade = Grade::findOrFail($grade_id);
+        $students = Student::where('grade_id', $grade_id)->orderBy('last_name')->get();
+
+        $classData = [];
+        
+        foreach ($students as $student) {
+            $result = $student->midTermResults->where('period_id', $period_id)
+                ->where('term_id', $term_id)
+                ->where('grade_id', $grade_id)->all();
+
+            usort($result, function ($a, $b) {
+                $mathematicsEnglish = ['Mathematics', 'English Language'];
+
+                if (in_array($a->subject->title(), $mathematicsEnglish) && !in_array($b->subject->title(), $mathematicsEnglish)) {
+                    return -1;
+                } elseif (!in_array($a->subject->title(), $mathematicsEnglish) && in_array($b->subject->title(), $mathematicsEnglish)) {
+                    return 1;
+                } else {
+                    return strcasecmp($a->subject->title(), $b->subject->title());
+                }
+            });
+
+            $midtermFormat = get_settings('midterm_format') ?? [];
+            $scores = [];
+            
+            foreach ($result as $item) {
+                $total_score = 0;
+
+                if (is_array($midtermFormat) && count($midtermFormat) > 0) {
+                    foreach (array_keys($midtermFormat) as $key) {
+                        $total_score += (int) ($item->{$key} ?? 0);
+                    }
+                } else {
+                    $total_score = (int) (($item->ca1 ?? 0) + ($item->ca2 ?? 0));
+                }
+
+                $subject_id = $item->subject_id;
+                $scores[$subject_id] = $total_score;
+            }
+
+            $cognitive = AIResultComment::where('student_uuid', $student->id())
+                ->where('period_id', $period_id)
+                ->where('term_id', $term_id)
+                ->first();
+
+            $commentResult = $cognitive && !empty(trim((string) $cognitive->comment)) ? $cognitive->comment : '';
+
+            $classData[] = [
+                'student' => $student,
+                'results' => $result,
+                'scores' => $scores,
+                'comment' => $commentResult,
+            ];
+        }
+
+        $filename = "class_{$grade->title}_midterm_report_" . Carbon::today()->format('Y-m-d') . '.pdf';
+        $filePath = storage_path('app/public/results/' . $filename);
+
+        // Configure Dompdf options for Arabic font support
+        $options = [
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'fontDir' => public_path('fonts'),
+            'fontCache' => public_path('fonts'),
+            'defaultFont' => 'Amiri',
+            'defaultPaperSize' => 'a4',
+            'defaultPaperOrientation' => 'portrait',
+            'dpi' => 96,
+        ];
+
+        Pdf::setOptions($options);
+
+        $pdf = Pdf::loadView('admin.result.class_midterm_pdf_result', [
+            'classData' => $classData,
+            'period' => $period,
+            'term' => $term,
+            'grade' => $grade,
+        ]);
+
+        $pdf->save($filePath);
+        
+        return response()->download($filePath, $filename, [
+            'Content-Type' => 'application/pdf',
+        ])->deleteFileAfterSend(true);
+    }
+
+    public function generateClassExamPDF($grade_id, $period_id, $term_id)
+    {
+        $period = Period::where('id', $period_id)->first();
+        $term = Term::where('id', $term_id)->first();
+        $grade = Grade::findOrFail($grade_id);
+        $students = Student::where('grade_id', $grade_id)->orderBy('last_name')->get();
+
+        $classData = [];
+        
+        foreach ($students as $student) {
+            $data = $this->generateStudentResultData($student, $period_id, $term_id, $grade);
+            $classData[] = $data;
+        }
+
+        $filename = "class_{$grade->title}_exam_report_" . Carbon::today()->format('Y-m-d') . '.pdf';
+        $filePath = storage_path('app/public/results/' . $filename);
+
+        // Configure Dompdf options for Arabic font support
+        $options = [
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'fontDir' => public_path('fonts'),
+            'fontCache' => public_path('fonts'),
+            'defaultFont' => 'Amiri',
+            'defaultPaperSize' => 'a4',
+            'defaultPaperOrientation' => 'portrait',
+            'dpi' => 96,
+        ];
+
+        Pdf::setOptions($options);
+
+        $pdf = Pdf::loadView('admin.result.class_exam_pdf_result', [
+            'classData' => $classData,
+            'period' => $period,
+            'term' => $term,
+            'grade' => $grade,
+        ]);
+
+        $pdf->save($filePath);
+        
+        return response()->download($filePath, $filename, [
+            'Content-Type' => 'application/pdf',
+        ])->deleteFileAfterSend(true);
     }
 
     public function generateSingleMidtermPDF(Request $request)
