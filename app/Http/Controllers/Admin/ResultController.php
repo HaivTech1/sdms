@@ -105,9 +105,8 @@ class ResultController extends Controller
                 $student = Student::where('uuid', $student_id)->first();
                 $results = MidTerm::where('student_id', $student->id())->where('term_id', $term)->where('period_id', $period)->where('grade_id', $grade)->get();
                 $idNumber = $student->user->code();
-                $password = 'password123';
-                $name = $student->last_name." ".$student->first_name. " ".$student->other_name;
-                $message = "<p> $name's midterm result is now available on his/her dashboard. Please visit the school's website on " . application('website')."/result/view/midterm to access the result with these credentials: Id Number: ".$idNumber." and password: ".$password." or password1234</p>";
+                $name = $student->fullName();
+                $message = "<p> $name's midterm result is now available on his/her dashboard. Please visit the school's website on " . application('website')."/result/view/midterm to access the result with these credentials: Student Id Number: ".$idNumber."</p>";
                 $subject = 'Evaluation Report Sheet';
         
                 foreach($results as $result){
@@ -121,7 +120,7 @@ class ResultController extends Controller
                 }
 
                 try {
-                    $watMessage = "{business.name}\\{business.address}\\{business.phone_number} \\ \\$name's examination result is now available on his/her portal. Please visit the school's website on \\" . application('website') . "\\to access the result with this credential: \\Id Number: ".$idNumber." \\Password: ".$password." or password1234 \\ \\Kind Regards, \\Management.";
+                    $watMessage = "$name's examination result is now available on his/her portal. Please visit the school's website on \n" . application('website') . "\nto access the result with this credential: \nStudent Id Number: ".$idNumber." \n \nKind Regards, \nManagement.";
                     NumberBroadcast::notify($student, $watMessage);
                 } catch (\Throwable $th) {
                     info($th->getMessage());

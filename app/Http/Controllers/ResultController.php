@@ -1867,6 +1867,7 @@ class ResultController extends Controller
 
                     $period = Period::where('id', $request->period_id)->first();
                     $term = Term::where('id', $request->term_id)->first();
+                    $name = $student->fullName();
 
                     $message = "
                         <p>
@@ -1897,9 +1898,7 @@ class ResultController extends Controller
                         $publicUrl = asset('storage/results/' . $filename);
                     }
 
-                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\\ \\\$name's result is now
-                    available. Please click the link below to view the result\\ \\\ $publicUrl \\\Kind Regards,
-                    \\\Management.";
+                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\n \n$name's result is now available. Please click the link below to view the result\n \n $publicUrl \nKind Regards,\nManagement."; 
 
                     $emailJob = new NotifyParentsJob($student, $message, $subject, storage_path("app/public/$path"));
                     $whatsappJob = new SendWhatsappJob($student, $watMessage, "parent");

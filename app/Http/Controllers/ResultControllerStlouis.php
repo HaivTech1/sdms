@@ -1865,7 +1865,7 @@ class ResultController extends Controller
         $filename = $student->id() . "_midterm_report_" . Carbon::today()->format('Y-m-d') . '.pdf';
         $filePath = storage_path('app/public/results/' . $filename);
 
-        $pdf = PDF::loadView('admin.result.primary_midterm_pdf_result', [
+        $pdf = Pdf::loadView('admin.result.primary_midterm_pdf_result', [
                 'results' => $result,
                 'student' => $student,
                 'scores' => $scores,
