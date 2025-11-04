@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cummulative;
+use App\Models\Grade;
 use App\Models\MidTerm;
 use App\Models\Period;
 use App\Models\PrimaryResult;
@@ -52,28 +53,36 @@ class ResultController extends Controller
                             Dear Parent/Guardian,
                         </p>
                         <p>
-                            The examination result for <strong>{$name}</strong> is now available.
+                            The examination result for <strong>{$student->fullname()}</strong> is now available.
                         </p>
                         <p>
                             You may conveniently view the result through your child's online dashboard on
                             <a href='" . application('website') . "/result'>" . application('website') . "</a>.
                         </p>
                         <p>
-                            To log in directly, you can use the following credentials:<br>
-                            <strong>ID Number:</strong> {$idNumber}<br>
-                            <strong>Password:</strong> password123 or password1234
+                            For your ease, result updates are also shared via your registered WhatsApp number.
                         </p>
                         <p>
-                            For your ease, result updates are also shared via your registered WhatsApp number.
+                            To log in directly, you can still use the following credentials:<br>
+                            <strong>ID Number:</strong> {$student->user->code()}<br>
+                            <strong>Password:</strong> password123 or password1234
                         </p>
                     ";
                     
-                    $subject = 'Evaluation Report Sheet';
+                    $subject = 'Examination Result';
                     
-                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\n \n$name's examination result is now available on the portal. Please visit " . application('website') . " to access the result with these credentials:\nID Number: $idNumber\nPassword: password123 or password1234\n \nKind Regards,\nManagement.";
+                    $path = $this->generateExamResultLink($student, $period_id, $term_id, Grade::find($grade_id));
+                    $publicUrl = null;
+                    $filename = null;
+                    if ($path && file_exists($path)) {
+                        $filename = basename($path);
+                        $publicUrl = asset('storage/results/' . $filename);
+                    }
+                    
+                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\n \n$name's examination result is now available. Please click the link below to view the result\n \n $publicUrl \nKind Regards,\nManagement.";
                     
                     // Use Bus::chain for coordinated job execution
-                    $emailJob = new NotifyParentsJob($student->id(), $message, $subject);
+                    $emailJob = new NotifyParentsJob($student->id(), $message, $subject, $filename);
                     $whatsappJob = new SendWhatsappJob($student->id(), $watMessage, "parent");
                     
                     Bus::chain([
@@ -125,27 +134,35 @@ class ResultController extends Controller
                             Dear Parent/Guardian,
                         </p>
                         <p>
-                            The midterm result for <strong>{$name}</strong> is now available.
+                            The midterm result for <strong>{$student->fullname()}</strong> is now available.
                         </p>
                         <p>
                             You may conveniently view the result through your child's online dashboard on
                             <a href='" . application('website') . "/result/view/midterm'>" . application('website') . "</a>.
                         </p>
                         <p>
-                            To log in directly, you can use the following credentials:<br>
-                            <strong>Student ID Number:</strong> {$idNumber}
+                            For your ease, result updates are also shared via your registered WhatsApp number.
                         </p>
                         <p>
-                            For your ease, result updates are also shared via your registered WhatsApp number.
+                            To log in directly, you can still use the following credentials:<br>
+                            <strong>ID Number:</strong> {$student->user->code()}<br>
                         </p>
                     ";
                     
-                    $subject = 'Evaluation Report Sheet';
+                    $subject = 'Mid-term Result';
                     
-                    $watMessage = "*" . $term->title . "-" . $period->title . " Mid-term Result*\n \n$name's midterm result is now available on the portal. Please visit " . application('website') . "/result/view/midterm to access the result with:\nStudent ID Number: $idNumber\n \nKind Regards,\nManagement.";
+                    $path = $this->generateMidtermResultLink($student, $grade_id, $period_id, $term_id);
+                    $publicUrl = null;
+                    $filename = null;
+                    if ($path && file_exists($path)) {
+                        $filename = basename($path);
+                        $publicUrl = asset('storage/results/' . $filename);
+                    }
+                    
+                    $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\n \n$name's result is now available. Please click the link below to view the result\n \n $publicUrl \nKind Regards,\nManagement.";
                     
                     // Use Bus::chain for coordinated job execution
-                    $emailJob = new NotifyParentsJob($student->id(), $message, $subject);
+                    $emailJob = new NotifyParentsJob($student->id(), $message, $subject, $filename);
                     $whatsappJob = new SendWhatsappJob($student->id(), $watMessage, "parent");
                     
                     Bus::chain([
@@ -194,5 +211,25 @@ class ResultController extends Controller
             ]);
             $cummulative->save();
         }
+    }
+
+    /**
+     * Generate exam result PDF link (copied from main ResultController)
+     */
+    public function generateExamResultLink($student, $period_id, $term_id, $grade = null)
+    {
+        // Get the main controller instance to access its method
+        $mainController = app(\App\Http\Controllers\ResultController::class);
+        return $mainController->generateExamResultLink($student, $period_id, $term_id, $grade);
+    }
+
+    /**
+     * Generate midterm result PDF link (copied from main ResultController)
+     */
+    public function generateMidtermResultLink($student, $grade_id, $period_id, $term_id)
+    {
+        // Get the main controller instance to access its method
+        $mainController = app(\App\Http\Controllers\ResultController::class);
+        return $mainController->generateMidtermResultLink($student, $grade_id, $period_id, $term_id);
     }
 }
