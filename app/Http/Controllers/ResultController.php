@@ -27,10 +27,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use App\Services\OpenAICommentService;
-use App\Traits\{
-    NotifiableParentsTrait,
-    WhatsappMessageTrait
-};
 use App\Exports\MidtermResultDataExport;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\SingleResultRequest;
@@ -39,7 +35,6 @@ use App\Jobs\PublishExamResults;
 use App\Jobs\SendWhatsappJob;
 use App\Models\AIResultComment;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
 use App\Services\MidtermService;
 use App\Services\ExamService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -715,62 +710,72 @@ class ResultController extends Controller
     public function primaryPublish(Request $request)
     {
         try {
-            $grade = Grade::findOrFail($request->grade_id);
+            $results = PrimaryResult::where('student_id', $request->student_id)
+                ->where('term_id', $request->term_id)
+                ->where('period_id', $request->period_id)
+                ->where('grade_id', $request->grade_id)
+                ->get();
 
-            if (!empty($request->student_id)) {
-                $studentsQuery = Student::where('uuid', $request->student_id);
-            } else {
-                $studentsQuery = Student::where('grade_id', $grade->id());
-            }
+            $student = Student::findOrFail($request->student_id);
 
-            // Only include students who still have unpublished results for this period/term/grade
-            $students = $studentsQuery->get()->filter(function ($student) use ($request, $grade) {
-                return PrimaryResult::where('student_id', $student->id())
-                    ->where('period_id', $request->period_id)
-                    ->where('term_id', $request->term_id)
-                    ->where('grade_id', $grade->id())
-                    ->where('published', false)
-                    ->exists();
-            })->values();
-
-            if ($students->isEmpty()) {
-                return response()->json(['status' => true, 'message' => 'No unpublished results found for the requested scope.'], 200);
-            }
-
-            // Prepare job instances
-            $jobs = $students->map(function ($student) use ($request, $grade) {
-                return new PublishExamResults((string) $student->id(), (int) $request->period_id, (int) $request->term_id, $grade->id());
-            })->toArray();
-
-            $batchId = null;
-            if (!empty($jobs)) {
-                try {
-                    // Dispatch as a single batch for easier monitoring and fewer queue churns
-                    $batch = Bus::batch($jobs)
-                        ->name('publish_results_grade_' . $grade->id() . '_' . time())
-                        ->dispatch();
-
-                    $batchId = $batch->id ?? null;
-                } catch (\Throwable $e) {
-                    // Likely missing job_batches table or unsupported driver — fallback to individual dispatch
-                    foreach ($jobs as $job) {
-                        dispatch($job);
-                    }
+            DB::transaction(function () use ($results, $student, $request) {
+                foreach ($results as $result) {
+                    $result->update(['published' => true]);
                 }
-            }
 
-            $response = ['status' => true, 'message' => 'Publish queued successfully!'];
-            if ($batchId) {
-                $response['batch_id'] = $batchId;
-            } else {
-                $response['dispatched_jobs'] = count($jobs);
-            }
+                $period = Period::where('id', $request->period_id)->first();
+                $term = Term::where('id', $request->term_id)->first();
+                $name = $student->fullName();
 
-            return response()->json($response, 200);
-        } catch (\Exception $th) {
-            return response()->json(['status' => false, 'message' => $th->getMessage()], 200);
+                $message = "
+                    <p>
+                        Dear Parent/Guardian,
+                    </p>
+                    <p>
+                        The examination result for <strong>{$student->fullname()}</strong> is now available.
+                    </p>
+                    <p>
+                        You may conveniently view the result through your child's online dashboard on
+                        <a href='" . application('website') . "/result'>" . application('website') . "</a>.
+                    </p>
+                    <p>
+                        For your ease, result updates are also shared via your registered WhatsApp number.
+                    </p>
+                    <p>
+                        To log in directly, you can still use the following credentials:<br>
+                        <strong>ID Number:</strong> {$student->user->code()}<br>
+                        <strong>Password:</strong> password123 or password1234
+                    </p>
+                ";
+
+                $subject = 'Examination Result';
+
+                $path = $this->generateExamResultLink($student, $request->period_id, $request->term_id, Grade::find($request->grade_id));
+                $publicUrl = null;
+                $filename = null;
+                if ($path && file_exists($path)) {
+                    $filename = basename($path);
+                    $publicUrl = asset('storage/results/' . $filename);
+                }
+
+                $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\n \n$name's examination result is now available. Please click the link below to view the result\n \n $publicUrl \nKind Regards,\nManagement."; 
+
+                // Use only the student ID and filename instead of full path to avoid serialization issues
+                $emailJob = new NotifyParentsJob($student->id(), $message, $subject, $filename);
+                $whatsappJob = new SendWhatsappJob($student->id(), $watMessage, "parent");
+                
+                Bus::chain([
+                    $emailJob,
+                    $whatsappJob,
+                ])->dispatch();
+            });
+
+            return response()->json(['status' => true, 'message' => 'Result made available successfully! And email sent to parent.'], 200);
+
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
         }
-
     }
 
     public function generateExamResultLink($student, $period_id, $term_id, $grade = null)
@@ -809,7 +814,7 @@ class ResultController extends Controller
 
         $filename = "{$data['student']->last_name}_{$data['student']->first_name}_result.pdf";
         
-        $pdf = \PDF::loadView('admin.result.exam_pdf_result', $data);
+        $pdf = Pdf::loadView('admin.result.exam_pdf_result', $data);
 
         return $pdf->download($filename);
     }
@@ -1878,7 +1883,7 @@ class ResultController extends Controller
                         </p>
                         <p>
                             You may conveniently view the result through your child’s online dashboard on
-                            <a href='" . application(' website') . "/result/view/midterm'>" . application('website') . "</a>.
+                            <a href='" . application('website') . "/result/view/midterm'>" . application('website') . "</a>.
                         </p>
                         <p>
                             For your ease, result updates are also shared via your registered WhatsApp number.
@@ -1893,6 +1898,7 @@ class ResultController extends Controller
 
                     $path = $this->generateMidtermResultLink($student, $request->grade_id, $request->period_id, $request->term_id);
                     $publicUrl = null;
+                    $filename = null;
                     if ($path && file_exists($path)) {
                         $filename = basename($path);
                         $publicUrl = asset('storage/results/' . $filename);
@@ -1900,8 +1906,10 @@ class ResultController extends Controller
 
                     $watMessage = "*" . $term->title . "-" . $period->title . " $subject*\n \n$name's result is now available. Please click the link below to view the result\n \n $publicUrl \nKind Regards,\nManagement."; 
 
-                    $emailJob = new NotifyParentsJob($student, $message, $subject, storage_path("app/public/$path"));
-                    $whatsappJob = new SendWhatsappJob($student, $watMessage, "parent");
+                    // Use only the student ID and filename instead of full path to avoid serialization issues
+                    $emailJob = new NotifyParentsJob($student->id(), $message, $subject, $filename);
+                    $whatsappJob = new SendWhatsappJob($student->id(), $watMessage, "parent");
+                    
                     Bus::chain([
                         $emailJob,
                         $whatsappJob,

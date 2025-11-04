@@ -522,11 +522,11 @@
 
                         if (userPermissions.includes('result_publish')) {
                             if (student.publish_state) {
-                                html += '<button type="button" class="btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                html += '<button type="button" class="btn btn-sm btn-success" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
                                 html += '<span>Published</span>';
                                 html += '</button>';
                             } else {
-                                html += '<button type="button" class="btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
+                                html += '<button type="button" class="btn btn-sm btn-warning" id="cummulative' + student.id + '" onClick="publish(\'' + student.id + ',' + response.period + ',' + response.term + ',' + response.grade + '\')">';
                                 html += '<span>Publish</span>';
                                 html += '</button>';
                             }
@@ -688,7 +688,8 @@
             var period_id = data[1];
             var term_id = data[2];
             var grade_id = data[3];
-            toggleAble('#cummulative' + student_id, true);
+            var button = $('#cummulative' + student_id);
+            toggleAble(button, true);
 
             $.ajax({
                 url: '{{ route('result.midterm.publish') }}' ,
@@ -696,16 +697,19 @@
                 data: { student_id, period_id, term_id, grade_id }
             }).done((res) => {
                 if (res.status === true) {
-                    toggleAble('#cummulative' + student_id, false);
+                    // Update button to show "Published" state
+                    button.removeClass('btn-warning').addClass('btn-success');
+                    button.find('span').text('Published');
+                    toggleAble(button, false);
                     toastr.success(res.message, 'Success!');
                 } else {
-                    toggleAble('#cummulative' + student_id, false);
-                    toastr.error(res.message, 'Success!');
+                    toggleAble(button, false);
+                    toastr.error(res.message, 'Error!');
                 }
             }).fail((res) => {
                 console.log(res.responseJSON.message);
                 toastr.error(res.responseJSON.message, 'Failed!');
-                toggleAble('#cummulative' + student_id, false);
+                toggleAble(button, false);
             });
         }
 

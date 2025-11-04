@@ -38,7 +38,7 @@ class SendMidtermMail extends Mailable implements ShouldQueue
                 'body' => $this->body,
             ])
             ->replyTo(application('email'))
-            ->markdown('emails.messaging.mid_term_mail');
+            ->view('emails.messaging.mid_term_mail');
 
         if (!empty($this->attachment)){ 
             $email->attach($this->attachment); 
