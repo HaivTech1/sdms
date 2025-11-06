@@ -55,17 +55,17 @@ class ExamService
 
         foreach ($midtermFormat as $key => $max) {
             if ($midterm && $midterm->{$key} !== null) {
-                $payload[$key] = (int) $midterm->{$key};
+                $payload[$key] = (float) $midterm->{$key};
             }
         }
 
         foreach ($examFormat as $key => $config) {
             if (array_key_exists($key, $examScores)) {
-                $num = (int) $examScores[$key];
+                $num = (float) $examScores[$key];
 
                 $max = is_array($config) 
-                    ? (int) ($config['mark'] ?? 0) 
-                    : (int) $config;
+                    ? (float) ($config['mark'] ?? 0) 
+                    : (float) $config;
 
                 $payload[$key] = max(0, min($num, $max));
             }

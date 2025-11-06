@@ -566,9 +566,9 @@ class ResultController extends Controller
     {
 
         if ($request->term_id == 1) {
-            $know = (int) $request->term_id + 1;
+            $know = (float) $request->term_id + 1;
         } elseif ($request->term_id == 1) {
-            $know = (int) $request->term_id + 1;
+            $know = (float) $request->term_id + 1;
         } else {
             $know = 1;
         }
@@ -998,9 +998,9 @@ class ResultController extends Controller
                     $subScore = calculateResult($r);
                     // choose previous-term score based on the current term
                     $prevScore = null;
-                    if ((int) $term_id === 2) {
+                    if ((float) $term_id === 2) {
                         $prevScore = $r['first_term'] ?? null;
-                    } elseif ((int) $term_id === 3) {
+                    } elseif ((float) $term_id === 3) {
                         $prevScore = $r['second_term'] ?? null;
                     }
 
@@ -1045,7 +1045,7 @@ class ResultController extends Controller
                         try {
                             // If this is term 3, also generate a short promotion comment
                             $promotionComment = null;
-                            if ((int) $term_id === 3) {
+                            if ((float) $term_id === 3) {
                                 try {
                                     $promoPreview = $service->previewComment($studentPayload, $subjects, ['variants' => 1, 'max_sentences' => 2]);
                                     $promotionComment = $promoPreview['comments'][0] ?? null;
@@ -1164,9 +1164,9 @@ class ResultController extends Controller
             $service = app(MidtermService::class);
             $format  = get_settings('midterm_format') ?? [];
 
-            $periodId  = (int) $request->period_id;
-            $termId    = (int) $request->term_id;
-            $gradeId   = (int) $request->grade_id;
+            $periodId  = (float) $request->period_id;
+            $termId    = (float) $request->term_id;
+            $gradeId   = (float) $request->grade_id;
             $studentId = (string) $request->student_id;
 
             foreach ($request->subject_id as $i => $subjectId) {
@@ -1174,7 +1174,7 @@ class ResultController extends Controller
                 $scores = [];
                 foreach (array_keys($format) as $key) {
                     if (isset($request->{$key}[$i])) {
-                        $scores[$key] = (int) $request->{$key}[$i];
+                        $scores[$key] = (float) $request->{$key}[$i];
                     }
                 }
 
@@ -1183,7 +1183,7 @@ class ResultController extends Controller
                     $periodId,
                     $termId,
                     $gradeId,
-                    (int) $subjectId,
+                    (float) $subjectId,
                     $studentId,
                     $scores,
                     auth()->user()
@@ -1226,17 +1226,17 @@ class ResultController extends Controller
             $service = app(MidtermService::class);
             $format  = get_settings('midterm_format') ?? [];
 
-            $periodId  = (int) $request->period_id;
-            $termId    = (int) $request->term_id;
-            $gradeId   = (int) $request->grade_id;
-            $subjectId = (int) $request->subject_id;
+            $periodId  = $request->period_id;
+            $termId    = $request->term_id;
+            $gradeId   = $request->grade_id;
+            $subjectId = $request->subject_id;
 
             foreach ($request->student_id as $i => $studentId) {
                 // Build scores for this row based on format keys
                 $scores = [];
                 foreach (array_keys($format) as $key) {
                     if (isset($request->{$key}[$i])) {
-                        $scores[$key] = (int) $request->{$key}[$i];
+                        $scores[$key] = (float) $request->{$key}[$i];
                     }
                 }
 
@@ -1396,9 +1396,9 @@ class ResultController extends Controller
         }
 
         try {
-            $periodId  = (int) $request->period_id;
-            $termId    = (int) $request->term_id;
-            $gradeId   = (int) $request->grade_id;
+            $periodId  = (float) $request->period_id;
+            $termId    = (float) $request->term_id;
+            $gradeId   = (float) $request->grade_id;
             $studentId = (string) $request->student_id;
 
             $examFormat = get_settings('exam_format') ?? [];
@@ -1408,7 +1408,7 @@ class ResultController extends Controller
                 $scores = [];
                 foreach (array_keys($examFormat) as $key) {
                     if (isset($request->{$key}[$i])) {
-                        $scores[$key] = (int) $request->{$key}[$i];
+                        $scores[$key] = (float) $request->{$key}[$i];
                     }
                 }
 
@@ -1417,7 +1417,7 @@ class ResultController extends Controller
                     $periodId,
                     $termId,
                     $gradeId,
-                    (int) $subjectId,
+                    (float) $subjectId,
                     $studentId,
                     $scores,
                     auth()->user(),
@@ -1463,10 +1463,10 @@ class ResultController extends Controller
         }
 
         try {
-            $periodId  = (int) $request->period_id;
-            $termId    = (int) $request->term_id;
-            $gradeId   = (int) $request->grade_id;
-            $subjectId = (int) $request->subject_id;
+            $periodId  = (float) $request->period_id;
+            $termId    = (float) $request->term_id;
+            $gradeId   = (float) $request->grade_id;
+            $subjectId = (float) $request->subject_id;
 
             $examFormat = get_settings('exam_format') ?? [];
 
@@ -1475,7 +1475,7 @@ class ResultController extends Controller
                 $scores = [];
                 foreach (array_keys($examFormat) as $key) {
                     if (isset($request->{$key}[$i])) {
-                        $scores[$key] = (int) $request->{$key}[$i];
+                        $scores[$key] = (float) $request->{$key}[$i];
                     }
                 }
 
@@ -1490,7 +1490,7 @@ class ResultController extends Controller
             );
 
             // Update class subject positions if enabled
-            if ((int) get_application_settings('class_position') === 1) {
+            if ((float) get_application_settings('class_position') === 1) {
                 $students = Student::where('grade_id', $gradeId)->get(['uuid']);
                 foreach ($students as $student) {
                     $result = PrimaryResult::where([
@@ -1957,11 +1957,11 @@ class ResultController extends Controller
 
             if (is_array($midtermFormat) && count($midtermFormat) > 0) {
                 foreach (array_keys($midtermFormat) as $key) {
-                    $total_score += (int) ($item->{$key} ?? 0);
+                    $total_score += (float) ($item->{$key} ?? 0);
                 }
             } else {
                 // fallback for older data/schema
-                $total_score = (int) (($item->ca1 ?? 0) + ($item->ca2 ?? 0));
+                $total_score = (float) (($item->ca1 ?? 0) + ($item->ca2 ?? 0));
             }
 
             $subject_id = $item->subject_id;
@@ -1984,9 +1984,9 @@ class ResultController extends Controller
                     $out = 0;
                     foreach ($midtermFormat as $k => $v) {
                         if (is_array($v) && array_key_exists('mark', $v)) {
-                            $out += (int) $v['mark'];
+                            $out += (float) $v['mark'];
                         } elseif (is_numeric($v)) {
-                            $out += (int) $v;
+                            $out += (float) $v;
                         }
                     }
                     if ($out > 0) {
@@ -1998,10 +1998,10 @@ class ResultController extends Controller
                     $score = 0;
                     if (is_array($midtermFormat) && count($midtermFormat) > 0) {
                         foreach (array_keys($midtermFormat) as $key) {
-                            $score += (int) ($r->{$key} ?? 0);
+                            $score += (float) ($r->{$key} ?? 0);
                         }
                     } else {
-                        $score = (int) (($r->ca1 ?? 0) + ($r->ca2 ?? 0));
+                        $score = (float) (($r->ca1 ?? 0) + ($r->ca2 ?? 0));
                     }
 
                     $subjects[] = [
@@ -2376,10 +2376,10 @@ class ResultController extends Controller
 
                 if (is_array($midtermFormat) && count($midtermFormat) > 0) {
                     foreach (array_keys($midtermFormat) as $key) {
-                        $total_score += (int) ($item->{$key} ?? 0);
+                        $total_score += (float) ($item->{$key} ?? 0);
                     }
                 } else {
-                    $total_score = (int) (($item->ca1 ?? 0) + ($item->ca2 ?? 0));
+                    $total_score = (float) (($item->ca1 ?? 0) + ($item->ca2 ?? 0));
                 }
 
                 $subject_id = $item->subject_id;
@@ -2849,8 +2849,8 @@ class ResultController extends Controller
             }
 
             usort($students, function ($a, $b) {
-                $positionA = (int) substr($a['position'], 0, -2);
-                $positionB = (int) substr($b['position'], 0, -2);
+                $positionA = (float) substr($a['position'], 0, -2);
+                $positionB = (float) substr($b['position'], 0, -2);
                 return $positionA - $positionB;
             });
 
@@ -2921,8 +2921,8 @@ class ResultController extends Controller
             }
 
             usort($students, function ($a, $b) {
-                $positionA = (int) substr($a['position'], 0, -2);
-                $positionB = (int) substr($b['position'], 0, -2);
+                $positionA = (float) substr($a['position'], 0, -2);
+                $positionB = (float) substr($b['position'], 0, -2);
                 return $positionA - $positionB;
             });
 
@@ -3231,8 +3231,8 @@ class ResultController extends Controller
             }
 
             usort($students, function ($a, $b) {
-                $positionA = (int) substr($a['position'], 0, -2);
-                $positionB = (int) substr($b['position'], 0, -2);
+                $positionA = (float) substr($a['position'], 0, -2);
+                $positionB = (float) substr($b['position'], 0, -2);
                 return $positionA - $positionB;
             });
 
@@ -3312,8 +3312,8 @@ class ResultController extends Controller
             }
 
             usort($students, function ($a, $b) {
-                $positionA = (int) substr($a['position'], 0, -2);
-                $positionB = (int) substr($b['position'], 0, -2);
+                $positionA = (float) substr($a['position'], 0, -2);
+                $positionB = (float) substr($b['position'], 0, -2);
                 return $positionA - $positionB;
             });
 
@@ -3385,8 +3385,8 @@ class ResultController extends Controller
             }
 
             usort($students, function ($a, $b) {
-                $positionA = (int) substr($a['position'], 0, -2);
-                $positionB = (int) substr($b['position'], 0, -2);
+                $positionA = (float) substr($a['position'], 0, -2);
+                $positionB = (float) substr($b['position'], 0, -2);
                 return $positionA - $positionB;
             });
 
@@ -3457,8 +3457,8 @@ class ResultController extends Controller
             }
 
             usort($students, function ($a, $b) {
-                $positionA = (int) substr($a['position'], 0, -2);
-                $positionB = (int) substr($b['position'], 0, -2);
+                $positionA = (float) substr($a['position'], 0, -2);
+                $positionB = (float) substr($b['position'], 0, -2);
                 return $positionA - $positionB;
             });
 

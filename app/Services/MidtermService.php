@@ -34,8 +34,8 @@ class MidtermService
         $payloadScores = [];
         foreach ($format as $key => $config) {
             if (array_key_exists($key, $scores)) {
-                $num  = (int) $scores[$key];
-                $max  = isset($config['mark']) ? (int) $config['mark'] : (int) $config;
+                $num = (float) $scores[$key];
+                $max  = isset($config['mark']) ? (float) $config['mark'] : (float) $config;
                 $payloadScores[$key] = max(0, min($num, $max));
             }
         }
