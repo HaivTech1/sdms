@@ -1,7 +1,12 @@
-<x-app-layout>
-    @section('title', application('name') . ' | Student Management')
+<?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\AppLayout::class, []); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+    <?php $__env->startSection('title', application('name') . ' | Student Management'); ?>
     
-    <x-slot name="header">
+     <?php $__env->slot('header', null, []); ?> 
         <div class="row align-items-center">
             <div class="col-md-6">
                 <h4 class="mb-0 font-size-20 fw-bold text-primary">
@@ -12,15 +17,26 @@
             <div class="col-md-6">
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo e(route('dashboard')); ?>">Dashboard</a></li>
                         <li class="breadcrumb-item active">Students</li>
                     </ol>
                 </div>
             </div>
         </div>
-    </x-slot>
+     <?php $__env->endSlot(); ?>
 
-    <x-loading />
+    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.loading','data' => []]); ?>
+<?php $component->withName('loading'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
 
     <!-- Main Content -->
     <div class="row">
@@ -53,7 +69,7 @@
                         </div>
                         <div class="col-lg-6 col-md-12 mb-3">
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('student.create') }}" 
+                                <a href="<?php echo e(route('student.create')); ?>" 
                                    class="btn btn-success btn-rounded waves-effect waves-light">
                                     <i class="mdi mdi-plus me-1"></i> Add Student
                                 </a>
@@ -85,9 +101,9 @@
                                             <label class="form-label text-muted fw-semibold">Grade/Class</label>
                                             <select class="form-select" id="filter-grade">
                                                 <option value="all">All Grades</option>
-                                                @foreach ($grades as $grade)
-                                                    <option value="{{ $grade->id }}">{{ $grade?->title() }}</option>
-                                                @endforeach
+                                                <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option value="<?php echo e($grade->id); ?>"><?php echo e($grade?->title()); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </select>
                                         </div>
 
@@ -140,10 +156,10 @@
                             <div class="table-responsive">
                     <table class="table table-hover align-middle table-nowrap table-check"
                         id="students-table"
-                        data-profile-url-template="{{ route('student.show', ['student' => '__STUDENT__']) }}"
-                        data-edit-url-template="{{ route('student.edit', ['student' => '__STUDENT__']) }}"
-                        data-passport-upload-url="{{ url('student/upload/passport') }}"
-                        data-generate-qr-url-template="{{ url('student/generate-qrcode/__STUDENT__') }}">
+                        data-profile-url-template="<?php echo e(route('student.show', ['student' => '__STUDENT__'])); ?>"
+                        data-edit-url-template="<?php echo e(route('student.edit', ['student' => '__STUDENT__'])); ?>"
+                        data-passport-upload-url="<?php echo e(url('student/upload/passport')); ?>"
+                        data-generate-qr-url-template="<?php echo e(url('student/generate-qrcode/__STUDENT__')); ?>">
                                     <thead class="table-light">
                                         <tr>
                                             <th style="width: 20px;" class="align-middle">
@@ -191,16 +207,22 @@
     </div>
 
     <!-- Include Partials -->
-    @include('partials.add_subject')
+    <?php echo $__env->make('partials.add_subject', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     <!-- Modals -->
-    @include('admin.student.modals.passport-upload')
-    @include('admin.student.modals.generate-list')
-    @include('admin.student.modals.edit-playgroup')
-    @include('admin.student.modals.qr-code')
-    @include('admin.student.modals.subject-management')
+    <?php echo $__env->make('admin.student.modals.passport-upload', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+    <?php echo $__env->make('admin.student.modals.generate-list', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+    <?php echo $__env->make('admin.student.modals.edit-playgroup', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+    <?php echo $__env->make('admin.student.modals.qr-code', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+    <?php echo $__env->make('admin.student.modals.subject-management', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-    @section('scripts')
-        @include('admin.student.scripts.main-scripts')
-    @endsection
-</x-app-layout>
+    <?php $__env->startSection('scripts'); ?>
+        <?php echo $__env->make('admin.student.scripts.main-scripts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+    <?php $__env->stopSection(); ?>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da)): ?>
+<?php $component = $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da; ?>
+<?php unset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da); ?>
+<?php endif; ?>
+<?php /**PATH C:\laragon\www\primary\resources\views/admin/student/index.blade.php ENDPATH**/ ?>

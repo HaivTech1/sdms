@@ -1,19 +1,24 @@
-<x-app-layout>
-    @section('title', application('name')." | Batch Examination Upload")
+<?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\AppLayout::class, []); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+    <?php $__env->startSection('title', application('name')." | Batch Midterm Result"); ?>
     
-    <x-slot name="header">
-        <h4 class="mb-sm-0 font-size-18">Batch Examination Result Upload</h4>
+     <?php $__env->slot('header', null, []); ?> 
+        <h4 class="mb-sm-0 font-size-18">Batch Midterm Result Upload</h4>
 
         <div class="page-title-right">
             <ol class="breadcrumb m-0">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('result.index') }}">Results</a></li>
-                <li class="breadcrumb-item active">Batch Exam Upload</li>
+                <li class="breadcrumb-item"><a href="<?php echo e(route('dashboard')); ?>">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="<?php echo e(route('result.index')); ?>">Results</a></li>
+                <li class="breadcrumb-item active">Batch Midterm Upload</li>
             </ol>
         </div>
-    </x-slot>
+     <?php $__env->endSlot(); ?>
 
-    @midUploadEnabled
+    <?php if (\Illuminate\Support\Facades\Blade::check('midUploadEnabled')): ?>
         <div class="row">
             <div class="col-12">
                 <!-- Selection Form Card -->
@@ -33,7 +38,7 @@
                         <div id="selection-alerts"></div>
                         
                         <form id="fetch-students-form" class="needs-validation" novalidate>
-                            @csrf
+                            <?php echo csrf_field(); ?>
                             <div class="row g-3">
                                 <div class="col-lg-6">
                                     <label for="grade_id" class="form-label fw-semibold">
@@ -42,9 +47,9 @@
                                     </label>
                                     <select class="form-select" id="grade_id" name="grade_id" required>
                                         <option value="">Select Class</option>
-                                        @foreach ($grades as $grade)
-                                            <option value="{{ $grade->id() }}">{{ $grade->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($grade->id()); ?>"><?php echo e($grade->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="invalid-feedback">Please select a class.</div>
                                 </div>
@@ -56,9 +61,9 @@
                                     </label>
                                     <select class="form-select" id="subject_id" name="subject_id" required>
                                         <option value="">Select Subject</option>
-                                        @foreach ($subjects as $subject)
-                                            <option value="{{ $subject->id() }}">{{ $subject->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $subjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($subject->id()); ?>"><?php echo e($subject->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="invalid-feedback">Please select a subject.</div>
                                 </div>
@@ -70,9 +75,9 @@
                                     </label>
                                     <select class="form-select" id="period_id" name="period_id" required>
                                         <option value="">Select Session</option>
-                                        @foreach ($periods as $period)
-                                            <option value="{{ $period->id() }}">{{ $period->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($period->id()); ?>"><?php echo e($period->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="invalid-feedback">Please select a session.</div>
                                 </div>
@@ -84,9 +89,9 @@
                                     </label>
                                     <select class="form-select" id="term_id" name="term_id" required>
                                         <option value="">Select Term</option>
-                                        @foreach ($terms as $term)
-                                            <option value="{{ $term->id() }}">{{ $term->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($term->id()); ?>"><?php echo e($term->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="invalid-feedback">Please select a term.</div>
                                 </div>
@@ -100,6 +105,32 @@
                                 </div>
                             </div>
                         </form>
+
+                        <!-- Test Type Selection -->
+                        <div id="test-type-section" class="mt-4" style="display: none;">
+                            <div class="alert alert-info border-0 shadow-sm">
+                                <div class="d-flex align-items-center">
+                                    <i class="bx bx-info-circle font-size-20 me-2"></i>
+                                    <span>Select test type only after loading students from the form above!</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label for="test-type" class="form-label fw-semibold">
+                                        <i class="bx bx-list-check text-primary me-1"></i>Test Type
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="test-type" class="form-select">
+                                        <option value="">Select test type</option>
+                                        <?php $midterm = get_settings('midterm_format') ?? []; ?>
+                                        <?php $__currentLoopData = $midterm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($key); ?>" data-mark="<?php echo e($value['mark']); ?>"><?php echo e($value['full_name']); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -112,8 +143,8 @@
                                     <i class="bx bx-users font-size-24"></i>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
-                                    <h5 class="card-title mb-0">Examination Results</h5>
-                                    <p class="card-text mb-0 opacity-75">Enter examination scores for each student</p>
+                                    <h5 class="card-title mb-0">Students Results</h5>
+                                    <p class="card-text mb-0 opacity-75">Enter scores for each student</p>
                                 </div>
                             </div>
                             <div class="badge bg-light text-dark fs-6">
@@ -125,7 +156,7 @@
                         <div id="upload-alerts" class="mx-3 mt-3"></div>
                         
                         <form id="upload-results-form" class="needs-validation" novalidate>
-                            @csrf
+                            <?php echo csrf_field(); ?>
                             <input type="hidden" id="form-grade-id" name="grade_id">
                             <input type="hidden" id="form-subject-id" name="subject_id">
                             <input type="hidden" id="form-period-id" name="period_id">
@@ -135,13 +166,9 @@
                                 <table class="table table-hover mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="width: 50px;">#</th>
+                                            <th style="width: 60px;">#</th>
                                             <th>Student Name</th>
-                                            <th>Reg No</th>
-                                            @php $exam_format = get_settings('exam_format') ?? []; @endphp
-                                            @foreach ($exam_format as $key => $value)
-                                                <th style="width: 120px;">{{ $value['full_name'] }} ({{ $value['mark'] }})</th>
-                                            @endforeach
+                                            <th id="score-header" style="width: 150px;">Score</th>
                                         </tr>
                                     </thead>
                                     <tbody id="students-table-body">
@@ -160,11 +187,8 @@
                                         <button type="button" id="clear-all-btn" class="btn btn-outline-secondary">
                                             <i class="bx bx-eraser me-1"></i>Clear All
                                         </button>
-                                        <button type="button" id="auto-fill-btn" class="btn btn-outline-info" style="display: none;">
-                                            <i class="bx bx-magic-wand me-1"></i>Load Existing
-                                        </button>
                                         <button type="submit" id="upload-btn" class="btn btn-success btn-lg px-4" disabled>
-                                            <i class="bx bx-upload me-2"></i><span id="upload-btn-text">Upload Results</span>
+                                            <i class="bx bx-upload me-2"></i>Upload Results
                                         </button>
                                     </div>
                                 </div>
@@ -185,7 +209,7 @@
                             <div class="modal-body text-center py-5">
                                 <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
                                 <h6 class="mb-2">Processing your upload...</h6>
-                                <p class="text-muted mb-0">Please wait while we save the examination results</p>
+                                <p class="text-muted mb-0">Please wait while we save the results</p>
                                 <div class="progress mt-3" style="height: 8px;">
                                     <div class="progress-bar progress-bar-striped progress-bar-animated" 
                                          style="width: 0%" id="upload-progress"></div>
@@ -197,28 +221,28 @@
                 </div>
             </div>
         </div>
-    @else
+    <?php else: ?>
         <div class="row">
             <div class="col-lg-12">
                 <div class="text-center py-5">
                     <div class="row justify-content-center">
                         <div class="col-sm-6">
                             <div class="maintenance-img">
-                                <img src="{{ asset('images/coming-soon.svg') }}" alt="Upload Disabled" class="img-fluid mx-auto d-block" style="max-height: 300px;">
+                                <img src="<?php echo e(asset('images/coming-soon.svg')); ?>" alt="Upload Disabled" class="img-fluid mx-auto d-block" style="max-height: 300px;">
                             </div>
                         </div>
                     </div>
                     <h4 class="mt-4 text-danger">Upload Currently Disabled</h4>
-                    <p class="text-muted">Batch examination result uploads are temporarily disabled. Please contact the administrator to gain access.</p>
-                    <a href="{{ route('dashboard') }}" class="btn btn-primary">
+                    <p class="text-muted">Batch midterm result uploads are temporarily disabled. Please contact the administrator to gain access.</p>
+                    <a href="<?php echo e(route('dashboard')); ?>" class="btn btn-primary">
                         <i class="bx bx-arrow-back me-2"></i>Return to Dashboard
                     </a>
                 </div>
             </div>
         </div>
-    @endmidUploadEnabled
+    <?php endif; ?>
 
-    @section('styles')
+    <?php $__env->startSection('styles'); ?>
     <style>
         .bg-gradient-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -258,11 +282,10 @@
             border-top: none;
             font-weight: 600;
             background-color: #f8f9fa;
-            white-space: nowrap;
         }
         
         .score-input {
-            max-width: 80px;
+            max-width: 100px;
             text-align: center;
             border-radius: 8px;
         }
@@ -291,56 +314,46 @@
         .progress {
             border-radius: 10px;
         }
-        
-        .existing-score {
-            background-color: #e8f5e8 !important;
-            border-color: #28a745 !important;
-        }
-        
-        .score-input.changed {
-            background-color: #fff3cd;
-            border-color: #ffc107;
-        }
     </style>
-    @endsection
+    <?php $__env->stopSection(); ?>
 
-    @section('scripts')
+    <?php $__env->startSection('scripts'); ?>
     <script>
         $(document).ready(function() {
-            console.log('Batch exam script loaded');
+            console.log('Batch midterm script loaded');
             
             // State management
             const state = {
                 students: [],
-                examFormat: {!! json_encode($exam_format) !!},
-                hasExistingResults: false,
+                selectedTestType: null,
+                maxMark: 0,
             };
 
             // DOM elements
             const $fetchForm = $('#fetch-students-form');
             const $fetchBtn = $('#fetch-students-btn');
+            const $testTypeSection = $('#test-type-section');
+            const $testType = $('#test-type');
             const $studentsSection = $('#students-section');
             const $studentsTableBody = $('#students-table-body');
             const $studentsCount = $('#students-count');
+            const $scoreHeader = $('#score-header');
             const $uploadForm = $('#upload-results-form');
             const $uploadBtn = $('#upload-btn');
-            const $uploadBtnText = $('#upload-btn-text');
             const $clearAllBtn = $('#clear-all-btn');
-            const $autoFillBtn = $('#auto-fill-btn');
             const $uploadProgressModal = $('#uploadProgressModal');
             const $uploadProgress = $('#upload-progress');
             const $uploadStatus = $('#upload-status');
 
-            console.log('Exam format:', state.examFormat);
+            console.log('Form element found:', $fetchForm.length);
 
             // Event handlers
             $fetchForm.on('submit', handleFetchStudents);
+            $testType.on('change', handleTestTypeChange);
             $uploadForm.on('submit', handleUploadResults);
             $clearAllBtn.on('click', clearAllScores);
-            $autoFillBtn.on('click', autoFillExistingScores);
             $(document).on('input', '.score-input', validateScoreInput);
             $(document).on('keyup', '.score-input', updateValidationSummary);
-            $(document).on('change', '.score-input', markInputAsChanged);
 
             function handleFetchStudents(e) {
                 console.log('handleFetchStudents called');
@@ -359,7 +372,7 @@
                 console.log('Making AJAX request to fetch students');
 
                 $.ajax({
-                    url: '{{ route("result.exam.students") }}',
+                    url: '<?php echo e(route("result.batch.midterm.students")); ?>',
                     method: 'POST',
                     data: formData,
                     processData: false,
@@ -371,22 +384,10 @@
                     console.log('AJAX response:', response);
                     if (response.status) {
                         state.students = response.data;
-                        state.hasExistingResults = response.has_existing_results;
                         populateHiddenFields();
-                        renderStudentsTable();
-                        showStudentsSection();
-                        
-                        let message = `Successfully loaded ${response.total_students} students for ${response.grade.title} - ${response.subject.title}`;
-                        if (response.has_existing_results) {
-                            message += ' (Some results already exist)';
-                            $autoFillBtn.show();
-                            $uploadBtnText.text('Update Results');
-                        } else {
-                            $autoFillBtn.hide();
-                            $uploadBtnText.text('Upload Results');
-                        }
-                        
-                        showAlert('#selection-alerts', 'success', message);
+                        showTestTypeSection();
+                        showAlert('#selection-alerts', 'success', 
+                            `Successfully loaded ${response.total_students} students for ${response.grade.title} - ${response.subject.title}`);
                     } else {
                         showAlert('#selection-alerts', 'danger', response.message || 'Failed to load students');
                     }
@@ -397,6 +398,60 @@
                 }).always(function() {
                     $fetchBtn.prop('disabled', false).html('<i class="bx bx-search me-2"></i>Load Students');
                 });
+            }
+                
+                if (!$fetchForm[0].checkValidity()) {
+                    $fetchForm[0].classList.add('was-validated');
+                    return;
+                }
+
+                const formData = new FormData($fetchForm[0]);
+                
+                $fetchBtn.prop('disabled', true).html('<i class="bx bx-loader bx-spin me-2"></i>Loading...');
+                clearAlerts('#selection-alerts');
+
+                $.ajax({
+                    url: '<?php echo e(route("result.batch.midterm.students")); ?>',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    }
+                }).done(function(response) {
+                    if (response.status) {
+                        state.students = response.data;
+                        populateHiddenFields();
+                        showTestTypeSection();
+                        showAlert('#selection-alerts', 'success', 
+                            `Successfully loaded ${response.total_students} students for ${response.grade.title} - ${response.subject.title}`);
+                    } else {
+                        showAlert('#selection-alerts', 'danger', response.message || 'Failed to load students');
+                    }
+                }).fail(function(xhr) {
+                    const message = xhr.responseJSON?.message || 'Failed to load students. Please try again.';
+                    showAlert('#selection-alerts', 'danger', message);
+                }).always(function() {
+                    $fetchBtn.prop('disabled', false).html('<i class="bx bx-search me-2"></i>Load Students');
+                });
+
+            function handleTestTypeChange() {
+                const selectedValue = $testType.val();
+                
+                if (selectedValue) {
+                    const selectedOption = $testType.find(':selected');
+                    state.selectedTestType = selectedValue;
+                    state.maxMark = parseFloat(selectedOption.data('mark')) || 100;
+                    
+                    const testName = selectedOption.text();
+                    $scoreHeader.text(`${testName} (Max: ${state.maxMark})`);
+                    
+                    renderStudentsTable();
+                    showStudentsSection();
+                } else {
+                    hideStudentsSection();
+                }
             }
 
             function renderStudentsTable() {
@@ -415,40 +470,23 @@
                                     </div>
                                     <div>
                                         <h6 class="mb-0">${student.name}</h6>
-                                        <small class="text-muted">ID: ${student.id}</small>
+                                        <small class="text-muted">Student ID: ${student.id}</small>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <span class="badge bg-secondary">${student.reg_no || 'N/A'}</span>
-                            </td>
-                    `;
-                    
-                    // Add score inputs for each exam format
-                    Object.entries(state.examFormat).forEach(([key, format]) => {
-                        const existingValue = student.existing_result ? (student.existing_result[key] || '') : '';
-                        const hasExisting = existingValue !== '';
-                        
-                        html += `
-                            <td>
                                 <input type="number" 
-                                       class="form-control score-input ${hasExisting ? 'existing-score' : ''}" 
-                                       name="${key}[]" 
+                                       class="form-control score-input" 
+                                       name="${state.selectedTestType}[]" 
                                        placeholder="0"
                                        min="0" 
-                                       max="${format.mark}" 
+                                       max="${state.maxMark}" 
                                        step="0.01"
-                                       value="${existingValue}"
-                                       data-student-index="${index}"
-                                       data-field="${key}"
-                                       data-max="${format.mark}">
+                                       data-student-index="${index}">
                                 <div class="invalid-feedback"></div>
-                                ${hasExisting ? '<small class="text-success">Existing</small>' : ''}
                             </td>
-                        `;
-                    });
-                    
-                    html += '</tr>';
+                        </tr>
+                    `;
                 });
 
                 $studentsTableBody.html(html);
@@ -459,22 +497,14 @@
             function validateScoreInput() {
                 const $input = $(this);
                 const value = parseFloat($input.val());
-                const maxMark = parseFloat($input.data('max'));
                 const $feedback = $input.siblings('.invalid-feedback');
                 
                 $input.removeClass('is-invalid');
                 $feedback.text('');
 
-                if ($input.val() && (isNaN(value) || value < 0 || value > maxMark)) {
+                if ($input.val() && (isNaN(value) || value < 0 || value > state.maxMark)) {
                     $input.addClass('is-invalid');
-                    $feedback.text(`Score must be between 0 and ${maxMark}`);
-                }
-            }
-
-            function markInputAsChanged() {
-                const $input = $(this);
-                if (!$input.hasClass('existing-score')) {
-                    $input.addClass('changed');
+                    $feedback.text(`Score must be between 0 and ${state.maxMark}`);
                 }
             }
 
@@ -483,10 +513,10 @@
                 const filledInputs = $inputs.filter(function() { return $(this).val() !== ''; });
                 const invalidInputs = $inputs.filter('.is-invalid');
                 
-                const totalInputs = $inputs.length;
+                const totalStudents = state.students.length;
                 const filledCount = filledInputs.length;
                 
-                let summary = `${filledCount}/${totalInputs} scores entered`;
+                let summary = `${filledCount}/${totalStudents} scores entered`;
                 let canSubmit = filledCount > 0 && invalidInputs.length === 0;
                 
                 if (invalidInputs.length > 0) {
@@ -501,6 +531,11 @@
             function handleUploadResults(e) {
                 e.preventDefault();
                 
+                if (!state.selectedTestType) {
+                    showAlert('#upload-alerts', 'warning', 'Please select a test type first');
+                    return;
+                }
+
                 const $inputs = $('.score-input');
                 const filledInputs = $inputs.filter(function() { return $(this).val() !== ''; });
                 
@@ -521,7 +556,7 @@
                 const formData = new FormData($uploadForm[0]);
                 
                 $.ajax({
-                    url: '{{ route("result.store") }}',
+                    url: '<?php echo e(route("result.upload.batch.midterm.score")); ?>',
                     method: 'POST',
                     data: formData,
                     processData: false,
@@ -546,10 +581,7 @@
                         $uploadProgressModal.modal('hide');
                         if (response.status) {
                             showAlert('#upload-alerts', 'success', response.message || 'Results uploaded successfully!');
-                            // Re-fetch students to show updated data
-                            setTimeout(() => {
-                                $fetchForm.trigger('submit');
-                            }, 1000);
+                            resetForm();
                         } else {
                             showAlert('#upload-alerts', 'danger', response.message || 'Upload failed');
                         }
@@ -571,22 +603,6 @@
                 });
             }
 
-            function autoFillExistingScores() {
-                state.students.forEach((student, index) => {
-                    if (student.existing_result) {
-                        Object.entries(student.existing_result).forEach(([field, value]) => {
-                            if (value !== null && value !== '') {
-                                const $input = $(`.score-input[data-student-index="${index}"][data-field="${field}"]`);
-                                $input.val(value).addClass('existing-score');
-                            }
-                        });
-                    }
-                });
-                
-                updateValidationSummary();
-                showAlert('#upload-alerts', 'info', 'Existing scores have been loaded');
-            }
-
             function updateProgressModal(percent, status) {
                 $uploadProgress.css('width', `${percent}%`);
                 $uploadStatus.text(status);
@@ -594,7 +610,7 @@
 
             function clearAllScores() {
                 if (confirm('Are you sure you want to clear all entered scores?')) {
-                    $('.score-input').val('').removeClass('is-invalid changed existing-score');
+                    $('.score-input').val('').removeClass('is-invalid');
                     $('.invalid-feedback').text('');
                     updateValidationSummary();
                     clearAlerts('#upload-alerts');
@@ -608,20 +624,30 @@
                 $('#form-term-id').val($('#term_id').val());
             }
 
+            function showTestTypeSection() {
+                $testTypeSection.slideDown();
+            }
+
             function showStudentsSection() {
                 $studentsSection.slideDown();
+            }
+
+            function hideStudentsSection() {
+                $studentsSection.slideUp();
+                state.selectedTestType = null;
             }
 
             function resetForm() {
                 $fetchForm[0].reset();
                 $fetchForm.removeClass('was-validated');
                 $uploadForm[0].reset();
+                $testType.val('');
+                $testTypeSection.slideUp();
                 $studentsSection.slideUp();
                 state.students = [];
-                state.hasExistingResults = false;
+                state.selectedTestType = null;
                 clearAlerts('#selection-alerts');
                 clearAlerts('#upload-alerts');
-                $autoFillBtn.hide();
             }
 
             function showAlert(container, type, message) {
@@ -649,5 +675,10 @@
             }
         });
     </script>
-    @endsection
-</x-app-layout>
+    <?php $__env->stopSection(); ?>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da)): ?>
+<?php $component = $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da; ?>
+<?php unset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da); ?>
+<?php endif; ?><?php /**PATH C:\laragon\www\primary\resources\views/admin/result/batch_midterm.blade.php ENDPATH**/ ?>

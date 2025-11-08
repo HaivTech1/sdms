@@ -81,7 +81,91 @@ class ResultController extends Controller
 
     public function create()
     {
-        return view('admin.result.create');
+        $user = auth()->user();
+        
+        return view('admin.result.create', [
+            'grades' => Grade::all(),
+            'periods' => Period::all(),
+            'terms' => Term::all(),
+            'subjects' => Subject::when(!$user->isAdmin() && !$user->isSuperAdmin(), function ($query) use ($user) {
+                $query->whereHas('teachers', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            })->orderBy('title')->get(),
+        ]);
+    }
+
+    public function fetchExamStudents(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'grade_id' => 'required|exists:grades,id',
+                'subject_id' => 'required|exists:subjects,id',
+                'period_id' => 'required|exists:periods,id',
+                'term_id' => 'required|exists:terms,id',
+            ]);
+
+            $grade = Grade::findOrFail($validated['grade_id']);
+            $subject = Subject::findOrFail($validated['subject_id']);
+            
+            $students = Student::where('grade_id', $grade->id())
+                ->where('status', true)
+                ->whereHas('subjects', function ($query) use ($validated) {
+                    $query->where('id', $validated['subject_id']);
+                })
+                ->orderBy('last_name')
+                ->orderBy('first_name')
+                ->get();
+
+            // Check if results already exist for these students
+            $existingResults = Result::where([
+                'grade_id' => $validated['grade_id'],
+                'subject_id' => $validated['subject_id'],
+                'period_id' => $validated['period_id'],
+                'term_id' => $validated['term_id'],
+            ])->with('student')->get();
+
+            $studentsData = $students->map(function ($student) use ($existingResults) {
+                $existingResult = $existingResults->firstWhere('student_id', $student->id());
+                
+                return [
+                    'id' => $student->id(),
+                    'name' => trim($student->lastName() . ' ' . $student->firstName() . ' ' . $student->otherName()),
+                    'first_name' => $student->firstName(),
+                    'last_name' => $student->lastName(),
+                    'other_name' => $student->otherName(),
+                    'reg_no' => $student->user ? $student->user->code() : null,
+                    'existing_result' => $existingResult ? [
+                        'ca1' => $existingResult->ca1,
+                        'ca2' => $existingResult->ca2,
+                        'ca3' => $existingResult->ca3,
+                        'exam' => $existingResult->exam,
+                        'pr' => $existingResult->pr,
+                    ] : null,
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'data' => $studentsData,
+                'grade' => [
+                    'id' => $grade->id(),
+                    'title' => $grade->title(),
+                ],
+                'subject' => [
+                    'id' => $subject->id(),
+                    'title' => $subject->title(),
+                ],
+                'total_students' => $studentsData->count(),
+                'has_existing_results' => $existingResults->count() > 0,
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     public function secondary()
@@ -111,7 +195,72 @@ class ResultController extends Controller
 
     public function batchMidtermUpload()
     {
-        return view('admin.result.batch_midterm');
+        $user = auth()->user();
+        
+        return view('admin.result.batch_midterm', [
+            'grades' => Grade::all(),
+            'periods' => Period::all(),
+            'terms' => Term::all(),
+            'subjects' => Subject::when(!$user->isAdmin() && !$user->isSuperAdmin(), function ($query) use ($user) {
+                $query->whereHas('teachers', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            })->orderBy('title')->get(),
+        ]);
+    }
+
+    public function fetchMidtermStudents(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'grade_id' => 'required|exists:grades,id',
+                'subject_id' => 'required|exists:subjects,id',
+                'period_id' => 'required|exists:periods,id',
+                'term_id' => 'required|exists:terms,id',
+            ]);
+
+            $grade = Grade::findOrFail($validated['grade_id']);
+            $subject = Subject::findOrFail($validated['subject_id']);
+            
+            $students = Student::where('grade_id', $grade->id())
+                ->where('status', true)
+                ->whereHas('subjects', function ($query) use ($validated) {
+                    $query->where('id', $validated['subject_id']);
+                })
+                ->orderBy('last_name')
+                ->orderBy('first_name')
+                ->get();
+
+            $studentsData = $students->map(function ($student) {
+                return [
+                    'id' => $student->id(),
+                    'name' => trim($student->lastName() . ' ' . $student->firstName() . ' ' . $student->otherName()),
+                    'first_name' => $student->firstName(),
+                    'last_name' => $student->lastName(),
+                    'other_name' => $student->otherName(),
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'data' => $studentsData,
+                'grade' => [
+                    'id' => $grade->id(),
+                    'title' => $grade->title(),
+                ],
+                'subject' => [
+                    'id' => $subject->id(),
+                    'title' => $subject->title(),
+                ],
+                'total_students' => $studentsData->count(),
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     public function subjectBroadsheet()

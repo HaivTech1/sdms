@@ -32,17 +32,15 @@ if (!function_exists('sendWaMessage')) {
     function sendWaMessage($receiver, $message, $mediaurl = null)
     {
         try {
-            $apiurl = 'https://impression.com.ng/api/message/send/single';
+            $apiurl = 'https://impression.com.ng/api/v1/messages/send-message';
             $token = config('services.impression.token');
-            $device = config('services.impression.sender');
 
             $syntaxMessage = "{business.name}\\{business.address}\\{business.phone_number}\\{add.date} {add.time}\\ \\$message\\ \\Thanks,\\*{business.name}*";
 
             try {
                 $request = [
-                    'contact' => $receiver,
+                    'number' => $receiver,
                     'message' => $syntaxMessage,
-                    "device" => $device,
                 ];
 
                 if (isset($mediaurl)) {

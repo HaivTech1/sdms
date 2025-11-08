@@ -563,6 +563,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::group(['prefix' => 'student', 'as' => 'student.'], function () {
             Route::get('/', [StudentController::class, 'index'])->name('index');
+            Route::get('/list/data', [StudentController::class, 'fetchList'])->name('list.data');
             Route::post('/', [StudentController::class, 'store'])->name('store');
             Route::get('show/{student}', [StudentController::class, 'show'])->name('show');
             Route::get('edit/{student}', [StudentController::class, 'edit'])->name('edit');
@@ -593,6 +594,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/update-father-details', [GeneralController::class, 'updateFatherData'])->name('updateFatherData');
 
             Route::get('/generate-qrcode/{id}', [StudentController::class, 'generateQr']);
+            Route::post('/send-credentials/{student}', [StudentController::class, 'sendCredentials'])->name('sendCredentials');
+            Route::patch('/toggle-status/{student}', [StudentController::class, 'toggleStatus'])->name('toggleStatus');
         });
 
         Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {
@@ -617,12 +620,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('show/{student}', [ResultController::class, 'show'])->name('show');
             Route::get('edit/{result}', [ResultController::class, 'edit'])->name('edit');
             Route::get('create', [ResultController::class, 'create'])->name('create');
+            Route::post('/exam/students', [ResultController::class, 'fetchExamStudents'])->name('exam.students');
             Route::get('/singleUpload', [ResultController::class, 'singleUpload'])->name('singleUpload');
             // Route::post('/singleUpload', [ResultController::class, 'storeSingleUpload'])->name('storeSingleUpload');
             Route::post('/storeSinglePrimaryUpload', [ResultController::class, 'singlePrimaryUpload'])->name('storeSinglePrimaryUpload');
 
             Route::get('/midterm/upload', [ResultController::class, 'midTermUpload'])->name('midterm.upload');
             Route::get('/batch/midterm/upload', [ResultController::class, 'batchMidtermUpload'])->name('batch.midterm.upload');
+            Route::post('/batch/midterm/students', [ResultController::class, 'fetchMidtermStudents'])->name('batch.midterm.students');
 
             Route::post('/store/midterm/score', [ResultController::class, 'storeMidTerm'])->name('upload.midterm.score');
             Route::post('/batch/store/midterm/score', [ResultController::class, 'storeBatchMidterm'])->name('upload.batch.midterm.score');

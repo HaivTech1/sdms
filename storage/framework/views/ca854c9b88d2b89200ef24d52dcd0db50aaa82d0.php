@@ -1,19 +1,24 @@
-<x-app-layout>
-    @section('title', application('name')." | Batch Examination Upload")
+<?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\AppLayout::class, []); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+    <?php $__env->startSection('title', application('name')." | Batch Examination Upload"); ?>
     
-    <x-slot name="header">
+     <?php $__env->slot('header', null, []); ?> 
         <h4 class="mb-sm-0 font-size-18">Batch Examination Result Upload</h4>
 
         <div class="page-title-right">
             <ol class="breadcrumb m-0">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('result.index') }}">Results</a></li>
+                <li class="breadcrumb-item"><a href="<?php echo e(route('dashboard')); ?>">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="<?php echo e(route('result.index')); ?>">Results</a></li>
                 <li class="breadcrumb-item active">Batch Exam Upload</li>
             </ol>
         </div>
-    </x-slot>
+     <?php $__env->endSlot(); ?>
 
-    @midUploadEnabled
+    <?php if (\Illuminate\Support\Facades\Blade::check('midUploadEnabled')): ?>
         <div class="row">
             <div class="col-12">
                 <!-- Selection Form Card -->
@@ -33,7 +38,7 @@
                         <div id="selection-alerts"></div>
                         
                         <form id="fetch-students-form" class="needs-validation" novalidate>
-                            @csrf
+                            <?php echo csrf_field(); ?>
                             <div class="row g-3">
                                 <div class="col-lg-6">
                                     <label for="grade_id" class="form-label fw-semibold">
@@ -42,9 +47,9 @@
                                     </label>
                                     <select class="form-select" id="grade_id" name="grade_id" required>
                                         <option value="">Select Class</option>
-                                        @foreach ($grades as $grade)
-                                            <option value="{{ $grade->id() }}">{{ $grade->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($grade->id()); ?>"><?php echo e($grade->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="invalid-feedback">Please select a class.</div>
                                 </div>
@@ -56,9 +61,9 @@
                                     </label>
                                     <select class="form-select" id="subject_id" name="subject_id" required>
                                         <option value="">Select Subject</option>
-                                        @foreach ($subjects as $subject)
-                                            <option value="{{ $subject->id() }}">{{ $subject->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $subjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subject): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($subject->id()); ?>"><?php echo e($subject->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="invalid-feedback">Please select a subject.</div>
                                 </div>
@@ -70,9 +75,9 @@
                                     </label>
                                     <select class="form-select" id="period_id" name="period_id" required>
                                         <option value="">Select Session</option>
-                                        @foreach ($periods as $period)
-                                            <option value="{{ $period->id() }}">{{ $period->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($period->id()); ?>"><?php echo e($period->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="invalid-feedback">Please select a session.</div>
                                 </div>
@@ -84,9 +89,9 @@
                                     </label>
                                     <select class="form-select" id="term_id" name="term_id" required>
                                         <option value="">Select Term</option>
-                                        @foreach ($terms as $term)
-                                            <option value="{{ $term->id() }}">{{ $term->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($term->id()); ?>"><?php echo e($term->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                     <div class="invalid-feedback">Please select a term.</div>
                                 </div>
@@ -125,7 +130,7 @@
                         <div id="upload-alerts" class="mx-3 mt-3"></div>
                         
                         <form id="upload-results-form" class="needs-validation" novalidate>
-                            @csrf
+                            <?php echo csrf_field(); ?>
                             <input type="hidden" id="form-grade-id" name="grade_id">
                             <input type="hidden" id="form-subject-id" name="subject_id">
                             <input type="hidden" id="form-period-id" name="period_id">
@@ -138,10 +143,10 @@
                                             <th style="width: 50px;">#</th>
                                             <th>Student Name</th>
                                             <th>Reg No</th>
-                                            @php $exam_format = get_settings('exam_format') ?? []; @endphp
-                                            @foreach ($exam_format as $key => $value)
-                                                <th style="width: 120px;">{{ $value['full_name'] }} ({{ $value['mark'] }})</th>
-                                            @endforeach
+                                            <?php $exam_format = get_settings('exam_format') ?? []; ?>
+                                            <?php $__currentLoopData = $exam_format; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <th style="width: 120px;"><?php echo e($value['full_name']); ?> (<?php echo e($value['mark']); ?>)</th>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </tr>
                                     </thead>
                                     <tbody id="students-table-body">
@@ -197,28 +202,28 @@
                 </div>
             </div>
         </div>
-    @else
+    <?php else: ?>
         <div class="row">
             <div class="col-lg-12">
                 <div class="text-center py-5">
                     <div class="row justify-content-center">
                         <div class="col-sm-6">
                             <div class="maintenance-img">
-                                <img src="{{ asset('images/coming-soon.svg') }}" alt="Upload Disabled" class="img-fluid mx-auto d-block" style="max-height: 300px;">
+                                <img src="<?php echo e(asset('images/coming-soon.svg')); ?>" alt="Upload Disabled" class="img-fluid mx-auto d-block" style="max-height: 300px;">
                             </div>
                         </div>
                     </div>
                     <h4 class="mt-4 text-danger">Upload Currently Disabled</h4>
                     <p class="text-muted">Batch examination result uploads are temporarily disabled. Please contact the administrator to gain access.</p>
-                    <a href="{{ route('dashboard') }}" class="btn btn-primary">
+                    <a href="<?php echo e(route('dashboard')); ?>" class="btn btn-primary">
                         <i class="bx bx-arrow-back me-2"></i>Return to Dashboard
                     </a>
                 </div>
             </div>
         </div>
-    @endmidUploadEnabled
+    <?php endif; ?>
 
-    @section('styles')
+    <?php $__env->startSection('styles'); ?>
     <style>
         .bg-gradient-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -302,9 +307,9 @@
             border-color: #ffc107;
         }
     </style>
-    @endsection
+    <?php $__env->stopSection(); ?>
 
-    @section('scripts')
+    <?php $__env->startSection('scripts'); ?>
     <script>
         $(document).ready(function() {
             console.log('Batch exam script loaded');
@@ -312,7 +317,7 @@
             // State management
             const state = {
                 students: [],
-                examFormat: {!! json_encode($exam_format) !!},
+                examFormat: <?php echo json_encode($exam_format); ?>,
                 hasExistingResults: false,
             };
 
@@ -359,7 +364,7 @@
                 console.log('Making AJAX request to fetch students');
 
                 $.ajax({
-                    url: '{{ route("result.exam.students") }}',
+                    url: '<?php echo e(route("result.exam.students")); ?>',
                     method: 'POST',
                     data: formData,
                     processData: false,
@@ -521,7 +526,7 @@
                 const formData = new FormData($uploadForm[0]);
                 
                 $.ajax({
-                    url: '{{ route("result.store") }}',
+                    url: '<?php echo e(route("result.store")); ?>',
                     method: 'POST',
                     data: formData,
                     processData: false,
@@ -649,5 +654,10 @@
             }
         });
     </script>
-    @endsection
-</x-app-layout>
+    <?php $__env->stopSection(); ?>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da)): ?>
+<?php $component = $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da; ?>
+<?php unset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da); ?>
+<?php endif; ?><?php /**PATH C:\laragon\www\primary\resources\views/admin/result/create.blade.php ENDPATH**/ ?>

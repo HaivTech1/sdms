@@ -24,8 +24,26 @@ class SubjectController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Check if this is an AJAX request for JSON data
+        if ($request->expectsJson() || $request->ajax()) {
+            $subjects = Subject::orderBy('title')->get();
+            
+            $data = $subjects->map(function($subject) {
+                return [
+                    'id' => $subject->id(),
+                    'title' => $subject->title(),
+                    'name' => $subject->title(), // alias for consistency
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'data' => $data
+            ]);
+        }
+
         return view('admin.subject.index'); 
     }
 

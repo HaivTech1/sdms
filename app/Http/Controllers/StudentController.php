@@ -45,7 +45,10 @@ class StudentController extends Controller
     
     public function index()
     {
-        return view('admin.student.index');
+        return view('admin.student.index', [
+            'grades' => Grade::orderBy('title')->get(),
+            'subjects' => Subject::orderBy('title')->get(),
+        ]);
     }
 
     public function create()
@@ -248,7 +251,6 @@ class StudentController extends Controller
         try {
             DB::transaction(function () use ($request) {
                 $student = Student::findOrFail($request->student_id);
-                $student->subjects()->detach();
                 $student->subjects()->attach($request->subjects);
             });
             return response()->json(['status' => true, 'message' => 'Subjects synced successfully!'], 200);
@@ -347,10 +349,12 @@ class StudentController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function deleteAssignedSubject(Student $student, Subject $subject)
+    public function deleteAssignedSubject($studentId, $subjectId)
     {
        try {
-         DB::transaction(function () use ($student, $subject) {
+         DB::transaction(function () use ($studentId, $subjectId) {
+            $student = Student::where('uuid', $studentId)->first();
+            $subject = Subject::findOrFail($subjectId);
             $student->subjects()->detach($subject);
          });
          return response()->json([
@@ -358,6 +362,7 @@ class StudentController extends Controller
             'message' => 'Subject removed successfully!'
          ], 200);
        } catch (\Throwable $th) {
+        info($th);
         return response()->json([
             'status' => false,
             'message' => $th->getMessage(),
@@ -483,6 +488,89 @@ class StudentController extends Controller
         ]);
     }
 
+    public function fetchList(Request $request)
+    {
+        $query = Student::withoutGlobalScope(new HasActiveScope)
+            ->with(['user.roles', 'grade', 'subjects'])
+            ->when($request->filled('search'), function ($builder) use ($request) {
+                $builder->where(function ($nested) use ($request) {
+                    $term = trim($request->input('search'));
+                    $nested->where('first_name', 'like', "%{$term}%")
+                        ->orWhere('last_name', 'like', "%{$term}%")
+                        ->orWhere('other_name', 'like', "%{$term}%")
+                        ->orWhere('uuid', 'like', "%{$term}%")
+                        ->orWhereHas('user', function ($userQuery) use ($term) {
+                            $userQuery->where('reg_no', 'like', "%{$term}%");
+                        });
+                });
+            })
+            ->when($request->filled('gender') && $request->gender !== 'all', function ($builder) use ($request) {
+                $builder->where('gender', $request->input('gender'));
+            })
+            ->when($request->filled('grade') && $request->grade !== 'all', function ($builder) use ($request) {
+                $builder->where('grade_id', $request->input('grade'));
+            })
+            ->when($request->filled('status') && $request->status !== 'all', function ($builder) use ($request) {
+                $status = $request->input('status') === 'active';
+                $builder->where('status', $status);
+            });
+
+        $orderBy = in_array($request->input('order_by'), ['first_name', 'last_name', 'created_at'], true)
+            ? $request->input('order_by')
+            : 'created_at';
+
+        $direction = strtolower($request->input('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        $perPage = (int) $request->input('per_page', 15);
+        $perPage = $perPage > 0 ? min($perPage, 100) : 15;
+
+        $students = $query->orderBy($orderBy, $direction)->paginate($perPage);
+
+        $data = $students->getCollection()->map(function (Student $student) {
+            $photoPath = $student->image();
+            $photoUrl = $photoPath ? asset('storage/' . $photoPath) : asset('noImage.png');
+
+            $roles = $student->user && $student->user->roles
+                ? $student->user->roles->pluck('title')->filter()->values()->all()
+                : [];
+
+            return [
+                'id' => $student->id(),
+                'name' => trim($student->lastName() . ' ' . $student->firstName() . ' ' . $student->otherName()),
+                'first_name' => $student->firstName(),
+                'last_name' => $student->lastName(),
+                'other_name' => $student->otherName(),
+                'reg_no' => $student->user ? $student->user->code() : null,
+                'photo' => $photoUrl,
+                'class_name' => optional($student->grade)->title(),
+                'grade_id' => $student->grade_id,
+                'status' => (bool) $student->status,
+                'gender' => $student->gender,
+                'joined_at' => $student->createdAt(),
+                'roles' => $roles,
+                'subjects' => $student->subjects->map(function (Subject $subject) {
+                    return [
+                        'id' => $subject->id,
+                        'title' => $subject->title(),
+                    ];
+                })->values(),
+                'guardian_phone' => optional($student->guardian)->phone,
+                'qrcode_path' => $student->qrcode,
+                'qrcode_url' => $student->qrcode ? asset('storage/' . $student->qrcode) : null,
+            ];
+        });
+
+        return response()->json([
+            'data' => $data->values(),
+            'pagination' => [
+                'current_page' => $students->currentPage(),
+                'last_page' => $students->lastPage(),
+                'per_page' => $students->perPage(),
+                'total' => $students->total(),
+            ],
+        ]);
+    }
+
     public function generateQr($id)
     {
         $student = Student::with(['user'])->where('uuid', $id)->firstOrFail();
@@ -590,6 +678,36 @@ class StudentController extends Controller
                 'status'  => true,
                 'message' => 'Profile updated successfully.',
                 'student' => new StudentResource($student),
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status'  => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function toggleStatus($studentUuid)
+    {
+        try {
+            $student = Student::withoutGlobalScope(new HasActiveScope)->where('uuid', $studentUuid)->first();
+            
+            if (!$student) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Student not found'
+                ], 404);
+            }
+
+            $student->status = !$student->status;
+            $student->save();
+
+            $statusText = $student->status ? 'activated' : 'deactivated';
+            
+            return response()->json([
+                'status' => true,
+                'message' => "Student has been {$statusText} successfully!",
+                'new_status' => (bool) $student->status
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
