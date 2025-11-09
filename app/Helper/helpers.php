@@ -759,6 +759,11 @@ function class_average($grade, $subject, $term, $period)
         $total_score += $result->total_score;
     }
 
+    // Prevent division by zero
+    if ($gradeStudentsCount == 0) {
+        return 0;
+    }
+
     $average = $total_score / $gradeStudentsCount;
 
     return ceil($average);

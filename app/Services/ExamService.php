@@ -118,4 +118,96 @@ class ExamService
             return $count;
         });
     }
+
+    /**
+     * Create or update exam result using CA1, CA2, CA3, PR, and exam fields.
+     * Computes CA1 from midterm's first_test + entry_1 + entry_2.
+     * Uses midterm's ca for CA2, class_activity for CA3, project for PR.
+     *
+     * @param int $periodId
+     * @param int $termId
+     * @param int $gradeId
+     * @param int $subjectId
+     * @param int $studentId
+     * @param float $examScore
+     * @param Authenticatable|null $author
+     * @return \App\Models\PrimaryResult
+     */
+    public function createOrUpdateCAExamResult(
+        int $periodId,
+        int $termId,
+        int $gradeId,
+        int $subjectId,
+        $studentId,
+        float $examScore,
+        ?Authenticatable $author = null
+    ): PrimaryResult {
+        $unique = [
+            'period_id'  => $periodId,
+            'term_id'    => $termId,
+            'grade_id'   => $gradeId,
+            'subject_id' => $subjectId,
+            'student_id' => $studentId,
+        ];
+
+        // Fetch midterm row (required for this method)
+        $midterm = MidTerm::where($unique)->first();
+        if (!$midterm) {
+            throw new \RuntimeException("Midterm record not found for student ID {$studentId}");
+        }
+
+        return DB::transaction(function () use ($unique, $midterm, $examScore, $author) {
+            $payload = [
+                'ca1'  => (float) (($midterm->first_test ?? 0) + ($midterm->entry_1 ?? 0) + ($midterm->entry_2 ?? 0)),
+                'ca2'  => (float) ($midterm->ca ?? 0),
+                'ca3'  => (float) ($midterm->class_activity ?? 0),
+                'pr'   => (float) ($midterm->project ?? 0),
+                'exam' => (float) $examScore,
+            ];
+
+            /** @var PrimaryResult $model */
+            $model = PrimaryResult::firstOrNew($unique);
+            $model->fill($payload);
+
+            if (!$model->exists && $author && method_exists($model, 'authoredBy')) {
+                $model->authoredBy($author);
+            }
+
+            $model->save();
+            return $model;
+        });
+    }
+
+    /**
+     * Batch helper for CA/Exam results.
+     * $rows = [
+     *   ['student_id' => 1, 'scores' => ['exam' => 70]],
+     *   ['student_id' => 2, 'scores' => ['exam' => 55]],
+     * ];
+     */
+    public function createOrUpdateCAExamResultsBatch(
+        int $periodId,
+        int $termId,
+        int $gradeId,
+        int $subjectId,
+        array $rows,
+        ?Authenticatable $author = null
+    ): int {
+        return DB::transaction(function () use ($periodId, $termId, $gradeId, $subjectId, $rows, $author) {
+            $count = 0;
+            foreach ($rows as $row) {
+                $studentId = $row['student_id'] ?? null;
+                $examScore = (float) ($row['scores']['exam'] ?? 0);
+
+                if ($studentId) {
+                    $this->createOrUpdateCAExamResult(
+                        $periodId, $termId, $gradeId, $subjectId,
+                        $studentId, $examScore, $author
+                    );
+                    $count++;
+                }
+            }
+            return $count;
+        });
+    }
 }

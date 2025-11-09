@@ -621,6 +621,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('edit/{result}', [ResultController::class, 'edit'])->name('edit');
             Route::get('create', [ResultController::class, 'create'])->name('create');
             Route::post('/exam/students', [ResultController::class, 'fetchExamStudents'])->name('exam.students');
+            Route::post('/student/result', [ResultController::class, 'fetchStudentResult'])->name('student.result');
+            Route::post('/student/comment', [ResultController::class, 'updateStudentComment'])->name('student.comment.update');
             Route::get('/singleUpload', [ResultController::class, 'singleUpload'])->name('singleUpload');
             // Route::post('/singleUpload', [ResultController::class, 'storeSingleUpload'])->name('storeSingleUpload');
             Route::post('/storeSinglePrimaryUpload', [ResultController::class, 'singlePrimaryUpload'])->name('storeSinglePrimaryUpload');

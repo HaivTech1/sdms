@@ -1,6 +1,11 @@
-<x-app-layout>
-    @section('title', application('name')." | View Result Page")
-    @section('styles')
+<?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\AppLayout::class, []); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+    <?php $__env->startSection('title', application('name')." | View Result Page"); ?>
+    <?php $__env->startSection('styles'); ?>
         <style>
             .search-card {
                 background: #ffffff;
@@ -351,8 +356,8 @@
                 }
             }
         </style>
-    @endsection
-        <x-slot name="header">
+    <?php $__env->stopSection(); ?>
+         <?php $__env->slot('header', null, []); ?> 
             <h4 class="mb-sm-0 font-size-18">View Results</h4>
     
             <div class="page-title-right">
@@ -360,7 +365,7 @@
                     <li class="breadcrumb-item active">Result</li>
                 </ol>
             </div>
-        </x-slot>
+         <?php $__env->endSlot(); ?>
 
         <div class="loading-overlay d-none" id="loadingOverlay">
             <div class="spinner-border text-primary" role="status">
@@ -383,27 +388,27 @@
                                     <label class="form-label">Class</label>
                                     <select class="form-control" id="gradeSelect" name="grade_id">
                                         <option value=''>Select Class</option>
-                                        @foreach ($grades as $grade)
-                                        <option value="{{ $grade->id() }}">{{ $grade->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($grade->id()); ?>"><?php echo e($grade->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
                                     <label class="form-label">Session</label>
                                     <select class="form-control" id="periodSelect" name="period_id">
                                         <option value=''>Select Session</option>
-                                        @foreach ($periods as $period)
-                                        <option value="{{ $period->id() }}">{{ $period->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($period->id()); ?>"><?php echo e($period->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
                                     <label class="form-label">Term</label>
                                     <select class="form-control" id="termSelect" name="term_id">
                                         <option value=''>Select Term</option>
-                                        @foreach ($terms as $term)
-                                        <option value="{{ $term->id() }}">{{ $term->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($term->id()); ?>"><?php echo e($term->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
@@ -465,7 +470,7 @@
             </div>
         </div>
 
-        @section('scripts')
+        <?php $__env->startSection('scripts'); ?>
         <script>
         $(document).ready(function() {
             const gradeSelect = $('#gradeSelect');
@@ -519,7 +524,7 @@
                 
                 // First get the students for this grade
                 $.ajax({
-                    url: '{{ route("student.list.data") }}',
+                    url: '<?php echo e(route("student.list.data")); ?>',
                     method: 'GET',
                     data: { grade: data.grade_id },
                     success: function(response) {
@@ -541,7 +546,7 @@
             function fetchAllStudentResults(students, searchData) {
                 const promises = students.map(student => {
                     return $.ajax({
-                        url: '{{ route("result.student.result") }}',
+                        url: '<?php echo e(route("result.student.result")); ?>',
                         method: 'POST',
                         data: {
                             grade_id: searchData.grade_id,
@@ -642,8 +647,8 @@
                 const { data } = studentData;
                 const { results, student, period, term, grade, studentAttendance, aggregate, gradeStudents, marksObtained, markObtainable } = data;
                 
-                const midtermFormat = @json(get_settings('midterm_format') ?? []);
-                const examFormat = @json(get_settings('exam_format') ?? []);
+                const midtermFormat = <?php echo json_encode(get_settings('midterm_format') ?? [], 15, 512) ?>;
+                const examFormat = <?php echo json_encode(get_settings('exam_format') ?? [], 15, 512) ?>;
                 
                 let html = `
                     <div class="student-result-detail">
@@ -740,7 +745,7 @@
                 };
 
                 $.ajax({
-                    url: '{{ route("result.student.comment.update") }}',
+                    url: '<?php echo e(route("result.student.comment.update")); ?>',
                     method: 'POST',
                     data: commentData,
                     headers: {
@@ -826,8 +831,8 @@
             }
 
             function calculateResult(result) {
-                const midtermFormat = @json(get_settings('midterm_format') ?? []);
-                const examFormat = @json(get_settings('exam_format') ?? []);
+                const midtermFormat = <?php echo json_encode(get_settings('midterm_format') ?? [], 15, 512) ?>;
+                const examFormat = <?php echo json_encode(get_settings('exam_format') ?? [], 15, 512) ?>;
                 
                 let total = 0;
                 
@@ -862,5 +867,10 @@
             }
         });
         </script>
-        @endsection
-</x-app-layout>
+        <?php $__env->stopSection(); ?>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da)): ?>
+<?php $component = $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da; ?>
+<?php unset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da); ?>
+<?php endif; ?><?php /**PATH C:\laragon\www\primary\resources\views/admin/result/view_result.blade.php ENDPATH**/ ?>

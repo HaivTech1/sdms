@@ -1,13 +1,18 @@
 
-<x-app-layout>
-    @section('title', application('name')." | Result Comment")
-    @section('styles')
+<?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\AppLayout::class, []); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+    <?php $__env->startSection('title', application('name')." | Result Psychomotor"); ?>
+    <?php $__env->startSection('styles'); ?>
         <style>
-            .comment-page {
+            .psychomotor-page {
                 padding: 1.5rem 0;
             }
 
-            .comment-card {
+            .psychomotor-card {
                 background: #ffffff;
                 border-radius: 20px;
                 box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
@@ -15,21 +20,21 @@
                 overflow: hidden;
             }
 
-            .comment-header {
-                background: #4f46e5;
+            .psychomotor-header {
+                background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
                 color: #ffffff;
                 padding: 2rem;
                 text-align: center;
             }
 
-            .comment-title {
+            .psychomotor-title {
                 font-size: 1.75rem;
                 font-weight: 700;
                 margin-bottom: 0.5rem;
-                color: #ffffff;
+                color: "#ffffff"
             }
 
-            .comment-subtitle {
+            .psychomotor-subtitle {
                 font-size: 1rem;
                 opacity: 0.9;
                 margin: 0;
@@ -153,35 +158,63 @@
                 min-width: 250px;
             }
 
-            .comment-input {
-                border: 1px solid #d1d5db;
-                border-radius: 8px;
-                padding: 0.5rem 0.75rem;
-                font-size: 0.875rem;
-                transition: all 0.2s ease;
-                width: 100%;
-            }
-
-            .comment-input:focus {
-                border-color: #4f46e5;
-                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-                outline: none;
-            }
-
-            .attendance-input {
-                border: 1px solid #d1d5db;
-                border-radius: 8px;
-                padding: 0.5rem 0.75rem;
-                font-size: 0.875rem;
-                transition: all 0.2s ease;
-                width: 100%;
+            .domain-cell {
                 text-align: center;
+                min-width: 120px;
             }
 
-            .attendance-input:focus {
-                border-color: #4f46e5;
-                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-                outline: none;
+            .domain-title {
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: #64748b;
+                margin-bottom: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .rating-options {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .form-check {
+                margin: 0;
+            }
+
+            .form-check-input {
+                width: 18px;
+                height: 18px;
+                border: 2px solid #d1d5db;
+                border-radius: 4px;
+                transition: all 0.2s ease;
+            }
+
+            .form-check-input:checked {
+                background: #10b981;
+                border-color: #10b981;
+            }
+
+            .form-check-label {
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: #6b7280;
+                margin-left: 0.25rem;
+            }
+
+            .alert-section {
+                margin: 1.5rem 2rem 0;
+                padding: 1rem 1.5rem;
+                background: #fef2f2;
+                border: 1px solid #fecaca;
+                border-radius: 12px;
+                color: #991b1b;
+            }
+
+            .alert-section p {
+                margin: 0;
+                font-size: 0.875rem;
             }
 
             .save-section {
@@ -217,7 +250,11 @@
                     grid-template-columns: 1fr;
                 }
 
-                .comment-header {
+                .rating-options {
+                    gap: 0.25rem;
+                }
+
+                .psychomotor-header {
                     padding: 1.5rem;
                 }
 
@@ -250,16 +287,16 @@
             }
 
             @media (max-width: 576px) {
-                .comment-header {
+                .psychomotor-header {
                     padding: 1rem;
                     text-align: center;
                 }
 
-                .comment-title {
+                .psychomotor-title {
                     font-size: 1.4rem;
                 }
 
-                .comment-subtitle {
+                .psychomotor-subtitle {
                     font-size: 0.9rem;
                 }
 
@@ -273,22 +310,25 @@
                     font-size: 0.75rem;
                 }
 
-                .comment-input,
-                .attendance-input {
-                    font-size: 0.75rem;
-                    padding: 0.4rem 0.5rem;
+                .form-check-input {
+                    width: 16px;
+                    height: 16px;
+                }
+
+                .form-check-label {
+                    font-size: 0.7rem;
                 }
             }
         </style>
-    @endsection
+    <?php $__env->stopSection(); ?>
 
-    <div class="comment-page">
+    <div class="psychomotor-page">
         <div class="row">
             <div class="col-12">
-                <div class="comment-card">
-                    <div class="comment-header">
-                        <h5 class="comment-title">Student Comments & Attendance</h5>
-                        <p class="comment-subtitle">Manage student comments and attendance records</p>
+                <div class="psychomotor-card">
+                    <div class="psychomotor-header">
+                        <h4 class="psychomotor-title">Psychomotor Assessment</h4>
+                        <p class="psychomotor-subtitle">Evaluate and manage student psychomotor domain ratings</p>
                     </div>
 
                     <div class="filter-section">
@@ -298,9 +338,9 @@
                                     <label for="grade_id">Class</label>
                                     <select class="form-control" id="grade_id" name="grade_id">
                                         <option value=''>Select Class</option>
-                                        @foreach ($grades as $grade)
-                                        <option value="{{  $grade->id() }}">{{ $grade->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($grade->id()); ?>"><?php echo e($grade->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                                 
@@ -308,22 +348,20 @@
                                     <label for="period_id">Session</label>
                                     <select class="form-control" id="period_id" name="period_id">
                                         <option value=''>Select Session</option>
-                                        @foreach ($periods as $period)
-                                        <option value="{{  $period->id() }}">{{ $period->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($period->id()); ?>"><?php echo e($period->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="period_id" />
                                 </div>
 
                                 <div class="filter-field">
                                     <label for="term_id">Term</label>
                                     <select class="form-control" id="term_id" name="term_id">
                                         <option value=''>Select Term</option>
-                                        @foreach ($terms as $term)
-                                        <option value="{{  $term->id() }}">{{ $term->title() }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($term->id()); ?>"><?php echo e($term->title()); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-                                    <x-form.error for="term_id" />
                                 </div>
                                 
                                 <div class="filter-field">
@@ -340,17 +378,21 @@
                     <div class="assessment-section">
 
                         <form id="commentForm">
-                            @csrf
+                            <?php echo csrf_field(); ?>
                             <input type="hidden" name="period_id" id="periodId" value="" />
                             <input type="hidden" name="term_id" id="termId" value="" />
 
                             <div class="assessment-table-wrapper">
                                 <table id="comment-data" class="table assessment-table">
                                     <thead>
+                                        <?php
+                                            $psychomotors = get_settings('psychomotor_domain');
+                                        ?>
                                         <tr>
-                                            <th class="text-start" style="width: 35%;">Student Name</th>
-                                            <th class="text-center">Comment</th>
-                                            <th class="text-center" style="width: 15%;">Total Present</th>
+                                            <th class="text-start">Student Name</th>
+                                            <?php $__currentLoopData = $psychomotors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $psychomotor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <th><?php echo e($psychomotor); ?></th>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </tr>
                                     </thead>
 
@@ -359,13 +401,18 @@
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            <div id="noPsychoList" class="alert-section d-none">
+                                <p><strong>Notice:</strong> The following students' psychomotor domains have not been computed:</p>
+                                <p class="listNoPsycho"></p>
+                            </div>
                         </form>
                     </div>
 
                     <div class="save-section">
                         <button type="submit" form="commentForm" id="submitComment" class="save-btn">
                             <i class="bx bx-save"></i>
-                            Save Comments
+                            Save Assessments
                         </button>
                     </div>
                 </div>
@@ -373,7 +420,7 @@
         </div>
     </div>
 
-    @section('scripts')
+    <?php $__env->startSection('scripts'); ?>
         <script>
             $('#fetchStudent').on('submit', function(e){
                 e.preventDefault();
@@ -386,24 +433,24 @@
                 var term = $('#term_id').val();
 
                 $.ajax({
-                    url: '{{ route("grade.students", ["grade" => ":grade_id"]) }}'.replace(':grade_id', grade),
+                    url: '<?php echo e(route("grade.students", ["grade" => ":grade_id"])); ?>'.replace(':grade_id', grade),
                     type: 'GET',
                     dataType: 'json',
                 }).done((response) => {
                     var students = response.student;
 
                     $.ajax({
-                        url: '{{ route("student.cognitives", ["period" => ":period_id", "term" => ":term_id"]) }}'.replace(':period_id', period).replace(':term_id', term),
+                        url: '<?php echo e(route("student.psychomotors", ["period" => ":period_id", "term" => ":term_id"])); ?>'.replace(':period_id', period).replace(':term_id', term),
                         type: 'GET',
                         dataType: 'json',
                     }).done((res) => {
                         toggleAble(button, false);
-                        var cognitives = res.cognitives;
+                        var psychomotors = res.psychomotors;
 
                         $('#periodId').val(period);
                         $('#termId').val(term);
 
-                        displayComment(students, cognitives);
+                        displayPsychomotor(students, psychomotors);
                     }).fail((error) => {
                         toggleAble(button, false);
                         toastr.error(error.responseJSON.message);
@@ -415,24 +462,37 @@
                 });
             });
 
-            function displayComment(data, initialData){
+            function displayPsychomotor(students, initialData){
                 var tableRows = '';
+                var listPsychomotors = <?php echo json_encode(get_settings('psychomotor_domain'), 15, 512) ?>;
 
-                data.forEach(function(student) {
+                students.forEach(function(student) {
 
-                    var comment = initialData.find(cognitive => cognitive.student_id === student['id']);
+                    var psychomotorsList = '';
+                    listPsychomotors.forEach(function(domain, index) {
+                        var radioButtons = '';
+
+                        for (var i = 1; i <= 5; i++) {
+                            var psycho = initialData.find(psycho => psycho.student_id === student['id'] && psycho.title.trim() == domain.trim());
+                            var isChecked = psycho && psycho.value == i ? 'checked' : '';
+
+                            radioButtons += `
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="checkbox-${student['id']}-${index + 1}-${i}-${domain}" name="psychomotors[${student['id']}][${domain}][]" value="${i}" ${isChecked} />
+                                    <label class="form-check-label" for="checkbox-${student['id']}-${index + 1}-${i}">${i}</label>
+                                </div>
+                            `;
+                        }
+                        psychomotorsList += `<td>${domain}${radioButtons}</td>`;
+                    });
+
                     tableRows += `
                         <tr>
-                            <td class="student-name-cell" style="width: 35%;">
+                            <td class="text-left" style="width: 300px">
                                 ${student['name']}
                                 <input type="hidden" class="form-control" id="student-${student['id']}" name="students[]" value="${student['id']}" />
                             </td>
-                            <td>
-                                <input type="text" class="comment-input" id="comment-${student['id']}" name="comments[]" value="${comment && comment.comment !== null ? comment.comment : ''}" placeholder="Enter comment..." />
-                            </td>
-                            <td style="width: 15%;">
-                                <input type="text" class="attendance-input" id="attendance-${student['id']}" name="attendances[]" value="${comment && comment.present !== null ? comment.present : ''}" placeholder="0" />
-                            </td>
+                            ${psychomotorsList}
                         </tr>
                     `;
                 });
@@ -447,7 +507,7 @@
                 toggleAble(button, true, 'Updating...');
 
                 var data = $(this).serializeArray();
-                var url = "{{ route('result.batchcognitive') }}";
+                var url = "<?php echo e(route('result.batchPsychomotor')); ?>";
 
                 $.ajax({
                     url,
@@ -457,6 +517,24 @@
                     toggleAble(button, false);
                     toastr.success(response.message);
                     resetForm('#commentForm');
+                    var no_psychomotor_count = response.no_psychomotor.count;
+                    var no_psychomotor = response.no_psychomotor.data;
+
+                    var listRow = '';
+                    if (no_psychomotor_count > 0) {
+                        no_psychomotor.forEach(function(name, index) {
+                            listRow += (index < no_psychomotor_count - 1) ? `${name}, ` : `${name}.`;
+                        });
+                        $('#noPsychoList .listNoPsycho').html(listRow);
+                        $('#noPsychoList').removeClass('d-none'); 
+                    } else {
+                        $('#noPsychoList').addClass('d-none');
+                    }
+
+                    setTimeout(() => {
+                        $('#noPsychoList').addClass('d-none');
+                    }, 10000);
+
                 }).fail((error) => {
                     toggleAble(button, false);
                     toastr.error(error.responseJSON.message);
@@ -465,5 +543,10 @@
             });
             
         </script>
-    @endsection
-</x-app-layout>
+    <?php $__env->stopSection(); ?>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da)): ?>
+<?php $component = $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da; ?>
+<?php unset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da); ?>
+<?php endif; ?><?php /**PATH C:\laragon\www\primary\resources\views/admin/result/class_psychomotor.blade.php ENDPATH**/ ?>

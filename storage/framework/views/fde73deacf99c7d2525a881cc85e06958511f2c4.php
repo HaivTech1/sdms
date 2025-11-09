@@ -1,6 +1,11 @@
-<x-app-layout>
-    @section('title', application('name')." | Result Statistic Page")
-    @section('styles')
+<?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\AppLayout::class, []); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+    <?php $__env->startSection('title', application('name')." | Result Statistic Page"); ?>
+    <?php $__env->startSection('styles'); ?>
         <style>
             .stat-page {
                 display: flex;
@@ -194,9 +199,9 @@
                 }
             }
         </style>
-    @endsection
+    <?php $__env->stopSection(); ?>
 
-    <x-slot name="header">
+     <?php $__env->slot('header', null, []); ?> 
         <h4 class="mb-sm-0 font-size-18">Grade Result</h4>
 
         <div class="page-title-right">
@@ -204,7 +209,7 @@
                 <li class="breadcrumb-item active">Statistic</li>
             </ol>
         </div>
-    </x-slot>
+     <?php $__env->endSlot(); ?>
 
     <div class="stat-page">
         <div class="stat-card">
@@ -221,18 +226,18 @@
                         <label for="class-performance-grade">Class</label>
                         <select class="form-control" id="class-performance-grade" name="grade_id">
                             <option value="">Select Class</option>
-                            @foreach ($grades as $class)
-                                <option value="{{ $class->id }}">{{ $class->title() }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = $grades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($class->id); ?>"><?php echo e($class->title()); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                     <div class="stat-field">
                         <label for="class-performance-period">Session</label>
                         <select class="form-control" id="class-performance-period" name="period_id">
                             <option value="">Select Session</option>
-                            @foreach ($sessions as $session)
-                                <option value="{{ $session->id() }}">{{ $session->title() }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = $sessions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $session): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($session->id()); ?>"><?php echo e($session->title()); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                     <div class="stat-field">
@@ -267,136 +272,7 @@
                     </table>
                 </div>
             </div>
-
-            <div class="stat-card-footer">
-                <form action="{{ route('result.download.class.statistic') }}" method="POST" class="stat-download-form">
-                    @csrf
-                    <input type="hidden" name="grade_id" id="download_class_grade_id" />
-                    <input type="hidden" name="subject_id" id="download_class_subject_id" />
-                    <input type="hidden" name="period_id" id="download_class_period_id" />
-                    <button type="submit" class="stat-download-btn" id="download_class_btn" disabled>
-                        <i class="bx bx-download"></i>
-                        Download
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div>
-                    <h2 class="stat-card-title">Students Ranking Per Grade</h2>
-                    <p class="stat-card-subtitle">Review grade-wide standings across all subjects for the chosen session.</p>
-                </div>
-            </div>
-
-            <form id="grade-performance" class="stat-filter">
-                <div class="stat-filter-grid">
-                    <div class="stat-field">
-                        <label for="grade-performance-grade">Class</label>
-                        <select class="form-control" id="grade-performance-grade" name="grade_id">
-                            <option value="">Select Class</option>
-                            @foreach ($grades as $class)
-                                <option value="{{ $class->id }}">{{ $class->title() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="stat-field">
-                        <label for="grade-performance-period">Session</label>
-                        <select class="form-control" id="grade-performance-period" name="period_id">
-                            <option value="">Select Session</option>
-                            @foreach ($sessions as $session)
-                                <option value="{{ $session->id() }}">{{ $session->title() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="stat-field">
-                        <label>&nbsp;</label>
-                        <button id="grade-performance-btn" type="submit" class="generate-btn">
-                            <i class="bx bx-search-alt"></i>
-                            Generate Sheet
-                        </button>
-                    </div>
-                </div>
-            </form>
-
-            <div class="stat-table-wrapper">
-                <div class="table-responsive">
-                    <table class="table stat-table align-middle table-nowrap" id="student-data">
-                        <thead>
-                            <tr>
-                                <th class="text-start">#</th>
-                                <th class="text-start">Name</th>
-                                <th class="text-center">1st Term</th>
-                                <th class="text-center">2nd Term</th>
-                                <th class="text-center">3rd Term</th>
-                                <th class="text-center">Total</th>
-                                <th class="text-center">Position in Grade</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="stat-empty-row">
-                                <td colspan="7">Run a search to populate this table.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="stat-card-footer">
-                <form action="{{ route('result.download.grade.statistic') }}" method="POST" class="stat-download-form">
-                    @csrf
-                    <input type="hidden" name="grade_id" id="download_grade_grade_id" />
-                    <input type="hidden" name="subject_id" id="download_grade_subject_id" />
-                    <input type="hidden" name="period_id" id="download_grade_period_id" />
-                    <button type="submit" class="stat-download-btn" id="download_grade_btn" disabled>
-                        <i class="bx bx-download"></i>
-                        Download
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div>
-                    <h2 class="stat-card-title">Students Ranking Per Subject</h2>
-                    <p class="stat-card-subtitle">Drill down into subject-specific standings for a class during a session.</p>
-                </div>
-            </div>
-
-            <form id="subject-performance" class="stat-filter">
-                <div class="stat-filter-grid">
-                    <div class="stat-field">
-                        <label for="subject-performance-grade">Class</label>
-                        <select class="form-control" id="subject-performance-grade" name="grade_id">
-                            <option value="">Select Class</option>
-                            @foreach ($grades as $class)
-                                <option value="{{ $class->id }}">{{ $class->title() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="stat-field">
-                        <label for="subject-performance-subject">Subject</label>
-                        <select class="form-control" id="subject-performance-subject" name="subject_id">
-                            <option value="">Select Subject</option>
-                            @foreach ($subjects as $subject)
-                                <option value="{{ $subject->id }}">{{ $subject->title() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="stat-field">
-                        <label for="subject-performance-period">Session</label>
-                        <select class="form-control" id="subject-performance-period" name="period_id">
-                            <option value="">Select Session</option>
-                            @foreach ($sessions as $session)
-                                <option value="{{ $session->id() }}">{{ $session->title() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="stat-field">
-                        <label>&nbsp;</label>
-                        <button id="subject-performance-btn" type="submit" class="generate-btn">
+                                <?php endif; ?><?php /**PATH C:\laragon\www\primary\resources\views\admin\result\statistic.blade.php ENDPATH**/ ?>
                             <i class="bx bx-search-alt"></i>
                             Generate Sheet
                         </button>
@@ -428,8 +304,8 @@
             </div>
 
             <div class="stat-card-footer">
-                <form action="{{ route('result.download.subject.statistic') }}" method="POST" class="stat-download-form">
-                    @csrf
+                <form action="<?php echo e(route('result.download.subject.statistic')); ?>" method="POST" class="stat-download-form">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="grade_id" id="download_grade_id" />
                     <input type="hidden" name="subject_id" id="download_subject_id" />
                     <input type="hidden" name="period_id" id="download_period_id" />
@@ -442,7 +318,7 @@
         </div>
     </div>
 
-    @section('scripts')
+    <?php $__env->startSection('scripts'); ?>
         <script>
             $(function () {
                 const safeScore = (value) => {
@@ -473,7 +349,7 @@
 
                     $.ajax({
                         method: 'GET',
-                        url: '{{ route('result.statistic.class.generate', ["grade_id" => ":grade_id", "period_id" => ":period_id"]) }}'
+                        url: '<?php echo e(route('result.statistic.class.generate', ["grade_id" => ":grade_id", "period_id" => ":period_id"])); ?>'
                             .replace(':grade_id', grade)
                             .replace(':period_id', period),
                     }).done((response) => {
@@ -530,7 +406,7 @@
 
                     $.ajax({
                         method: 'GET',
-                        url: '{{ route('result.statistic.grade.generate', ["grade_id" => ":grade_id", "period_id" => ":period_id"]) }}'
+                        url: '<?php echo e(route('result.statistic.grade.generate', ["grade_id" => ":grade_id", "period_id" => ":period_id"])); ?>'
                             .replace(':grade_id', grade)
                             .replace(':period_id', period),
                     }).done((response) => {
@@ -589,7 +465,7 @@
 
                     $.ajax({
                         method: 'GET',
-                        url: '{{ route('result.statistic.subject.generate', ["grade_id" => ":grade_id", "period_id" => ":period_id", "subject_id" => ":subject_id"]) }}'
+                        url: '<?php echo e(route('result.statistic.subject.generate', ["grade_id" => ":grade_id", "period_id" => ":period_id", "subject_id" => ":subject_id"])); ?>'
                             .replace(':grade_id', grade)
                             .replace(':period_id', period)
                             .replace(':subject_id', subject),
@@ -633,5 +509,10 @@
                 });
             });
         </script>
-    @endsection
-    </x-app-layout>
+    <?php $__env->stopSection(); ?>
+     <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da)): ?>
+<?php $component = $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da; ?>
+<?php unset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da); ?>
+<?php endif; ?><?php /**PATH C:\laragon\www\primary\resources\views/admin/result/statistic.blade.php ENDPATH**/ ?>

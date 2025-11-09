@@ -57,7 +57,13 @@ class ResultController extends Controller
 
     public function viewResults()
     {
-        return view('admin.result.view_result');
+        $user = auth()->user();
+        return view('admin.result.view_result', [
+            'grades' => Grade::all(),
+            'periods' => Period::all(),
+            'terms' => Term::all(),
+            'user' => $user,
+        ]);
     }
 
     public function midtermIndex()
@@ -703,6 +709,124 @@ class ResultController extends Controller
                 'status' => true,
                 'message' => 'Result updated successfully!'
             ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function fetchStudentResult(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'grade_id' => 'required|exists:grades,id',
+                'student_id' => 'required|exists:students,uuid',
+                'period_id' => 'required|exists:periods,id',
+                'term_id' => 'required|exists:terms,id',
+            ]);
+
+            $grade = Grade::findOrFail($validated['grade_id']);
+            $student = Student::findOrFail($validated['student_id']);
+            $period = Period::findOrFail($validated['period_id']);
+            $term = Term::findOrFail($validated['term_id']);
+
+            // Use the existing generateStudentResultData method
+            $data = $this->generateStudentResultData($student, $validated['period_id'], $validated['term_id'], $grade);
+
+            // Calculate marks obtained and aggregate
+            $marksObtained = 0;
+            $numSubjects = count($data['results']);
+            $grand = $numSubjects * 100;
+
+            foreach($data['results'] as $result) {
+                if ($term->id() === '2') {
+                    $total = calculateResult($result) + ($result['first_term'] ?? 0) / 2;
+                } elseif ($term->id() === '3') {
+                    $total = secondary_average($result['first_term'] ?? 0, $result['second_term'] ?? 0, calculateResult($result), 2);
+                } else {
+                    $total = calculateResult($result);
+                }
+                $marksObtained += $total;
+            }
+
+            $aggregate = $grand > 0 ? ($marksObtained / $grand * 100) : 0;
+
+            // Get grade students count
+            $studentGrade = get_grade($student->grade->title());
+            $gradeStudents = Student::whereHas('grade', function($query) use ($studentGrade){
+                $query->where('title', 'like', $studentGrade .'%');
+            })->count();
+
+            // Sort results (Mathematics and English first)
+            usort($data['results'], function ($a, $b) {
+                $mathematicsEnglish = ['Mathematics', 'English Language'];
+                
+                if (in_array($a['subject'], $mathematicsEnglish) && !in_array($b['subject'], $mathematicsEnglish)) {
+                    return -1;
+                } elseif (!in_array($a['subject'], $mathematicsEnglish) && in_array($b['subject'], $mathematicsEnglish)) {
+                    return 1;
+                } else {
+                    return strcmp($a['subject'], $b['subject']);
+                }
+            });
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'results' => $data['results'],
+                    'student' => $student,
+                    'period' => $period,
+                    'term' => $term,
+                    'grade' => $grade,
+                    'psychomotors' => $data['psychomotors'],
+                    'affectives' => $data['affectives'],
+                    'studentAttendance' => $data['studentAttendance'],
+                    'aggregate' => round($aggregate, 2),
+                    'gradeStudents' => $gradeStudents,
+                    'marksObtained' => round($marksObtained, 2),
+                    'markObtainable' => $grand,
+                    'comment' => $data['comment'],
+                ]
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateStudentComment(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'student_uuid' => 'required|exists:students,uuid',
+                'period_id' => 'required|exists:periods,id',
+                'term_id' => 'required|exists:terms,id',
+                'comment' => 'nullable|string|max:1000',
+                'principal_comment' => 'nullable|string|max:1000',
+            ]);
+
+            $cognitive = Cognitive::updateOrCreate(
+                [
+                    'student_uuid' => $validated['student_uuid'],
+                    'period_id' => $validated['period_id'],
+                    'term_id' => $validated['term_id'],
+                ],
+                [
+                    'comment' => $validated['comment'],
+                    'principal_comment' => $validated['principal_comment'],
+                ]
+            );
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Comment updated successfully!',
+            ], 200);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
