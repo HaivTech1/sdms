@@ -1,6 +1,11 @@
-<x-app-layout>
-    @section('title', application('name')." | Teacher Students")
-    @section('styles')
+<?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\AppLayout::class, []); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+    <?php $__env->startSection('title', application('name')." | Teacher Students"); ?>
+    <?php $__env->startSection('styles'); ?>
         <style>
             .students-page {
                 padding: 1.5rem 0;
@@ -366,7 +371,7 @@
                 }
             }
         </style>
-    @endsection
+    <?php $__env->stopSection(); ?>
 
     <div class="students-page">
         <div class="row">
@@ -406,7 +411,7 @@
                                     <label for="grade">Grade/Class</label>
                                     <select class="form-control" id="grade" name="grade">
                                         <option value=''>All Grades</option>
-                                        {{-- Options will be loaded via AJAX --}}
+                                        
                                     </select>
                                 </div>
 
@@ -471,7 +476,7 @@
         </div>
     </div>
 
-    @section('scripts')
+    <?php $__env->startSection('scripts'); ?>
     <script>
         $(document).ready(function() {
             // Load grades when page loads
@@ -510,7 +515,7 @@
 
             function loadGrades() {
                 $.ajax({
-                    url: '{{ route("teacher.grades") }}',
+                    url: '<?php echo e(route("teacher.grades")); ?>',
                     method: 'GET',
                     success: function(response) {
                         const gradeSelect = $('#grade');
@@ -541,7 +546,7 @@
                 $tableBody.html('<tr><td colspan="7" class="text-center"><i class="bx bx-loader bx-spin"></i> Loading students...</td></tr>');
 
                 $.ajax({
-                    url: '{{ route("teacher.students") }}',
+                    url: '<?php echo e(route("teacher.students")); ?>',
                     method: 'GET',
                     data: formData,
                     success: function(response) {
@@ -738,125 +743,118 @@
                 $('#teacher-available-subjects-list').html('<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>');
                 
                 // Load current subjects
-                loadTeacherCurrentSubjects(student);
-                
-                // Load available subjects  
-                loadTeacherAvailableSubjects(student);
+                loadTeacherSubjects(student);
                 
                 // Show modal
                 $('#teacherSubjectManagementModal').modal('show');
             }
 
-            function loadTeacherCurrentSubjects(student) {
-                $.ajax({
-                    url: `{{ url('teacher/student/subjects') }}/${student.id}`,
-                    method: 'GET',
-                    success: function(response) {
-                        const currentSubjects = response.data || [];
-                        const container = $('#teacher-current-subjects-list');
-                        
-                        $('#assigned-count').text(currentSubjects.length);
-                        
-                        if (currentSubjects.length === 0) {
-                            container.html('<div class="text-center text-muted py-3"><i class="bx bx-book-open display-4"></i><p class="mt-2">No subjects assigned</p></div>');
-                            return;
+            function loadTeacherSubjects(student) {
+                // Show loading for both lists
+                $('#teacher-current-subjects-list').html('<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>');
+                $('#teacher-available-subjects-list').html('<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>');
+                
+                // Get student's current subjects and all available subjects in parallel
+                Promise.all([
+                    // Get student's current subjects
+                    fetch(`<?php echo e(url('teacher/student/subjects')); ?>/${student.id}`).then(res => res.json()),
+                    // Get all subjects
+                    fetch('<?php echo e(route("subject.index")); ?>', {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
-                        
-                        const html = currentSubjects.map(function(subject, index) {
-                            return `
-                                <div class="d-flex align-items-center justify-content-between p-2 border rounded mb-2 subject-item" data-subject-id="${subject.id}">
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge bg-primary me-2">${index + 1}</span>
-                                        <div>
-                                            <div class="fw-medium">${escapeHtml(subject.title)}</div>
-                                            <small class="text-muted">Subject ID: ${subject.id}</small>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-outline-danger remove-teacher-subject" 
-                                            data-subject-id="${subject.id}" title="Remove subject">
-                                        <i class="bx bx-trash"></i>
-                                    </button>
-                                </div>
-                            `;
-                        }).join('');
-                        
-                        container.html(html);
-                    },
-                    error: function() {
-                        $('#teacher-current-subjects-list').html('<div class="text-center text-danger py-3"><i class="bx bx-error-circle display-4"></i><p class="mt-2">Failed to load current subjects</p></div>');
+                    }).then(res => res.json())
+                ]).then(([currentResponse, allSubjectsResponse]) => {
+                    const currentSubjects = currentResponse.data || [];
+                    const assignedIds = currentSubjects.map(s => parseInt(s.id));
+                    
+                    // Get all subjects from response
+                    let allSubjects = [];
+                    if (allSubjectsResponse.data) {
+                        allSubjects = allSubjectsResponse.data;
+                    } else if (Array.isArray(allSubjectsResponse)) {
+                        allSubjects = allSubjectsResponse;
+                    } else if (allSubjectsResponse.subjects) {
+                        allSubjects = allSubjectsResponse.subjects;
                     }
+                    
+                    // Filter available subjects (not yet assigned)
+                    const availableSubjects = allSubjects.filter(subject => 
+                        !assignedIds.includes(parseInt(subject.id))
+                    );
+                    
+                    // Update counts
+                    $('#assigned-count').text(currentSubjects.length);
+                    $('#available-count').text(availableSubjects.length);
+                    
+                    // Render current subjects
+                    renderCurrentSubjects(currentSubjects);
+                    
+                    // Render available subjects
+                    renderAvailableSubjects(availableSubjects);
+                    
+                }).catch(error => {
+                    console.error('Failed to load subjects:', error);
+                    $('#teacher-current-subjects-list').html('<div class="text-center text-danger py-3"><i class="bx bx-error-circle display-4"></i><p class="mt-2">Failed to load subjects</p></div>');
+                    $('#teacher-available-subjects-list').html('<div class="text-center text-danger py-3"><i class="bx bx-error-circle display-4"></i><p class="mt-2">Failed to load subjects</p></div>');
                 });
             }
-
-            function loadTeacherAvailableSubjects(student) {
-                // Get current subjects first to filter out already assigned ones
-                $.ajax({
-                    url: `{{ url('teacher/student/subjects') }}/${student.id}`,
-                    method: 'GET',
-                    success: function(response) {
-                        const assignedSubjects = response.data || [];
-                        const assignedIds = assignedSubjects.map(s => parseInt(s.id));
-                        
-                        // Get ALL subjects from the system (not teacher-specific)
-                        $.ajax({
-                            url: '{{ route("subject.index") }}',
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            success: function(subjectsResponse) {
-                                let allSubjects = [];
-                                if (subjectsResponse.data) {
-                                    allSubjects = subjectsResponse.data;
-                                } else if (Array.isArray(subjectsResponse)) {
-                                    allSubjects = subjectsResponse;
-                                } else if (subjectsResponse.subjects) {
-                                    allSubjects = subjectsResponse.subjects;
-                                }
-                                
-                                // Filter out already assigned subjects
-                                const availableSubjects = allSubjects.filter(subject => 
-                                    !assignedIds.includes(parseInt(subject.id))
-                                );
-                                
-                                const container = $('#teacher-available-subjects-list');
-                                $('#available-count').text(availableSubjects.length);
-                                
-                                if (availableSubjects.length === 0) {
-                                    container.html('<div class="text-center text-muted py-3"><i class="bx bx-check-circle display-4"></i><p class="mt-2">All subjects assigned</p></div>');
-                                    return;
-                                }
-                                
-                                const html = availableSubjects.map(function(subject) {
-                                    const subjectTitle = subject.title || subject.name || `Subject ${subject.id}`;
-                                    return `
-                                        <div class="d-flex align-items-center justify-content-between p-2 border rounded mb-2 subject-item">
-                                            <div>
-                                                <div class="fw-medium">${escapeHtml(subjectTitle)}</div>
-                                                <small class="text-muted">Subject ID: ${subject.id}</small>
-                                            </div>
-                                            <button type="button" class="btn btn-sm btn-outline-success add-teacher-subject" 
-                                                    data-subject-id="${subject.id}" title="Add subject">
-                                                <i class="bx bx-plus"></i>
-                                            </button>
-                                        </div>
-                                    `;
-                                }).join('');
-                                
-                                container.html(html);
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('Failed to load subjects:', error);
-                                console.log('Response:', xhr.responseText);
-                                $('#teacher-available-subjects-list').html('<div class="text-center text-danger py-3"><i class="bx bx-error-circle display-4"></i><p class="mt-2">Failed to load subjects</p></div>');
-                            }
-                        });
-                    },
-                    error: function() {
-                        $('#teacher-available-subjects-list').html('<div class="text-center text-danger py-3"><i class="bx bx-error-circle display-4"></i><p class="mt-2">Failed to load assigned subjects</p></div>');
-                    }
-                });
+            
+            function renderCurrentSubjects(currentSubjects) {
+                const container = $('#teacher-current-subjects-list');
+                
+                if (currentSubjects.length === 0) {
+                    container.html('<div class="text-center text-muted py-3"><i class="bx bx-book-open display-4"></i><p class="mt-2">No subjects assigned</p></div>');
+                    return;
+                }
+                
+                const html = currentSubjects.map(function(subject, index) {
+                    return `
+                        <div class="d-flex align-items-center justify-content-between p-2 border rounded mb-2 subject-item" data-subject-id="${subject.id}">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-primary me-2">${index + 1}</span>
+                                <div>
+                                    <div class="fw-medium">${escapeHtml(subject.title)}</div>
+                                    <small class="text-muted">Subject ID: ${subject.id}</small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-teacher-subject" 
+                                    data-subject-id="${subject.id}" title="Remove subject">
+                                <i class="bx bx-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.html(html);
+            }
+            
+            function renderAvailableSubjects(availableSubjects) {
+                const container = $('#teacher-available-subjects-list');
+                
+                if (availableSubjects.length === 0) {
+                    container.html('<div class="text-center text-muted py-3"><i class="bx bx-check-circle display-4"></i><p class="mt-2">All subjects assigned</p></div>');
+                    return;
+                }
+                
+                const html = availableSubjects.map(function(subject) {
+                    const subjectTitle = subject.title || subject.name || `Subject ${subject.id}`;
+                    return `
+                        <div class="d-flex align-items-center justify-content-between p-2 border rounded mb-2 subject-item">
+                            <div>
+                                <div class="fw-medium">${escapeHtml(subjectTitle)}</div>
+                                <small class="text-muted">Subject ID: ${subject.id}</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-success add-teacher-subject" 
+                                    data-subject-id="${subject.id}" title="Add subject">
+                                <i class="bx bx-plus"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.html(html);
             }
 
             // Handle subject addition
@@ -869,7 +867,7 @@
                 $button.prop('disabled', true).html('<i class="bx bx-loader bx-spin"></i>');
                 
                 $.ajax({
-                    url: '{{ route("teacher.student.assignSubject") }}',
+                    url: '<?php echo e(route("teacher.student.assignSubject")); ?>',
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
@@ -886,8 +884,7 @@
                                 id: studentId,
                                 name: $('#teacher-subject-modal-student-name').text()
                             };
-                            loadTeacherCurrentSubjects(student);
-                            loadTeacherAvailableSubjects(student);
+                            loadTeacherSubjects(student);
                         } else {
                             showTeacherModalAlert('danger', response.message || 'Failed to assign subject');
                             $button.prop('disabled', false).html('<i class="bx bx-plus"></i>');
@@ -914,7 +911,7 @@
                 $button.prop('disabled', true).html('<i class="bx bx-loader bx-spin"></i>');
                 
                 $.ajax({
-                    url: `{{ url('teacher/student') }}/${studentId}/subject/${subjectId}`,
+                    url: `<?php echo e(url('teacher/student')); ?>/${studentId}/subject/${subjectId}`,
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
@@ -927,8 +924,7 @@
                                 id: studentId,
                                 name: $('#teacher-subject-modal-student-name').text()
                             };
-                            loadTeacherCurrentSubjects(student);
-                            loadTeacherAvailableSubjects(student);
+                            loadTeacherSubjects(student);
                         } else {
                             showTeacherModalAlert('danger', response.message || 'Failed to remove subject');
                             $button.prop('disabled', false).html('<i class="bx bx-trash"></i>');
@@ -982,8 +978,13 @@
             }
         });
     </script>
-    @endsection
+    <?php $__env->stopSection(); ?>
 
-    {{-- Include Teacher Subject Management Modal --}}
-    @include('admin.teacher.modals.subject-management')
-</x-app-layout>
+    
+    <?php echo $__env->make('admin.teacher.modals.subject-management', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da)): ?>
+<?php $component = $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da; ?>
+<?php unset($__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da); ?>
+<?php endif; ?><?php /**PATH C:\laragon\www\primary\resources\views/admin/teacher/students.blade.php ENDPATH**/ ?>

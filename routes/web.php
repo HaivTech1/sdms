@@ -11,11 +11,6 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckController;
 use App\Http\Controllers\EventController;
-
-// Event notification batch admin routes
-Route::get('/admin/events/batch/{batchId}', [EventController::class, 'batchView'])->name('admin.events.batch.view');
-Route::get('/admin/events/batch-info/{batchId}', [EventController::class, 'getBatchInfo'])->name('admin.events.batch.info');
-Route::post('/admin/events/{id}/notify-parents', [EventController::class, 'sendNotificationToParents'])->name('admin.events.notify.parents');
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\HouseController;
 use App\Http\Controllers\StaffController;
@@ -371,6 +366,13 @@ Route::get("/action-merge-users", function () {
     ]);
 });
 
+// Event notification batch admin routes
+Route::get('/admin/events/batch/{batchId}', [EventController::class, 'batchView'])->name('admin.events.batch.view');
+Route::get('/admin/events/batch-info/{batchId}', [EventController::class,
+'getBatchInfo'])->name('admin.events.batch.info');
+Route::post('/admin/events/{id}/notify-parents', [EventController::class,
+'sendNotificationToParents'])->name('admin.events.notify.parents');
+
 Route::post('/pre-student/registration', [RegistrationController::class, 'store']);
 Route::post('/update/password', [UserController::class, 'updatePassword'])->name('update.password');
 Route::post('/request/password', [UserController::class, 'requestPassword'])->name('request.password');
@@ -485,8 +487,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
             Route::get('/', [TeacherController::class, 'index'])->name('index');
             Route::get('/students', [TeacherController::class, 'students'])->name('students')->middleware('classTeacher');
+            Route::get('/grades', [TeacherController::class, 'grades'])->name('grades');
             Route::post('assignClass', [TeacherController::class, 'assignClass'])->name('assignClass');
             Route::post('assignSubject', [TeacherController::class, 'assignSubject'])->name('assignSubject');
+            
+            // Student subject management routes for teachers
+            Route::post('/student/assignSubject', [TeacherController::class, 'assignStudentSubject'])->name('student.assignSubject');
+            Route::delete('/student/{studentId}/subject/{subjectId}', [TeacherController::class, 'removeStudentSubject'])->name('student.removeSubject');
+            Route::get('/student/subjects/{studentId}', [TeacherController::class, 'getStudentSubjects'])->name('student.subjects');
+            Route::get('/subjects/all', [TeacherController::class, 'getAllSubjects'])->name('subjects.all');
+            
             Route::get('/student/edit/{id}', [TeacherController::class, 'edit']);
             Route::post('/student/update', [TeacherController::class, 'update'])->name('student.update');
             Route::get('/subject/{id}', [TeacherController::class, 'showSubject']);

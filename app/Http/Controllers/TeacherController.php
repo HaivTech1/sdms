@@ -13,6 +13,7 @@ use App\Models\Subject;
 use App\Models\Term;
 use App\Models\Week;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Services\QuestionGeneratorService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -59,9 +60,171 @@ class TeacherController extends Controller
        
     }
 
-    public function students()
+    public function students(Request $request)
     {
+        if ($request->ajax()) {
+            $query = User::whereHas('student')->with(['student.grade', 'student.subjects']);
+            
+            // Filter by search term
+            if ($request->filled('search')) {
+                $search = $request->get('search');
+                $query->whereHas('student', function($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                      ->orWhere('last_name', 'like', "%{$search}%")
+                      ->orWhere('reg_no', 'like', "%{$search}%");
+                });
+            }
+            
+            // Filter by gender
+            if ($request->filled('gender')) {
+                $query->where('gender', $request->get('gender'));
+            }
+            
+            // Filter by grade
+            if ($request->filled('grade')) {
+                $query->whereHas('student', function($q) use ($request) {
+                    $q->where('grade_id', $request->get('grade'));
+                });
+            }
+            
+            // Order by
+            $orderBy = $request->get('orderBy', 'name');
+            $sortBy = $request->get('sortBy', 'asc');
+            
+            // Handle ordering for columns that might be in the students table
+            if (in_array($orderBy, ['first_name', 'last_name'])) {
+                // For student table columns, we need to join or use a subquery
+                $query->join('students', 'users.id', '=', 'students.user_id')
+                      ->select('users.*')
+                      ->orderBy('students.' . $orderBy, $sortBy);
+            } else {
+                // For user table columns, order directly
+                $query->orderBy($orderBy, $sortBy);
+            }
+            
+            $students = $query->paginate(50);
+            
+            // Transform students for JSON response
+            $studentsData = $students->map(function($student) {
+                return [
+                    'id' => $student->student->id(),
+                    'name' => $student->name,
+                    'first_name' => $student->student ? $student->student->first_name : '',
+                    'last_name' => $student->student ? $student->student->last_name : '',
+                    'email' => $student->email,
+                    'reg_number' => $student->reg_no,
+                    'gender' => $student->student?->gender,
+                    'grade' => $student->student && $student->student->grade ? [
+                        'id' => $student->student->grade->id,
+                        'title' => $student->student->grade->title
+                    ] : null,
+                    'subjects_count' => $student->student && $student->student->subjects ? $student->student->subjects->count() : 0
+                ];
+            });
+            
+            return response()->json([
+                'students' => $studentsData,
+                'pagination' => [
+                    'current_page' => $students->currentPage(),
+                    'last_page' => $students->lastPage(),
+                    'per_page' => $students->perPage(),
+                    'total' => $students->total()
+                ]
+            ]);
+        }
+        
         return view('admin.teacher.students');
+    }
+
+    public function grades()
+    {
+        $user = auth()->user();
+        
+        // Get grades that the teacher is assigned to
+        $grades = collect();
+        
+        if ($user->isAdmin() || $user->isSuperAdmin()) {
+            // Admin can see all grades
+            $grades = Grade::all();
+        } else {
+            // Teachers can see only their assigned grades
+            $grades = $user->gradeClassTeacher;
+        }
+        
+        $gradesData = $grades->map(function($grade) {
+            return [
+                'id' => $grade->id,
+                'title' => $grade->title,
+                'slug' => $grade->slug
+            ];
+        });
+        
+        return response()->json([
+            'grades' => $gradesData
+        ]);
+    }
+
+    public function assignStudentSubject(Request $request)
+    {
+        try {
+            DB::transaction(function () use ($request) {
+                $student = Student::findOrFail($request->student_id);
+                $student->subjects()->syncWithoutDetaching($request->subjects);
+            });
+            return response()->json(['status' => true, 'message' => 'Subjects assigned successfully!'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function removeStudentSubject($studentId, $subjectId)
+    {
+        try {
+            DB::transaction(function () use ($studentId, $subjectId) {
+                $student = Student::findOrFail($studentId);
+                $subject = Subject::findOrFail($subjectId);
+                $student->subjects()->detach($subject);
+            });
+            return response()->json([
+                'status' => true,
+                'message' => 'Subject removed successfully!'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getStudentSubjects($studentId)
+    {
+        try {
+            $student = Student::withoutGlobalScopes()->where('uuid', $studentId)->first();
+            $subjects = $student->subjects;
+            return response()->json(['status' => true, 'data' => $subjects], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function getAllSubjects()
+    {
+        try {
+            $subjects = Subject::withoutGlobalScopes()->orderBy('title')->get();
+            
+            $data = $subjects->map(function($subject) {
+                return [
+                    'id' => $subject->id(),
+                    'title' => $subject->title(),
+                    'name' => $subject->title(),
+                ];
+            });
+
+            return response()->json(['status' => true, 'data' => $data], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);
+        }
     }
 
     public function edit($id)
