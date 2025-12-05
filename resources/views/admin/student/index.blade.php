@@ -121,10 +121,14 @@
                                             <label class="form-label text-muted fw-semibold">Actions</label>
                                             <div class="d-flex gap-2">
                                                 <button class="btn btn-outline-primary btn-sm flex-fill" id="filters-reset" type="button">
-                                                    <i class="bx bx-refresh"></i>
+                                                    <i class="bx bx-search"></i>
                                                 </button>
                                                 <button class="btn btn-outline-success btn-sm flex-fill" id="filters-apply" type="button">
                                                     <i class="bx bx-filter"></i>
+                                                </button>
+                                                <button class="btn btn-outline-warning btn-sm flex-fill d-none"
+                                                    id="sync-class-subjects" type="button">
+                                                    Sync Subjects
                                                 </button>
                                             </div>
                                         </div>

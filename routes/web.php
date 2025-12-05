@@ -606,6 +606,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/generate-qrcode/{id}', [StudentController::class, 'generateQr']);
             Route::post('/send-credentials/{student}', [StudentController::class, 'sendCredentials'])->name('sendCredentials');
             Route::patch('/toggle-status/{student}', [StudentController::class, 'toggleStatus'])->name('toggleStatus');
+            Route::patch('/sync-subjects/{student}', [StudentController::class, 'syncClassSubjects'])->name('syncClassSubjects');
+            Route::post('/sync-subjects-multiple', [StudentController::class,
+            'syncClassSubjectsMultiple'])->name('syncClassSubjectsMultiple');
+
         });
 
         Route::group(['prefix' => 'assignment', 'as' => 'assignment.'], function () {

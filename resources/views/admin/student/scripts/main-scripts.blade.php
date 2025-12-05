@@ -9,6 +9,7 @@ $(function () {
     const $pagination = $('#students-pagination');
     const $selectAll = $('#select-all-students');
     const studentsCache = new Map();
+    const $syncSubjectsBtn = $('#sync-class-subjects');
 
     const routes = {
         profile: $table.data('profile-url-template'),
@@ -29,6 +30,51 @@ $(function () {
     };
 
     let searchTimer = null;
+
+    function getSelectedStudentIds() {
+        return $tableBody.find('.student-checkbox:checked').map(function() {
+            return $(this).val();
+        }).get();
+    }
+
+    function updateBulkActionsVisibility() {
+        const selectedCount = $tableBody.find('.student-checkbox:checked').length;
+        if (selectedCount > 0) {
+            $syncSubjectsBtn.removeClass('d-none');
+        } else {
+            $syncSubjectsBtn.addClass('d-none');
+        }
+    }
+
+    function bulkSyncSubjects(studentIds) {
+        $syncSubjectsBtn.prop('disabled', true).html('<i class="bx bx-loader bx-spin me-2"></i>Processing...');
+        
+        $.ajax({
+            url: '/student/sync-subjects-multiple',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                student_ids: studentIds
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: response.message || 'Class subjects synced successfully for selected students',
+                    icon: 'success',
+                    confirmButtonColor: '#28a745'
+                }).then(() => {
+                    location.reload();
+                });
+            },
+            error: function(xhr) {
+                const errorMessage = xhr.responseJSON?.message || 'Failed to sync subjects';
+                Swal.fire('Error', errorMessage, 'error');
+                $syncSubjectsBtn.prop('disabled', false).html('Sync Subjects');
+            }
+        });
+    }
 
     bindEvents();
     fetchStudents();
@@ -110,6 +156,7 @@ $(function () {
         $selectAll.on('change', function () {
             const isChecked = $(this).is(':checked');
             $tableBody.find('.student-checkbox').prop('checked', isChecked);
+            updateBulkActionsVisibility();
         });
 
         $tableBody.on('change', '.student-checkbox', function () {
@@ -117,6 +164,30 @@ $(function () {
             const selected = $tableBody.find('.student-checkbox:checked').length;
             $selectAll.prop('checked', total && total === selected);
             $selectAll.prop('indeterminate', selected > 0 && selected < total);
+            updateBulkActionsVisibility();
+        });
+
+        // Bulk sync subjects button
+        $syncSubjectsBtn.on('click', function () {
+            const selectedIds = getSelectedStudentIds();
+            if (selectedIds.length === 0) {
+                Swal.fire('No Selection', 'Please select at least one student', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: `Sync Subjects for ${selectedIds.length} Student(s)?`,
+                text: `Are you sure you want to sync class subjects for ${selectedIds.length} selected student(s)?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Sync Subjects!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    bulkSyncSubjects(selectedIds);
+                }
+            });
         });
 
         $tableBody.on('click', '.upload-passport', function () {
@@ -312,6 +383,44 @@ $(function () {
                 }
             });
         });
+
+        $tableBody.on('click', '.sync-subjects', function(){
+            const studentId = $(this).data('student-id');
+            const $button = $(this);
+
+            Swal.fire({
+                title: "Sync Class Subjects",
+                text: "Are you sure you want to sync the student's class subjects?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: "Yes"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $button.prop('disabled', true).html('<i class="bx bx-loader bx-spin me-2"></i>Processing...');
+                    
+                    $.ajax({
+                        url: `/student/sync-subjects/${studentId}`,
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        },
+                    }).done(function (response) {
+                        if (response.status) {
+                            Swal.fire('Synced!', response.message || 'Student subjects updated successfully.', 'success');
+                            fetchStudents(); // Refresh the table to show updated status
+                        } else {
+                            Swal.fire('Error!', response.message || 'Unable to update student subjects.', 'error');
+                        }
+                    }).fail(function () {
+                        Swal.fire('Error!', 'Failed to update student subjects.', 'error');
+                    }).always(function () {
+                        $button.prop('disabled', false).html('Sync Subjects');
+                    });
+                }
+            });
+        })
     }
 
     function fetchStudents() {
@@ -476,6 +585,11 @@ $(function () {
                                     <i class="bx ${student.status ? 'bx-user-x text-danger' : 'bx-user-check text-success'} me-2"></i> 
                                     ${student.status ? 'Deactivate Student' : 'Activate Student'}
                                 </button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item sync-subjects" data-student-id="${student.id}"
+                                     data-current-status="${student.status}">
+                                     Sync subjects
+                                 </button>
                                 <div class="dropdown-divider"></div>
                                 ${qrAction}
                             </div>

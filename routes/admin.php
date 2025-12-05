@@ -75,6 +75,5 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
             Route::post('/', [WeekController::class, 'store'])->name('store');
             Route::put('/{id}', [WeekController::class, 'update'])->name('update');
         });
-
     });
 });

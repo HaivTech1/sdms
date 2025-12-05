@@ -491,7 +491,7 @@ class StudentController extends Controller
     public function fetchList(Request $request)
     {
         $query = Student::withoutGlobalScope(new HasActiveScope)
-            ->with(['user.roles', 'grade', 'subjects'])
+            
             ->when($request->filled('search'), function ($builder) use ($request) {
                 $builder->where(function ($nested) use ($request) {
                     $term = trim($request->input('search'));
@@ -710,6 +710,78 @@ class StudentController extends Controller
                 'new_status' => (bool) $student->status
             ], 200);
         } catch (\Throwable $th) {
+            return response()->json([
+                'status'  => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function syncClassSubjects($studentUuid)
+    {
+        try {
+            $student = Student::withoutGlobalScope(new HasActiveScope)->where('uuid', $studentUuid)
+             ->with(['grade', 'subjects'])
+            ->first();
+            
+            if (!$student) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Student not found'
+                ], 404);
+            }
+
+            $classSubjectIds = $student->grade->subjects()->pluck("subjects.id")->toArray();
+            if(count($classSubjectIds) > 0){
+                $student->subjects()->sync($classSubjectIds);
+            }
+            
+            return response()->json([
+                'status' => true,
+                'message' => "Student subjects updated successfully!",
+            ], 200);
+        } catch (\Throwable $th) {
+            info($th);
+            return response()->json([
+                'status'  => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function syncClassSubjectsMultiple(Request $request)
+    {
+        try {
+            $student_ids = $request->student_ids;
+
+            if(count($student_ids) < 1){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Please select students first'
+                ], 400);
+            }
+
+            foreach($student_ids as $studentUuid){
+                $student = Student::withoutGlobalScope(new HasActiveScope)->where('uuid', $studentUuid)
+                ->with(['grade', 'subjects'])
+                ->first();
+                
+                if (!$student) {
+                    continue;
+                }
+                
+                $classSubjectIds = $student->grade->subjects()->pluck("subjects.id")->toArray();
+                if(count($classSubjectIds) > 0){
+                    $student->subjects()->sync($classSubjectIds);
+                }
+            }
+            
+            return response()->json([
+                'status' => true,
+                'message' => "Students subjects updated successfully!",
+            ], 200);
+        } catch (\Throwable $th) {
+            info($th);
             return response()->json([
                 'status'  => false,
                 'message' => $th->getMessage(),

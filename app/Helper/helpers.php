@@ -625,30 +625,26 @@ function publishMidState($student, $period, $term)
 {
     $results = MidTerm::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
 
-    if (
-        $results->every(function ($item) {
-            return $item->published;
-        })
-    ) {
-        return true;
-    } else {
+    if ($results->isEmpty()) {
         return false;
     }
+
+    return $results->every(function ($item) {
+        return (bool) $item->published;
+    });
 }
 
 function publishExamState($student, $period, $term)
 {
     $results = PrimaryResult::where('student_id', $student)->where('period_id', $period)->where('term_id', $term)->get();
 
-    if (
-        $results->every(function ($item) {
-            return $item->published;
-        })
-    ) {
-        return true;
-    } else {
+    if ($results->isEmpty()) {
         return false;
     }
+
+    return $results->every(function ($item) {
+        return (bool) $item->published;
+    });
 }
 
 function positionState($student, $period, $term)

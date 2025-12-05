@@ -207,11 +207,12 @@ class ResultController extends Controller
             'grades' => Grade::all(),
             'periods' => Period::all(),
             'terms' => Term::all(),
-            'subjects' => Subject::when(!$user->isAdmin() && !$user->isSuperAdmin(), function ($query) use ($user) {
-                $query->whereHas('teachers', function ($query) use ($user) {
-                    $query->where('user_id', $user->id);
-                });
-            })->orderBy('title')->get(),
+            // 'subjects' => Subject::when(!$user->isAdmin() && !$user->isSuperAdmin(), function ($query) use ($user) {
+            //     $query->whereHas('teachers', function ($query) use ($user) {
+            //         $query->where('user_id', $user->id);
+            //     });
+            // })->orderBy('title')->get(),
+            'subjects' => Subject::withoutGlobalScopes()->orderBy('title')->where('status', true)->get(),
         ]);
     }
 
@@ -230,9 +231,9 @@ class ResultController extends Controller
             
             $students = Student::where('grade_id', $grade->id())
                 ->where('status', true)
-                ->whereHas('subjects', function ($query) use ($validated) {
-                    $query->where('id', $validated['subject_id']);
-                })
+                // ->whereHas('subjects', function ($query) use ($validated) {
+                //     $query->where('id', $validated['subject_id']);
+                // })
                 ->orderBy('last_name')
                 ->orderBy('first_name')
                 ->get();
@@ -2825,11 +2826,27 @@ class ResultController extends Controller
             $students = [];
 
             foreach ($data as $value) {
+                $studentUuid = $value->id(); 
+                
+                $midtermResults = MidTerm::where('student_id', $studentUuid)
+                    ->where('grade_id', $grade_id)
+                    ->where('term_id', $term_id)
+                    ->where('period_id', $period_id)
+                    ->get();
+                
+                // Calculate publish state directly here
+                $publishState = false;
+                if ($midtermResults->isNotEmpty()) {
+                    $publishState = $midtermResults->every(function ($result) {
+                        return $result->published == 1 || $result->published === true;
+                    });
+                }
+                
                 $students[] = [
-                    'id' => $value->id(),
+                    'id' => $studentUuid,
                     'name' => $value->last_name . ' ' . $value->first_name . ' ' . $value->other_name,
-                    'recorded_subjects' => MidTerm::where('student_id', $value->uuid)->where('grade_id', $grade_id)->where('term_id', $term_id)->where('period_id', $period_id)->count(),
-                    'publish_state' => publishMidState($value->id(), $period_id, $term_id),
+                    'recorded_subjects' => $midtermResults->count(),
+                    'publish_state' => $publishState,
                 ];
             }
 
